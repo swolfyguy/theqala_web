@@ -1,0 +1,1234 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Qala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Tiro+Devanagari+Marathi:ital@0;1&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+
+:root{
+  --ground:#F4EBDA;
+  --panel:#FCF7EC;
+  --panel-2:#EBDEC6;
+  --ink:#231610;
+  --ink-2:#6D543F;
+  --line:#DCC9AA;
+  --line-2:#C9B18C;
+  --accent:#7A1220;
+  --accent-2:#9B2B37;
+  --on-accent:#FBF3E2;
+  --gold:#96701F;
+  --gold-2:#C6A048;
+  --velvet:#5C101C;
+  --on-velvet:#F3E1BE;
+  --shadow:rgba(74,42,14,.14);
+  --shadow-2:rgba(74,42,14,.20);
+  --metal-a:#F2DEA8;
+  --metal-b:#C79A36;
+  --metal-c:#8A6417;
+  --pearl-a:#FFFDF6;
+  --pearl-b:#E4D9C2;
+  --stone:#FFFFFF;
+  --bead-a:#6E6E7C;
+  --bead-b:#0F0E16;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#131013;
+    --panel:#1C171A;
+    --panel-2:#272025;
+    --ink:#F1E6D5;
+    --ink-2:#AE9986;
+    --line:#3A2F34;
+    --line-2:#544349;
+    --accent:#DFB96C;
+    --accent-2:#EFD79B;
+    --on-accent:#1A1215;
+    --gold:#DFB96C;
+    --gold-2:#EFD79B;
+    --velvet:#37101A;
+    --on-velvet:#F3E1BE;
+    --shadow:rgba(0,0,0,.5);
+    --shadow-2:rgba(0,0,0,.66);
+    --metal-a:#F6E6B8;
+    --metal-b:#CDA243;
+    --metal-c:#8A6417;
+    --pearl-a:#FBF6EA;
+    --pearl-b:#C9BCA3;
+    --stone:#FFFFFF;
+    --bead-a:#9A9AAD;
+    --bead-b:#2E2E3E;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#131013;
+  --panel:#1C171A;
+  --panel-2:#272025;
+  --ink:#F1E6D5;
+  --ink-2:#AE9986;
+  --line:#3A2F34;
+  --line-2:#544349;
+  --accent:#DFB96C;
+  --accent-2:#EFD79B;
+  --on-accent:#1A1215;
+  --gold:#DFB96C;
+  --gold-2:#EFD79B;
+  --velvet:#37101A;
+  --on-velvet:#F3E1BE;
+  --shadow:rgba(0,0,0,.5);
+  --shadow-2:rgba(0,0,0,.66);
+  --metal-a:#F6E6B8;
+  --metal-b:#CDA243;
+  --metal-c:#8A6417;
+  --pearl-a:#FBF6EA;
+  --pearl-b:#C9BCA3;
+  --stone:#FFFFFF;
+  --bead-a:#9A9AAD;
+  --bead-b:#2E2E3E;
+}
+
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{max-width:100%;display:block}
+svg{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
+.mr{font-family:"Tiro Devanagari Marathi",Marcellus,serif;font-weight:400}
+
+.wrap{width:min(1180px,92vw);margin-inline:auto}
+.eyebrow{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.muted{color:var(--ink-2)}
+.rupee{font-variant-numeric:tabular-nums}
+
+/* ---------- ornament rules ---------- */
+.saaj{height:16px;background-image:radial-gradient(circle at 10px 8px,var(--gold-2) 0 3px,transparent 3.4px),linear-gradient(var(--line-2),var(--line-2));background-size:20px 16px,100% 1px;background-repeat:repeat-x,no-repeat;background-position:center,center}
+.rule{height:1px;background:var(--line);border:0;margin:0}
+
+/* ---------- header ---------- */
+.topbar{background:var(--velvet);color:var(--on-velvet);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;text-align:center;padding:8px 12px}
+header.site{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.navrow{display:flex;align-items:center;gap:18px;padding:12px 0}
+.brand{display:flex;align-items:center;gap:11px;margin-right:auto}
+.brand .mark{width:42px;height:42px;flex:none}
+.brand .wordmark{display:flex;flex-direction:column;line-height:1}
+.brand .devnag{font-family:"Tiro Devanagari Marathi",serif;font-size:1.6rem;color:var(--accent);letter-spacing:.02em}
+.brand .latin{font-family:Marcellus,serif;font-size:.62rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+nav.main{display:flex;gap:22px;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
+nav.main a{padding:6px 0;border-bottom:1px solid transparent;transition:border-color .18s,color .18s}
+nav.main a:hover,nav.main a.on{border-color:var(--gold-2);color:var(--accent)}
+.cartbtn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line-2);border-radius:2px;padding:8px 13px;cursor:pointer;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
+.cartbtn:hover{border-color:var(--gold-2)}
+.cartbtn .count{background:var(--accent);color:var(--on-accent);border-radius:999px;min-width:19px;height:19px;display:grid;place-items:center;font-size:.68rem;font-weight:700;padding:0 5px}
+.menutoggle{display:none;background:none;border:1px solid var(--line-2);border-radius:2px;padding:8px 10px;cursor:pointer}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:13px 24px;border-radius:2px;cursor:pointer;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px -10px var(--shadow-2)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.ghost:hover{border-color:var(--gold-2);color:var(--accent)}
+.btn.wa{background:#128C7E;border-color:#128C7E;color:#fff}
+.btn.wa:hover{background:#0f7a6e}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ---------- arch / product art ---------- */
+.arch{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:190px 190px 3px 3px;overflow:hidden;aspect-ratio:4/5}
+.arch::after{content:"";position:absolute;inset:9px;border:1px solid var(--gold-2);opacity:.4;border-radius:180px 180px 2px 2px;pointer-events:none;z-index:2}
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:var(--panel-2)}
+.arch svg{width:100%;height:100%}
+.arch .tag{position:absolute;bottom:14px;left:0;background:var(--accent);color:var(--on-accent);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px 4px 12px;font-weight:700;z-index:2}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero .inner{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:46px;align-items:center;padding:64px 0 70px}
+.hero h1{font-size:clamp(2.5rem,5.6vw,4.3rem);letter-spacing:.005em}
+.hero h1 em{font-style:normal;color:var(--accent);font-family:"Tiro Devanagari Marathi",serif}
+.hero p.lede{font-size:1.06rem;max-width:46ch;color:var(--ink-2);margin:20px 0 30px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero .stage{position:relative;display:grid;place-items:center;min-height:400px}
+.hero .stage .halo{position:absolute;width:86%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold-2) 30%,transparent) 0%,transparent 68%)}
+.hero .stage svg{position:relative;width:min(430px,100%)}
+.trustrow{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
+.trustrow div{flex:1 1 200px;padding:16px 20px;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);border-right:1px solid var(--line);text-align:center}
+.trustrow div:last-child{border-right:0}
+.trustrow b{color:var(--ink);font-weight:600}
+
+/* ---------- sections ---------- */
+section.band{padding:66px 0}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px;flex-wrap:wrap}
+.sechead h2{font-size:clamp(1.6rem,3vw,2.3rem)}
+.sechead .mr{display:block;font-size:.95rem;color:var(--accent);margin-bottom:5px}
+.seclink{font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid var(--gold-2);padding-bottom:3px;white-space:nowrap}
+
+.catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:16px}
+.cat{background:var(--panel);border:1px solid var(--line);padding:20px 16px 18px;text-align:center;cursor:pointer;transition:border-color .18s,transform .18s;border-radius:2px}
+.cat:hover{border-color:var(--gold-2);transform:translateY(-2px)}
+.cat svg{width:74px;height:74px;margin:0 auto 10px}
+.cat .mr{font-size:1.12rem;color:var(--accent);display:block}
+.cat span.en{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:30px 24px}
+.card{display:flex;flex-direction:column;gap:11px;cursor:pointer}
+.card .arch{transition:transform .22s,box-shadow .22s}
+.card:hover .arch{transform:translateY(-3px);box-shadow:0 16px 30px -20px var(--shadow-2)}
+.card .mr{font-size:1.16rem;color:var(--accent);line-height:1.3}
+.card h3{font-size:.98rem;letter-spacing:.01em}
+.card .meta{font-size:.74rem;color:var(--ink-2);letter-spacing:.05em}
+.price{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums}
+.price .now{font-weight:700;font-size:1rem}
+.price .was{text-decoration:line-through;color:var(--ink-2);font-size:.83rem}
+.price .off{font-size:.68rem;color:var(--accent);letter-spacing:.1em;font-weight:700}
+
+/* ---------- story strip ---------- */
+.story{background:var(--velvet);color:var(--on-velvet)}
+.story .inner{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:44px;align-items:center;padding:60px 0}
+.story h2{color:var(--on-velvet);font-size:clamp(1.7rem,3vw,2.4rem)}
+.story .eyebrow{color:var(--gold-2)}
+.story p{color:color-mix(in srgb,var(--on-velvet) 82%,transparent);max-width:56ch}
+.story .quote{font-family:Marcellus,serif;font-size:1.5rem;line-height:1.4;border-left:2px solid var(--gold-2);padding-left:20px}
+.story svg{width:min(300px,80%);margin-inline:auto}
+
+/* ---------- shop layout ---------- */
+.shoplayout{display:grid;grid-template-columns:222px minmax(0,1fr);gap:38px;align-items:start;padding:40px 0 70px}
+.shoplayout>*{min-width:0}
+.filters{position:sticky;top:96px;display:flex;flex-direction:column;gap:24px}
+.fgroup h4{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;font-family:Karla,sans-serif;font-weight:700}
+.fgroup label{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:.9rem;cursor:pointer}
+.fgroup input{accent-color:var(--accent);width:15px;height:15px}
+.shopbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px;min-width:0}
+select.sort{background:var(--panel);border:1px solid var(--line-2);border-radius:2px;padding:9px 12px;font-size:.82rem}
+.chiprow{display:none;gap:8px;overflow-x:auto;padding-bottom:6px;flex:1 1 auto;min-width:0;-webkit-overflow-scrolling:touch}
+.chip{white-space:nowrap;border:1px solid var(--line-2);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:.78rem;cursor:pointer}
+.chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* ---------- product page ---------- */
+.pdp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:52px;padding:34px 0 70px;align-items:start}
+.pdp .gallery{display:flex;flex-direction:column;gap:12px}
+.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.thumb{position:relative;overflow:hidden;background:var(--panel-2);border:1px solid var(--line);border-radius:2px;aspect-ratio:1;padding:6px;cursor:pointer}
+.thumb.on{border-color:var(--gold-2)}
+.pdp h1{font-size:clamp(1.8rem,3.4vw,2.5rem);margin:6px 0 4px}
+.pdp .mrname{font-family:"Tiro Devanagari Marathi",serif;font-size:1.5rem;color:var(--accent)}
+.pdp .pdprice{display:flex;align-items:baseline;gap:12px;margin:16px 0 4px;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.pdp .pdprice .was{font-size:1rem}
+.spec{border-top:1px solid var(--line);margin-top:22px}
+.spec div{display:flex;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.spec dt{flex:0 0 128px;color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase;font-size:.72rem;padding-top:3px}
+.qtyrow{display:flex;align-items:center;gap:14px;margin:24px 0 14px}
+.qty{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:2px}
+.qty button{background:none;border:0;padding:10px 15px;cursor:pointer;font-size:1.05rem}
+.qty span{min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
+.buyrow{display:flex;gap:12px;flex-wrap:wrap}
+.buyrow .btn{flex:1 1 190px}
+
+/* ---------- cart & checkout ---------- */
+.pagehead{padding:36px 0 8px}
+.pagehead h1{font-size:clamp(1.9rem,3.6vw,2.7rem)}
+.cartlayout{display:grid;grid-template-columns:minmax(0,1fr) 344px;gap:38px;align-items:start;padding:20px 0 80px}
+.cartlayout>*{min-width:0}
+.lineitem{display:grid;grid-template-columns:92px 1fr auto;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);align-items:center}
+.lineitem .art{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:60px 60px 2px 2px;overflow:hidden;aspect-ratio:4/5}
+.lineitem .mr{font-size:1.05rem;color:var(--accent)}
+.lineitem h3{font-size:.94rem}
+.lineitem .right{text-align:right;font-variant-numeric:tabular-nums}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink-2);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.linkbtn:hover{color:var(--accent)}
+.summary{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:24px;position:sticky;top:96px}
+.summary h3{font-size:1.25rem;margin-bottom:14px}
+.srow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:.92rem;font-variant-numeric:tabular-nums}
+.srow.total{border-top:1px solid var(--line);margin-top:10px;padding-top:14px;font-size:1.16rem;font-weight:700}
+.empty{text-align:center;padding:70px 20px}
+.empty svg{width:170px;margin:0 auto 22px;opacity:.65}
+
+form.checkout{display:grid;gap:16px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.field input,.field textarea{background:var(--panel);border:1px solid var(--line-2);border-radius:2px;padding:12px 13px;width:100%}
+.field input:focus,.field textarea:focus{border-color:var(--gold-2);outline:none}
+.field .err{color:var(--accent-2);font-size:.74rem;min-height:1em}
+.field.bad input,.field.bad textarea{border-color:var(--accent-2)}
+.payopts{display:grid;gap:11px}
+.payopt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:2px;padding:14px;cursor:pointer;background:var(--panel)}
+.payopt.on{border-color:var(--gold-2);box-shadow:inset 0 0 0 1px var(--gold-2)}
+.payopt input{margin-top:4px;accent-color:var(--accent)}
+.payopt b{display:block;font-size:.95rem}
+.payopt span{font-size:.82rem;color:var(--ink-2)}
+
+.confirm{max-width:620px;margin-inline:auto;text-align:center;padding:60px 0 90px}
+.confirm .oid{font-family:Marcellus,serif;font-size:1.6rem;letter-spacing:.16em;color:var(--accent);margin:6px 0 18px}
+.confirm .box{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:24px;text-align:left;margin:26px 0}
+
+/* ---------- footer ---------- */
+footer.site{background:var(--panel);border-top:1px solid var(--line);padding:52px 0 26px;margin-top:auto}
+.fgrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:34px}
+footer h4{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 12px;font-family:Karla,sans-serif;font-weight:700}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:.9rem}
+footer a:hover{color:var(--accent)}
+.fbottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:34px;padding-top:18px;font-size:.78rem;color:var(--ink-2)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120%);background:var(--velvet);color:var(--on-velvet);padding:13px 22px;border-radius:2px;font-size:.86rem;letter-spacing:.05em;z-index:80;box-shadow:0 14px 34px -14px rgba(0,0,0,.55);transition:transform .3s cubic-bezier(.2,.9,.3,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:900px){
+  .hero .inner{grid-template-columns:minmax(0,1fr);gap:26px;padding:40px 0 46px}
+  .hero .stage{min-height:300px;order:-1}
+  .story .inner{grid-template-columns:minmax(0,1fr);gap:26px}
+  .shoplayout{grid-template-columns:minmax(0,1fr);gap:20px}
+  .filters{display:none}
+  .chiprow{display:flex}
+  .pdp{grid-template-columns:minmax(0,1fr);gap:28px}
+  .cartlayout{grid-template-columns:minmax(0,1fr)}
+  .summary{position:static}
+  .fgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  nav.main{display:none}
+  nav.main.open{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--ground);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px 4vw 16px}
+  nav.main.open a{padding:11px 0;border-bottom:1px solid var(--line)}
+  .menutoggle{display:block;order:3}
+  header.site{position:relative}
+}
+@media (max-width:560px){
+  .frow{grid-template-columns:minmax(0,1fr)}
+  .fgrid{grid-template-columns:minmax(0,1fr)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
+  .lineitem{grid-template-columns:64px 1fr;grid-template-areas:"art body" "right right"}
+  .lineitem .art{grid-area:art}
+  .lineitem .right{grid-area:right;text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+
+<div class="topbar">Order on WhatsApp &nbsp;·&nbsp; Free insured shipping across India &nbsp;·&nbsp; Handmade in Dighi, Pune</div>
+
+<header class="site">
+  <div class="wrap navrow">
+    <a class="brand" href="#/" aria-label="The Qala, home">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+        <g fill="none" stroke="var(--gold-2)" stroke-width="2.4">
+          <circle cx="50" cy="50" r="46"/>
+        </g>
+        <g fill="var(--accent)">
+          <path d="M50 22c7 10 10 18 10 25 0 8-4 14-10 18-6-4-10-10-10-18 0-7 3-15 10-25z"/>
+          <path d="M50 70c-9-2-16-7-20-14-2-4-3-9-3-14 8 2 15 7 19 14 2 4 3 9 4 14z" opacity=".75"/>
+          <path d="M50 70c9-2 16-7 20-14 2-4 3-9 3-14-8 2-15 7-19 14-2 4-3 9-4 14z" opacity=".75"/>
+        </g>
+        <circle cx="50" cy="78" r="4.2" fill="var(--gold-2)"/>
+      </svg>
+      <span class="wordmark">
+        <span class="devnag">कला</span>
+        <span class="latin">The Qala</span>
+      </span>
+    </a>
+    <nav class="main" id="nav">
+      <a href="#/shop">Shop All</a>
+      <a href="#/shop?c=rajwadi">Rajwadi</a>
+      <a href="#/shop?c=victorian">Victorian</a>
+      <a href="#/shop?c=short-mangalsutra">Mangalsutra</a>
+      <a href="#/story">Our Story</a>
+    </nav>
+    <button class="cartbtn" id="cartBtn" aria-label="Open bag">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16l-1.4 12.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8L4 7Z"/><path d="M8.5 7V5.6a3.5 3.5 0 0 1 7 0V7"/></svg>
+      Bag <span class="count" id="cartCount">0</span>
+    </button>
+    <button class="menutoggle" id="menuToggle" aria-label="Menu" aria-expanded="false">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <div class="devnag mr" style="font-size:2rem;color:var(--accent);line-height:1">कला</div>
+        <p class="muted" style="max-width:34ch;margin:10px 0 0;font-size:.92rem">Rajwadi, Peshwai and moissanite jewellery, made piece by piece in Dighi, Pune, and sent to brides across Maharashtra and beyond.</p>
+        <p style="font-family:Marcellus,serif;font-size:1.05rem;color:var(--accent);margin:16px 0 0">She wore Qala and turned heads.</p>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#/shop?c=rajwadi">Rajwadi</a></li>
+          <li><a href="#/shop?c=victorian">Victorian</a></li>
+          <li><a href="#/shop?c=short-mangalsutra">Short Mangalsutra</a></li>
+          <li><a href="#/shop?c=rings">Rings</a></li>
+          <li><a href="#/shop?c=necklace">Necklace</a></li>
+          <li><a href="#/shop?c=heritage">Heritage</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#/story">Our story</a></li>
+          <li><a href="#/care">Care &amp; polish</a></li>
+          <li><a href="#/shipping">Shipping &amp; COD</a></li>
+          <li><a href="#/returns">Returns</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Reach us</h4>
+        <ul>
+          <li><a id="waFooter" href="#" target="_blank" rel="noopener">WhatsApp &middot; order or ask</a></li>
+          <li><a href="https://instagram.com/theqala_com" target="_blank" rel="noopener">Instagram &middot; @theqala_com</a></li>
+          <li class="muted">Dighi, Pune 411015, Maharashtra</li>
+          <li class="muted">Mon&ndash;Sat, 10am&ndash;8pm IST</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fbottom">
+      <span>&copy; <span id="yr"></span> The Qala &middot; Dighi, Pune</span>
+      <span>Prices in INR &middot; GST included</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   The Qala — storefront
+   CHANGE THIS ONE LINE: your WhatsApp number, country code, digits only.
+   ========================================================= */
+const WA = "919999999999";
+
+/* ---------------------------------------------------------
+   PHOTOS — real product pictures.
+
+   1. The  photos  folder next to this file has one folder per category:
+        photos/rajwadi/  photos/victorian/  photos/short-mangalsutra/
+        photos/rings/    photos/necklace/   photos/heritage/
+   2. Put each piece's pictures in its category folder. Portrait crops
+      look best (4:5) — resize to about 1200px wide, under 300 KB.
+   3. List them below, product id -> array of file paths.
+      The first one is the main picture on the product page.
+   4. Commit, push, and Cloudflare Pages redeploys on its own.
+
+   Anything you do NOT list here keeps the drawn artwork,
+   so you can add photos a few pieces at a time.
+   If a file is missing or misspelt, that piece quietly falls
+   back to the drawing instead of showing a broken image.
+   --------------------------------------------------------- */
+const PHOTOS = {
+  // "thushi-kolhapuri": ["photos/rajwadi/thushi-1.jpg", "photos/rajwadi/thushi-2.jpg"],
+  // "victorian-choker": ["photos/victorian/choker-1.jpg"],
+  // "ring-moissanite":  ["photos/rings/moissanite-ring-1.jpg"],
+};
+const SHIP_FREE_OVER = 1499;
+const SHIP_FLAT = 79;
+const COD_ADVANCE = 500;
+
+const CATS = {
+  "rajwadi":           {mr:"राजवाडी",           en:"Rajwadi"},
+  "victorian":         {mr:"व्हिक्टोरियन",        en:"Victorian"},
+  "short-mangalsutra": {mr:"शॉर्ट मंगळसूत्र",     en:"Short Mangalsutra"},
+  "rings":             {mr:"अंगठी",             en:"Rings"},
+  "necklace":          {mr:"नेकलेस",            en:"Necklace"},
+  "heritage":          {mr:"वारसा",             en:"Heritage"}
+};
+
+const PRODUCTS = [
+  {id:"thushi-kolhapuri", mr:"कोल्हापुरी ठुशी", en:"Kolhapuri Thushi", cat:"rajwadi", art:"thushi",
+   price:3450, mrp:4200, badge:"Bestseller",
+   material:"Brass base, 1-gram gold micron plating", weight:"38 g", size:"11 in + 2 in extender",
+   blurb:"The choker every Maharashtrian wardrobe starts with — hundreds of tiny hollow gold beads strung so tight the necklace stands on its own. Ours is strung on a triple thread so it holds its curve through a whole wedding day."},
+
+  {id:"saaj-peshwai", mr:"कोल्हापुरी साज", en:"Peshwai Kolhapuri Saaj", cat:"rajwadi", art:"saaj",
+   price:5900, mrp:7400, badge:"Signature",
+   material:"Brass, 1-gram gold plating, kundan stone", weight:"62 g", size:"18 in",
+   blurb:"A full row of jav leaves, a taviz on each shoulder and a red kundan at the heart — the saaj is read like a sentence in Kolhapur, and we kept every word of it."},
+
+  {id:"mangalsutra-rajwadi", mr:"राजवाडी मंगळसूत्र", en:"Rajwadi Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
+   price:2850, mrp:3600, badge:"Bestseller",
+   material:"Brass, gold plating, glass black beads", weight:"28 g", size:"20 in",
+   blurb:"Short black-bead chain, two deep vati, and a Rajwadi pendant with a temple arch. Light enough for a working day, dressy enough for a haldi."},
+
+  {id:"mangalsutra-vati", mr:"दुहेरी वाटी मंगळसूत्र", en:"Double Vati Mangalsutra", cat:"short-mangalsutra", art:"vati",
+   price:1990, mrp:2500, badge:"",
+   material:"Brass, gold plating, glass black beads", weight:"19 g", size:"24 in",
+   blurb:"The everyday one. Two plain vati, no stones, nothing to catch on a dupatta — the mangalsutra our customers reorder for their sisters."},
+
+  {id:"nath-brahmani", mr:"ब्रह्मणी नथ", en:"Brahmani Nath", cat:"rajwadi", art:"nath",
+   price:2650, mrp:3300, badge:"",
+   material:"Brass wire, freshwater-look pearls, ruby-tone stone", weight:"9 g", size:"5.5 cm across",
+   blurb:"The long paisley nath of a Brahmani bride, curved to sit against the cheek. Clip fitting — no piercing needed — with a safety chain for the hair."},
+
+  {id:"nath-peshwai-small", mr:"छोटी पेशवाई नथ", en:"Peshwai Nath, Small", cat:"rajwadi", art:"nath",
+   price:1450, mrp:0, badge:"",
+   material:"Brass wire, pearls, green stone", weight:"5 g", size:"3.5 cm across",
+   blurb:"A smaller Peshwai for the mehendi, the pooja, or a Saturday when you simply feel like it. Clip fitting."},
+
+  {id:"bugadi-pair", mr:"बुगडी जोड", en:"Kolhapuri Bugadi, Pair", cat:"rajwadi", art:"bugadi",
+   price:1150, mrp:1400, badge:"",
+   material:"Brass, gold plating, pearl drops", weight:"7 g the pair", size:"2.2 cm",
+   blurb:"Worn on the upper ear, one on each side. Cuff fitting that grips without a second piercing."},
+
+  {id:"kudi-moissanite", mr:"मोइसनाइट कुडी", en:"Moissanite Solitaire Kudi", cat:"victorian", art:"kudi",
+   price:4900, mrp:6200, badge:"Moissanite",
+   material:"925 silver, rhodium finish, VVS moissanite", weight:"3.2 g the pair", size:"7 mm stone",
+   blurb:"Two 7 mm moissanite solitaires in a six-prong basket, set in 925 silver and hallmarked. Comes with a test certificate — hold it under a pen tester in front of your mother-in-law."},
+
+  {id:"tanmani-pearl", mr:"तन्मणी", en:"Pearl Tanmani", cat:"necklace", art:"tanmani",
+   price:4200, mrp:5100, badge:"",
+   material:"Shell pearls, brass frame, gold plating", weight:"44 g", size:"12 in + 3 in extender",
+   blurb:"Three rows of pearls gathered into a stone-set centre. Traditionally the piece a Maharashtrian bride is given by her mother — worn just above the thushi."},
+
+  {id:"chinchpeti", mr:"चिंचपेटी", en:"Chinchpeti", cat:"necklace", art:"chinchpeti",
+   price:3800, mrp:4600, badge:"",
+   material:"Brass, gold plating, kundan stones", weight:"41 g", size:"12 in",
+   blurb:"A flat gold band of square kundan set edge to edge, named for the tamarind seed each stone is shaped like. Sits high on the neck under a nauvari."},
+
+  {id:"mohanmal", mr:"मोहनमाळ", en:"Mohanmal", cat:"necklace", art:"mohanmal",
+   price:6400, mrp:7900, badge:"",
+   material:"Brass, 1-gram gold plating", weight:"78 g", size:"22 in",
+   blurb:"Four strands of gold beads braided into one heavy rope. Old Maharashtrian households bought a mohanmal as savings — it wears like it."},
+
+  {id:"putali-haar", mr:"पुतळी हार", en:"Putali Haar", cat:"heritage", art:"putali",
+   price:8900, mrp:11000, badge:"Heirloom",
+   material:"Brass, gold plating, cast coin motifs", weight:"96 g", size:"20 in",
+   blurb:"Nineteen Lakshmi coins, largest at the centre, each struck rather than stamped so the face keeps its depth after years of polish."},
+
+  {id:"lakshmi-haar", mr:"लक्ष्मी हार", en:"Lakshmi Haar", cat:"heritage", art:"lakshmi",
+   price:9800, mrp:12500, badge:"Heirloom",
+   material:"Brass, gold plating, kundan and pearls", weight:"110 g", size:"18 in, temple length",
+   blurb:"Framed Lakshmi coins with a pearl drop under each and a temple pendant at the centre. Our most photographed piece — and the heaviest."},
+
+  {id:"bormaal", mr:"बोरमाळ", en:"Bormaal", cat:"necklace", art:"bormaal",
+   price:5200, mrp:6300, badge:"",
+   material:"Brass, gold plating", weight:"58 g", size:"16 in",
+   blurb:"Round beads the size of a ber fruit, which is exactly where the name comes from. Two strands, worn between the thushi and the saaj."},
+
+  {id:"vaki-pair", mr:"वाकी जोड", en:"Vaki Armlets, Pair", cat:"rajwadi", art:"vaki",
+   price:3300, mrp:4100, badge:"",
+   material:"Brass, gold plating, adjustable cord", weight:"36 g the pair", size:"Adjustable 9–13 in",
+   blurb:"Armlets tied above the elbow over a nauvari sleeve, with a cord you pull to fit. Sold as a pair, because one vaki looks like a mistake."},
+
+  {id:"bridal-set-navari", mr:"नवरी संच", en:"Navari Bridal Set", cat:"heritage", art:"set",
+   price:18500, mrp:23000, badge:"Complete set",
+   material:"Brass, 1-gram gold plating, kundan, pearls", weight:"340 g total", size:"Nine pieces",
+   blurb:"Everything a Maharashtrian bride is dressed in, in one box: thushi, saaj, tanmani, mohanmal, nath, bugadi, kudi, a pair of vaki and the mundavalya. Fitted and polished before it ships."},
+
+  {id:"bridal-set-moissanite", mr:"मोइसनाइट नवरी संच", en:"Moissanite Bridal Set", cat:"victorian", art:"setstone",
+   price:24500, mrp:31000, badge:"Moissanite",
+   material:"925 silver, rhodium and gold finish, VVS moissanite", weight:"180 g total", size:"Five pieces",
+   blurb:"Necklace, earrings, maang tikka, nath and a ring — all set with VVS moissanite in 925 silver. For brides who want the shine on camera without the vault."},
+
+  {id:"painjan", mr:"पैंजण", en:"Painjan, Pair", cat:"rajwadi", art:"painjan",
+   price:2400, mrp:2900, badge:"",
+   material:"925 silver, oxidised finish, ghungroo bells", weight:"52 g the pair", size:"10 in + hook",
+   blurb:"Silver anklets with forty-eight ghungroo. Loud enough that the house knows you are home."},
+
+  {id:"jodvi", mr:"जोडवी", en:"Jodvi Toe Rings, Set of 4", cat:"rings", art:"jodvi",
+   price:890, mrp:1100, badge:"",
+   material:"925 silver, oxidised finish", weight:"9 g the set", size:"Adjustable",
+   blurb:"Four open-back toe rings, two for each foot, in the flat Maharashtrian pattern. Adjustable, so they survive a monsoon of swelling and shrinking."},
+
+  {id:"ambada-pin", mr:"आंबाडा पिन", en:"Ambada Pin", cat:"rajwadi", art:"pin",
+   price:1250, mrp:1500, badge:"",
+   material:"Brass, gold plating, pearls", weight:"11 g", size:"9 cm pin",
+   blurb:"The pin that holds the ambada bun and finishes it with a flower. Sold singly — most brides take two."},
+
+  {id:"ring-moissanite", mr:"मोइसनाइट अंगठी", en:"Moissanite Solitaire Ring", cat:"rings", art:"ring",
+   price:5900, mrp:7400, badge:"Moissanite",
+   material:"925 silver, rhodium finish, VVS moissanite", weight:"3.4 g", size:"Sizes 10–18, tell us yours",
+   blurb:"A single 8 mm moissanite in a six-prong setting, on a plain 925 band. The ring people ask about at a wedding and then ask the price of twice, because they do not believe it the first time."},
+
+  {id:"ring-rajwadi", mr:"राजवाडी अंगठी", en:"Rajwadi Ring", cat:"rings", art:"ring",
+   price:1450, mrp:1800, badge:"",
+   material:"Brass, 1-gram gold plating, red kundan", weight:"5 g", size:"Adjustable shank",
+   blurb:"The broad Rajwadi face with a kundan at the centre, on an adjustable shank so it fits whichever finger the day calls for."},
+
+  {id:"ring-victorian-cocktail", mr:"व्हिक्टोरियन अंगठी", en:"Victorian Cocktail Ring", cat:"rings", art:"ring",
+   price:2200, mrp:2700, badge:"",
+   material:"Brass, victorian antique finish, AD stones and pearl", weight:"7 g", size:"Adjustable shank",
+   blurb:"Dull antique gold, a cluster of AD stones and one pearl drop. Heavy on the hand in the way a cocktail ring is supposed to be."},
+
+  {id:"victorian-choker", mr:"व्हिक्टोरियन चोकर", en:"Victorian Choker", cat:"victorian", art:"vchoker",
+   price:6800, mrp:8400, badge:"Signature",
+   material:"Brass, victorian antique finish, AD stones, shell pearls", weight:"68 g", size:"13 in + 3 in extender",
+   blurb:"The antique-finish choker that goes with a silk saree when gold feels too loud — matte, stone-set, with a row of pearl drops along the lower edge."},
+
+  {id:"victorian-jhumka", mr:"व्हिक्टोरियन झुमका", en:"Victorian Jhumka, Pair", cat:"victorian", art:"jhumka",
+   price:2900, mrp:3600, badge:"",
+   material:"Brass, victorian antique finish, AD stones, pearls", weight:"22 g the pair", size:"5.5 cm drop",
+   blurb:"Full-bell jhumka with a pearl fringe, on a screw back that actually holds. Light enough to wear through a reception without regretting it."},
+
+  {id:"mangalsutra-victorian-short", mr:"व्हिक्टोरियन शॉर्ट मंगळसूत्र", en:"Victorian Short Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
+   price:3200, mrp:3900, badge:"",
+   material:"Brass, victorian antique finish, glass black beads, AD stones", weight:"24 g", size:"18 in",
+   blurb:"Antique-finish pendant on a short black-bead chain. Sits above the neckline of a kurta, which is why it is the one most of our customers wear to work."},
+
+  {id:"mangalsutra-moissanite-short", mr:"मोइसनाइट शॉर्ट मंगळसूत्र", en:"Moissanite Short Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
+   price:6900, mrp:8600, badge:"Moissanite",
+   material:"925 silver, gold and rhodium finish, VVS moissanite, black beads", weight:"21 g", size:"18 in",
+   blurb:"Three moissanite stones in a vati pendant on a 925 silver black-bead chain. Hallmarked, and it comes with the test certificate."}
+];
+
+/* ============ artwork ============ */
+let UID = 0;
+const D = Math.PI/180;
+function pts(cx,cy,rx,ry,a0,a1,n){
+  const o=[];
+  for(let i=0;i<n;i++){const t=n===1?0:i/(n-1);const a=(a0+(a1-a0)*t)*D;o.push([cx+rx*Math.cos(a), cy+ry*Math.sin(a)]);}
+  return o;
+}
+function pathOf(p){return p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");}
+function beads(p,r,fill,k){return p.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${r}" fill="url(#${fill}${k})"/>`).join("");}
+function defs(k){return `<defs>
+<linearGradient id="g${k}" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="var(--metal-a)"/><stop offset="48%" stop-color="var(--metal-b)"/><stop offset="100%" stop-color="var(--metal-c)"/></linearGradient>
+<radialGradient id="gb${k}" cx="34%" cy="30%" r="72%"><stop offset="0%" stop-color="var(--metal-a)"/><stop offset="55%" stop-color="var(--metal-b)"/><stop offset="100%" stop-color="var(--metal-c)"/></radialGradient>
+<radialGradient id="pb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="var(--pearl-a)"/><stop offset="100%" stop-color="var(--pearl-b)"/></radialGradient>
+<radialGradient id="kb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="var(--bead-a)"/><stop offset="100%" stop-color="var(--bead-b)"/></radialGradient>
+<radialGradient id="sb${k}" cx="34%" cy="26%" r="76%"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#e3f2fb"/><stop offset="100%" stop-color="#9cc0d6"/></radialGradient>
+<radialGradient id="rb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="#e2657a"/><stop offset="100%" stop-color="#7d0c20"/></radialGradient>
+<radialGradient id="eb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="#7fd0a6"/><stop offset="100%" stop-color="#0f5d3c"/></radialGradient>
+</defs>`;}
+
+function leaf(x,y,s,k,rot){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(rot||0).toFixed(1)}) scale(${s})"><path d="M0 -1 C 7 4, 7 14, 0 19 C -7 14, -7 4, 0 -1 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".7"/><path d="M0 3 L0 15" stroke="var(--metal-c)" stroke-width=".7" opacity=".6"/></g>`;}
+function coin(x,y,r,k){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="${r}" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1"/><circle r="${(r*0.72).toFixed(1)}" fill="none" stroke="var(--metal-c)" stroke-width=".8" opacity=".7"/><circle cy="${(-r*0.16).toFixed(1)}" r="${(r*0.2).toFixed(1)}" fill="var(--metal-c)" opacity=".55"/><path d="M${(-r*0.34).toFixed(1)} ${(r*0.34).toFixed(1)} Q0 ${(r*0.06).toFixed(1)} ${(r*0.34).toFixed(1)} ${(r*0.34).toFixed(1)}" fill="none" stroke="var(--metal-c)" stroke-width=".9" opacity=".55"/></g>`;}
+function gem(x,y,r,ref,k){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="${r+2}" fill="url(#g${k})"/><circle r="${r}" fill="url(#${ref}${k})"/><circle cx="${(-r*0.3).toFixed(1)}" cy="${(-r*0.34).toFixed(1)}" r="${(r*0.26).toFixed(1)}" fill="#fff" opacity=".6"/></g>`;}
+function chain(p,w,k){return `<path d="${pathOf(p)}" fill="none" stroke="url(#g${k})" stroke-width="${w}" stroke-linecap="round"/>`;}
+
+const ART = {
+  thushi(k){
+    let s="";
+    [[132,98],[122,88],[112,78]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,30+i*2),7.2,"gb",k); });
+    s+=beads(pts(200,150,100,68,150,30,9),9.5,"gb",k);
+    s+=`<g transform="translate(200 262)">${leaf(0,-6,1.5,k,0)}</g>`;
+    return s;
+  },
+  saaj(k){
+    const p=pts(200,140,140,120,172,8,23);
+    let s=chain(p,3.2,k);
+    p.forEach((q,i)=>{ if(i===11) return; const a=Math.atan2(q[1]-140,q[0]-200)/D; s+=leaf(q[0],q[1],0.95,k,a-90); });
+    s+=`<g transform="translate(200 260)"><path d="M0 -26 C 24 -10, 24 26, 0 48 C -24 26, -24 -10, 0 -26 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,272,11,"rb",k);
+    s+=beads(pts(200,140,140,120,150,120,3),6,"pb",k);
+    s+=beads(pts(200,140,140,120,60,30,3),6,"pb",k);
+    return s;
+  },
+  mangalsutra(k){
+    let s="";
+    [[136,112],[126,102]].forEach(d=>{ s+=beads(pts(200,150,d[0],d[1],172,8,34),5.4,"kb",k); });
+    s+=beads(pts(200,150,131,107,120,60,5),7,"gb",k);
+    s+=`<g transform="translate(170 268)"><circle r="20" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="12" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
+    s+=`<g transform="translate(230 268)"><circle r="20" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="12" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
+    s+=`<g transform="translate(200 300)"><path d="M0 -30 C 26 -22, 30 14, 0 40 C -30 14, -26 -22, 0 -30 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,304,10,"rb",k);
+    return s;
+  },
+  vati(k){
+    let s=beads(pts(200,150,138,114,172,8,40),5.2,"kb",k);
+    s+=`<g transform="translate(176 272)"><circle r="22" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="13" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
+    s+=`<g transform="translate(224 272)"><circle r="22" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="13" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
+    return s;
+  },
+  mohanmal(k){
+    let s="";
+    [[142,116],[132,106],[122,96],[112,86]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,26-i),9.4,"gb",k); });
+    return s;
+  },
+  putali(k){
+    const p=pts(200,140,138,116,170,10,19);
+    let s=chain(p,2.6,k);
+    p.forEach((q,i)=>{ const d=Math.abs(i-9); s+=coin(q[0],q[1],17-d*1.25,k); });
+    return s;
+  },
+  lakshmi(k){
+    const p=pts(200,132,136,112,168,12,13);
+    let s=chain(p,2.6,k);
+    p.forEach((q,i)=>{ const d=Math.abs(i-6); const r=16-d*1.1;
+      s+=`<rect x="${(q[0]-r-3).toFixed(1)}" y="${(q[1]-r-3).toFixed(1)}" width="${(2*r+6).toFixed(1)}" height="${(2*r+6).toFixed(1)}" rx="3" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`;
+      s+=coin(q[0],q[1],r,k);
+      s+=`<circle cx="${q[0].toFixed(1)}" cy="${(q[1]+r+11).toFixed(1)}" r="5.4" fill="url(#pb${k})"/>`;});
+    s+=`<g transform="translate(200 300)"><path d="M-30 22 L-30 -6 L0 -34 L30 -6 L30 22 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,304,10,"rb",k);
+    return s;
+  },
+  bormaal(k){
+    let s="";
+    [[136,110],[120,94]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,17-i*2),13,"gb",k); });
+    return s;
+  },
+  tanmani(k){
+    let s="";
+    [[126,84],[116,74],[106,64]].forEach(d=>{ s+=beads(pts(200,158,d[0],d[1],174,6,26),7.6,"pb",k); });
+    s+=`<g transform="translate(200 236)"><rect x="-44" y="-24" width="88" height="48" rx="6" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,236,12,"eb",k)+gem(168,236,7,"rb",k)+gem(232,236,7,"rb",k);
+    s+=beads(pts(200,236,54,32,150,30,5).map(q=>[q[0],q[1]+22]),5.6,"pb",k);
+    return s;
+  },
+  chinchpeti(k){
+    const a=pts(200,160,124,80,175,5,60), b=pts(200,160,104,60,175,5,60);
+    let s=`<path d="${pathOf(a)} ${pathOf(b.slice().reverse()).replace("M","L")} Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/>`;
+    pts(200,160,114,70,170,10,17).forEach(q=>{ s+=`<rect x="${(q[0]-7).toFixed(1)}" y="${(q[1]-7).toFixed(1)}" width="14" height="14" rx="2" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8" transform="rotate(45 ${q[0].toFixed(1)} ${q[1].toFixed(1)})"/>`; s+=gem(q[0],q[1],4.6,"sb",k); });
+    return s;
+  },
+  nath(k){
+    let s=`<path d="M232 96 C 300 118, 316 214, 250 288 C 206 336, 138 330, 122 286 C 108 248, 146 214, 186 226" fill="none" stroke="url(#g${k})" stroke-width="5" stroke-linecap="round"/>`;
+    const p=pts(214,214,86,86,300,120,16);
+    s+=beads(p,7.4,"pb",k);
+    s+=beads(pts(214,214,64,64,320,100,9),5.6,"pb",k);
+    s+=gem(178,260,15,"rb",k);
+    s+=gem(214,140,9,"eb",k);
+    s+=`<path d="M232 96 C 260 70, 292 68, 312 82" fill="none" stroke="url(#g${k})" stroke-width="2.2" stroke-dasharray="3 5"/>`;
+    return s;
+  },
+  bugadi(k){
+    let s="";
+    [[140,220],[260,220]].forEach(c=>{
+      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="42" fill="none" stroke="url(#g${k})" stroke-width="7"/>`;
+      s+=beads(pts(c[0],c[1],42,42,110,430,10),6.6,"pb",k);
+      s+=gem(c[0],c[1]+42,8,"rb",k);
+    });
+    return s;
+  },
+  kudi(k){
+    let s="";
+    [[142,214],[258,214]].forEach(c=>{
+      s+=pts(c[0],c[1],26,26,0,315,8).map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="11" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`).join("");
+      s+=gem(c[0],c[1],17,"sb",k);
+      s+=`<path d="M${c[0]} ${c[1]+34} L${c[0]} ${c[1]+58}" stroke="url(#g${k})" stroke-width="3.4"/>`;
+      s+=gem(c[0],c[1]+68,11,"sb",k);
+    });
+    return s;
+  },
+  vaki(k){
+    let s="";
+    [130,270].forEach(cx=>{
+      s+=`<path d="M${cx-56} 190 C ${cx-30} 150, ${cx+30} 150, ${cx+56} 190" fill="none" stroke="url(#g${k})" stroke-width="13" stroke-linecap="round"/>`;
+      s+=`<path d="M${cx-56} 190 C ${cx-30} 232, ${cx+30} 232, ${cx+56} 190" fill="none" stroke="url(#g${k})" stroke-width="4" stroke-dasharray="2 6"/>`;
+      s+=`<g transform="translate(${cx} 166)"><path d="M0 -20 C 20 -8, 20 18, 0 32 C -20 18, -20 -8, 0 -20 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1"/></g>`;
+      s+=gem(cx,172,8,"rb",k);
+    });
+    return s;
+  },
+  set(k){
+    let s="";
+    [[136,110],[124,98]].forEach(d=>{ s+=beads(pts(200,120,d[0],d[1],172,8,26),7,"gb",k); });
+    s+=chain(pts(200,116,150,140,168,12,26),2.6,k);
+    pts(200,116,150,140,166,14,15).forEach(q=>{ s+=coin(q[0],q[1],11,k); });
+    s+=`<g transform="translate(200 288)"><path d="M0 -22 C 22 -8, 22 22, 0 42 C -22 22, -22 -8, 0 -22 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,292,9,"rb",k);
+    [[62,352],[338,352]].forEach(c=>{ s+=`<circle cx="${c[0]}" cy="${c[1]}" r="24" fill="none" stroke="url(#g${k})" stroke-width="5"/>`+beads(pts(c[0],c[1],24,24,110,430,7),5,"pb",k); });
+    s+=`<path d="M200 372 C 236 380, 244 424, 200 444 C 156 424, 164 380, 200 372 Z" fill="none" stroke="url(#g${k})" stroke-width="4"/>`;
+    s+=beads(pts(200,408,34,34,0,340,10),5,"pb",k);
+    return s;
+  },
+  setstone(k){
+    let s=chain(pts(200,130,132,112,172,8,30),3,k);
+    pts(200,130,132,112,168,12,13).forEach((q,i)=>{ const d=Math.abs(i-6); s+=gem(q[0],q[1],13-d*0.9,"sb",k); });
+    s+=`<g transform="translate(200 274)"><path d="M0 -28 L26 0 L0 34 L-26 0 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,276,15,"sb",k);
+    [[70,356],[330,356]].forEach(c=>{ s+=gem(c[0],c[1],15,"sb",k)+`<path d="M${c[0]} ${c[1]+18} L${c[0]} ${c[1]+34}" stroke="url(#g${k})" stroke-width="2.4"/>`+gem(c[0],c[1]+44,11,"sb",k); });
+    s+=gem(200,392,17,"sb",k);
+    return s;
+  },
+  painjan(k){
+    let s="";
+    [[200,170],[200,300]].forEach(c=>{
+      s+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="112" ry="42" fill="none" stroke="url(#g${k})" stroke-width="9"/>`;
+      s+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="112" ry="42" fill="none" stroke="var(--metal-c)" stroke-width="1.4" stroke-dasharray="4 6" opacity=".7"/>`;
+      s+=beads(pts(c[0],c[1],112,42,150,30,11),7,"gb",k);
+    });
+    return s;
+  },
+  jodvi(k){
+    let s="";
+    [[124,180,32],[276,180,32],[124,296,26],[276,296,26]].forEach(c=>{
+      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="none" stroke="url(#g${k})" stroke-width="10"/>`;
+      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="none" stroke="var(--metal-c)" stroke-width="1.2" stroke-dasharray="3 5" opacity=".7"/>`;
+      s+=`<rect x="${c[0]-13}" y="${c[1]-c[2]-11}" width="26" height="16" rx="3" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".9"/>`;
+    });
+    return s;
+  },
+  ring(k){
+    const cx=200, cy=282, r=84;
+    let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#g${k})" stroke-width="19"/>`;
+    s+=`<circle cx="${cx}" cy="${cy}" r="${r+9.5}" fill="none" stroke="var(--metal-c)" stroke-width="1" opacity=".55"/>`;
+    s+=`<circle cx="${cx}" cy="${cy}" r="${r-9.5}" fill="none" stroke="var(--metal-c)" stroke-width="1" opacity=".55"/>`;
+    const gy = cy-r-26;
+    s+=pts(cx,gy,26,26,0,300,6).map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="8" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width=".8"/>`).join("");
+    s+=gem(cx,gy,26,"sb",k);
+    return s;
+  },
+  jhumka(k){
+    let s="";
+    [128,272].forEach(cx=>{
+      s+=gem(cx,144,14,"sb",k);
+      s+=`<path d="M${cx} 160 L${cx} 212" stroke="url(#g${k})" stroke-width="3.6"/>`;
+      s+=`<ellipse cx="${cx}" cy="212" rx="13" ry="6" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`;
+      s+=`<path d="M${cx-58} 268 A 58 58 0 0 1 ${cx+58} 268 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/>`;
+      s+=`<path d="M${cx-58} 268 L${cx+58} 268" stroke="var(--metal-c)" stroke-width="1.6"/>`;
+      [-40,-20,0,20,40].forEach(d=>{ s+=`<path d="M${cx+d*0.45} 213 L${cx+d} 267" stroke="var(--metal-c)" stroke-width=".9" opacity=".5"/>`; });
+      [-34,-17,0,17,34].forEach(d=>{ s+=gem(cx+d,242,7,"sb",k); });
+      [-50,-37,-25,-12,0,12,25,37,50].forEach(d=>{
+        const y = 282 + (1-Math.abs(d)/50)*10;
+        s+=`<path d="M${cx+d} 268 L${cx+d} ${(y-6).toFixed(1)}" stroke="url(#g${k})" stroke-width="1.6"/>`;
+        s+=`<circle cx="${cx+d}" cy="${y.toFixed(1)}" r="6" fill="url(#pb${k})"/>`;
+      });
+    });
+    return s;
+  },
+  vchoker(k){
+    const a=pts(200,152,128,88,175,5,60), b=pts(200,152,100,60,175,5,60);
+    let s=`<path d="${pathOf(a)} ${pathOf(b.slice().reverse()).replace("M","L")} Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.3"/>`;
+    pts(200,152,114,74,168,12,13).forEach((q,i)=>{ s+=gem(q[0],q[1],(i===6?0:8),"sb",k); });
+    pts(200,152,142,102,164,16,13).forEach(q=>{ s+=`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="6.4" fill="url(#pb${k})"/>`; });
+    s+=`<g transform="translate(200 240)"><path d="M0 -26 C 22 -12, 22 20, 0 40 C -22 20, -22 -12, 0 -26 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
+    s+=gem(200,244,13,"sb",k);
+    s+=`<circle cx="200" cy="296" r="8" fill="url(#pb${k})"/>`;
+    return s;
+  },
+  pin(k){
+    let s=`<path d="M200 200 L200 400 L206 418" fill="none" stroke="url(#g${k})" stroke-width="6" stroke-linecap="round"/>`;
+    s+=pts(200,168,44,44,0,315,8).map(q=>`<ellipse cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" rx="19" ry="13" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".9" transform="rotate(${(Math.atan2(q[1]-168,q[0]-200)/D).toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)})"/>`).join("");
+    s+=gem(200,168,22,"rb",k);
+    s+=beads(pts(200,168,64,64,20,340,7),6,"pb",k);
+    return s;
+  }
+};
+
+function photosOf(id){ const a = PHOTOS[id]; return Array.isArray(a) ? a.filter(Boolean) : []; }
+
+/* Renders a photo when one is listed in PHOTOS, otherwise the drawn artwork.
+   The drawing always sits underneath, so a broken/missing file falls back to it. */
+function media(p, opts){
+  opts = opts || {};
+  const list = photosOf(p.id);
+  const src = list[opts.index || 0];
+  const art = artSVG(p.art, {label: p.en, vb: opts.vb});
+  if (!src) return art;
+  return art + `<img class="photo" src="${esc(src)}" alt="${esc(p.en)} — ${p.mr}" loading="${opts.eager?"eager":"lazy"}" decoding="async" onerror="this.remove()">`;
+}
+
+function artSVG(type,opts){
+  const k = ++UID;
+  const body = (ART[type]||ART.thushi)(k);
+  const vb = (opts&&opts.vb) || "0 0 400 470";
+  return `<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${(opts&&opts.label)||"Jewellery illustration"}">${defs(k)}${body}</svg>`;
+}
+</script>
+
+<script>
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+const view = $("#view");
+const fmt = n => "₹" + n.toLocaleString("en-IN");
+const byId = id => PRODUCTS.find(p => p.id === id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const waLink = t => "https://wa.me/" + WA + "?text=" + encodeURIComponent(t);
+
+let CART = [];
+try { const raw = localStorage.getItem("qala.cart"); if (raw) CART = JSON.parse(raw) || []; } catch (e) { CART = []; }
+function saveCart(){ try { localStorage.setItem("qala.cart", JSON.stringify(CART)); } catch (e) {} }
+
+function cartCount(){ return CART.reduce((a,l)=>a+l.qty,0); }
+function subtotal(){ return CART.reduce((a,l)=>{const p=byId(l.id); return a + (p?p.price*l.qty:0);},0); }
+function shipping(){ const s=subtotal(); return s===0||s>=SHIP_FREE_OVER ? 0 : SHIP_FLAT; }
+function savings(){ return CART.reduce((a,l)=>{const p=byId(l.id); return a + (p&&p.mrp ? (p.mrp-p.price)*l.qty : 0);},0); }
+
+function add(id, qty){
+  const line = CART.find(l=>l.id===id);
+  if (line) line.qty += (qty||1); else CART.push({id, qty:qty||1});
+  saveCart(); syncCount(); toast(byId(id).en + " added to your bag");
+}
+function setQty(id,q){
+  const line = CART.find(l=>l.id===id); if(!line) return;
+  line.qty = Math.max(1, Math.min(20, q)); saveCart(); syncCount(); render();
+}
+function drop(id){ CART = CART.filter(l=>l.id!==id); saveCart(); syncCount(); render(); }
+function syncCount(){ $("#cartCount").textContent = cartCount(); }
+
+let toastTimer;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ============ fragments ============ */
+function priceBlock(p){
+  const off = p.mrp ? Math.round((1 - p.price/p.mrp) * 100) : 0;
+  return `<div class="price"><span class="now rupee">${fmt(p.price)}</span>${p.mrp?`<span class="was rupee">${fmt(p.mrp)}</span><span class="off">${off}% off</span>`:""}</div>`;
+}
+function card(p){
+  return `<a class="card" href="#/product/${p.id}">
+    <div class="arch">${p.badge?`<span class="tag">${esc(p.badge)}</span>`:""}${media(p,{vb:"0 20 400 400"})}</div>
+    <div>
+      <span class="mr">${p.mr}</span>
+      <h3>${esc(p.en)}</h3>
+      <p class="meta">${esc(CATS[p.cat].en)}</p>
+    </div>
+    ${priceBlock(p)}
+  </a>`;
+}
+function saaj(){ return `<div class="saaj" aria-hidden="true"></div>`; }
+
+/* ============ views ============ */
+function home(){
+  const featured = ["thushi-kolhapuri","victorian-choker","mangalsutra-rajwadi","ring-moissanite","putali-haar","victorian-jhumka"].map(byId);
+  return `
+  <section class="hero">
+    <div class="wrap inner">
+      <div>
+        <p class="eyebrow">Dighi, Pune · since the first thushi we strung</p>
+        <h1>The jewellery a Maharashtrian house keeps, made new for the <em>नवरी</em> who wears it.</h1>
+        <p class="lede">Thushi, saaj, nath, Rajwadi mangalsutra and moissanite bridal sets — strung and set by hand, photographed as they actually arrive, and shipped insured across India.</p>
+        <div class="cta">
+          <a class="btn" href="#/shop">Shop the collection</a>
+          <a class="btn ghost" href="#/story">How we make it</a>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="halo" aria-hidden="true"></div>
+        ${artSVG("thushi",{label:"Kolhapuri thushi",vb:"20 40 360 300"})}
+      </div>
+    </div>
+    <div class="wrap"><div class="trustrow">
+      <div><b>Free insured shipping</b> over ₹1,499</div>
+      <div><b>Partial COD</b> ₹500 advance, rest on delivery</div>
+      <div><b>7-day returns</b> unworn, in the box</div>
+      <div><b>Order on WhatsApp</b> · we reply within the hour</div>
+    </div></div>
+  </section>
+
+  <section class="band wrap">
+    <div class="sechead">
+      <div><span class="mr" style="color:var(--accent)">प्रकार</span><h2>Shop by tradition</h2></div>
+      <a class="seclink" href="#/shop">All pieces</a>
+    </div>
+    <div class="catgrid">
+      ${Object.entries(CATS).map(([slug,c])=>`
+        <a class="cat" href="#/shop?c=${slug}">
+          ${artSVG(({rajwadi:"thushi",victorian:"vchoker","short-mangalsutra":"mangalsutra",rings:"ring",necklace:"mohanmal",heritage:"lakshmi"})[slug],{vb:"40 80 320 320",label:c.en})}
+          <span class="mr">${c.mr}</span>
+          <span class="en">${esc(c.en)}</span>
+        </a>`).join("")}
+    </div>
+  </section>
+
+  ${saaj()}
+
+  <section class="band wrap">
+    <div class="sechead">
+      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What brides are choosing</h2></div>
+      <a class="seclink" href="#/shop">See everything</a>
+    </div>
+    <div class="grid">${featured.map(card).join("")}</div>
+  </section>
+
+  <section class="story">
+    <div class="wrap inner">
+      <div>${artSVG("saaj",{label:"Kolhapuri saaj",vb:"30 60 340 300"})}</div>
+      <div>
+        <p class="eyebrow">Our story</p>
+        <h2>Every saaj we send out is strung on the same table in Dighi.</h2>
+        <p>The Qala started because the Rajwadi pieces online were either museum-priced or plainly fake. We buy brass and 925 silver, plate to a real micron thickness, string on triple thread, and photograph each piece under daylight — the picture you order from is the piece you receive.</p>
+        <p class="quote">She wore Qala and turned heads.</p>
+        <div class="cta" style="margin-top:24px"><a class="btn ghost" style="border-color:var(--gold-2);color:var(--on-velvet)" href="#/story">Read the full story</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band wrap">
+    <div class="sechead"><div><span class="mr" style="color:var(--accent)">कसे</span><h2>From your message to your door</h2></div></div>
+    <div class="catgrid">
+      ${[["01","You order","On the site, or send us the piece on WhatsApp. Partial COD means ₹500 now, the rest at your doorstep."],
+         ["02","We fit and polish","Extenders sized to your measurement, a final polish, and a photograph sent to you before the box is taped."],
+         ["03","Insured dispatch","Shipped from Pune with insurance and a tracking link. Most of Maharashtra sees it in two days."]]
+        .map(s=>`<div class="cat" style="text-align:left;cursor:default">
+          <div class="eyebrow" style="font-size:1.5rem;font-family:Marcellus,serif;letter-spacing:.04em;color:var(--gold-2)">${s[0]}</div>
+          <h3 style="font-size:1.15rem;margin:6px 0 8px">${s[1]}</h3>
+          <p class="muted" style="margin:0;font-size:.9rem">${s[2]}</p>
+        </div>`).join("")}
+    </div>
+  </section>`;
+}
+
+function shop(params){
+  const active = (params.get("c")||"").split(",").filter(Boolean);
+  const band = params.get("p")||"";
+  const sort = params.get("s")||"featured";
+  let list = PRODUCTS.slice();
+  if (active.length) list = list.filter(p=>active.includes(p.cat));
+  if (band==="lo") list = list.filter(p=>p.price<2000);
+  if (band==="mid") list = list.filter(p=>p.price>=2000 && p.price<6000);
+  if (band==="hi") list = list.filter(p=>p.price>=6000);
+  if (sort==="lowhigh") list.sort((a,b)=>a.price-b.price);
+  if (sort==="highlow") list.sort((a,b)=>b.price-a.price);
+
+  const title = active.length===1 ? CATS[active[0]] : {mr:"संग्रह", en:"The collection"};
+  const toggle = slug => {
+    const next = active.includes(slug) ? active.filter(x=>x!==slug) : active.concat(slug);
+    const q = new URLSearchParams(params); next.length?q.set("c",next.join(",")):q.delete("c");
+    return "#/shop?"+q.toString();
+  };
+  const bandLink = v => { const q=new URLSearchParams(params); v?q.set("p",v):q.delete("p"); return "#/shop?"+q.toString(); };
+
+  return `
+  <div class="wrap pagehead">
+    <span class="mr" style="font-size:1.3rem;color:var(--accent)">${title.mr}</span>
+    <h1>${esc(title.en)}</h1>
+    <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
+  </div>
+  <div class="wrap shoplayout">
+    <aside class="filters">
+      <div class="fgroup">
+        <h4>Category</h4>
+        ${Object.entries(CATS).map(([slug,c])=>`<label><input type="checkbox" ${active.includes(slug)?"checked":""} data-nav="${toggle(slug)}"> ${esc(c.en)}</label>`).join("")}
+      </div>
+      <div class="fgroup">
+        <h4>Price</h4>
+        ${[["","Any price"],["lo","Under ₹2,000"],["mid","₹2,000 – ₹6,000"],["hi","₹6,000 and above"]]
+          .map(o=>`<label><input type="radio" name="pb" ${band===o[0]?"checked":""} data-nav="${bandLink(o[0])}"> ${o[1]}</label>`).join("")}
+      </div>
+      <a class="linkbtn" href="#/shop" style="align-self:flex-start">Clear all filters</a>
+    </aside>
+    <div>
+      <div class="shopbar">
+        <div class="chiprow">
+          <a class="chip ${active.length?"":"on"}" href="#/shop">All</a>
+          ${Object.entries(CATS).map(([slug,c])=>`<a class="chip ${active.includes(slug)?"on":""}" href="${toggle(slug)}">${esc(c.en)}</a>`).join("")}
+        </div>
+        <select class="sort" id="sortSel" aria-label="Sort">
+          <option value="featured" ${sort==="featured"?"selected":""}>Featured</option>
+          <option value="lowhigh" ${sort==="lowhigh"?"selected":""}>Price: low to high</option>
+          <option value="highlow" ${sort==="highlow"?"selected":""}>Price: high to low</option>
+        </select>
+      </div>
+      ${list.length? `<div class="grid">${list.map(card).join("")}</div>`
+        : `<div class="empty"><h2>Nothing in this corner yet</h2><p class="muted">Try a wider price range, or see everything.</p><a class="btn" href="#/shop">Show all pieces</a></div>`}
+    </div>
+  </div>`;
+}
+
+function product(id){
+  const p = byId(id);
+  if (!p) return notFound();
+  const also = PRODUCTS.filter(x=>x.cat===p.cat && x.id!==p.id).slice(0,4);
+  const crops = ["0 0 400 470","70 90 260 260","120 170 170 170"];
+  const shots = photosOf(p.id);
+  const views = shots.length ? shots : crops;
+  return `
+  <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${p.cat}">← Back to ${esc(CATS[p.cat].en)}</a></div>
+  <div class="wrap pdp">
+    <div class="gallery">
+      <div class="arch" id="mainArt">${p.badge?`<span class="tag">${esc(p.badge)}</span>`:""}${media(p,{vb:crops[0],eager:true})}</div>
+      <div class="thumbs">
+        ${views.map((v,i)=>`<button class="thumb ${i===0?"on":""}" data-view="${i}" aria-label="View ${i+1}">${shots.length?media(p,{index:i}):artSVG(p.art,{label:"",vb:v})}</button>`).join("")}
+      </div>
+    </div>
+    <div>
+      <span class="mrname">${p.mr}</span>
+      <h1>${esc(p.en)}</h1>
+      <p class="muted" style="margin:2px 0 0">${esc(CATS[p.cat].en)}</p>
+      <div class="pdprice rupee">${fmt(p.price)} ${p.mrp?`<span class="was" style="text-decoration:line-through;color:var(--ink-2)">${fmt(p.mrp)}</span><span class="off" style="font-size:.72rem;letter-spacing:.12em;color:var(--accent);font-weight:700">SAVE ${fmt(p.mrp-p.price)}</span>`:""}</div>
+      <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · Free insured shipping over ${fmt(SHIP_FREE_OVER)}</p>
+      <p class="muted" style="font-size:.85rem;margin:6px 0 0">Tap <b>Order on WhatsApp</b> and this piece, your size and the payment are settled in the chat.</p>
+      <p style="margin:20px 0 0;max-width:52ch">${esc(p.blurb)}</p>
+      <div class="qtyrow">
+        <div class="qty"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
+        <span class="muted" style="font-size:.86rem">Ready to ship in 2 working days</span>
+      </div>
+      <div class="buyrow">
+        <a class="btn wa" id="waBtn" target="_blank" rel="noopener" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
+          Order on WhatsApp</a>
+        <button class="btn ghost" id="addBtn">Add to bag</button>
+      </div>
+      <dl class="spec">
+        <div><dt>Material</dt><dd style="margin:0">${esc(p.material)}</dd></div>
+        <div><dt>Weight</dt><dd style="margin:0">${esc(p.weight)}</dd></div>
+        <div><dt>Size</dt><dd style="margin:0">${esc(p.size)}</dd></div>
+        <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
+        <div><dt>Payment</dt><dd style="margin:0">UPI, bank transfer, or partial COD — settled with us on WhatsApp</dd></div>
+      </dl>
+    </div>
+  </div>
+  ${saaj()}
+  <section class="band wrap">
+    <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>Worn with this</h2></div></div>
+    <div class="grid">${also.map(card).join("")}</div>
+  </section>`;
+}
+
+function cartView(){
+  if (!CART.length) return `
+    <div class="wrap empty">
+      ${artSVG("thushi",{label:"",vb:"60 100 280 220"})}
+      <h1 style="font-family:Marcellus,serif;font-weight:400;font-size:2rem;margin-bottom:8px">Your bag is empty</h1>
+      <p class="muted">Nothing strung yet. The thushi is where most people begin.</p>
+      <div style="margin-top:22px"><a class="btn" href="#/shop">Browse the collection</a></div>
+    </div>`;
+  return `
+  <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">पिशवी</span><h1>Your bag</h1></div>
+  <div class="wrap cartlayout">
+    <div>
+      ${CART.map(l=>{const p=byId(l.id); if(!p) return "";
+        return `<div class="lineitem">
+          <div class="art">${media(p,{vb:"40 60 320 320"})}</div>
+          <div>
+            <span class="mr">${p.mr}</span>
+            <h3><a href="#/product/${p.id}">${esc(p.en)}</a></h3>
+            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(p.material)}</p>
+            <div class="qty" style="display:inline-flex"><button data-dec="${p.id}" aria-label="Decrease">−</button><span>${l.qty}</span><button data-inc="${p.id}" aria-label="Increase">+</button></div>
+            <button class="linkbtn" data-del="${p.id}" style="margin-left:14px">Remove</button>
+          </div>
+          <div class="right">
+            <div class="rupee" style="font-weight:700">${fmt(p.price*l.qty)}</div>
+            ${p.mrp?`<div class="muted rupee" style="font-size:.82rem;text-decoration:line-through">${fmt(p.mrp*l.qty)}</div>`:""}
+          </div>
+        </div>`;}).join("")}
+      <p class="muted" style="font-size:.86rem;margin-top:18px">Tap <b>Order on WhatsApp</b> and your whole bag arrives in our chat as a list. We confirm sizes, address and payment there — nothing to fill in here.</p>
+    </div>
+    <aside class="summary">
+      <h3>Order summary</h3>
+      <div class="srow"><span>Subtotal</span><span class="rupee">${fmt(subtotal())}</span></div>
+      ${savings()?`<div class="srow" style="color:var(--accent)"><span>You save</span><span class="rupee">− ${fmt(savings())}</span></div>`:""}
+      <div class="srow"><span>Shipping</span><span class="rupee">${shipping()?fmt(shipping()):"Free"}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee">${fmt(subtotal()+shipping())}</span></div>
+      <div style="display:grid;gap:10px;margin-top:18px">
+        <a class="btn wa wide wa-order" href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg> Order on WhatsApp</a>
+        <a class="btn ghost wide" href="#/shop">Add another piece</a>
+      </div>
+      <p class="muted" style="font-size:.8rem;margin:14px 0 0">${subtotal()>=SHIP_FREE_OVER?"Insured shipping is on us.":`Add ${fmt(SHIP_FREE_OVER-subtotal())} more for free insured shipping.`}</p>
+    </aside>
+  </div>`;
+}
+
+function page(mr,title,body){
+  return `<div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">${mr}</span><h1>${esc(title)}</h1></div>
+  <div class="wrap" style="padding-bottom:80px;max-width:min(720px,92vw)">${body}</div>`;
+}
+function notFound(){ return page("नाही","Page not found",`<p class="muted">That link does not lead anywhere. <a href="#/shop" style="border-bottom:1px solid var(--gold-2)">Browse the collection</a> instead.</p>`); }
+
+const PAGES = {
+  story: () => page("आमची गोष्ट","Our story",`
+    <p>The Qala began in a two-room flat in Dighi, Pune, with a spool of triple thread and a box of hollow gold beads. We wanted the Rajwadi pieces our grandmothers wore, made properly, at a price a young bride could actually pay.</p>
+    <p>Every piece is strung, set and polished here before it is packed. We buy brass and 925 silver from Zaveri Bazaar and Kolhapur, plate to a real micron thickness rather than a wash that leaves within a month, and photograph each finished piece in daylight — which is why our product photos look like jewellery on a table and not like a rendering.</p>
+    <p>We sell mostly over WhatsApp, and most of our customers are someone's sister-in-law, sent by a bride who wore ours. That is the whole marketing plan.</p>
+    <p style="font-family:Marcellus,serif;font-size:1.4rem;color:var(--accent);border-left:2px solid var(--gold-2);padding-left:18px;margin-top:30px">She wore Qala and turned heads.</p>`),
+  care: () => page("काळजी","Care & polish",`
+    <p>Plated jewellery lasts as long as you keep it dry and away from chemicals. In practice:</p>
+    <ul style="padding-left:20px;display:grid;gap:9px">
+      <li>Last on, first off — after perfume, deodorant and hairspray; before you wash your face.</li>
+      <li>Wipe with the dry cloth in the box after each wear. Never use toothpaste, silver dip or Colin.</li>
+      <li>Store each piece in its own pouch, away from the others, in a dry drawer. Humidity is the real enemy in a Pune monsoon.</li>
+      <li>Take it off for a shower, a swim, and the kitchen.</li>
+    </ul>
+    <p style="margin-top:20px">We re-polish any piece bought from us once, free, in the first year. Post it to us or drop it at the Dighi address.</p>`),
+  shipping: () => page("पाठवणी","Shipping & COD",`
+    <p><b>Free insured shipping</b> on every order over ${fmt(SHIP_FREE_OVER)}. Below that it is a flat ${fmt(SHIP_FLAT)}.</p>
+    <p><b>Dispatch:</b> ready-to-ship pieces leave Pune within two working days. Bridal sets are fitted and polished to order, which takes five to seven days.</p>
+    <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
+    <p><b>Partial COD:</b> pay ${fmt(COD_ADVANCE)} to book the piece and the balance in cash at your door. Full COD is not available — plated jewellery refuses too often for a small maker to absorb.</p>
+    <p><b>How you pay:</b> there is no card form on this site. Pick your pieces, tap <b>Order on WhatsApp</b>, and we send you a UPI ID or a payment link in the chat once sizing and the dispatch date are settled.</p>`),
+  returns: () => page("परतावा","Returns",`
+    <p>Seven days from delivery, on any piece that is unworn and back in its original box with the polishing cloth and tags.</p>
+    <p>Message us on WhatsApp with your order number and a photo. We arrange the reverse pickup where the courier serves; elsewhere we reimburse the postage.</p>
+    <p>Refunds go back to the source within five working days of the piece reaching us. Custom-fitted bridal sets and pierced-fitting earrings are exchange-only, for hygiene.</p>`)
+};
+</script>
+
+<script>
+/* ============ order text ============ */
+function cartLines(){
+  return CART.map(l=>{const p=byId(l.id); return p?`• ${p.en} (${p.mr}) × ${l.qty} — ${fmt(p.price*l.qty)}`:"";}).filter(Boolean).join("\n");
+}
+function cartWaText(){
+  return `Namaskar The Qala 🙏\n\nI would like to order:\n${cartLines()}\n\nSubtotal: ${fmt(subtotal())}\nShipping: ${shipping()?fmt(shipping()):"Free"}\nTotal: ${fmt(subtotal()+shipping())}\n\nPlease confirm availability, sizing and how to pay.`;
+}
+
+/* ============ router ============ */
+function parseHash(){
+  const h = location.hash.replace(/^#/,"") || "/";
+  const [path, qs] = h.split("?");
+  return {parts: path.split("/").filter(Boolean), params: new URLSearchParams(qs||"")};
+}
+
+function render(){
+  const {parts, params} = parseHash();
+  const r = parts[0] || "";
+  let html;
+  if (r === "") html = home();
+  else if (r === "shop") html = shop(params);
+  else if (r === "product") html = product(parts[1]);
+  else if (r === "cart") html = cartView();
+  else if (PAGES[r]) html = PAGES[r]();
+  else html = notFound();
+
+  view.innerHTML = html;
+  document.querySelectorAll("nav.main a").forEach(a=>{
+    a.classList.toggle("on", a.getAttribute("href") === "#" + (location.hash.replace(/^#/,"")||"/"));
+  });
+  $("#nav").classList.remove("open");
+  $("#menuToggle").setAttribute("aria-expanded","false");
+  document.querySelectorAll(".wa-order").forEach(a=>{ a.href = waLink(cartWaText()); });
+  wire(r);
+  window.scrollTo({top:0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "instant"});
+}
+
+/* ============ per-view wiring ============ */
+function wire(route){
+  if (route === "product") {
+    const p = byId(parseHash().parts[1]);
+    if (!p) return;
+    let q = 1;
+    const qv = $("#qVal");
+    const waSet = () => { const b=$("#waBtn"); if(b) b.href = waLink(`Namaskar The Qala 🙏\n\nI would like to order:\n• ${p.en} (${p.mr}) — ${fmt(p.price)}\nQuantity: ${q}\nTotal: ${fmt(p.price*q)}\n\nPlease confirm availability, sizing and how to pay.`); };
+    waSet();
+    $("#qMinus").onclick = ()=>{ q=Math.max(1,q-1); qv.textContent=q; waSet(); };
+    $("#qPlus").onclick  = ()=>{ q=Math.min(20,q+1); qv.textContent=q; waSet(); };
+    $("#addBtn").onclick = ()=> add(p.id, q);
+    const crops = ["0 0 400 470","70 90 260 260","120 170 170 170"];
+    const shots = photosOf(p.id);
+    document.querySelectorAll(".thumb").forEach(t=>{
+      t.onclick = ()=>{
+        document.querySelectorAll(".thumb").forEach(x=>x.classList.remove("on"));
+        t.classList.add("on");
+        const i = Number(t.dataset.view) || 0;
+        $("#mainArt").innerHTML = (p.badge?`<span class="tag">${esc(p.badge)}</span>`:"")
+          + (shots.length ? media(p,{index:i, eager:true}) : artSVG(p.art,{label:p.en, vb:crops[i]}));
+      };
+    });
+  }
+
+  if (route === "shop") {
+    document.querySelectorAll("[data-nav]").forEach(el=>{ el.onchange = ()=>{ location.hash = el.dataset.nav; }; });
+    const sel = $("#sortSel");
+    if (sel) sel.onchange = ()=>{ const {params}=parseHash(); params.set("s", sel.value); location.hash = "#/shop?"+params.toString(); };
+  }
+
+  if (route === "cart") {
+    document.querySelectorAll("[data-inc]").forEach(b=> b.onclick = ()=>{ const l=CART.find(x=>x.id===b.dataset.inc); setQty(b.dataset.inc, l.qty+1); });
+    document.querySelectorAll("[data-dec]").forEach(b=> b.onclick = ()=>{ const l=CART.find(x=>x.id===b.dataset.dec); setQty(b.dataset.dec, l.qty-1); });
+    document.querySelectorAll("[data-del]").forEach(b=> b.onclick = ()=> drop(b.dataset.del));
+  }
+
+}
+
+/* ============ boot ============ */
+$("#cartBtn").onclick = ()=>{ location.hash = "#/cart"; };
+$("#menuToggle").onclick = ()=>{
+  const n = $("#nav"), open = n.classList.toggle("open");
+  $("#menuToggle").setAttribute("aria-expanded", open ? "true" : "false");
+};
+$("#waFooter").href = waLink("Namaskar The Qala 🙏 I have a question about a piece.");
+$("#yr").textContent = new Date().getFullYear();
+window.addEventListener("hashchange", render);
+syncCount();
+render();
+</script>

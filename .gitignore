@@ -1,0 +1,13 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
+
+# raw, unresized photos — keep these out of the repo
+photos/**/raw/
+*.HEIC
+*.heic
