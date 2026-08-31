@@ -1,96 +1,128 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Qala</title>
+<meta name="description" content="Rajwadi, Victorian and moissanite jewellery, made by hand in Dighi, Pune. Order on WhatsApp.">
+<!-- How the site looks when a link is shared on WhatsApp or Instagram.
+     Once you have your domain, make og:image the full address, e.g.
+     content="https://theqala.com/photos/hero-1.jpg" -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Qala">
+<meta property="og:title" content="The Qala — Rajwadi &amp; Victorian jewellery, Dighi, Pune">
+<meta property="og:description" content="Thushi, saaj, mangalsutra, bangles and bridal pieces, made by hand and sent insured across India. Order on WhatsApp.">
+<meta property="og:image" content="photos/hero-1.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Tiro+Devanagari+Marathi:ital@0;1&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 
+/* ===========================================================
+   Palette — warm parchment, kunku maroon, antique gold,
+   with a rose wash that only ever appears in the background.
+   =========================================================== */
 :root{
-  --ground:#F4EBDA;
-  --panel:#FCF7EC;
-  --panel-2:#EBDEC6;
-  --ink:#231610;
-  --ink-2:#6D543F;
-  --line:#DCC9AA;
-  --line-2:#C9B18C;
-  --accent:#7A1220;
-  --accent-2:#9B2B37;
-  --on-accent:#FBF3E2;
-  --gold:#96701F;
-  --gold-2:#C6A048;
-  --velvet:#5C101C;
-  --on-velvet:#F3E1BE;
-  --shadow:rgba(74,42,14,.14);
+  --ground:#FAF3EB;
+  --panel:#FFFBF6;
+  --panel-2:#F1E5D6;
+  --ink:#2A1A14;
+  --ink-2:#7A6152;
+  --line:#E7D6C2;
+  --line-2:#CDB79B;
+  --accent:#7E1226;
+  --accent-2:#9E2C3E;
+  --on-accent:#FFF6E9;
+  --gold:#9A7325;
+  --gold-2:#CFA84F;
+  --rose:#B45A72;
+  --velvet:#5A0F1C;
+  --on-velvet:#F6E6C7;
+
+  --wash-rose:rgba(180,90,114,.13);
+  --wash-gold:rgba(207,168,79,.16);
+  --shadow:rgba(74,42,14,.10);
   --shadow-2:rgba(74,42,14,.20);
-  --metal-a:#F2DEA8;
-  --metal-b:#C79A36;
-  --metal-c:#8A6417;
-  --pearl-a:#FFFDF6;
-  --pearl-b:#E4D9C2;
+  --glass:rgba(255,251,246,.82);
+
+  --metal-a:#F2DEA8; --metal-b:#C79A36; --metal-c:#8A6417;
+  --pearl-a:#FFFDF6; --pearl-b:#E4D9C2;
+  --bead-a:#6E6E7C;  --bead-b:#0F0E16;
   --stone:#FFFFFF;
-  --bead-a:#6E6E7C;
-  --bead-b:#0F0E16;
+
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%239A7325' stroke-width='1' opacity='0.045'%3E%3Cpath d='M32 2C44 14 44 24 32 32 20 24 20 14 32 2Z'/%3E%3Cpath d='M32 32C44 40 44 50 32 62 20 50 20 40 32 32Z'/%3E%3Cpath d='M2 32C14 20 24 20 32 32 24 44 14 44 2 32Z'/%3E%3Cpath d='M32 32C40 20 50 20 62 32 50 44 40 44 32 32Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --ground:#131013;
-    --panel:#1C171A;
-    --panel-2:#272025;
-    --ink:#F1E6D5;
-    --ink-2:#AE9986;
-    --line:#3A2F34;
-    --line-2:#544349;
-    --accent:#DFB96C;
-    --accent-2:#EFD79B;
+    --ground:#131011;
+    --panel:#1C1719;
+    --panel-2:#272023;
+    --ink:#F3E8D8;
+    --ink-2:#B29C8B;
+    --line:#3A2E33;
+    --line-2:#5A484F;
+    --accent:#E0BC72;
+    --accent-2:#F0D89D;
     --on-accent:#1A1215;
-    --gold:#DFB96C;
-    --gold-2:#EFD79B;
-    --velvet:#37101A;
-    --on-velvet:#F3E1BE;
+    --gold:#E0BC72;
+    --gold-2:#F0D89D;
+    --rose:#D98CA3;
+    --velvet:#3A1019;
+    --on-velvet:#F6E6C7;
+
+    --wash-rose:rgba(217,140,163,.10);
+    --wash-gold:rgba(224,188,114,.10);
     --shadow:rgba(0,0,0,.5);
-    --shadow-2:rgba(0,0,0,.66);
-    --metal-a:#F6E6B8;
-    --metal-b:#CDA243;
-    --metal-c:#8A6417;
-    --pearl-a:#FBF6EA;
-    --pearl-b:#C9BCA3;
-    --stone:#FFFFFF;
-    --bead-a:#9A9AAD;
-    --bead-b:#2E2E3E;
+    --shadow-2:rgba(0,0,0,.7);
+    --glass:rgba(28,23,25,.82);
+
+    --metal-a:#F6E6B8; --metal-b:#CDA243; --metal-c:#8A6417;
+    --pearl-a:#FBF6EA; --pearl-b:#C9BCA3;
+    --bead-a:#9A9AAD;  --bead-b:#2E2E3E;
+
+    --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23E0BC72' stroke-width='1' opacity='0.045'%3E%3Cpath d='M32 2C44 14 44 24 32 32 20 24 20 14 32 2Z'/%3E%3Cpath d='M32 32C44 40 44 50 32 62 20 50 20 40 32 32Z'/%3E%3Cpath d='M2 32C14 20 24 20 32 32 24 44 14 44 2 32Z'/%3E%3Cpath d='M32 32C40 20 50 20 62 32 50 44 40 44 32 32Z'/%3E%3C/g%3E%3C/svg%3E");
   }
 }
 :root[data-theme="dark"]{
-  --ground:#131013;
-  --panel:#1C171A;
-  --panel-2:#272025;
-  --ink:#F1E6D5;
-  --ink-2:#AE9986;
-  --line:#3A2F34;
-  --line-2:#544349;
-  --accent:#DFB96C;
-  --accent-2:#EFD79B;
+  --ground:#131011;
+  --panel:#1C1719;
+  --panel-2:#272023;
+  --ink:#F3E8D8;
+  --ink-2:#B29C8B;
+  --line:#3A2E33;
+  --line-2:#5A484F;
+  --accent:#E0BC72;
+  --accent-2:#F0D89D;
   --on-accent:#1A1215;
-  --gold:#DFB96C;
-  --gold-2:#EFD79B;
-  --velvet:#37101A;
-  --on-velvet:#F3E1BE;
+  --gold:#E0BC72;
+  --gold-2:#F0D89D;
+  --rose:#D98CA3;
+  --velvet:#3A1019;
+  --on-velvet:#F6E6C7;
+
+  --wash-rose:rgba(217,140,163,.10);
+  --wash-gold:rgba(224,188,114,.10);
   --shadow:rgba(0,0,0,.5);
-  --shadow-2:rgba(0,0,0,.66);
-  --metal-a:#F6E6B8;
-  --metal-b:#CDA243;
-  --metal-c:#8A6417;
-  --pearl-a:#FBF6EA;
-  --pearl-b:#C9BCA3;
-  --stone:#FFFFFF;
-  --bead-a:#9A9AAD;
-  --bead-b:#2E2E3E;
+  --shadow-2:rgba(0,0,0,.7);
+  --glass:rgba(28,23,25,.82);
+
+  --metal-a:#F6E6B8; --metal-b:#CDA243; --metal-c:#8A6417;
+  --pearl-a:#FBF6EA; --pearl-b:#C9BCA3;
+  --bead-a:#9A9AAD;  --bead-b:#2E2E3E;
+
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23E0BC72' stroke-width='1' opacity='0.045'%3E%3Cpath d='M32 2C44 14 44 24 32 32 20 24 20 14 32 2Z'/%3E%3Cpath d='M32 32C44 40 44 50 32 62 20 50 20 40 32 32Z'/%3E%3Cpath d='M2 32C14 20 24 20 32 32 24 44 14 44 2 32Z'/%3E%3Cpath d='M32 32C40 20 50 20 62 32 50 44 40 44 32 32Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 body{
   margin:0;
-  background:var(--ground);
+  min-height:100vh;
+  background-color:var(--ground);
+  background-image:
+    var(--pattern),
+    linear-gradient(180deg,var(--wash-rose) 0,transparent 620px),
+    linear-gradient(0deg,var(--wash-gold) 0,transparent 520px);
+  background-size:170px 170px,100% 620px,100% 520px;
+  background-repeat:repeat,no-repeat,no-repeat;
+  background-position:0 0,center top,center bottom;
   color:var(--ink);
   font-family:Karla,"Segoe UI",system-ui,sans-serif;
   font-size:16px;
@@ -101,7 +133,8 @@ img,svg{max-width:100%;display:block}
 svg{overflow:hidden}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+[hidden]{display:none !important}
 
 h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
 .mr{font-family:"Tiro Devanagari Marathi",Marcellus,serif;font-weight:400}
@@ -110,204 +143,276 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .eyebrow{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
 .muted{color:var(--ink-2)}
 .rupee{font-variant-numeric:tabular-nums}
+.blurb{max-width:64ch;margin:14px 0 0;color:var(--ink-2);line-height:1.7}
+
+/* reveal on scroll */
+.rise{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.rise.in{opacity:1;transform:none}
 
 /* ---------- ornament rules ---------- */
 .saaj{height:16px;background-image:radial-gradient(circle at 10px 8px,var(--gold-2) 0 3px,transparent 3.4px),linear-gradient(var(--line-2),var(--line-2));background-size:20px 16px,100% 1px;background-repeat:repeat-x,no-repeat;background-position:center,center}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
 /* ---------- header ---------- */
-.topbar{background:var(--velvet);color:var(--on-velvet);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;text-align:center;padding:8px 12px}
-header.site{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.navrow{display:flex;align-items:center;gap:18px;padding:12px 0}
+.topbar{background:var(--velvet);color:var(--on-velvet);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:9px 12px}
+header.site{position:sticky;top:0;z-index:40;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
+.navrow{display:flex;align-items:center;gap:16px;padding:12px 0}
 .brand{display:flex;align-items:center;gap:11px;margin-right:auto}
 .brand .mark{width:42px;height:42px;flex:none}
 .brand .wordmark{display:flex;flex-direction:column;line-height:1}
 .brand .devnag{font-family:"Tiro Devanagari Marathi",serif;font-size:1.6rem;color:var(--accent);letter-spacing:.02em}
 .brand .latin{font-family:Marcellus,serif;font-size:.62rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
 nav.main{display:flex;gap:22px;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
-nav.main a{padding:6px 0;border-bottom:1px solid transparent;transition:border-color .18s,color .18s}
-nav.main a:hover,nav.main a.on{border-color:var(--gold-2);color:var(--accent)}
-.cartbtn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line-2);border-radius:2px;padding:8px 13px;cursor:pointer;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
-.cartbtn:hover{border-color:var(--gold-2)}
-.cartbtn .count{background:var(--accent);color:var(--on-accent);border-radius:999px;min-width:19px;height:19px;display:grid;place-items:center;font-size:.68rem;font-weight:700;padding:0 5px}
-.menutoggle{display:none;background:none;border:1px solid var(--line-2);border-radius:2px;padding:8px 10px;cursor:pointer}
+nav.main a{position:relative;padding:6px 0;transition:color .18s}
+nav.main a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--gold-2);transition:right .28s cubic-bezier(.2,.7,.3,1)}
+nav.main a:hover::after,nav.main a.on::after{right:0}
+nav.main a:hover,nav.main a.on{color:var(--accent)}
+
+.iconbtn{position:relative;display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;transition:border-color .18s,background .18s}
+.iconbtn:hover{border-color:var(--gold-2);background:var(--panel)}
+.iconbtn .count{background:var(--accent);color:var(--on-accent);border-radius:999px;min-width:19px;height:19px;display:grid;place-items:center;font-size:.68rem;font-weight:700;padding:0 5px}
+.iconbtn .count.pop{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.menutoggle{display:none;background:none;border:1px solid var(--line-2);border-radius:999px;padding:9px 11px;cursor:pointer}
 
 /* ---------- buttons ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:13px 24px;border-radius:2px;cursor:pointer;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;transition:transform .15s,box-shadow .15s,background .15s}
-.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px -10px var(--shadow-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:14px 26px;border-radius:999px;cursor:pointer;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,background .18s,border-color .18s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px -12px var(--shadow-2)}
+.btn:active{transform:translateY(0)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
-.btn.ghost:hover{border-color:var(--gold-2);color:var(--accent)}
+.btn.ghost:hover{border-color:var(--gold-2);color:var(--accent);background:var(--panel)}
 .btn.wa{background:#128C7E;border-color:#128C7E;color:#fff}
 .btn.wa:hover{background:#0f7a6e}
 .btn.wide{width:100%}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-/* ---------- arch / product art ---------- */
-.arch{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:190px 190px 3px 3px;overflow:hidden;aspect-ratio:4/5}
-.arch::after{content:"";position:absolute;inset:9px;border:1px solid var(--gold-2);opacity:.4;border-radius:180px 180px 2px 2px;pointer-events:none;z-index:2}
-.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:var(--panel-2)}
-.arch svg{width:100%;height:100%}
-.arch .tag{position:absolute;bottom:14px;left:0;background:var(--accent);color:var(--on-accent);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px 4px 12px;font-weight:700;z-index:2}
+/* ---------- picture frames ---------- */
+.arch{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:200px 200px 8px 8px;overflow:hidden;aspect-ratio:4/5}
+.arch::after{content:"";position:absolute;inset:9px;border:1px solid var(--gold-2);opacity:.35;border-radius:191px 191px 4px 4px;pointer-events:none;z-index:2}
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:var(--panel-2);transition:transform .55s cubic-bezier(.2,.7,.3,1)}
+.ph{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38%;height:auto;color:var(--gold-2);opacity:.3;z-index:0}
+.arch .tag{position:absolute;bottom:14px;left:0;background:var(--accent);color:var(--on-accent);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;padding:5px 11px 5px 13px;font-weight:700;z-index:3;border-radius:0 999px 999px 0}
 
 /* ---------- hero ---------- */
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-.hero .inner{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:46px;align-items:center;padding:64px 0 70px}
-.hero h1{font-size:clamp(2.5rem,5.6vw,4.3rem);letter-spacing:.005em}
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(900px 540px at 78% 4%,var(--wash-rose),transparent 62%),
+    radial-gradient(760px 470px at 4% 92%,var(--wash-gold),transparent 60%);}
+.hero .inner{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:46px;align-items:center;padding:70px 0 74px}
+.hero h1{font-size:clamp(2.5rem,5.4vw,4.2rem);letter-spacing:.005em}
 .hero h1 em{font-style:normal;color:var(--accent);font-family:"Tiro Devanagari Marathi",serif}
-.hero p.lede{font-size:1.06rem;max-width:46ch;color:var(--ink-2);margin:20px 0 30px}
+.hero p.lede{font-size:1.06rem;max-width:46ch;color:var(--ink-2);margin:22px 0 32px}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
-.hero .stage{position:relative;display:grid;place-items:center;min-height:400px}
-.hero .stage .halo{position:absolute;width:86%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold-2) 30%,transparent) 0%,transparent 68%)}
-.hero .stage svg{position:relative;width:min(430px,100%)}
+.hero .stage{position:relative;display:grid;place-items:center;min-height:420px}
+.hero .stage .halo{position:absolute;width:92%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--wash-gold) 0%,transparent 68%)}
+.hero .stage .heroshot{position:relative;width:min(370px,84%);box-shadow:0 30px 60px -34px var(--shadow-2)}
 .trustrow{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
-.trustrow div{flex:1 1 200px;padding:16px 20px;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);border-right:1px solid var(--line);text-align:center}
+.trustrow div{flex:1 1 200px;padding:17px 20px;font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);border-right:1px solid var(--line);text-align:center}
 .trustrow div:last-child{border-right:0}
 .trustrow b{color:var(--ink);font-weight:600}
 
 /* ---------- sections ---------- */
-section.band{padding:66px 0}
-.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px;flex-wrap:wrap}
+section.band{padding:70px 0}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap}
 .sechead h2{font-size:clamp(1.6rem,3vw,2.3rem)}
 .sechead .mr{display:block;font-size:.95rem;color:var(--accent);margin-bottom:5px}
-.seclink{font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid var(--gold-2);padding-bottom:3px;white-space:nowrap}
+.seclink{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid var(--gold-2);padding-bottom:3px;white-space:nowrap;transition:color .18s}
+.seclink:hover{color:var(--accent)}
 
 .catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:16px}
-.cat{background:var(--panel);border:1px solid var(--line);padding:20px 16px 18px;text-align:center;cursor:pointer;transition:border-color .18s,transform .18s;border-radius:2px}
-.cat:hover{border-color:var(--gold-2);transform:translateY(-2px)}
-.cat svg{width:74px;height:74px;margin:0 auto 10px}
+.cat{background:var(--panel);border:1px solid var(--line);padding:20px 16px 18px;text-align:center;cursor:pointer;transition:border-color .22s,transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s;border-radius:14px}
+.cat:hover{border-color:var(--gold-2);transform:translateY(-3px);box-shadow:0 16px 30px -22px var(--shadow-2)}
+.cat .catshot{position:relative;display:block;width:76px;aspect-ratio:4/5;margin:0 auto 12px;border-radius:38px 38px 4px 4px;overflow:hidden;background:var(--panel-2);border:1px solid var(--line)}
+.cat .catshot .ph{width:52%}
 .cat .mr{font-size:1.12rem;color:var(--accent);display:block}
-.cat span.en{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.cat span.en{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:2px}
+.cat span.count{display:block;margin-top:5px;font-size:.72rem;color:var(--ink-2);opacity:.8}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:30px 24px}
-.card{display:flex;flex-direction:column;gap:11px;cursor:pointer}
-.card .arch{transition:transform .22s,box-shadow .22s}
-.card:hover .arch{transform:translateY(-3px);box-shadow:0 16px 30px -20px var(--shadow-2)}
-.card .mr{font-size:1.16rem;color:var(--accent);line-height:1.3}
-.card h3{font-size:.98rem;letter-spacing:.01em}
-.card .meta{font-size:.74rem;color:var(--ink-2);letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:34px 24px}
+.card{position:relative;display:flex;flex-direction:column;gap:11px;cursor:pointer}
+.card .arch{transition:transform .3s cubic-bezier(.2,.7,.3,1),box-shadow .3s}
+.card:hover .arch{transform:translateY(-4px);box-shadow:0 22px 40px -26px var(--shadow-2)}
+.card:hover .photo{transform:scale(1.05)}
+.card .mr{font-size:1.14rem;color:var(--accent);line-height:1.3}
+.card h3{font-size:.94rem;letter-spacing:.02em}
+.card .meta{font-size:.73rem;color:var(--ink-2);letter-spacing:.05em;margin:2px 0 0}
 .price{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums}
-.price .now{font-weight:700;font-size:1rem}
-.price .was{text-decoration:line-through;color:var(--ink-2);font-size:.83rem}
-.price .off{font-size:.68rem;color:var(--accent);letter-spacing:.1em;font-weight:700}
+.price .now{font-weight:700;font-size:.98rem}
+
+/* wishlist heart */
+.heart{position:absolute;top:12px;right:12px;z-index:4;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(6px);cursor:pointer;padding:0;color:var(--ink-2);transition:transform .2s cubic-bezier(.3,1.5,.5,1),color .2s,border-color .2s,opacity .2s}
+.heart svg{width:17px;height:17px}
+.heart:hover{transform:scale(1.12);border-color:var(--rose);color:var(--rose)}
+.heart.on{color:var(--rose);border-color:var(--rose)}
+.heart.on svg{fill:var(--rose)}
+.heart.beat{animation:beat .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes beat{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
 
 /* ---------- story strip ---------- */
-.story{background:var(--velvet);color:var(--on-velvet)}
-.story .inner{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:44px;align-items:center;padding:60px 0}
+.story{background:var(--velvet);color:var(--on-velvet);position:relative;overflow:hidden}
+.story::after{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 88% 10%,rgba(255,255,255,.07),transparent 60%);pointer-events:none}
+.story .inner{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:70px 0;max-width:74ch;position:relative}
 .story h2{color:var(--on-velvet);font-size:clamp(1.7rem,3vw,2.4rem)}
 .story .eyebrow{color:var(--gold-2)}
-.story p{color:color-mix(in srgb,var(--on-velvet) 82%,transparent);max-width:56ch}
+.story p{color:color-mix(in srgb,var(--on-velvet) 82%,transparent);max-width:60ch}
 .story .quote{font-family:Marcellus,serif;font-size:1.5rem;line-height:1.4;border-left:2px solid var(--gold-2);padding-left:20px}
-.story svg{width:min(300px,80%);margin-inline:auto}
 
-/* ---------- shop layout ---------- */
-.shoplayout{display:grid;grid-template-columns:222px minmax(0,1fr);gap:38px;align-items:start;padding:40px 0 70px}
+/* ---------- shop ---------- */
+.shoplayout{display:grid;grid-template-columns:224px minmax(0,1fr);gap:40px;align-items:start;padding:36px 0 80px}
 .shoplayout>*{min-width:0}
-.filters{position:sticky;top:96px;display:flex;flex-direction:column;gap:24px}
-.fgroup h4{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;font-family:Karla,sans-serif;font-weight:700}
-.fgroup label{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:.9rem;cursor:pointer}
+.filters{position:sticky;top:100px;display:flex;flex-direction:column;gap:26px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px}
+.fgroup h4{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;font-family:Karla,sans-serif;font-weight:700}
+.fgroup label{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:.9rem;cursor:pointer}
 .fgroup input{accent-color:var(--accent);width:15px;height:15px}
-.shopbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px;min-width:0}
-select.sort{background:var(--panel);border:1px solid var(--line-2);border-radius:2px;padding:9px 12px;font-size:.82rem}
-.chiprow{display:none;gap:8px;overflow-x:auto;padding-bottom:6px;flex:1 1 auto;min-width:0;-webkit-overflow-scrolling:touch}
-.chip{white-space:nowrap;border:1px solid var(--line-2);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:.78rem;cursor:pointer}
+.shopbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:24px;min-width:0}
+select.sort{background:var(--panel);border:1px solid var(--line-2);border-radius:999px;padding:10px 16px;font-size:.82rem;cursor:pointer}
+.chiprow{display:none;gap:8px;overflow-x:auto;padding-bottom:6px;flex:1 1 auto;min-width:0;scrollbar-width:none}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line-2);background:var(--panel);border-radius:999px;padding:8px 16px;font-size:.8rem;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
 .chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 
-/* ---------- product page ---------- */
-.pdp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:52px;padding:34px 0 70px;align-items:start}
+/* ---------- product ---------- */
+.pdp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:54px;padding:30px 0 80px;align-items:start}
 .pdp .gallery{display:flex;flex-direction:column;gap:12px}
-.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.thumb{position:relative;overflow:hidden;background:var(--panel-2);border:1px solid var(--line);border-radius:2px;aspect-ratio:1;padding:6px;cursor:pointer}
-.thumb.on{border-color:var(--gold-2)}
+.pdp .arch{cursor:zoom-in;box-shadow:0 26px 54px -34px var(--shadow-2)}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.thumb{position:relative;overflow:hidden;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;aspect-ratio:1;padding:0;cursor:pointer;transition:border-color .18s}
+.thumb:hover{border-color:var(--line-2)}
+.thumb.on{border-color:var(--gold-2);box-shadow:inset 0 0 0 1px var(--gold-2)}
+.thumb .ph{width:46%}
 .pdp h1{font-size:clamp(1.8rem,3.4vw,2.5rem);margin:6px 0 4px}
 .pdp .mrname{font-family:"Tiro Devanagari Marathi",serif;font-size:1.5rem;color:var(--accent)}
-.pdp .pdprice{display:flex;align-items:baseline;gap:12px;margin:16px 0 4px;font-size:1.5rem;font-variant-numeric:tabular-nums}
-.pdp .pdprice .was{font-size:1rem}
-.spec{border-top:1px solid var(--line);margin-top:22px}
-.spec div{display:flex;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.9rem}
-.spec dt{flex:0 0 128px;color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase;font-size:.72rem;padding-top:3px}
-.qtyrow{display:flex;align-items:center;gap:14px;margin:24px 0 14px}
-.qty{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:2px}
-.qty button{background:none;border:0;padding:10px 15px;cursor:pointer;font-size:1.05rem}
+.pdp .pdprice{display:flex;align-items:baseline;gap:12px;margin:16px 0 4px;font-size:1.55rem;font-variant-numeric:tabular-nums}
+.spec{border-top:1px solid var(--line);margin-top:26px}
+.spec div{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.spec dt{flex:0 0 130px;color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase;font-size:.7rem;padding-top:3px}
+.qtyrow{display:flex;align-items:center;gap:14px;margin:26px 0 14px;flex-wrap:wrap}
+.qty{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:999px;overflow:hidden}
+.qty button{background:none;border:0;padding:10px 16px;cursor:pointer;font-size:1.05rem;transition:background .15s}
+.qty button:hover{background:var(--panel-2)}
 .qty span{min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
 .buyrow{display:flex;gap:12px;flex-wrap:wrap}
 .buyrow .btn{flex:1 1 190px}
 
-/* ---------- cart & checkout ---------- */
-.pagehead{padding:36px 0 8px}
+/* lightbox */
+.lightbox{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(20,10,8,.9);backdrop-filter:blur(6px);padding:20px;cursor:zoom-out;opacity:0;transition:opacity .25s}
+.lightbox.in{opacity:1}
+.lightbox img{max-width:min(92vw,760px);max-height:88vh;width:auto;height:auto;border-radius:10px;box-shadow:0 40px 80px -30px rgba(0,0,0,.7)}
+.lightbox .close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff;display:grid;place-items:center;cursor:pointer}
+
+/* sticky order bar (phones, product page) */
+.orderbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;gap:10px;align-items:center;padding:11px 4vw calc(11px + env(safe-area-inset-bottom));background:var(--glass);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.orderbar .p{flex:1 1 auto;min-width:0}
+.orderbar .p b{display:block;font-size:.9rem;font-variant-numeric:tabular-nums}
+.orderbar .p span{display:block;font-size:.72rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.orderbar .btn{padding:13px 20px}
+.orderbar .wabtn{flex:0 0 auto;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#128C7E;color:#fff}
+.orderbar .wabtn svg{width:22px;height:22px}
+
+/* floating WhatsApp */
+.fab{position:fixed;right:18px;bottom:18px;z-index:44;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#128C7E;color:#fff;box-shadow:0 14px 30px -10px rgba(18,140,126,.6);transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.fab:hover{transform:scale(1.07)}
+.fab svg{width:26px;height:26px}
+
+/* ---------- bag ---------- */
+.pagehead{padding:38px 0 8px}
 .pagehead h1{font-size:clamp(1.9rem,3.6vw,2.7rem)}
-.cartlayout{display:grid;grid-template-columns:minmax(0,1fr) 344px;gap:38px;align-items:start;padding:20px 0 80px}
+.cartlayout{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:40px;align-items:start;padding:20px 0 90px}
 .cartlayout>*{min-width:0}
-.lineitem{display:grid;grid-template-columns:92px 1fr auto;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);align-items:center}
-.lineitem .art{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:60px 60px 2px 2px;overflow:hidden;aspect-ratio:4/5}
+.lineitem{display:grid;grid-template-columns:92px 1fr auto;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);align-items:center}
+.lineitem .art{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:46px 46px 6px 6px;overflow:hidden;aspect-ratio:4/5}
 .lineitem .mr{font-size:1.05rem;color:var(--accent)}
 .lineitem h3{font-size:.94rem}
 .lineitem .right{text-align:right;font-variant-numeric:tabular-nums}
-.linkbtn{background:none;border:0;padding:0;color:var(--ink-2);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink-2);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid var(--line-2);transition:color .18s}
 .linkbtn:hover{color:var(--accent)}
-.summary{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:24px;position:sticky;top:96px}
+.summary{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;position:sticky;top:100px;box-shadow:0 18px 40px -34px var(--shadow-2)}
 .summary h3{font-size:1.25rem;margin-bottom:14px}
 .srow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:.92rem;font-variant-numeric:tabular-nums}
 .srow.total{border-top:1px solid var(--line);margin-top:10px;padding-top:14px;font-size:1.16rem;font-weight:700}
-.empty{text-align:center;padding:70px 20px}
-.empty svg{width:170px;margin:0 auto 22px;opacity:.65}
+.empty{text-align:center;padding:80px 20px}
+.emptymark{position:relative;width:104px;height:104px;margin:0 auto 22px}
+.emptymark .ph{opacity:.5;width:100%}
 
-form.checkout{display:grid;gap:16px}
-.frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
-.field input,.field textarea{background:var(--panel);border:1px solid var(--line-2);border-radius:2px;padding:12px 13px;width:100%}
-.field input:focus,.field textarea:focus{border-color:var(--gold-2);outline:none}
-.field .err{color:var(--accent-2);font-size:.74rem;min-height:1em}
+/* ---------- order form ---------- */
+.orderlayout{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:40px;align-items:start;padding:20px 0 90px}
+.orderlayout>*{min-width:0}
+form.orderform{display:grid;gap:18px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 18px 40px -34px var(--shadow-2)}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
+.field input,.field textarea{background:var(--ground);border:1px solid var(--line-2);border-radius:12px;padding:13px 15px;width:100%;transition:border-color .18s,box-shadow .18s}
+.field textarea{resize:vertical;min-height:96px}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.field .err{color:var(--accent-2);font-size:.75rem;min-height:1.1em}
 .field.bad input,.field.bad textarea{border-color:var(--accent-2)}
-.payopts{display:grid;gap:11px}
-.payopt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:2px;padding:14px;cursor:pointer;background:var(--panel)}
-.payopt.on{border-color:var(--gold-2);box-shadow:inset 0 0 0 1px var(--gold-2)}
-.payopt input{margin-top:4px;accent-color:var(--accent)}
-.payopt b{display:block;font-size:.95rem}
-.payopt span{font-size:.82rem;color:var(--ink-2)}
+.field .hint{font-size:.76rem;color:var(--ink-2)}
+.placed{max-width:640px;margin-inline:auto;text-align:center;padding:60px 0 100px}
+.placed .oid{font-family:Marcellus,serif;font-size:1.5rem;letter-spacing:.18em;color:var(--accent);margin:8px 0 20px}
+.placed .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;text-align:left;margin:28px 0}
 
-.confirm{max-width:620px;margin-inline:auto;text-align:center;padding:60px 0 90px}
-.confirm .oid{font-family:Marcellus,serif;font-size:1.6rem;letter-spacing:.16em;color:var(--accent);margin:6px 0 18px}
-.confirm .box{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:24px;text-align:left;margin:26px 0}
+/* skeletons */
+.skelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:34px 24px}
+.skel{border-radius:200px 200px 8px 8px;aspect-ratio:4/5;background:linear-gradient(100deg,var(--panel-2) 30%,var(--panel) 50%,var(--panel-2) 70%);background-size:220% 100%;animation:shimmer 1.5s linear infinite}
+@keyframes shimmer{to{background-position:-220% 0}}
 
 /* ---------- footer ---------- */
-footer.site{background:var(--panel);border-top:1px solid var(--line);padding:52px 0 26px;margin-top:auto}
+footer.site{background:var(--panel);border-top:1px solid var(--line);padding:56px 0 26px;margin-top:auto}
 .fgrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:34px}
-footer h4{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 12px;font-family:Karla,sans-serif;font-weight:700}
-footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:.9rem}
+footer h4{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 12px;font-family:Karla,sans-serif;font-weight:700}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:.9rem}
+footer a{transition:color .18s}
 footer a:hover{color:var(--accent)}
-.fbottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:34px;padding-top:18px;font-size:.78rem;color:var(--ink-2)}
+.fbottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:36px;padding-top:18px;font-size:.78rem;color:var(--ink-2)}
 
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120%);background:var(--velvet);color:var(--on-velvet);padding:13px 22px;border-radius:2px;font-size:.86rem;letter-spacing:.05em;z-index:80;box-shadow:0 14px 34px -14px rgba(0,0,0,.55);transition:transform .3s cubic-bezier(.2,.9,.3,1)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(160%);background:var(--velvet);color:var(--on-velvet);padding:14px 24px;border-radius:999px;font-size:.86rem;letter-spacing:.04em;z-index:80;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
 @media (max-width:900px){
-  .hero .inner{grid-template-columns:minmax(0,1fr);gap:26px;padding:40px 0 46px}
-  .hero .stage{min-height:300px;order:-1}
-  .story .inner{grid-template-columns:minmax(0,1fr);gap:26px}
+  .hero .inner{grid-template-columns:minmax(0,1fr);gap:28px;padding:36px 0 44px}
+  .hero .stage{min-height:290px;order:-1}
+  .hero .stage .heroshot{width:min(300px,72%)}
   .shoplayout{grid-template-columns:minmax(0,1fr);gap:20px}
   .filters{display:none}
   .chiprow{display:flex}
-  .pdp{grid-template-columns:minmax(0,1fr);gap:28px}
-  .cartlayout{grid-template-columns:minmax(0,1fr)}
+  .pdp{grid-template-columns:minmax(0,1fr);gap:26px;padding-bottom:110px}
+  .cartlayout,.orderlayout{grid-template-columns:minmax(0,1fr)}
   .summary{position:static}
   .fgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   nav.main{display:none}
-  nav.main.open{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--ground);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px 4vw 16px}
-  nav.main.open a{padding:11px 0;border-bottom:1px solid var(--line)}
-  .menutoggle{display:block;order:3}
-  header.site{position:relative}
+  /* the header uses backdrop-filter, which makes it the containing block for
+     position:fixed children — so the drawer is absolute under the header instead */
+  nav.main.open{display:flex;position:absolute;top:100%;left:0;right:0;min-height:100vh;
+    background-color:var(--ground);background-image:var(--pattern);background-size:170px 170px;
+    border-top:1px solid var(--line);flex-direction:column;gap:0;padding:10px 7vw 40vh;z-index:60;
+    font-size:1.08rem;letter-spacing:.04em;text-transform:none;font-family:Marcellus,serif}
+  nav.main.open a{padding:19px 2px;border-bottom:1px solid var(--line);color:var(--ink)}
+  nav.main.open a:hover{color:var(--accent)}
+  body.menu-open{overflow:hidden}
+  body.menu-open .orderbar,body.menu-open .fab{display:none}
+  nav.main.open a::after{display:none}
+  .menutoggle{display:block;order:3;position:relative;z-index:61}
+  .orderbar{display:flex}
+  .fab{bottom:82px}
+  body.on-piece .fab{display:none}
+  section.band{padding:52px 0}
 }
 @media (max-width:560px){
   .frow{grid-template-columns:minmax(0,1fr)}
+  form.orderform{padding:22px 18px;border-radius:14px}
   .fgrid{grid-template-columns:minmax(0,1fr)}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 14px}
-  .lineitem{grid-template-columns:64px 1fr;grid-template-areas:"art body" "right right"}
+  .grid,.skelgrid{grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:24px 14px}
+  .arch{border-radius:120px 120px 6px 6px}
+  .arch::after{inset:7px;border-radius:114px 114px 4px 4px}
+  .lineitem{grid-template-columns:70px 1fr;grid-template-areas:"art body" "right right"}
   .lineitem .art{grid-area:art}
   .lineitem .right{grid-area:right;text-align:left}
+  .heart{width:32px;height:32px;top:9px;right:9px}
+  .trustrow div{flex:1 1 50%;border-bottom:1px solid var(--line)}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  .rise{opacity:1;transform:none}
 }
 </style>
 
@@ -336,10 +441,15 @@ footer a:hover{color:var(--accent)}
       <a href="#/shop">Shop All</a>
       <a href="#/shop?c=rajwadi">Rajwadi</a>
       <a href="#/shop?c=victorian">Victorian</a>
+      <a href="#/shop?c=bangles">Bangles</a>
       <a href="#/shop?c=short-mangalsutra">Mangalsutra</a>
       <a href="#/story">Our Story</a>
     </nav>
-    <button class="cartbtn" id="cartBtn" aria-label="Open bag">
+    <a class="iconbtn" id="savedBtn" href="#/saved" aria-label="Saved pieces">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>
+      <span class="count" id="savedCount">0</span>
+    </a>
+    <button class="iconbtn" id="cartBtn" aria-label="Open bag">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16l-1.4 12.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8L4 7Z"/><path d="M8.5 7V5.6a3.5 3.5 0 0 1 7 0V7"/></svg>
       Bag <span class="count" id="cartCount">0</span>
     </button>
@@ -365,6 +475,7 @@ footer a:hover{color:var(--accent)}
           <li><a href="#/shop?c=rajwadi">Rajwadi</a></li>
           <li><a href="#/shop?c=victorian">Victorian</a></li>
           <li><a href="#/shop?c=short-mangalsutra">Short Mangalsutra</a></li>
+          <li><a href="#/shop?c=bangles">Bangles</a></li>
           <li><a href="#/shop?c=rings">Rings</a></li>
           <li><a href="#/shop?c=necklace">Necklace</a></li>
           <li><a href="#/shop?c=heritage">Heritage</a></li>
@@ -396,497 +507,335 @@ footer a:hover{color:var(--accent)}
   </div>
 </footer>
 
+<a class="fab" id="fab" target="_blank" rel="noopener" href="#" aria-label="Message us on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
+</a>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 
 <script>
 /* =========================================================
    The Qala — storefront
+
    CHANGE THIS ONE LINE: your WhatsApp number, country code, digits only.
    ========================================================= */
-const WA = "919999999999";
+const WA = "919579628754";
+
+/* Your live address, used to build the links inside every WhatsApp order.
+   Leave it empty and the site uses whatever address the page is open at —
+   which is right once it is live, but is "localhost" while you preview.
+   Once you have the domain, set it:  const SITE = "https://theqala.com/"; */
+const SITE = "";
+const SHIP_FREE_OVER = 1499;
 
 /* ---------------------------------------------------------
-   PHOTOS — real product pictures.
+   THE FOLDERS ARE THE SHOP. FILENAMES DO NOT MATTER.
 
-   1. The  photos  folder next to this file has one folder per category:
-        photos/rajwadi/  photos/victorian/  photos/short-mangalsutra/
-        photos/rings/    photos/necklace/   photos/heritage/
-   2. Put each piece's pictures in its category folder. Portrait crops
-      look best (4:5) — resize to about 1200px wide, under 300 KB.
-   3. List them below, product id -> array of file paths.
-      The first one is the main picture on the product page.
-   4. Commit, push, and Cloudflare Pages redeploys on its own.
+     photos/<category>/<low>-<high>/anything.jpg    one piece
+     photos/<category>/<low>-<high>/<a folder>/     one piece, several views
+     photos/<category>/anything.jpg                 the category tile
+     photos/hero.mp4                                plays when the site opens
+     photos/hero-1.jpg                              still, used if there is no video
 
-   Anything you do NOT list here keeps the drawn artwork,
-   so you can add photos a few pieces at a time.
-   If a file is missing or misspelt, that piece quietly falls
-   back to the drawing instead of showing a broken image.
+   e.g.  photos/rajwadi/2000-3000/IMG_4432.jpg
+         -> RAJWADI-2000-1, Rajwadi, ₹2,000 – ₹3,000
+
+   Any image format: jpg, jpeg, png, webp, avif, gif and svg are used as they
+   are; heic (what an iPhone shoots), tif, tiff and bmp are converted to jpg
+   by build_catalogue.py, because browsers cannot display them.
+
+   Drop photographs in straight off the phone and push. build_catalogue.py
+   (run by the GitHub Action) numbers them and writes photos/catalogue.json,
+   which this page reads. A number, once given, never moves — adding or
+   deleting photographs later does not renumber anything.
+
+   New price folders and new categories appear on their own. The only thing
+   to add below is the Marathi name for a NEW category.
    --------------------------------------------------------- */
-const PHOTOS = {
-  // "thushi-kolhapuri": ["photos/rajwadi/thushi-1.jpg", "photos/rajwadi/thushi-2.jpg"],
-  // "victorian-choker": ["photos/victorian/choker-1.jpg"],
-  // "ring-moissanite":  ["photos/rings/moissanite-ring-1.jpg"],
-};
-const SHIP_FREE_OVER = 1499;
-const SHIP_FLAT = 79;
-const COD_ADVANCE = 500;
-
-const CATS = {
-  "rajwadi":           {mr:"राजवाडी",           en:"Rajwadi"},
-  "victorian":         {mr:"व्हिक्टोरियन",        en:"Victorian"},
-  "short-mangalsutra": {mr:"शॉर्ट मंगळसूत्र",     en:"Short Mangalsutra"},
-  "rings":             {mr:"अंगठी",             en:"Rings"},
-  "necklace":          {mr:"नेकलेस",            en:"Necklace"},
-  "heritage":          {mr:"वारसा",             en:"Heritage"}
-};
-
-const PRODUCTS = [
-  {id:"thushi-kolhapuri", mr:"कोल्हापुरी ठुशी", en:"Kolhapuri Thushi", cat:"rajwadi", art:"thushi",
-   price:3450, mrp:4200, badge:"Bestseller",
-   material:"Brass base, 1-gram gold micron plating", weight:"38 g", size:"11 in + 2 in extender",
-   blurb:"The choker every Maharashtrian wardrobe starts with — hundreds of tiny hollow gold beads strung so tight the necklace stands on its own. Ours is strung on a triple thread so it holds its curve through a whole wedding day."},
-
-  {id:"saaj-peshwai", mr:"कोल्हापुरी साज", en:"Peshwai Kolhapuri Saaj", cat:"rajwadi", art:"saaj",
-   price:5900, mrp:7400, badge:"Signature",
-   material:"Brass, 1-gram gold plating, kundan stone", weight:"62 g", size:"18 in",
-   blurb:"A full row of jav leaves, a taviz on each shoulder and a red kundan at the heart — the saaj is read like a sentence in Kolhapur, and we kept every word of it."},
-
-  {id:"mangalsutra-rajwadi", mr:"राजवाडी मंगळसूत्र", en:"Rajwadi Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
-   price:2850, mrp:3600, badge:"Bestseller",
-   material:"Brass, gold plating, glass black beads", weight:"28 g", size:"20 in",
-   blurb:"Short black-bead chain, two deep vati, and a Rajwadi pendant with a temple arch. Light enough for a working day, dressy enough for a haldi."},
-
-  {id:"mangalsutra-vati", mr:"दुहेरी वाटी मंगळसूत्र", en:"Double Vati Mangalsutra", cat:"short-mangalsutra", art:"vati",
-   price:1990, mrp:2500, badge:"",
-   material:"Brass, gold plating, glass black beads", weight:"19 g", size:"24 in",
-   blurb:"The everyday one. Two plain vati, no stones, nothing to catch on a dupatta — the mangalsutra our customers reorder for their sisters."},
-
-  {id:"nath-brahmani", mr:"ब्रह्मणी नथ", en:"Brahmani Nath", cat:"rajwadi", art:"nath",
-   price:2650, mrp:3300, badge:"",
-   material:"Brass wire, freshwater-look pearls, ruby-tone stone", weight:"9 g", size:"5.5 cm across",
-   blurb:"The long paisley nath of a Brahmani bride, curved to sit against the cheek. Clip fitting — no piercing needed — with a safety chain for the hair."},
-
-  {id:"nath-peshwai-small", mr:"छोटी पेशवाई नथ", en:"Peshwai Nath, Small", cat:"rajwadi", art:"nath",
-   price:1450, mrp:0, badge:"",
-   material:"Brass wire, pearls, green stone", weight:"5 g", size:"3.5 cm across",
-   blurb:"A smaller Peshwai for the mehendi, the pooja, or a Saturday when you simply feel like it. Clip fitting."},
-
-  {id:"bugadi-pair", mr:"बुगडी जोड", en:"Kolhapuri Bugadi, Pair", cat:"rajwadi", art:"bugadi",
-   price:1150, mrp:1400, badge:"",
-   material:"Brass, gold plating, pearl drops", weight:"7 g the pair", size:"2.2 cm",
-   blurb:"Worn on the upper ear, one on each side. Cuff fitting that grips without a second piercing."},
-
-  {id:"kudi-moissanite", mr:"मोइसनाइट कुडी", en:"Moissanite Solitaire Kudi", cat:"victorian", art:"kudi",
-   price:4900, mrp:6200, badge:"Moissanite",
-   material:"925 silver, rhodium finish, VVS moissanite", weight:"3.2 g the pair", size:"7 mm stone",
-   blurb:"Two 7 mm moissanite solitaires in a six-prong basket, set in 925 silver and hallmarked. Comes with a test certificate — hold it under a pen tester in front of your mother-in-law."},
-
-  {id:"tanmani-pearl", mr:"तन्मणी", en:"Pearl Tanmani", cat:"necklace", art:"tanmani",
-   price:4200, mrp:5100, badge:"",
-   material:"Shell pearls, brass frame, gold plating", weight:"44 g", size:"12 in + 3 in extender",
-   blurb:"Three rows of pearls gathered into a stone-set centre. Traditionally the piece a Maharashtrian bride is given by her mother — worn just above the thushi."},
-
-  {id:"chinchpeti", mr:"चिंचपेटी", en:"Chinchpeti", cat:"necklace", art:"chinchpeti",
-   price:3800, mrp:4600, badge:"",
-   material:"Brass, gold plating, kundan stones", weight:"41 g", size:"12 in",
-   blurb:"A flat gold band of square kundan set edge to edge, named for the tamarind seed each stone is shaped like. Sits high on the neck under a nauvari."},
-
-  {id:"mohanmal", mr:"मोहनमाळ", en:"Mohanmal", cat:"necklace", art:"mohanmal",
-   price:6400, mrp:7900, badge:"",
-   material:"Brass, 1-gram gold plating", weight:"78 g", size:"22 in",
-   blurb:"Four strands of gold beads braided into one heavy rope. Old Maharashtrian households bought a mohanmal as savings — it wears like it."},
-
-  {id:"putali-haar", mr:"पुतळी हार", en:"Putali Haar", cat:"heritage", art:"putali",
-   price:8900, mrp:11000, badge:"Heirloom",
-   material:"Brass, gold plating, cast coin motifs", weight:"96 g", size:"20 in",
-   blurb:"Nineteen Lakshmi coins, largest at the centre, each struck rather than stamped so the face keeps its depth after years of polish."},
-
-  {id:"lakshmi-haar", mr:"लक्ष्मी हार", en:"Lakshmi Haar", cat:"heritage", art:"lakshmi",
-   price:9800, mrp:12500, badge:"Heirloom",
-   material:"Brass, gold plating, kundan and pearls", weight:"110 g", size:"18 in, temple length",
-   blurb:"Framed Lakshmi coins with a pearl drop under each and a temple pendant at the centre. Our most photographed piece — and the heaviest."},
-
-  {id:"bormaal", mr:"बोरमाळ", en:"Bormaal", cat:"necklace", art:"bormaal",
-   price:5200, mrp:6300, badge:"",
-   material:"Brass, gold plating", weight:"58 g", size:"16 in",
-   blurb:"Round beads the size of a ber fruit, which is exactly where the name comes from. Two strands, worn between the thushi and the saaj."},
-
-  {id:"vaki-pair", mr:"वाकी जोड", en:"Vaki Armlets, Pair", cat:"rajwadi", art:"vaki",
-   price:3300, mrp:4100, badge:"",
-   material:"Brass, gold plating, adjustable cord", weight:"36 g the pair", size:"Adjustable 9–13 in",
-   blurb:"Armlets tied above the elbow over a nauvari sleeve, with a cord you pull to fit. Sold as a pair, because one vaki looks like a mistake."},
-
-  {id:"bridal-set-navari", mr:"नवरी संच", en:"Navari Bridal Set", cat:"heritage", art:"set",
-   price:18500, mrp:23000, badge:"Complete set",
-   material:"Brass, 1-gram gold plating, kundan, pearls", weight:"340 g total", size:"Nine pieces",
-   blurb:"Everything a Maharashtrian bride is dressed in, in one box: thushi, saaj, tanmani, mohanmal, nath, bugadi, kudi, a pair of vaki and the mundavalya. Fitted and polished before it ships."},
-
-  {id:"bridal-set-moissanite", mr:"मोइसनाइट नवरी संच", en:"Moissanite Bridal Set", cat:"victorian", art:"setstone",
-   price:24500, mrp:31000, badge:"Moissanite",
-   material:"925 silver, rhodium and gold finish, VVS moissanite", weight:"180 g total", size:"Five pieces",
-   blurb:"Necklace, earrings, maang tikka, nath and a ring — all set with VVS moissanite in 925 silver. For brides who want the shine on camera without the vault."},
-
-  {id:"painjan", mr:"पैंजण", en:"Painjan, Pair", cat:"rajwadi", art:"painjan",
-   price:2400, mrp:2900, badge:"",
-   material:"925 silver, oxidised finish, ghungroo bells", weight:"52 g the pair", size:"10 in + hook",
-   blurb:"Silver anklets with forty-eight ghungroo. Loud enough that the house knows you are home."},
-
-  {id:"jodvi", mr:"जोडवी", en:"Jodvi Toe Rings, Set of 4", cat:"rings", art:"jodvi",
-   price:890, mrp:1100, badge:"",
-   material:"925 silver, oxidised finish", weight:"9 g the set", size:"Adjustable",
-   blurb:"Four open-back toe rings, two for each foot, in the flat Maharashtrian pattern. Adjustable, so they survive a monsoon of swelling and shrinking."},
-
-  {id:"ambada-pin", mr:"आंबाडा पिन", en:"Ambada Pin", cat:"rajwadi", art:"pin",
-   price:1250, mrp:1500, badge:"",
-   material:"Brass, gold plating, pearls", weight:"11 g", size:"9 cm pin",
-   blurb:"The pin that holds the ambada bun and finishes it with a flower. Sold singly — most brides take two."},
-
-  {id:"ring-moissanite", mr:"मोइसनाइट अंगठी", en:"Moissanite Solitaire Ring", cat:"rings", art:"ring",
-   price:5900, mrp:7400, badge:"Moissanite",
-   material:"925 silver, rhodium finish, VVS moissanite", weight:"3.4 g", size:"Sizes 10–18, tell us yours",
-   blurb:"A single 8 mm moissanite in a six-prong setting, on a plain 925 band. The ring people ask about at a wedding and then ask the price of twice, because they do not believe it the first time."},
-
-  {id:"ring-rajwadi", mr:"राजवाडी अंगठी", en:"Rajwadi Ring", cat:"rings", art:"ring",
-   price:1450, mrp:1800, badge:"",
-   material:"Brass, 1-gram gold plating, red kundan", weight:"5 g", size:"Adjustable shank",
-   blurb:"The broad Rajwadi face with a kundan at the centre, on an adjustable shank so it fits whichever finger the day calls for."},
-
-  {id:"ring-victorian-cocktail", mr:"व्हिक्टोरियन अंगठी", en:"Victorian Cocktail Ring", cat:"rings", art:"ring",
-   price:2200, mrp:2700, badge:"",
-   material:"Brass, victorian antique finish, AD stones and pearl", weight:"7 g", size:"Adjustable shank",
-   blurb:"Dull antique gold, a cluster of AD stones and one pearl drop. Heavy on the hand in the way a cocktail ring is supposed to be."},
-
-  {id:"victorian-choker", mr:"व्हिक्टोरियन चोकर", en:"Victorian Choker", cat:"victorian", art:"vchoker",
-   price:6800, mrp:8400, badge:"Signature",
-   material:"Brass, victorian antique finish, AD stones, shell pearls", weight:"68 g", size:"13 in + 3 in extender",
-   blurb:"The antique-finish choker that goes with a silk saree when gold feels too loud — matte, stone-set, with a row of pearl drops along the lower edge."},
-
-  {id:"victorian-jhumka", mr:"व्हिक्टोरियन झुमका", en:"Victorian Jhumka, Pair", cat:"victorian", art:"jhumka",
-   price:2900, mrp:3600, badge:"",
-   material:"Brass, victorian antique finish, AD stones, pearls", weight:"22 g the pair", size:"5.5 cm drop",
-   blurb:"Full-bell jhumka with a pearl fringe, on a screw back that actually holds. Light enough to wear through a reception without regretting it."},
-
-  {id:"mangalsutra-victorian-short", mr:"व्हिक्टोरियन शॉर्ट मंगळसूत्र", en:"Victorian Short Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
-   price:3200, mrp:3900, badge:"",
-   material:"Brass, victorian antique finish, glass black beads, AD stones", weight:"24 g", size:"18 in",
-   blurb:"Antique-finish pendant on a short black-bead chain. Sits above the neckline of a kurta, which is why it is the one most of our customers wear to work."},
-
-  {id:"mangalsutra-moissanite-short", mr:"मोइसनाइट शॉर्ट मंगळसूत्र", en:"Moissanite Short Mangalsutra", cat:"short-mangalsutra", art:"mangalsutra",
-   price:6900, mrp:8600, badge:"Moissanite",
-   material:"925 silver, gold and rhodium finish, VVS moissanite, black beads", weight:"21 g", size:"18 in",
-   blurb:"Three moissanite stones in a vati pendant on a 925 silver black-bead chain. Hallmarked, and it comes with the test certificate."}
-];
-
-/* ============ artwork ============ */
-let UID = 0;
-const D = Math.PI/180;
-function pts(cx,cy,rx,ry,a0,a1,n){
-  const o=[];
-  for(let i=0;i<n;i++){const t=n===1?0:i/(n-1);const a=(a0+(a1-a0)*t)*D;o.push([cx+rx*Math.cos(a), cy+ry*Math.sin(a)]);}
-  return o;
-}
-function pathOf(p){return p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");}
-function beads(p,r,fill,k){return p.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${r}" fill="url(#${fill}${k})"/>`).join("");}
-function defs(k){return `<defs>
-<linearGradient id="g${k}" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="var(--metal-a)"/><stop offset="48%" stop-color="var(--metal-b)"/><stop offset="100%" stop-color="var(--metal-c)"/></linearGradient>
-<radialGradient id="gb${k}" cx="34%" cy="30%" r="72%"><stop offset="0%" stop-color="var(--metal-a)"/><stop offset="55%" stop-color="var(--metal-b)"/><stop offset="100%" stop-color="var(--metal-c)"/></radialGradient>
-<radialGradient id="pb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="var(--pearl-a)"/><stop offset="100%" stop-color="var(--pearl-b)"/></radialGradient>
-<radialGradient id="kb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="var(--bead-a)"/><stop offset="100%" stop-color="var(--bead-b)"/></radialGradient>
-<radialGradient id="sb${k}" cx="34%" cy="26%" r="76%"><stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#e3f2fb"/><stop offset="100%" stop-color="#9cc0d6"/></radialGradient>
-<radialGradient id="rb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="#e2657a"/><stop offset="100%" stop-color="#7d0c20"/></radialGradient>
-<radialGradient id="eb${k}" cx="34%" cy="28%" r="74%"><stop offset="0%" stop-color="#7fd0a6"/><stop offset="100%" stop-color="#0f5d3c"/></radialGradient>
-</defs>`;}
-
-function leaf(x,y,s,k,rot){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(rot||0).toFixed(1)}) scale(${s})"><path d="M0 -1 C 7 4, 7 14, 0 19 C -7 14, -7 4, 0 -1 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".7"/><path d="M0 3 L0 15" stroke="var(--metal-c)" stroke-width=".7" opacity=".6"/></g>`;}
-function coin(x,y,r,k){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="${r}" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1"/><circle r="${(r*0.72).toFixed(1)}" fill="none" stroke="var(--metal-c)" stroke-width=".8" opacity=".7"/><circle cy="${(-r*0.16).toFixed(1)}" r="${(r*0.2).toFixed(1)}" fill="var(--metal-c)" opacity=".55"/><path d="M${(-r*0.34).toFixed(1)} ${(r*0.34).toFixed(1)} Q0 ${(r*0.06).toFixed(1)} ${(r*0.34).toFixed(1)} ${(r*0.34).toFixed(1)}" fill="none" stroke="var(--metal-c)" stroke-width=".9" opacity=".55"/></g>`;}
-function gem(x,y,r,ref,k){return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="${r+2}" fill="url(#g${k})"/><circle r="${r}" fill="url(#${ref}${k})"/><circle cx="${(-r*0.3).toFixed(1)}" cy="${(-r*0.34).toFixed(1)}" r="${(r*0.26).toFixed(1)}" fill="#fff" opacity=".6"/></g>`;}
-function chain(p,w,k){return `<path d="${pathOf(p)}" fill="none" stroke="url(#g${k})" stroke-width="${w}" stroke-linecap="round"/>`;}
-
-const ART = {
-  thushi(k){
-    let s="";
-    [[132,98],[122,88],[112,78]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,30+i*2),7.2,"gb",k); });
-    s+=beads(pts(200,150,100,68,150,30,9),9.5,"gb",k);
-    s+=`<g transform="translate(200 262)">${leaf(0,-6,1.5,k,0)}</g>`;
-    return s;
+const CAT_NAMES = {
+  "rajwadi": {
+    mr: "राजवाडी", en: "Rajwadi",
+    blurb: "The Peshwa-court jewellery of Maharashtra. Hollow gold beads strung so tightly the necklace holds its own curve, jav leaves laid in a row, struck Lakshmi coins, and a single red kundan at the heart of it. Thushi, saaj, mohanmal, nath and bugadi — the pieces a bride is dressed in — finished in a soft antique gold rather than a hard polish, the way they were made before machines."
   },
-  saaj(k){
-    const p=pts(200,140,140,120,172,8,23);
-    let s=chain(p,3.2,k);
-    p.forEach((q,i)=>{ if(i===11) return; const a=Math.atan2(q[1]-140,q[0]-200)/D; s+=leaf(q[0],q[1],0.95,k,a-90); });
-    s+=`<g transform="translate(200 260)"><path d="M0 -26 C 24 -10, 24 26, 0 48 C -24 26, -24 -10, 0 -26 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,272,11,"rb",k);
-    s+=beads(pts(200,140,140,120,150,120,3),6,"pb",k);
-    s+=beads(pts(200,140,140,120,60,30,3),6,"pb",k);
-    return s;
+  "victorian": {
+    mr: "व्हिक्टोरियन", en: "Victorian",
+    blurb: "The Victorian idiom that Indian workshops made their own: metal darkened to a dull, matte gold, set with AD stones, polki-look glass, freshwater-look pearls and drops of emerald green. Quieter than Rajwadi and cooler in tone, which is exactly why it reads so well against a silk saree. The usual choice for an engagement or a reception."
   },
-  mangalsutra(k){
-    let s="";
-    [[136,112],[126,102]].forEach(d=>{ s+=beads(pts(200,150,d[0],d[1],172,8,34),5.4,"kb",k); });
-    s+=beads(pts(200,150,131,107,120,60,5),7,"gb",k);
-    s+=`<g transform="translate(170 268)"><circle r="20" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="12" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
-    s+=`<g transform="translate(230 268)"><circle r="20" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="12" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
-    s+=`<g transform="translate(200 300)"><path d="M0 -30 C 26 -22, 30 14, 0 40 C -30 14, -26 -22, 0 -30 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,304,10,"rb",k);
-    return s;
+  "bangles": {
+    mr: "बांगड्या", en: "Bangles",
+    blurb: "Patlya, the flat gold bangles worn in pairs, and tode, the heavier carved ones that sit outside them — with the green glass bangdya between, which in Maharashtra say a woman is married. Sold as sets. Tell us your bangle size on WhatsApp, or measure across the widest part of your hand with the thumb tucked in and we will size them for you."
   },
-  vati(k){
-    let s=beads(pts(200,150,138,114,172,8,40),5.2,"kb",k);
-    s+=`<g transform="translate(176 272)"><circle r="22" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="13" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
-    s+=`<g transform="translate(224 272)"><circle r="22" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width="1.2"/><circle r="13" fill="none" stroke="var(--metal-c)" stroke-width="1"/></g>`;
-    return s;
+  "short-mangalsutra": {
+    mr: "शॉर्ट मंगळसूत्र", en: "Short Mangalsutra",
+    blurb: "The one you actually wear every day. A short black-bead chain that sits above the neckline of a kurta, finished with a plain vati, a Rajwadi pendant or a moissanite solitaire. Light enough that you forget it is on, and nothing on it to catch a dupatta."
   },
-  mohanmal(k){
-    let s="";
-    [[142,116],[132,106],[122,96],[112,86]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,26-i),9.4,"gb",k); });
-    return s;
+  "rings": {
+    mr: "अंगठी", en: "Rings",
+    blurb: "Broad Rajwadi faces with a kundan at the centre on an adjustable shank, Victorian cocktail clusters in antique finish, and plain 925 silver bands holding a VVS moissanite. Tell us the finger and we will size it before it ships."
   },
-  putali(k){
-    const p=pts(200,140,138,116,170,10,19);
-    let s=chain(p,2.6,k);
-    p.forEach((q,i)=>{ const d=Math.abs(i-9); s+=coin(q[0],q[1],17-d*1.25,k); });
-    return s;
+  "necklace": {
+    mr: "नेकलेस", en: "Necklace",
+    blurb: "The pieces worn between the thushi and the saaj. Pearl tanmani that sits high on the throat, chinchpeti set edge to edge with stones shaped like tamarind seeds, and mohanmal and bormaal — gold ropes heavy enough that families once bought them as savings."
   },
-  lakshmi(k){
-    const p=pts(200,132,136,112,168,12,13);
-    let s=chain(p,2.6,k);
-    p.forEach((q,i)=>{ const d=Math.abs(i-6); const r=16-d*1.1;
-      s+=`<rect x="${(q[0]-r-3).toFixed(1)}" y="${(q[1]-r-3).toFixed(1)}" width="${(2*r+6).toFixed(1)}" height="${(2*r+6).toFixed(1)}" rx="3" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`;
-      s+=coin(q[0],q[1],r,k);
-      s+=`<circle cx="${q[0].toFixed(1)}" cy="${(q[1]+r+11).toFixed(1)}" r="5.4" fill="url(#pb${k})"/>`;});
-    s+=`<g transform="translate(200 300)"><path d="M-30 22 L-30 -6 L0 -34 L30 -6 L30 22 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,304,10,"rb",k);
-    return s;
-  },
-  bormaal(k){
-    let s="";
-    [[136,110],[120,94]].forEach((d,i)=>{ s+=beads(pts(200,150,d[0],d[1],172,8,17-i*2),13,"gb",k); });
-    return s;
-  },
-  tanmani(k){
-    let s="";
-    [[126,84],[116,74],[106,64]].forEach(d=>{ s+=beads(pts(200,158,d[0],d[1],174,6,26),7.6,"pb",k); });
-    s+=`<g transform="translate(200 236)"><rect x="-44" y="-24" width="88" height="48" rx="6" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,236,12,"eb",k)+gem(168,236,7,"rb",k)+gem(232,236,7,"rb",k);
-    s+=beads(pts(200,236,54,32,150,30,5).map(q=>[q[0],q[1]+22]),5.6,"pb",k);
-    return s;
-  },
-  chinchpeti(k){
-    const a=pts(200,160,124,80,175,5,60), b=pts(200,160,104,60,175,5,60);
-    let s=`<path d="${pathOf(a)} ${pathOf(b.slice().reverse()).replace("M","L")} Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/>`;
-    pts(200,160,114,70,170,10,17).forEach(q=>{ s+=`<rect x="${(q[0]-7).toFixed(1)}" y="${(q[1]-7).toFixed(1)}" width="14" height="14" rx="2" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8" transform="rotate(45 ${q[0].toFixed(1)} ${q[1].toFixed(1)})"/>`; s+=gem(q[0],q[1],4.6,"sb",k); });
-    return s;
-  },
-  nath(k){
-    let s=`<path d="M232 96 C 300 118, 316 214, 250 288 C 206 336, 138 330, 122 286 C 108 248, 146 214, 186 226" fill="none" stroke="url(#g${k})" stroke-width="5" stroke-linecap="round"/>`;
-    const p=pts(214,214,86,86,300,120,16);
-    s+=beads(p,7.4,"pb",k);
-    s+=beads(pts(214,214,64,64,320,100,9),5.6,"pb",k);
-    s+=gem(178,260,15,"rb",k);
-    s+=gem(214,140,9,"eb",k);
-    s+=`<path d="M232 96 C 260 70, 292 68, 312 82" fill="none" stroke="url(#g${k})" stroke-width="2.2" stroke-dasharray="3 5"/>`;
-    return s;
-  },
-  bugadi(k){
-    let s="";
-    [[140,220],[260,220]].forEach(c=>{
-      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="42" fill="none" stroke="url(#g${k})" stroke-width="7"/>`;
-      s+=beads(pts(c[0],c[1],42,42,110,430,10),6.6,"pb",k);
-      s+=gem(c[0],c[1]+42,8,"rb",k);
-    });
-    return s;
-  },
-  kudi(k){
-    let s="";
-    [[142,214],[258,214]].forEach(c=>{
-      s+=pts(c[0],c[1],26,26,0,315,8).map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="11" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`).join("");
-      s+=gem(c[0],c[1],17,"sb",k);
-      s+=`<path d="M${c[0]} ${c[1]+34} L${c[0]} ${c[1]+58}" stroke="url(#g${k})" stroke-width="3.4"/>`;
-      s+=gem(c[0],c[1]+68,11,"sb",k);
-    });
-    return s;
-  },
-  vaki(k){
-    let s="";
-    [130,270].forEach(cx=>{
-      s+=`<path d="M${cx-56} 190 C ${cx-30} 150, ${cx+30} 150, ${cx+56} 190" fill="none" stroke="url(#g${k})" stroke-width="13" stroke-linecap="round"/>`;
-      s+=`<path d="M${cx-56} 190 C ${cx-30} 232, ${cx+30} 232, ${cx+56} 190" fill="none" stroke="url(#g${k})" stroke-width="4" stroke-dasharray="2 6"/>`;
-      s+=`<g transform="translate(${cx} 166)"><path d="M0 -20 C 20 -8, 20 18, 0 32 C -20 18, -20 -8, 0 -20 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1"/></g>`;
-      s+=gem(cx,172,8,"rb",k);
-    });
-    return s;
-  },
-  set(k){
-    let s="";
-    [[136,110],[124,98]].forEach(d=>{ s+=beads(pts(200,120,d[0],d[1],172,8,26),7,"gb",k); });
-    s+=chain(pts(200,116,150,140,168,12,26),2.6,k);
-    pts(200,116,150,140,166,14,15).forEach(q=>{ s+=coin(q[0],q[1],11,k); });
-    s+=`<g transform="translate(200 288)"><path d="M0 -22 C 22 -8, 22 22, 0 42 C -22 22, -22 -8, 0 -22 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,292,9,"rb",k);
-    [[62,352],[338,352]].forEach(c=>{ s+=`<circle cx="${c[0]}" cy="${c[1]}" r="24" fill="none" stroke="url(#g${k})" stroke-width="5"/>`+beads(pts(c[0],c[1],24,24,110,430,7),5,"pb",k); });
-    s+=`<path d="M200 372 C 236 380, 244 424, 200 444 C 156 424, 164 380, 200 372 Z" fill="none" stroke="url(#g${k})" stroke-width="4"/>`;
-    s+=beads(pts(200,408,34,34,0,340,10),5,"pb",k);
-    return s;
-  },
-  setstone(k){
-    let s=chain(pts(200,130,132,112,172,8,30),3,k);
-    pts(200,130,132,112,168,12,13).forEach((q,i)=>{ const d=Math.abs(i-6); s+=gem(q[0],q[1],13-d*0.9,"sb",k); });
-    s+=`<g transform="translate(200 274)"><path d="M0 -28 L26 0 L0 34 L-26 0 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,276,15,"sb",k);
-    [[70,356],[330,356]].forEach(c=>{ s+=gem(c[0],c[1],15,"sb",k)+`<path d="M${c[0]} ${c[1]+18} L${c[0]} ${c[1]+34}" stroke="url(#g${k})" stroke-width="2.4"/>`+gem(c[0],c[1]+44,11,"sb",k); });
-    s+=gem(200,392,17,"sb",k);
-    return s;
-  },
-  painjan(k){
-    let s="";
-    [[200,170],[200,300]].forEach(c=>{
-      s+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="112" ry="42" fill="none" stroke="url(#g${k})" stroke-width="9"/>`;
-      s+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="112" ry="42" fill="none" stroke="var(--metal-c)" stroke-width="1.4" stroke-dasharray="4 6" opacity=".7"/>`;
-      s+=beads(pts(c[0],c[1],112,42,150,30,11),7,"gb",k);
-    });
-    return s;
-  },
-  jodvi(k){
-    let s="";
-    [[124,180,32],[276,180,32],[124,296,26],[276,296,26]].forEach(c=>{
-      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="none" stroke="url(#g${k})" stroke-width="10"/>`;
-      s+=`<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="none" stroke="var(--metal-c)" stroke-width="1.2" stroke-dasharray="3 5" opacity=".7"/>`;
-      s+=`<rect x="${c[0]-13}" y="${c[1]-c[2]-11}" width="26" height="16" rx="3" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".9"/>`;
-    });
-    return s;
-  },
-  ring(k){
-    const cx=200, cy=282, r=84;
-    let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#g${k})" stroke-width="19"/>`;
-    s+=`<circle cx="${cx}" cy="${cy}" r="${r+9.5}" fill="none" stroke="var(--metal-c)" stroke-width="1" opacity=".55"/>`;
-    s+=`<circle cx="${cx}" cy="${cy}" r="${r-9.5}" fill="none" stroke="var(--metal-c)" stroke-width="1" opacity=".55"/>`;
-    const gy = cy-r-26;
-    s+=pts(cx,gy,26,26,0,300,6).map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="8" fill="url(#gb${k})" stroke="var(--metal-c)" stroke-width=".8"/>`).join("");
-    s+=gem(cx,gy,26,"sb",k);
-    return s;
-  },
-  jhumka(k){
-    let s="";
-    [128,272].forEach(cx=>{
-      s+=gem(cx,144,14,"sb",k);
-      s+=`<path d="M${cx} 160 L${cx} 212" stroke="url(#g${k})" stroke-width="3.6"/>`;
-      s+=`<ellipse cx="${cx}" cy="212" rx="13" ry="6" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".8"/>`;
-      s+=`<path d="M${cx-58} 268 A 58 58 0 0 1 ${cx+58} 268 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/>`;
-      s+=`<path d="M${cx-58} 268 L${cx+58} 268" stroke="var(--metal-c)" stroke-width="1.6"/>`;
-      [-40,-20,0,20,40].forEach(d=>{ s+=`<path d="M${cx+d*0.45} 213 L${cx+d} 267" stroke="var(--metal-c)" stroke-width=".9" opacity=".5"/>`; });
-      [-34,-17,0,17,34].forEach(d=>{ s+=gem(cx+d,242,7,"sb",k); });
-      [-50,-37,-25,-12,0,12,25,37,50].forEach(d=>{
-        const y = 282 + (1-Math.abs(d)/50)*10;
-        s+=`<path d="M${cx+d} 268 L${cx+d} ${(y-6).toFixed(1)}" stroke="url(#g${k})" stroke-width="1.6"/>`;
-        s+=`<circle cx="${cx+d}" cy="${y.toFixed(1)}" r="6" fill="url(#pb${k})"/>`;
-      });
-    });
-    return s;
-  },
-  vchoker(k){
-    const a=pts(200,152,128,88,175,5,60), b=pts(200,152,100,60,175,5,60);
-    let s=`<path d="${pathOf(a)} ${pathOf(b.slice().reverse()).replace("M","L")} Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.3"/>`;
-    pts(200,152,114,74,168,12,13).forEach((q,i)=>{ s+=gem(q[0],q[1],(i===6?0:8),"sb",k); });
-    pts(200,152,142,102,164,16,13).forEach(q=>{ s+=`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="6.4" fill="url(#pb${k})"/>`; });
-    s+=`<g transform="translate(200 240)"><path d="M0 -26 C 22 -12, 22 20, 0 40 C -22 20, -22 -12, 0 -26 Z" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width="1.2"/></g>`;
-    s+=gem(200,244,13,"sb",k);
-    s+=`<circle cx="200" cy="296" r="8" fill="url(#pb${k})"/>`;
-    return s;
-  },
-  pin(k){
-    let s=`<path d="M200 200 L200 400 L206 418" fill="none" stroke="url(#g${k})" stroke-width="6" stroke-linecap="round"/>`;
-    s+=pts(200,168,44,44,0,315,8).map(q=>`<ellipse cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" rx="19" ry="13" fill="url(#g${k})" stroke="var(--metal-c)" stroke-width=".9" transform="rotate(${(Math.atan2(q[1]-168,q[0]-200)/D).toFixed(1)} ${q[0].toFixed(1)} ${q[1].toFixed(1)})"/>`).join("");
-    s+=gem(200,168,22,"rb",k);
-    s+=beads(pts(200,168,64,64,20,340,7),6,"pb",k);
-    return s;
+  "heritage": {
+    mr: "वारसा", en: "Heritage",
+    blurb: "The long, heavy pieces. Putali haar of struck Lakshmi coins that keep their depth through years of polish, temple-length haar with a pearl drop under every coin, and complete bridal sets. Older in pattern, heavier in the hand, and made to be photographed."
   }
 };
 
-function photosOf(id){ const a = PHOTOS[id]; return Array.isArray(a) ? a.filter(Boolean) : []; }
-
-/* Renders a photo when one is listed in PHOTOS, otherwise the drawn artwork.
-   The drawing always sits underneath, so a broken/missing file falls back to it. */
-function media(p, opts){
-  opts = opts || {};
-  const list = photosOf(p.id);
-  const src = list[opts.index || 0];
-  const art = artSVG(p.art, {label: p.en, vb: opts.vb});
-  if (!src) return art;
-  return art + `<img class="photo" src="${esc(src)}" alt="${esc(p.en)} — ${p.mr}" loading="${opts.eager?"eager":"lazy"}" decoding="async" onerror="this.remove()">`;
-}
-
-function artSVG(type,opts){
-  const k = ++UID;
-  const body = (ART[type]||ART.thushi)(k);
-  const vb = (opts&&opts.vb) || "0 0 400 470";
-  return `<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${(opts&&opts.label)||"Jewellery illustration"}">${defs(k)}${body}</svg>`;
-}
-</script>
-
-<script>
-/* ============ helpers ============ */
+/* ============ small helpers ============ */
 const $ = s => document.querySelector(s);
 const view = $("#view");
-const fmt = n => "₹" + n.toLocaleString("en-IN");
-const byId = id => PRODUCTS.find(p => p.id === id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const rupees = n => "₹" + Number(n).toLocaleString("en-IN");
 const waLink = t => "https://wa.me/" + WA + "?text=" + encodeURIComponent(t);
-
-let CART = [];
-try { const raw = localStorage.getItem("qala.cart"); if (raw) CART = JSON.parse(raw) || []; } catch (e) { CART = []; }
-function saveCart(){ try { localStorage.setItem("qala.cart", JSON.stringify(CART)); } catch (e) {} }
-
-function cartCount(){ return CART.reduce((a,l)=>a+l.qty,0); }
-function subtotal(){ return CART.reduce((a,l)=>{const p=byId(l.id); return a + (p?p.price*l.qty:0);},0); }
-function shipping(){ const s=subtotal(); return s===0||s>=SHIP_FREE_OVER ? 0 : SHIP_FLAT; }
-function savings(){ return CART.reduce((a,l)=>{const p=byId(l.id); return a + (p&&p.mrp ? (p.mrp-p.price)*l.qty : 0);},0); }
-
-function add(id, qty){
-  const line = CART.find(l=>l.id===id);
-  if (line) line.qty += (qty||1); else CART.push({id, qty:qty||1});
-  saveCart(); syncCount(); toast(byId(id).en + " added to your bag");
+function siteBase(){
+  const base = SITE || (location.origin + location.pathname);
+  return base.replace(/index\.html$/i, "").replace(/\/?$/, "/");
 }
-function setQty(id,q){
-  const line = CART.find(l=>l.id===id); if(!line) return;
-  line.qty = Math.max(1, Math.min(20, q)); saveCart(); syncCount(); render();
+const pieceUrl = code => siteBase() + "#/piece/" + encodeURIComponent(code);
+const url = s => String(s).split("/").map(encodeURIComponent).join("/");
+const titleish = s => s.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+const catName = slug => CAT_NAMES[slug] || {mr:"", en:titleish(slug)};
+
+/* ============ catalogue ============ */
+let CATALOGUE = null;      // the raw file
+let ITEMS = [];            // every piece, flattened
+let BANDS = [];            // every price band in use, low to high
+let LOAD_STATE = "loading"; // loading | ok | offline | error
+
+function bandKey(b){ return b.min + "-" + b.max; }
+function bandLabel(b){ return rupees(b.min) + " – " + rupees(b.max); }
+
+async function loadCatalogue(){
+  try {
+    const res = await fetch("photos/catalogue.json", {cache:"no-cache"});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    CATALOGUE = await res.json();
+    LOAD_STATE = "ok";
+  } catch (e) {
+    CATALOGUE = {categories: [], hero: {}};
+    LOAD_STATE = location.protocol === "file:" ? "offline" : "error";
+  }
+
+  ITEMS = [];
+  const bands = new Map();
+  (CATALOGUE.categories || []).forEach(c => {
+    (c.bands || []).forEach(b => {
+      bands.set(bandKey(b), {min:b.min, max:b.max});
+      (b.items || []).forEach(it => {
+        ITEMS.push({
+          code: it.code,
+          cat: c.slug,
+          catMr: catName(c.slug).mr,
+          catEn: catName(c.slug).en,
+          min: b.min, max: b.max,
+          files: it.files || []
+        });
+      });
+    });
+  });
+  BANDS = [...bands.values()].sort((a,b) => a.min - b.min);
+
+  // house order: categories as CAT_NAMES lists them, then cheapest band first
+  const order = Object.keys(CAT_NAMES);
+  const rank = slug => { const i = order.indexOf(slug); return i < 0 ? 99 : i; };
+  ITEMS.sort((a,b) => rank(a.cat) - rank(b.cat) || a.min - b.min || a.code.localeCompare(b.code, undefined, {numeric:true}));
 }
-function drop(id){ CART = CART.filter(l=>l.id!==id); saveCart(); syncCount(); render(); }
-function syncCount(){ $("#cartCount").textContent = cartCount(); }
+
+const byCode = code => ITEMS.find(i => i.code === code);
+/* categories in the order CAT_NAMES lists them; anything new goes on the end */
+const CAT_ORDER = Object.keys(CAT_NAMES);
+const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
+  .filter(c => (c.bands||[]).length)
+  .sort((a,b) => {
+    const ia = CAT_ORDER.indexOf(a.slug), ib = CAT_ORDER.indexOf(b.slug);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.slug.localeCompare(b.slug);
+  });
+const priceRange = it => rupees(it.min) + " – " + rupees(it.max);
+
+/* ============ pictures ============ */
+function mark(){
+  return `<svg class="ph" viewBox="0 0 100 100" aria-hidden="true">
+    <g fill="currentColor">
+      <path d="M50 26c6.5 9.3 9.3 16.7 9.3 23.2 0 7.4-3.7 13-9.3 16.7-5.6-3.7-9.3-9.3-9.3-16.7 0-6.5 2.8-13.9 9.3-23.2z"/>
+      <path d="M50 70c-8.4-1.9-14.9-6.5-18.6-13-1.9-3.7-2.8-8.4-2.8-13 7.4 1.9 13.9 6.5 17.7 13 1.9 3.7 2.8 8.4 3.7 13z" opacity=".62"/>
+      <path d="M50 70c8.4-1.9 14.9-6.5 18.6-13 1.9-3.7 2.8-8.4 2.8-13-7.4 1.9-13.9 6.5-17.7 13-1.9 3.7-2.8 8.4-3.7 13z" opacity=".62"/>
+    </g>
+  </svg>`;
+}
+function shot(src, opts){
+  opts = opts || {};
+  if (!src) return "";
+  return `<img class="photo" src="${esc(url(src))}" alt="${esc(opts.alt||"")}"`
+    + ` loading="${opts.eager?"eager":"lazy"}" decoding="async" onerror="qalaMiss(this)">`;
+}
+window.qalaMiss = function(img){
+  const slot = img.closest("[data-slot]");
+  if (slot){
+    const row = slot.parentElement;
+    slot.remove();
+    if (row && row.classList.contains("thumbs") && row.children.length < 2) row.hidden = true;
+  } else {
+    img.remove();
+  }
+};
+
+/* the opening video: photos/hero.mp4, silent and looping, with a pause button */
+function heroVideo(){
+  const src = CATALOGUE && CATALOGUE.hero && CATALOGUE.hero.video;
+  if (!src) return "";
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return "";
+  const type = src.endsWith(".webm") ? "video/webm" : "video/mp4";
+  return `<video class="photo" id="heroVid" autoplay muted loop playsinline preload="auto"
+      aria-label="The Qala jewellery" tabindex="-1">
+      <source src="${esc(url(src))}" type="${type}" onerror="qalaNoVideo(this)">
+    </video>
+    <button class="vidbtn" id="vidBtn" hidden aria-label="Pause video">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+    </button>`;
+}
+window.qalaNoVideo = function(src){
+  const v = src.closest("video"); if (v) v.remove();
+  const btn = document.getElementById("vidBtn"); if (btn) btn.remove();
+};
+
+/* ============ the bag ============ */
+let BAG = [];
+try { const raw = localStorage.getItem("qala.bag"); if (raw) BAG = JSON.parse(raw) || []; } catch (e) { BAG = []; }
+function saveBag(){ try { localStorage.setItem("qala.bag", JSON.stringify(BAG)); } catch (e) {} }
+
+const bagCount = () => BAG.reduce((a,l) => a + l.qty, 0);
+function bagTotals(){
+  let min = 0, max = 0;
+  BAG.forEach(l => { const it = byCode(l.code); if (it){ min += it.min * l.qty; max += it.max * l.qty; } });
+  return {min, max};
+}
+function addToBag(code, qty){
+  const line = BAG.find(l => l.code === code);
+  if (line) line.qty += (qty || 1); else BAG.push({code, qty: qty || 1});
+  saveBag(); syncCount(); toast(code + " added to your bag");
+}
+function setQty(code, q){
+  const line = BAG.find(l => l.code === code); if (!line) return;
+  line.qty = Math.max(1, Math.min(20, q)); saveBag(); syncCount(); render();
+}
+function dropFromBag(code){ BAG = BAG.filter(l => l.code !== code); saveBag(); syncCount(); render(); }
+function syncCount(){
+  const c = $("#cartCount"), sv = $("#savedCount");
+  if (c && c.textContent !== String(bagCount())){
+    c.textContent = bagCount();
+    c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop");
+  }
+  if (sv) sv.textContent = SAVED.length;
+  const sb = $("#savedBtn"); if (sb) sb.hidden = SAVED.length === 0;
+}
+
+/* ============ the customer's details, remembered on their own device ============ */
+let BUYER = {name:"", phone:"", pin:"", addr:""};
+try { const raw = localStorage.getItem("qala.buyer"); if (raw) BUYER = Object.assign(BUYER, JSON.parse(raw) || {}); } catch (e) {}
+function saveBuyer(){ try { localStorage.setItem("qala.buyer", JSON.stringify(BUYER)); } catch (e) {} }
+
+/* ============ saved pieces ============ */
+let SAVED = [];
+try { const raw = localStorage.getItem("qala.saved"); if (raw) SAVED = JSON.parse(raw) || []; } catch (e) { SAVED = []; }
+function saveSaved(){ try { localStorage.setItem("qala.saved", JSON.stringify(SAVED)); } catch (e) {} }
+const isSaved = code => SAVED.includes(code);
+function toggleSaved(code, btn){
+  const i = SAVED.indexOf(code);
+  if (i < 0) { SAVED.push(code); toast(code + " saved"); }
+  else { SAVED.splice(i, 1); toast(code + " removed from saved"); }
+  saveSaved(); syncCount();
+  if (btn){ btn.classList.toggle("on", isSaved(code)); btn.classList.remove("beat"); void btn.offsetWidth; btn.classList.add("beat");
+            btn.setAttribute("aria-label", isSaved(code) ? "Remove from saved" : "Save this piece"); }
+  if ((parseHash().parts[0] || "") === "saved") render();
+}
 
 let toastTimer;
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
 }
 
-/* ============ fragments ============ */
-function priceBlock(p){
-  const off = p.mrp ? Math.round((1 - p.price/p.mrp) * 100) : 0;
-  return `<div class="price"><span class="now rupee">${fmt(p.price)}</span>${p.mrp?`<span class="was rupee">${fmt(p.mrp)}</span><span class="off">${off}% off</span>`:""}</div>`;
+/* ============ WhatsApp messages ============ */
+function bagWaText(){
+  const lines = BAG.map((l, i) => {
+    const it = byCode(l.code); if (!it) return "";
+    return `${i+1}. ${it.code} — ${it.catEn}\n   ${priceRange(it)} · quantity ${l.qty}\n   ${pieceUrl(it.code)}`;
+  }).filter(Boolean).join("\n\n");
+  const t = bagTotals();
+  return `Namaskar The Qala 🙏\n\nI would like to order:\n\n${lines}\n\n`
+    + `Estimated: ${rupees(t.min)} – ${rupees(t.max)}\n\n`
+    + `Please confirm the exact price, availability and sizing.`;
 }
-function card(p){
-  return `<a class="card" href="#/product/${p.id}">
-    <div class="arch">${p.badge?`<span class="tag">${esc(p.badge)}</span>`:""}${media(p,{vb:"0 20 400 400"})}</div>
+function orderRef(){
+  const d = new Date();
+  return "QALA-" + String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0")
+       + "-" + String(Math.floor(Math.random()*9000)+1000);
+}
+function orderWaText(o){
+  const lines = o.items.map((l, i) =>
+    `${i+1}. ${l.code} — ${l.catEn}\n   ${l.range} · quantity ${l.qty}\n   ${l.url}`).join("\n\n");
+  return `Namaskar The Qala 🙏\n\nNew order — ${o.ref}\n\n${lines}\n\n`
+    + `Estimated: ${rupees(o.min)} – ${rupees(o.max)}\n\n`
+    + `Name: ${o.name}\nPhone: ${o.phone}\nPincode: ${o.pin}\nAddress: ${o.addr}\n\n`
+    + `Please confirm the exact price and the dispatch date.`;
+}
+
+function pieceWaText(it, qty){
+  return `Namaskar The Qala 🙏\n\nI would like to order:\n\n`
+    + `${it.code} — ${it.catEn}\n${priceRange(it)} · quantity ${qty}\n${pieceUrl(it.code)}\n\n`
+    + `Please confirm the exact price, availability and sizing.`;
+}
+</script>
+
+<script>
+/* ============ fragments ============ */
+const HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>`;
+
+function card(it){
+  return `<a class="card rise" href="#/piece/${encodeURIComponent(it.code)}">
+    <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}"
+      aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
+    <div class="arch">${mark()}${shot(it.files[0], {alt: it.code + " — " + it.catEn})}</div>
     <div>
-      <span class="mr">${p.mr}</span>
-      <h3>${esc(p.en)}</h3>
-      <p class="meta">${esc(CATS[p.cat].en)}</p>
+      <span class="mr">${it.catMr}</span>
+      <h3>${esc(it.code)}</h3>
+      <p class="meta">${esc(it.catEn)}</p>
     </div>
-    ${priceBlock(p)}
+    <div class="price"><span class="now rupee">${priceRange(it)}</span></div>
   </a>`;
 }
-function saaj(){ return `<div class="saaj" aria-hidden="true"></div>`; }
+function saajRule(){ return `<div class="saaj" aria-hidden="true"></div>`; }
+
+function nothingYet(where){
+  const msg = LOAD_STATE === "offline"
+    ? `<p class="muted">Opened straight from the file system, so the browser will not read <code>photos/catalogue.json</code>. Run <code>python3 -m http.server</code> in this folder and open <code>localhost:8000</code> to preview it properly.</p>`
+    : LOAD_STATE === "error"
+    ? `<p class="muted"><code>photos/catalogue.json</code> could not be loaded. Push once so the GitHub Action can build it, or run <code>python3 build_catalogue.py</code> yourself.</p>`
+    : `<p class="muted">Drop photographs into <code>photos/&lt;category&gt;/&lt;price range&gt;/</code> — any filename at all — then push. They appear here on their own.</p>`;
+  return `<div class="empty"><div class="emptymark">${mark()}</div>
+    <h2 style="font-family:Marcellus,serif;font-weight:400;font-size:1.8rem;margin-bottom:10px">${where}</h2>
+    ${msg}</div>`;
+}
 
 /* ============ views ============ */
 function home(){
-  const featured = ["thushi-kolhapuri","victorian-choker","mangalsutra-rajwadi","ring-moissanite","putali-haar","victorian-jhumka"].map(byId);
+  const hero = (CATALOGUE.hero || {});
+  const cats = catsInUse();
+  const featured = [];
+  const pool = catsInUse().map(c => ITEMS.filter(i => i.cat === c.slug));
+  for (let round = 0; featured.length < 8 && round < 12; round++)
+    pool.forEach(list => { if (list[round] && featured.length < 8) featured.push(list[round]); });
+
   return `
   <section class="hero">
     <div class="wrap inner">
       <div>
         <p class="eyebrow">Dighi, Pune · since the first thushi we strung</p>
         <h1>The jewellery a Maharashtrian house keeps, made new for the <em>नवरी</em> who wears it.</h1>
-        <p class="lede">Thushi, saaj, nath, Rajwadi mangalsutra and moissanite bridal sets — strung and set by hand, photographed as they actually arrive, and shipped insured across India.</p>
+        <p class="lede">Rajwadi, Victorian, short mangalsutra, rings and heritage pieces — made by hand, photographed as they actually arrive, and sent insured across India.</p>
         <div class="cta">
           <a class="btn" href="#/shop">Shop the collection</a>
           <a class="btn ghost" href="#/story">How we make it</a>
@@ -894,45 +843,47 @@ function home(){
       </div>
       <div class="stage">
         <div class="halo" aria-hidden="true"></div>
-        ${artSVG("thushi",{label:"Kolhapuri thushi",vb:"20 40 360 300"})}
+        <div class="arch heroshot">${mark()}${shot(hero.image, {alt:"The Qala jewellery", eager:true})}${heroVideo()}</div>
       </div>
     </div>
     <div class="wrap"><div class="trustrow">
-      <div><b>Free insured shipping</b> over ₹1,499</div>
+      <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
       <div><b>Partial COD</b> ₹500 advance, rest on delivery</div>
       <div><b>7-day returns</b> unworn, in the box</div>
       <div><b>Order on WhatsApp</b> · we reply within the hour</div>
     </div></div>
   </section>
 
+  ${cats.length ? `
   <section class="band wrap">
     <div class="sechead">
       <div><span class="mr" style="color:var(--accent)">प्रकार</span><h2>Shop by tradition</h2></div>
       <a class="seclink" href="#/shop">All pieces</a>
     </div>
     <div class="catgrid">
-      ${Object.entries(CATS).map(([slug,c])=>`
-        <a class="cat" href="#/shop?c=${slug}">
-          ${artSVG(({rajwadi:"thushi",victorian:"vchoker","short-mangalsutra":"mangalsutra",rings:"ring",necklace:"mohanmal",heritage:"lakshmi"})[slug],{vb:"40 80 320 320",label:c.en})}
-          <span class="mr">${c.mr}</span>
-          <span class="en">${esc(c.en)}</span>
-        </a>`).join("")}
+      ${cats.map(c => {
+        const n = catName(c.slug), count = (c.bands||[]).reduce((a,b) => a + b.items.length, 0);
+        return `<a class="cat" href="#/shop?c=${c.slug}">
+          <span class="catshot">${mark()}${shot(c.cover, {alt:n.en})}</span>
+          <span class="mr">${n.mr}</span>
+          <span class="en">${esc(n.en)}</span>
+          <span class="count">${count} piece${count===1?"":"s"}</span>
+        </a>`;}).join("")}
     </div>
   </section>
 
-  ${saaj()}
+  ${saajRule()}
 
   <section class="band wrap">
     <div class="sechead">
-      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What brides are choosing</h2></div>
-      <a class="seclink" href="#/shop">See everything</a>
+      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>New in the studio</h2></div>
+      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
     </div>
     <div class="grid">${featured.map(card).join("")}</div>
-  </section>
+  </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
 
   <section class="story">
     <div class="wrap inner">
-      <div>${artSVG("saaj",{label:"Kolhapuri saaj",vb:"30 60 340 300"})}</div>
       <div>
         <p class="eyebrow">Our story</p>
         <h2>Every saaj we send out is strung on the same table in Dighi.</h2>
@@ -946,11 +897,11 @@ function home(){
   <section class="band wrap">
     <div class="sechead"><div><span class="mr" style="color:var(--accent)">कसे</span><h2>From your message to your door</h2></div></div>
     <div class="catgrid">
-      ${[["01","You order","On the site, or send us the piece on WhatsApp. Partial COD means ₹500 now, the rest at your doorstep."],
-         ["02","We fit and polish","Extenders sized to your measurement, a final polish, and a photograph sent to you before the box is taped."],
+      ${[["01","You send the code","Every piece has a reference like RAJWADI-2000-1. Tap Order on WhatsApp and it reaches us with the photo you were looking at."],
+         ["02","We confirm and fit","Exact price, sizing and dispatch date settled in the chat. ₹500 books the piece; the rest can come on delivery."],
          ["03","Insured dispatch","Shipped from Pune with insurance and a tracking link. Most of Maharashtra sees it in two days."]]
-        .map(s=>`<div class="cat" style="text-align:left;cursor:default">
-          <div class="eyebrow" style="font-size:1.5rem;font-family:Marcellus,serif;letter-spacing:.04em;color:var(--gold-2)">${s[0]}</div>
+        .map(s => `<div class="cat" style="text-align:left;cursor:default">
+          <div style="font-size:1.5rem;font-family:Marcellus,serif;letter-spacing:.04em;color:var(--gold-2)">${s[0]}</div>
           <h3 style="font-size:1.15rem;margin:6px 0 8px">${s[1]}</h3>
           <p class="muted" style="margin:0;font-size:.9rem">${s[2]}</p>
         </div>`).join("")}
@@ -959,41 +910,48 @@ function home(){
 }
 
 function shop(params){
-  const active = (params.get("c")||"").split(",").filter(Boolean);
-  const band = params.get("p")||"";
-  const sort = params.get("s")||"featured";
-  let list = PRODUCTS.slice();
-  if (active.length) list = list.filter(p=>active.includes(p.cat));
-  if (band==="lo") list = list.filter(p=>p.price<2000);
-  if (band==="mid") list = list.filter(p=>p.price>=2000 && p.price<6000);
-  if (band==="hi") list = list.filter(p=>p.price>=6000);
-  if (sort==="lowhigh") list.sort((a,b)=>a.price-b.price);
-  if (sort==="highlow") list.sort((a,b)=>b.price-a.price);
+  const active = (params.get("c") || "").split(",").filter(Boolean);
+  const band = params.get("p") || "";
+  const sort = params.get("s") || "featured";
+  const cats = catsInUse();
 
-  const title = active.length===1 ? CATS[active[0]] : {mr:"संग्रह", en:"The collection"};
+  let list = ITEMS.slice();
+  if (active.length) list = list.filter(i => active.includes(i.cat));
+  if (band) list = list.filter(i => bandKey(i) === band);
+  if (sort === "lowhigh") list.sort((a,b) => a.min - b.min || a.code.localeCompare(b.code));
+  if (sort === "highlow") list.sort((a,b) => b.min - a.min || a.code.localeCompare(b.code));
+
+  const heading = active.length === 1 ? catName(active[0]) : {mr:"संग्रह", en:"The collection"};
+  const blurb = active.length === 1 ? (catName(active[0]).blurb || "") : "";
   const toggle = slug => {
-    const next = active.includes(slug) ? active.filter(x=>x!==slug) : active.concat(slug);
-    const q = new URLSearchParams(params); next.length?q.set("c",next.join(",")):q.delete("c");
-    return "#/shop?"+q.toString();
+    const next = active.includes(slug) ? active.filter(x => x !== slug) : active.concat(slug);
+    const q = new URLSearchParams(params); next.length ? q.set("c", next.join(",")) : q.delete("c");
+    return "#/shop?" + q.toString();
   };
-  const bandLink = v => { const q=new URLSearchParams(params); v?q.set("p",v):q.delete("p"); return "#/shop?"+q.toString(); };
+  const bandHref = v => { const q = new URLSearchParams(params); v ? q.set("p", v) : q.delete("p"); return "#/shop?" + q.toString(); };
+
+  if (!ITEMS.length) return `<div class="wrap pagehead"><h1>The collection</h1></div><div class="wrap">${nothingYet("Nothing uploaded yet")}</div>`;
 
   return `
   <div class="wrap pagehead">
-    <span class="mr" style="font-size:1.3rem;color:var(--accent)">${title.mr}</span>
-    <h1>${esc(title.en)}</h1>
+    <span class="mr" style="font-size:1.3rem;color:var(--accent)">${heading.mr}</span>
+    <h1>${esc(heading.en)}</h1>
     <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
+    ${blurb ? `<p class="blurb">${esc(blurb)}</p>` : ""}
   </div>
   <div class="wrap shoplayout">
     <aside class="filters">
       <div class="fgroup">
         <h4>Category</h4>
-        ${Object.entries(CATS).map(([slug,c])=>`<label><input type="checkbox" ${active.includes(slug)?"checked":""} data-nav="${toggle(slug)}"> ${esc(c.en)}</label>`).join("")}
+        ${cats.map(c => {
+          const n = catName(c.slug);
+          return `<label><input type="checkbox" ${active.includes(c.slug)?"checked":""} data-nav="${toggle(c.slug)}"> ${esc(n.en)}</label>`;
+        }).join("")}
       </div>
       <div class="fgroup">
         <h4>Price</h4>
-        ${[["","Any price"],["lo","Under ₹2,000"],["mid","₹2,000 – ₹6,000"],["hi","₹6,000 and above"]]
-          .map(o=>`<label><input type="radio" name="pb" ${band===o[0]?"checked":""} data-nav="${bandLink(o[0])}"> ${o[1]}</label>`).join("")}
+        <label><input type="radio" name="pb" ${band===""?"checked":""} data-nav="${bandHref("")}"> Any price</label>
+        ${BANDS.map(b => `<label><input type="radio" name="pb" ${band===bandKey(b)?"checked":""} data-nav="${bandHref(bandKey(b))}"> ${bandLabel(b)}</label>`).join("")}
       </div>
       <a class="linkbtn" href="#/shop" style="align-self:flex-start">Clear all filters</a>
     </aside>
@@ -1001,7 +959,7 @@ function shop(params){
       <div class="shopbar">
         <div class="chiprow">
           <a class="chip ${active.length?"":"on"}" href="#/shop">All</a>
-          ${Object.entries(CATS).map(([slug,c])=>`<a class="chip ${active.includes(slug)?"on":""}" href="${toggle(slug)}">${esc(c.en)}</a>`).join("")}
+          ${cats.map(c => `<a class="chip ${active.includes(c.slug)?"on":""}" href="${toggle(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")}
         </div>
         <select class="sort" id="sortSel" aria-label="Sort">
           <option value="featured" ${sort==="featured"?"selected":""}>Featured</option>
@@ -1009,107 +967,216 @@ function shop(params){
           <option value="highlow" ${sort==="highlow"?"selected":""}>Price: high to low</option>
         </select>
       </div>
-      ${list.length? `<div class="grid">${list.map(card).join("")}</div>`
+      ${list.length ? `<div class="grid">${list.map(card).join("")}</div>`
         : `<div class="empty"><h2>Nothing in this corner yet</h2><p class="muted">Try a wider price range, or see everything.</p><a class="btn" href="#/shop">Show all pieces</a></div>`}
     </div>
   </div>`;
 }
 
-function product(id){
-  const p = byId(id);
-  if (!p) return notFound();
-  const also = PRODUCTS.filter(x=>x.cat===p.cat && x.id!==p.id).slice(0,4);
-  const crops = ["0 0 400 470","70 90 260 260","120 170 170 170"];
-  const shots = photosOf(p.id);
-  const views = shots.length ? shots : crops;
+function piece(code){
+  const it = byCode(code);
+  if (!it) return notFound();
+  const also = ITEMS.filter(x => x.cat === it.cat && x.code !== it.code).slice(0, 4);
   return `
-  <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${p.cat}">← Back to ${esc(CATS[p.cat].en)}</a></div>
+  <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${it.cat}">← Back to ${esc(it.catEn)}</a></div>
   <div class="wrap pdp">
     <div class="gallery">
-      <div class="arch" id="mainArt">${p.badge?`<span class="tag">${esc(p.badge)}</span>`:""}${media(p,{vb:crops[0],eager:true})}</div>
-      <div class="thumbs">
-        ${views.map((v,i)=>`<button class="thumb ${i===0?"on":""}" data-view="${i}" aria-label="View ${i+1}">${shots.length?media(p,{index:i}):artSVG(p.art,{label:"",vb:v})}</button>`).join("")}
+      <div class="arch" id="mainArt" role="button" tabindex="0" aria-label="Enlarge photograph">${mark()}${shot(it.files[0], {alt: it.code + " — " + it.catEn, eager:true})}</div>
+      <div class="thumbs" ${it.files.length < 2 ? "hidden" : ""}>
+        ${it.files.map((f,i) => `<button class="thumb ${i===0?"on":""}" data-slot data-src="${esc(url(f))}" aria-label="View ${i+1}">${shot(f)}</button>`).join("")}
       </div>
     </div>
     <div>
-      <span class="mrname">${p.mr}</span>
-      <h1>${esc(p.en)}</h1>
-      <p class="muted" style="margin:2px 0 0">${esc(CATS[p.cat].en)}</p>
-      <div class="pdprice rupee">${fmt(p.price)} ${p.mrp?`<span class="was" style="text-decoration:line-through;color:var(--ink-2)">${fmt(p.mrp)}</span><span class="off" style="font-size:.72rem;letter-spacing:.12em;color:var(--accent);font-weight:700">SAVE ${fmt(p.mrp-p.price)}</span>`:""}</div>
-      <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · Free insured shipping over ${fmt(SHIP_FREE_OVER)}</p>
-      <p class="muted" style="font-size:.85rem;margin:6px 0 0">Tap <b>Order on WhatsApp</b> and this piece, your size and the payment are settled in the chat.</p>
-      <p style="margin:20px 0 0;max-width:52ch">${esc(p.blurb)}</p>
+      <span class="mrname">${it.catMr}</span>
+      <h1>${esc(it.code)}
+        <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}" style="position:static;display:inline-grid;vertical-align:middle;margin-left:10px"
+          aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
+      </h1>
+      <p class="muted" style="margin:2px 0 0">${esc(it.catEn)}</p>
+      <div class="pdprice rupee">${priceRange(it)}</div>
+      <p class="muted" style="font-size:.85rem;margin:0">Price range for this piece · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
+      ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
+      <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the exact price, the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       <div class="qtyrow">
         <div class="qty"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
         <span class="muted" style="font-size:.86rem">Ready to ship in 2 working days</span>
       </div>
       <div class="buyrow">
+        <a class="btn" id="orderBtn" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>
         <a class="btn wa" id="waBtn" target="_blank" rel="noopener" href="#">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
           Order on WhatsApp</a>
-        <button class="btn ghost" id="addBtn">Add to bag</button>
       </div>
+      <div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>
       <dl class="spec">
-        <div><dt>Material</dt><dd style="margin:0">${esc(p.material)}</dd></div>
-        <div><dt>Weight</dt><dd style="margin:0">${esc(p.weight)}</dd></div>
-        <div><dt>Size</dt><dd style="margin:0">${esc(p.size)}</dd></div>
+        <div><dt>Reference</dt><dd style="margin:0">${esc(it.code)}</dd></div>
+        <div><dt>Category</dt><dd style="margin:0">${esc(it.catEn)} · ${it.catMr}</dd></div>
+        <div><dt>Price band</dt><dd style="margin:0">${priceRange(it)}, exact price on WhatsApp</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
         <div><dt>Payment</dt><dd style="margin:0">UPI, bank transfer, or partial COD — settled with us on WhatsApp</dd></div>
       </dl>
     </div>
   </div>
-  ${saaj()}
+  <div class="orderbar">
+    <div class="p"><b class="rupee">${priceRange(it)}</b><span>${esc(it.code)}</span></div>
+    <a class="btn" id="orderBar" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>
+    <a class="wabtn" id="waBar" target="_blank" rel="noopener" href="#" aria-label="Order on WhatsApp"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg></a>
+  </div>
+  ${also.length ? `${saajRule()}
   <section class="band wrap">
-    <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>Worn with this</h2></div></div>
+    <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>More ${esc(it.catEn)}</h2></div></div>
     <div class="grid">${also.map(card).join("")}</div>
-  </section>`;
+  </section>` : ""}`;
 }
 
-function cartView(){
-  if (!CART.length) return `
+function bagView(){
+  if (!BAG.length) return `
     <div class="wrap empty">
-      ${artSVG("thushi",{label:"",vb:"60 100 280 220"})}
+      <div class="emptymark">${mark()}</div>
       <h1 style="font-family:Marcellus,serif;font-weight:400;font-size:2rem;margin-bottom:8px">Your bag is empty</h1>
-      <p class="muted">Nothing strung yet. The thushi is where most people begin.</p>
+      <p class="muted">Nothing chosen yet.</p>
       <div style="margin-top:22px"><a class="btn" href="#/shop">Browse the collection</a></div>
     </div>`;
+  const t = bagTotals();
   return `
   <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">पिशवी</span><h1>Your bag</h1></div>
   <div class="wrap cartlayout">
     <div>
-      ${CART.map(l=>{const p=byId(l.id); if(!p) return "";
+      ${BAG.map(l => {
+        const it = byCode(l.code);
+        if (!it) return `<div class="lineitem"><div></div><div><h3>${esc(l.code)}</h3><p class="meta muted">No longer in the shop.</p><button class="linkbtn" data-del="${esc(l.code)}">Remove</button></div><div></div></div>`;
         return `<div class="lineitem">
-          <div class="art">${media(p,{vb:"40 60 320 320"})}</div>
+          <div class="art">${mark()}${shot(it.files[0], {alt:""})}</div>
           <div>
-            <span class="mr">${p.mr}</span>
-            <h3><a href="#/product/${p.id}">${esc(p.en)}</a></h3>
-            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(p.material)}</p>
-            <div class="qty" style="display:inline-flex"><button data-dec="${p.id}" aria-label="Decrease">−</button><span>${l.qty}</span><button data-inc="${p.id}" aria-label="Increase">+</button></div>
-            <button class="linkbtn" data-del="${p.id}" style="margin-left:14px">Remove</button>
+            <span class="mr">${it.catMr}</span>
+            <h3><a href="#/piece/${encodeURIComponent(it.code)}">${esc(it.code)}</a></h3>
+            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(it.catEn)}</p>
+            <div class="qty" style="display:inline-flex"><button data-dec="${esc(it.code)}" aria-label="Decrease">−</button><span>${l.qty}</span><button data-inc="${esc(it.code)}" aria-label="Increase">+</button></div>
+            <button class="linkbtn" data-del="${esc(it.code)}" style="margin-left:14px">Remove</button>
           </div>
-          <div class="right">
-            <div class="rupee" style="font-weight:700">${fmt(p.price*l.qty)}</div>
-            ${p.mrp?`<div class="muted rupee" style="font-size:.82rem;text-decoration:line-through">${fmt(p.mrp*l.qty)}</div>`:""}
-          </div>
+          <div class="right"><div class="rupee">${rupees(it.min*l.qty)} – ${rupees(it.max*l.qty)}</div></div>
         </div>`;}).join("")}
-      <p class="muted" style="font-size:.86rem;margin-top:18px">Tap <b>Order on WhatsApp</b> and your whole bag arrives in our chat as a list. We confirm sizes, address and payment there — nothing to fill in here.</p>
+      <p class="muted" style="font-size:.86rem;margin-top:18px">Tap <b>Order on WhatsApp</b> and your whole bag arrives in our chat as a list of references. We confirm the exact prices, sizes, address and payment there — nothing to fill in here.</p>
     </div>
     <aside class="summary">
       <h3>Order summary</h3>
-      <div class="srow"><span>Subtotal</span><span class="rupee">${fmt(subtotal())}</span></div>
-      ${savings()?`<div class="srow" style="color:var(--accent)"><span>You save</span><span class="rupee">− ${fmt(savings())}</span></div>`:""}
-      <div class="srow"><span>Shipping</span><span class="rupee">${shipping()?fmt(shipping()):"Free"}</span></div>
-      <div class="srow total"><span>Total</span><span class="rupee">${fmt(subtotal()+shipping())}</span></div>
+      <div class="srow"><span>${bagCount()} piece${bagCount()===1?"":"s"}</span><span class="rupee">${rupees(t.min)} – ${rupees(t.max)}</span></div>
+      <div class="srow"><span>Shipping</span><span>${t.min >= SHIP_FREE_OVER ? "Free" : "Confirmed on WhatsApp"}</span></div>
+      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(t.min)} – ${rupees(t.max)}</span></div>
+      <p class="muted" style="font-size:.8rem;margin:6px 0 0">These are the price bands. We confirm each exact price in the chat before you pay anything.</p>
       <div style="display:grid;gap:10px;margin-top:18px">
-        <a class="btn wa wide wa-order" href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg> Order on WhatsApp</a>
+        <a class="btn wide" href="#/order">Order now</a>
+        <a class="btn wa wide wa-order" href="#" target="_blank" rel="noopener">Order on WhatsApp</a>
         <a class="btn ghost wide" href="#/shop">Add another piece</a>
       </div>
-      <p class="muted" style="font-size:.8rem;margin:14px 0 0">${subtotal()>=SHIP_FREE_OVER?"Insured shipping is on us.":`Add ${fmt(SHIP_FREE_OVER-subtotal())} more for free insured shipping.`}</p>
     </aside>
   </div>`;
 }
 
-function page(mr,title,body){
+function savedView(){
+  const list = SAVED.map(byCode).filter(Boolean);
+  if (!list.length) return `
+    <div class="wrap empty">
+      <div class="emptymark">${mark()}</div>
+      <h1 style="font-family:Marcellus,serif;font-weight:400;font-size:2rem;margin-bottom:8px">Nothing saved yet</h1>
+      <p class="muted">Tap the heart on any piece and it waits for you here.</p>
+      <div style="margin-top:22px"><a class="btn" href="#/shop">Browse the collection</a></div>
+    </div>`;
+  return `
+  <div class="wrap pagehead">
+    <span class="mr" style="font-size:1.3rem;color:var(--accent)">आवडते</span>
+    <h1>Saved</h1>
+    <p class="muted">${list.length} piece${list.length===1?"":"s"} · kept on this device</p>
+  </div>
+  <div class="wrap" style="padding:24px 0 90px"><div class="grid">${list.map(card).join("")}</div></div>`;
+}
+
+/* What is being ordered: one piece (?p=CODE&q=2) or everything in the bag. */
+function orderLines(params){
+  const code = params.get("p");
+  if (code){
+    const it = byCode(code);
+    if (!it) return [];
+    const qty = Math.max(1, Math.min(20, Number(params.get("q")) || 1));
+    return [{it, qty}];
+  }
+  return BAG.map(l => ({it: byCode(l.code), qty: l.qty})).filter(l => l.it);
+}
+
+function orderView(params){
+  const lines = orderLines(params);
+  if (!lines.length) { location.hash = "#/shop"; return ""; }
+  const min = lines.reduce((a,l) => a + l.it.min * l.qty, 0);
+  const max = lines.reduce((a,l) => a + l.it.max * l.qty, 0);
+  const back = params.get("p") ? `#/piece/${encodeURIComponent(params.get("p"))}` : "#/bag";
+
+  return `
+  <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="${back}">← Back</a></div>
+  <div class="wrap pagehead">
+    <span class="mr" style="font-size:1.3rem;color:var(--accent)">ऑर्डर</span>
+    <h1>Place your order</h1>
+    <p class="muted">Four details, then we take it forward on WhatsApp.</p>
+  </div>
+  <div class="wrap orderlayout">
+    <form class="orderform" id="orderForm" novalidate>
+      <div class="frow">
+        <div class="field">
+          <label for="f-name">Full name</label>
+          <input id="f-name" name="name" autocomplete="name" placeholder="Sneha Kulkarni" value="${esc(BUYER.name)}">
+          <span class="err"></span>
+        </div>
+        <div class="field">
+          <label for="f-phone">WhatsApp number</label>
+          <input id="f-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="98XXXXXXXX" value="${esc(BUYER.phone)}">
+          <span class="err"></span>
+        </div>
+      </div>
+      <div class="field" style="max-width:240px">
+        <label for="f-pin">Pincode</label>
+        <input id="f-pin" name="pin" inputmode="numeric" autocomplete="postal-code" maxlength="6" placeholder="411015" value="${esc(BUYER.pin)}">
+        <span class="err"></span>
+      </div>
+      <div class="field">
+        <label for="f-addr">Full address</label>
+        <textarea id="f-addr" name="addr" rows="4" autocomplete="street-address" placeholder="Flat and building, lane, landmark, city">${esc(BUYER.addr)}</textarea>
+        <span class="err"></span>
+      </div>
+      <button class="btn wide" type="submit" style="margin-top:4px">Place the order</button>
+      <p class="hint" style="margin:0;text-align:center">Your order opens in WhatsApp with everything filled in. Tap send and it reaches us.</p>
+    </form>
+
+    <aside class="summary">
+      <h3>${lines.reduce((a,l)=>a+l.qty,0)} piece${lines.reduce((a,l)=>a+l.qty,0)===1?"":"s"}</h3>
+      ${lines.map(l => `<div class="srow"><span>${esc(l.it.code)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.min*l.qty)} – ${rupees(l.it.max*l.qty)}</span></div>`).join("")}
+      <div class="srow"><span>Shipping</span><span>${min >= SHIP_FREE_OVER ? "Free" : "Confirmed on WhatsApp"}</span></div>
+      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(min)} – ${rupees(max)}</span></div>
+      <p class="muted" style="font-size:.8rem;margin:8px 0 0">These are the price bands. We confirm each exact price in the chat before you pay anything.</p>
+    </aside>
+  </div>`;
+}
+
+let LAST_ORDER = null;
+function placedView(){
+  const o = LAST_ORDER;
+  if (!o) { location.hash = "#/shop"; return ""; }
+  return `
+  <div class="wrap placed">
+    <div class="emptymark">${mark()}</div>
+    <p class="eyebrow">Order placed</p>
+    <h1 style="font-size:2.1rem">Thank you, ${esc(o.name.split(" ")[0])}.</h1>
+    <div class="oid">${esc(o.ref)}</div>
+    <p class="muted">WhatsApp should have opened with your order already written out. If it did not, or you closed it, use the button below — nothing reaches us until that message is sent.</p>
+    <a class="btn wa" style="margin-top:20px" href="${waLink(o.text)}" target="_blank" rel="noopener">Send the order on WhatsApp</a>
+    <div class="box">
+      ${o.items.map(l => `<div class="srow"><span>${esc(l.code)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${l.range}</span></div>`).join("")}
+      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(o.min)} – ${rupees(o.max)}</span></div>
+      <div class="srow" style="align-items:flex-start"><span>Delivering to</span><span style="text-align:right;max-width:60%">${esc(o.name)}<br>${esc(o.phone)}<br>${esc(o.addr)}<br>${esc(o.pin)}</span></div>
+    </div>
+    <a class="linkbtn" href="#/shop">Continue shopping</a>
+  </div>`;
+}
+
+function page(mr, title, body){
   return `<div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">${mr}</span><h1>${esc(title)}</h1></div>
   <div class="wrap" style="padding-bottom:80px;max-width:min(720px,92vw)">${body}</div>`;
 }
@@ -1131,104 +1198,225 @@ const PAGES = {
     </ul>
     <p style="margin-top:20px">We re-polish any piece bought from us once, free, in the first year. Post it to us or drop it at the Dighi address.</p>`),
   shipping: () => page("पाठवणी","Shipping & COD",`
-    <p><b>Free insured shipping</b> on every order over ${fmt(SHIP_FREE_OVER)}. Below that it is a flat ${fmt(SHIP_FLAT)}.</p>
-    <p><b>Dispatch:</b> ready-to-ship pieces leave Pune within two working days. Bridal sets are fitted and polished to order, which takes five to seven days.</p>
+    <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
+    <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
-    <p><b>Partial COD:</b> pay ${fmt(COD_ADVANCE)} to book the piece and the balance in cash at your door. Full COD is not available — plated jewellery refuses too often for a small maker to absorb.</p>
-    <p><b>How you pay:</b> there is no card form on this site. Pick your pieces, tap <b>Order on WhatsApp</b>, and we send you a UPI ID or a payment link in the chat once sizing and the dispatch date are settled.</p>`),
+    <p><b>Partial COD:</b> pay ₹500 to book the piece and the balance in cash at your door. Full COD is not available — plated jewellery refuses too often for a small maker to absorb.</p>
+    <p><b>How you pay:</b> there is no card form on this site. Send us the reference, we confirm the exact price, and you get a UPI ID or a payment link in the chat.</p>`),
   returns: () => page("परतावा","Returns",`
     <p>Seven days from delivery, on any piece that is unworn and back in its original box with the polishing cloth and tags.</p>
-    <p>Message us on WhatsApp with your order number and a photo. We arrange the reverse pickup where the courier serves; elsewhere we reimburse the postage.</p>
-    <p>Refunds go back to the source within five working days of the piece reaching us. Custom-fitted bridal sets and pierced-fitting earrings are exchange-only, for hygiene.</p>`)
+    <p>Message us on WhatsApp with your reference and a photo. We arrange the reverse pickup where the courier serves; elsewhere we reimburse the postage.</p>
+    <p>Refunds go back to the source within five working days of the piece reaching us. Pieces fitted to a measurement and pierced-fitting earrings are exchange-only, for hygiene.</p>`)
 };
 </script>
 
 <script>
-/* ============ order text ============ */
-function cartLines(){
-  return CART.map(l=>{const p=byId(l.id); return p?`• ${p.en} (${p.mr}) × ${l.qty} — ${fmt(p.price*l.qty)}`:"";}).filter(Boolean).join("\n");
-}
-function cartWaText(){
-  return `Namaskar The Qala 🙏\n\nI would like to order:\n${cartLines()}\n\nSubtotal: ${fmt(subtotal())}\nShipping: ${shipping()?fmt(shipping()):"Free"}\nTotal: ${fmt(subtotal()+shipping())}\n\nPlease confirm availability, sizing and how to pay.`;
-}
-
 /* ============ router ============ */
 function parseHash(){
-  const h = location.hash.replace(/^#/,"") || "/";
+  const h = location.hash.replace(/^#/, "") || "/";
   const [path, qs] = h.split("?");
-  return {parts: path.split("/").filter(Boolean), params: new URLSearchParams(qs||"")};
+  return {parts: path.split("/").filter(Boolean).map(decodeURIComponent), params: new URLSearchParams(qs || "")};
 }
 
 function render(){
   const {parts, params} = parseHash();
   const r = parts[0] || "";
   let html;
-  if (r === "") html = home();
+  if (LOAD_STATE === "loading") html = `<div class="wrap" style="padding:46px 0 80px">
+      <div class="skelgrid">${Array.from({length:8},()=>`<div class="skel"></div>`).join("")}</div>
+    </div>`;
+  else if (r === "") html = home();
   else if (r === "shop") html = shop(params);
-  else if (r === "product") html = product(parts[1]);
-  else if (r === "cart") html = cartView();
+  else if (r === "piece") html = piece(parts[1]);
+  else if (r === "cart" || r === "bag") html = bagView();
+  else if (r === "saved") html = savedView();
+  else if (r === "order") html = orderView(params);
+  else if (r === "placed") html = placedView();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
 
   view.innerHTML = html;
-  document.querySelectorAll("nav.main a").forEach(a=>{
-    a.classList.toggle("on", a.getAttribute("href") === "#" + (location.hash.replace(/^#/,"")||"/"));
+  document.body.classList.toggle("on-piece", r === "piece");
+  document.querySelectorAll("nav.main a").forEach(a => {
+    a.classList.toggle("on", a.getAttribute("href") === "#" + (location.hash.replace(/^#/, "") || "/"));
   });
   $("#nav").classList.remove("open");
-  $("#menuToggle").setAttribute("aria-expanded","false");
-  document.querySelectorAll(".wa-order").forEach(a=>{ a.href = waLink(cartWaText()); });
+  document.body.classList.remove("menu-open");
+  $("#menuToggle").setAttribute("aria-expanded", "false");
+  $("#menuToggle").innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
+  document.querySelectorAll(".wa-order").forEach(a => { a.href = waLink(bagWaText()); });
+
+  document.querySelectorAll("[data-save]").forEach(btn => {
+    btn.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleSaved(btn.dataset.save, btn); };
+  });
+
+  reveal();
   wire(r);
-  window.scrollTo({top:0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "instant"});
+  window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "instant"});
+}
+
+/* ============ scroll reveal ============ */
+let revealer = null;
+function reveal(){
+  const items = document.querySelectorAll(".rise:not(.in)");
+  if (!items.length) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)){
+    items.forEach(el => el.classList.add("in"));
+    return;
+  }
+  if (!revealer) revealer = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting){ en.target.classList.add("in"); revealer.unobserve(en.target); } });
+  }, {rootMargin: "0px 0px -8% 0px", threshold: 0.05});
+  items.forEach((el,i) => { el.style.transitionDelay = Math.min(i,6)*55 + "ms"; revealer.observe(el); });
+}
+
+/* ============ lightbox ============ */
+function openLightbox(src, alt){
+  const box = document.createElement("div");
+  box.className = "lightbox";
+  box.innerHTML = `<button class="close" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button><img src="${esc(src)}" alt="${esc(alt||"")}">`;
+  document.body.appendChild(box);
+  requestAnimationFrame(() => box.classList.add("in"));
+  const shut = () => { box.classList.remove("in"); setTimeout(() => box.remove(), 250); document.removeEventListener("keydown", esckey); };
+  const esckey = e => { if (e.key === "Escape") shut(); };
+  box.onclick = shut;
+  document.addEventListener("keydown", esckey);
 }
 
 /* ============ per-view wiring ============ */
+const ICON_PAUSE = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`;
+const ICON_PLAY  = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>`;
+
 function wire(route){
-  if (route === "product") {
-    const p = byId(parseHash().parts[1]);
-    if (!p) return;
+  if (route === "") {
+    const v = $("#heroVid"), btn = $("#vidBtn");
+    if (v && btn) {
+      v.addEventListener("loadeddata", () => { btn.hidden = false; }, {once:true});
+      const pr = v.play();
+      if (pr && pr.catch) pr.catch(() => { btn.innerHTML = ICON_PLAY; btn.setAttribute("aria-label","Play video"); btn.hidden = false; });
+      btn.onclick = () => {
+        if (v.paused){ v.play(); btn.innerHTML = ICON_PAUSE; btn.setAttribute("aria-label","Pause video"); }
+        else { v.pause(); btn.innerHTML = ICON_PLAY; btn.setAttribute("aria-label","Play video"); }
+      };
+    }
+  }
+
+  if (route === "piece") {
+    const it = byCode(parseHash().parts[1]);
+    if (!it) return;
     let q = 1;
     const qv = $("#qVal");
-    const waSet = () => { const b=$("#waBtn"); if(b) b.href = waLink(`Namaskar The Qala 🙏\n\nI would like to order:\n• ${p.en} (${p.mr}) — ${fmt(p.price)}\nQuantity: ${q}\nTotal: ${fmt(p.price*q)}\n\nPlease confirm availability, sizing and how to pay.`); };
-    waSet();
-    $("#qMinus").onclick = ()=>{ q=Math.max(1,q-1); qv.textContent=q; waSet(); };
-    $("#qPlus").onclick  = ()=>{ q=Math.min(20,q+1); qv.textContent=q; waSet(); };
-    $("#addBtn").onclick = ()=> add(p.id, q);
-    const crops = ["0 0 400 470","70 90 260 260","120 170 170 170"];
-    const shots = photosOf(p.id);
-    document.querySelectorAll(".thumb").forEach(t=>{
-      t.onclick = ()=>{
-        document.querySelectorAll(".thumb").forEach(x=>x.classList.remove("on"));
+    const sync = () => {
+      qv.textContent = q;
+      const wa = waLink(pieceWaText(it, q));
+      const order = `#/order?p=${encodeURIComponent(it.code)}&q=${q}`;
+      ["#waBtn", "#waBar"].forEach(sel => { const el = $(sel); if (el) el.href = wa; });
+      ["#orderBtn", "#orderBar"].forEach(sel => { const el = $(sel); if (el) el.href = order; });
+    };
+    sync();
+    $("#qMinus").onclick = () => { q = Math.max(1, q - 1); sync(); };
+    $("#qPlus").onclick  = () => { q = Math.min(20, q + 1); sync(); };
+    $("#addBtn").onclick = () => addToBag(it.code, q);
+
+    const main = $("#mainArt");
+    const zoom = () => { const im = main.querySelector("img"); if (im) openLightbox(im.getAttribute("src"), it.code); };
+    main.onclick = zoom;
+    main.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoom(); } };
+
+    document.querySelectorAll(".thumb").forEach(t => {
+      t.onclick = () => {
+        document.querySelectorAll(".thumb").forEach(x => x.classList.remove("on"));
         t.classList.add("on");
-        const i = Number(t.dataset.view) || 0;
-        $("#mainArt").innerHTML = (p.badge?`<span class="tag">${esc(p.badge)}</span>`:"")
-          + (shots.length ? media(p,{index:i, eager:true}) : artSVG(p.art,{label:p.en, vb:crops[i]}));
+        $("#mainArt").innerHTML = mark() + `<img class="photo" src="${t.dataset.src}" alt="${esc(it.code)}" decoding="async" onerror="qalaMiss(this)">`;
       };
     });
   }
 
+  if (route === "order") {
+    const form = $("#orderForm");
+    if (!form) return;
+    const lines = orderLines(parseHash().params);
+
+    const rules = [
+      ["name",  v => v.trim().length >= 2,                        "Please tell us your name"],
+      ["phone", v => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),   "Enter a 10-digit mobile number"],
+      ["pin",   v => /^\d{6}$/.test(v.trim()),                    "A pincode is 6 digits"],
+      ["addr",  v => v.trim().length >= 12,                       "We need the full address to ship to"]
+    ];
+
+    const check = (name, show) => {
+      const [, test, msg] = rules.find(r => r[0] === name);
+      const input = form[name], field = input.closest(".field"), err = field.querySelector(".err");
+      const ok = test(input.value);
+      if (ok || !show) { field.classList.remove("bad"); err.textContent = ""; }
+      else { field.classList.add("bad"); err.textContent = msg; }
+      return ok;
+    };
+    rules.forEach(([name]) => { form[name].onblur = () => check(name, true); form[name].oninput = () => check(name, false); });
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      let ok = true, firstBad = null;
+      rules.forEach(([name]) => {
+        if (!check(name, true)) { ok = false; firstBad = firstBad || form[name]; }
+      });
+      if (!ok) { firstBad.focus(); firstBad.scrollIntoView({block:"center", behavior:"smooth"}); return; }
+
+      BUYER = {
+        name: form.name.value.trim(),
+        phone: form.phone.value.replace(/\D/g, "").slice(-10),
+        pin: form.pin.value.trim(),
+        addr: form.addr.value.trim()
+      };
+      saveBuyer();
+
+      const o = Object.assign({}, BUYER, {
+        ref: orderRef(),
+        items: lines.map(l => ({code: l.it.code, catEn: l.it.catEn, qty: l.qty,
+                                range: priceRange(l.it), url: pieceUrl(l.it.code)})),
+        min: lines.reduce((a, l) => a + l.it.min * l.qty, 0),
+        max: lines.reduce((a, l) => a + l.it.max * l.qty, 0)
+      });
+      o.text = orderWaText(o);
+      LAST_ORDER = o;
+
+      window.open(waLink(o.text), "_blank", "noopener");   // inside the click, so not blocked
+      if (!parseHash().params.get("p")) { BAG = []; saveBag(); syncCount(); }
+      location.hash = "#/placed";
+    };
+  }
+
   if (route === "shop") {
-    document.querySelectorAll("[data-nav]").forEach(el=>{ el.onchange = ()=>{ location.hash = el.dataset.nav; }; });
+    document.querySelectorAll("[data-nav]").forEach(el => { el.onchange = () => { location.hash = el.dataset.nav; }; });
     const sel = $("#sortSel");
-    if (sel) sel.onchange = ()=>{ const {params}=parseHash(); params.set("s", sel.value); location.hash = "#/shop?"+params.toString(); };
+    if (sel) sel.onchange = () => { const {params} = parseHash(); params.set("s", sel.value); location.hash = "#/shop?" + params.toString(); };
   }
 
-  if (route === "cart") {
-    document.querySelectorAll("[data-inc]").forEach(b=> b.onclick = ()=>{ const l=CART.find(x=>x.id===b.dataset.inc); setQty(b.dataset.inc, l.qty+1); });
-    document.querySelectorAll("[data-dec]").forEach(b=> b.onclick = ()=>{ const l=CART.find(x=>x.id===b.dataset.dec); setQty(b.dataset.dec, l.qty-1); });
-    document.querySelectorAll("[data-del]").forEach(b=> b.onclick = ()=> drop(b.dataset.del));
+  if (route === "cart" || route === "bag") {
+    document.querySelectorAll("[data-inc]").forEach(b => b.onclick = () => { const l = BAG.find(x => x.code === b.dataset.inc); setQty(b.dataset.inc, l.qty + 1); });
+    document.querySelectorAll("[data-dec]").forEach(b => b.onclick = () => { const l = BAG.find(x => x.code === b.dataset.dec); setQty(b.dataset.dec, l.qty - 1); });
+    document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => dropFromBag(b.dataset.del));
   }
-
 }
 
 /* ============ boot ============ */
-$("#cartBtn").onclick = ()=>{ location.hash = "#/cart"; };
-$("#menuToggle").onclick = ()=>{
+$("#cartBtn").onclick = () => { location.hash = "#/bag"; };
+$("#menuToggle").onclick = () => {
   const n = $("#nav"), open = n.classList.toggle("open");
+  document.body.classList.toggle("menu-open", open);
   $("#menuToggle").setAttribute("aria-expanded", open ? "true" : "false");
+  $("#menuToggle").innerHTML = open
+    ? `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
 };
-$("#waFooter").href = waLink("Namaskar The Qala 🙏 I have a question about a piece.");
+const ASK = waLink("Namaskar The Qala 🙏 I have a question about a piece.");
+$("#waFooter").href = ASK;
+$("#fab").href = ASK;
 $("#yr").textContent = new Date().getFullYear();
 window.addEventListener("hashchange", render);
 syncCount();
 render();
+loadCatalogue().then(render);
 </script>

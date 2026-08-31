@@ -1,0 +1,30 @@
+{
+ "generated": "2026-08-29T16:52:34Z",
+ "hero": {
+  "image": null,
+  "video": "photos/hero.mp4"
+ },
+ "categories": [
+  {
+   "slug": "rajwadi",
+   "cover": null,
+   "bands": [
+    {
+     "min": 2000,
+     "max": 3000,
+     "next": 2,
+     "items": [
+      {
+       "n": 1,
+       "key": "rajwadi_1",
+       "files": [
+        "photos/rajwadi/2000-3000/rajwadi_1.jpeg"
+       ],
+       "code": "RAJWADI-2000-1"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
