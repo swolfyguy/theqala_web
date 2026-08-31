@@ -81,30 +81,46 @@ its Marathi name in `CAT_NAMES` at the top of `index.html`.
 
 ### Adding and deleting pieces, day to day
 
-**The studio page — `admin.html`**
+**The studio — double-click `preview.bat`**
 
-Open `admin.html`, connect it once to your repository, and after that adding a
-piece is: pick the category and price band, drag the photos in, press
-**Commit to GitHub**. It shrinks every photograph in the browser first, then
-writes them all as a single commit. The Action rebuilds the catalogue and
-Cloudflare redeploys, exactly as if you had used github.com.
+It starts a small server on this computer and opens the studio. Adding a piece
+is: pick the category and price band, drag the photographs in, press
+**Save to the folder**.
 
-The **Manage** tab lists everything in the shop with its real reference code,
-and gives each piece a Delete and a Move button. Deleting a piece with several
-views removes all of them in one commit.
+They are shrunk in the browser first, written straight into
+`photos\<category>\<band>\` on this machine, and the catalogue rebuilds. Then
+you commit and push whenever you like — the studio never touches GitHub in this
+mode.
 
-*Connecting it, once:* on GitHub go to
-Settings → Developer settings → **Fine-grained tokens** → generate one scoped to
-**only this repository** with **Contents: Read and write**, and an expiry. Paste
-it into the studio's Settings tab. It is saved in that browser's storage only —
-never in the repository, never sent anywhere but GitHub. Lose the laptop, or
-paste it somewhere careless, and you delete the token on GitHub; it stops
-working immediately.
+The **Manage** tab lists everything in the shop with its real reference code.
+Delete removes the file (all of them, for a piece with several views) and tidies
+up the folder. Move re-files a piece under a different price band.
 
-`admin.html` deploys with the site, so you can reach it from your phone. It is
-inert without a token, and carries a `noindex` tag so search engines skip it.
-If you would rather it never be public at all, delete the file from the repo and
-open your local copy instead — it works the same from `file://`.
+**Commit and push, one button.** A strip across the top of the studio shows how
+many changes are waiting. Type a message if you want one, press **Commit &
+push**, and it stages everything, commits and pushes. "what changed?" lists the
+files first if you want to look before you leap. The button greys out when
+there is nothing to send.
+
+The first push needs git to already know your GitHub credentials. If you have
+pushed from that computer before, Windows has them cached and the button just
+works; if not, push once from a terminal and it will thereafter.
+
+Nothing else on your network can reach the studio — the server only answers to
+this computer.
+
+**The same page, straight to GitHub**
+
+`admin.html` also works when the site is deployed, so you can add a piece from
+your phone. Open it on the live site, go to **Settings**, and connect a token:
+on GitHub → Settings → Developer settings → **Fine-grained tokens** → scoped to
+**only this repository**, permission **Contents: Read and write**, with an
+expiry. Press **Check write access** to be sure before you queue up photographs.
+
+The token is stored in that browser alone — never in the repository. Delete it
+on GitHub if a device goes missing and it stops working immediately.
+
+When the studio server is running, Settings lets you switch between the two.
 
 **Or github.com directly — no git, no laptop needed**
 
@@ -153,23 +169,17 @@ git** — never delete it, or every piece gets renumbered from 1.
 
 ### Previewing locally
 
-**Double-click `preview.bat`.** It rebuilds the catalogue, starts a small web
-server and opens `http://localhost:8000` in your browser. Leave the black
-window open while you look; Ctrl+C in it stops the preview.
+**Double-click `preview.bat`** (or run `python studio.py`). The shop is at
+`http://localhost:8000/` and the studio at `http://localhost:8000/admin.html`.
+Leave the black window open while you work; Ctrl+C stops it.
 
-Refresh the browser to see changes. If you added photos while it was running,
-close the window and double-click `preview.bat` again so the catalogue is
-rebuilt.
+Anything you save in the studio appears in the shop as soon as you refresh —
+no restart needed. If you added photographs in Explorer instead, restart it so
+the catalogue rebuilds, or press Save in the studio.
 
-Doing it by hand instead:
-
-```
-cd C:\Users\admin\claude_projects\the-qala-site
-python build_catalogue.py --optimize
-python -m http.server 8000
-```
-
-then open `http://localhost:8000`.
+To see it on your phone, run `ipconfig` in another window, take the **IPv4
+Address**, and open `http://<that address>:8000` on the phone. The studio itself
+stays on this computer only.
 
 **Do not just double-click `index.html`.** The page reads `catalogue.json` over
 HTTP, and browsers block that on a `file://` address — the shop will look

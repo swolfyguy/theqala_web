@@ -42,6 +42,18 @@ header{border-bottom:1px solid var(--line);background:var(--panel)}
 .tab:hover{background:var(--panel-2)}
 .tab.on{background:var(--accent);color:var(--on-accent)}
 
+.gitbar{border-bottom:1px solid var(--line);background:var(--panel-2)}
+.gitrow{display:flex;align-items:center;gap:12px;padding:11px 0;flex-wrap:wrap}
+.gitbar .dot{width:9px;height:9px;border-radius:50%;background:var(--line-2);flex:none}
+.gitbar .dot.pending{background:var(--warn)}
+.gitbar .dot.clean{background:var(--ok)}
+.gitbar .what{font-size:.88rem;margin-right:auto}
+.gitbar input{flex:1 1 230px;min-width:0;max-width:380px;background:var(--ground);border:1px solid var(--line-2);border-radius:999px;padding:9px 15px;font-size:.86rem}
+.gitbar input:focus{outline:none;border-color:var(--gold-2)}
+.plain{background:none;border:0;padding:0;color:var(--ink-2);font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.plain:hover{color:var(--accent)}
+.gitdetail{padding:0 0 14px;font-size:.82rem;color:var(--ink-2);display:grid;gap:3px;max-height:220px;overflow:auto}
+.gitdetail code{color:var(--ink)}
 main{padding:34px 0 90px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:22px}
 .card h2{font-size:1.3rem;margin-bottom:4px}
@@ -86,6 +98,12 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
 
 .log{margin-top:18px;font-size:.86rem;border-left:3px solid var(--line-2);padding-left:14px;display:grid;gap:5px;max-height:230px;overflow:auto}
 .log .ok{color:var(--ok)} .log .er{color:var(--bad)} .log .wa{color:var(--warn)}
+.log div{line-height:1.55}
+label.pick{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;cursor:pointer;background:var(--ground)}
+label.pick.on{border-color:var(--gold-2);box-shadow:inset 0 0 0 1px var(--gold-2)}
+label.pick input{margin-top:5px;accent-color:var(--accent)}
+label.pick b{display:block;font-size:.98rem}
+label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2px;word-break:break-all}
 .note{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:15px 17px;font-size:.88rem;color:var(--ink-2)}
 .note b{color:var(--ink)}
 .empty{text-align:center;padding:60px 20px;color:var(--ink-2)}
@@ -107,6 +125,17 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
     </nav>
   </div>
 </header>
+
+<div class="gitbar" id="gitbar" hidden>
+  <div class="wrap gitrow">
+    <span class="dot" id="gitDot"></span>
+    <span class="what" id="gitWhat">checking…</span>
+    <input id="gitMsg" placeholder="Update photographs" aria-label="Commit message">
+    <button class="btn sm" id="gitPush" disabled>Commit &amp; push</button>
+    <button class="plain" id="gitToggle" hidden>what changed?</button>
+  </div>
+  <div class="wrap gitdetail" id="gitDetail" hidden></div>
+</div>
 
 <main class="wrap">
   <section id="tab-upload"></section>
@@ -139,7 +168,28 @@ const kb = n => n >= 1e6 ? (n/1e6).toFixed(1) + " MB" : Math.round(n/1000) + " K
 let CFG = {owner:"", repo:"", branch:"main", token:""};
 try { CFG = Object.assign(CFG, JSON.parse(localStorage.getItem("qala.studio") || "{}")); } catch (e) {}
 const saveCfg = () => { try { localStorage.setItem("qala.studio", JSON.stringify(CFG)); } catch (e) {} };
-const ready = () => !!(CFG.owner && CFG.repo && CFG.token);
+const ready = () => isLocal() || !!(CFG.owner && CFG.repo && CFG.token);
+
+let MODE = "github";        // "local" when studio.py is serving this page
+const LOCAL = {available:false, root:"", catalogue:null, folders:[]};
+
+async function detectLocal(){
+  try {
+    const res = await fetch("/api/state", {cache:"no-store"});
+    if (!res.ok) return false;
+    const state = await res.json();
+    if (!state || state.mode !== "local") return false;
+    LOCAL.available = true; LOCAL.root = state.root || "";
+    applyLocalState(state);
+    return true;
+  } catch (e) { return false; }
+}
+function applyLocalState(state){
+  if (state.catalogue !== undefined) LOCAL.catalogue = state.catalogue || null;
+  if (state.folders) LOCAL.folders = state.folders;
+  TREE = (state.photos || []).map(path => ({path, type:"blob"}));
+}
+const isLocal = () => MODE === "local";
 
 let TREE = [];              // every path under photos/
 let QUEUE = [];             // {name, blob, url, before, after, converted}
@@ -148,7 +198,7 @@ let QUEUE = [];             // {name, blob, url, before, after, converted}
 let logBox = null;
 function say(msg, kind){
   if (!logBox) return;
-  const line = el("div", kind || "", esc(msg));
+  const line = el("div", kind || "", esc(msg).replace(/\n/g, "<br>"));
   logBox.appendChild(line); logBox.scrollTop = logBox.scrollHeight;
   return line;
 }
@@ -167,6 +217,21 @@ async function gh(path, opts){
   if (!res.ok){
     let detail = "";
     try { detail = (await res.json()).message || ""; } catch (e) {}
+    const writing = opts && /POST|PATCH|PUT|DELETE/.test(opts.method || "");
+    if (res.status === 403 || (res.status === 404 && writing)){
+      throw new Error(
+        "Your token is not allowed to write to this repository.\n\n" +
+        "On github.com → Settings → Developer settings → Personal access tokens → " +
+        "Fine-grained tokens → open your token, then:\n" +
+        "1. Repository access — make sure " + CFG.repo + " is in the list.\n" +
+        "2. Permissions → Repository permissions → Contents → Read and write.\n" +
+        "3. Update token at the bottom.\n\n" +
+        "The same token then works — no need to make a new one. " +
+        "(A classic token instead needs the whole 'repo' scope.)" +
+        (detail ? "\n\nGitHub said: " + detail : ""));
+    }
+    if (res.status === 401) throw new Error("GitHub rejected the token. It may have expired — check the expiry date, or paste a fresh one in Settings.");
+    if (res.status === 409) throw new Error("Someone else pushed while this was uploading. Press the button again — nothing was lost.");
     throw new Error(`GitHub said ${res.status}${detail ? " — " + detail : ""}`);
   }
   return res.status === 204 ? null : res.json();
@@ -174,6 +239,12 @@ async function gh(path, opts){
 const repoPath = () => `/repos/${encodeURIComponent(CFG.owner)}/${encodeURIComponent(CFG.repo)}`;
 
 async function loadTree(){
+  if (isLocal()){
+    const res = await fetch("/api/state", {cache:"no-store"});
+    if (!res.ok) throw new Error("the studio server stopped — restart it with `python studio.py`");
+    applyLocalState(await res.json());
+    return null;
+  }
   const ref = await gh(`${repoPath()}/git/ref/heads/${encodeURIComponent(CFG.branch)}`);
   const commit = await gh(`${repoPath()}/git/commits/${ref.object.sha}`);
   const tree = await gh(`${repoPath()}/git/trees/${commit.tree.sha}?recursive=1`);
@@ -182,7 +253,31 @@ async function loadTree(){
 }
 
 /* one commit for a whole batch: blobs -> tree -> commit -> move the branch */
+async function localPost(path, body){
+  const res = await fetch(path, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok || (data && data.error)) throw new Error((data && data.error) || `the studio server said ${res.status}`);
+  if (data){
+    if (data.photos) applyLocalState({photos: data.photos, folders: data.folders, catalogue: data.catalogue});
+    const gd = $("#gitDetail"); if (gd) delete gd.dataset.keep;
+    setTimeout(refreshGit, 150);
+    (data.log || []).forEach(l => say("  " + l));
+    (data.warnings || []).forEach(w => say("  ! " + w, "wa"));
+  }
+  return data;
+}
+
 async function commitChanges(message, adds, removes){
+  if (isLocal()){
+    if (removes && removes.length) await localPost("/api/delete", {paths: removes});
+    if (adds && adds.length){
+      const files = [];
+      for (const a of adds) files.push({path: a.path, b64: await toBase64(a.blob)});
+      await localPost("/api/upload", {files});
+    }
+    return "folder";
+  }
   const {headSha, treeSha} = await loadTree();
   const entries = [];
 
@@ -222,6 +317,7 @@ const thumbCache = new Map();
 async function thumb(path){
   if (thumbCache.has(path)) return thumbCache.get(path);
   const p = (async () => {
+    if (isLocal()) return "/" + path.split("/").map(encodeURIComponent).join("/") + "?v=" + Date.now();
     const res = await fetch(`${API}${repoPath()}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(CFG.branch)}`, {
       headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}
     });
@@ -290,17 +386,33 @@ function repoShape(){
 
 /* the numbers the site actually shows, read from the generated catalogue */
 let CODES = new Map();          // "cat/band/key" -> "RAJWADI-2000-3"
+function indexCodes(data){
+  CODES = new Map();
+  (data && data.categories || []).forEach(c => (c.bands || []).forEach(b => (b.items || []).forEach(it => {
+    if (it.key) CODES.set(`${c.slug}/${b.min}-${b.max}/${it.key}`, it.code);
+  })));
+}
 async function loadCodes(){
   CODES = new Map();
+  if (isLocal()) { indexCodes(LOCAL.catalogue); return; }
   try {
     const res = await fetch(`${API}${repoPath()}/contents/photos/catalogue.json?ref=${encodeURIComponent(CFG.branch)}`,
       {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
     if (!res.ok) return;
-    const data = await res.json();
-    (data.categories || []).forEach(c => (c.bands || []).forEach(b => (b.items || []).forEach(it => {
-      if (it.key) CODES.set(`${c.slug}/${b.min}-${b.max}/${it.key}`, it.code);
-    })));
+    indexCodes(await res.json());
   } catch (e) {}
+}
+
+/* every category and band folder that exists, even the empty ones */
+function folderShape(){
+  const cats = new Map();
+  const note = (cat, band) => {
+    if (!cats.has(cat)) cats.set(cat, new Set());
+    if (band && BAND_RE.test(band)) cats.get(cat).add(band);
+  };
+  TREE.forEach(n => { const p = n.path.split("/"); if (p.length >= 3) note(p[1], p[2]); });
+  LOCAL.folders.forEach(f => { const p = f.split("/"); if (p.length >= 2) note(p[1], p[2]); });
+  return cats;
 }
 
 const titleish = s => s.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
@@ -312,8 +424,27 @@ const bandLabel = b => { const m = BAND_RE.exec(b); return m ? rupees(m[1]) + " 
 /* ---------- settings ---------- */
 function renderSettings(){
   const box = $("#tab-settings");
-  box.innerHTML = `
+  const modeCard = LOCAL.available ? `
   <div class="card">
+    <h2>Where changes go</h2>
+    <p class="sub">The studio server is running, so it can write straight into the folder on this computer.</p>
+    <div style="display:grid;gap:12px">
+      <label class="pick ${isLocal() ? "on" : ""}"><input type="radio" name="mode" value="local" ${isLocal() ? "checked" : ""}>
+        <span><b>This computer's folder</b><small>${esc(LOCAL.root)}</small>
+        <small>Photos are written and deleted here, the catalogue rebuilds, and you commit and push yourself.</small></span></label>
+      <label class="pick ${isLocal() ? "" : "on"}"><input type="radio" name="mode" value="github" ${isLocal() ? "" : "checked"}>
+        <span><b>Straight to GitHub</b><small>Commits from anywhere, including your phone. Needs a token below.</small></span></label>
+    </div>
+  </div>` : `
+  <div class="note" style="margin-bottom:22px">
+    <b>Working with the folder on this computer?</b> Close this page, run
+    <code>python studio.py</code> in <code>the-qala-site</code>, and open
+    <code>http://localhost:8000/admin.html</code>. The studio then writes into the folder
+    directly and you push when you are ready. Right now it can only commit to GitHub.
+  </div>`;
+
+  box.innerHTML = modeCard + `
+  <div class="card"${isLocal() ? ' hidden id="ghcard"' : ' id="ghcard"'}>
     <h2>Connect your repository</h2>
     <p class="sub">Everything below stays in this browser. It is never committed and never sent anywhere except GitHub.</p>
     <div class="row">
@@ -326,20 +457,30 @@ function renderSettings(){
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
       <button class="btn" id="s-save">Save and test</button>
+      <button class="btn ghost" id="s-check">Check write access</button>
       <button class="btn ghost" id="s-forget">Forget the token</button>
     </div>
     <div class="log" id="s-log"></div>
   </div>
 
-  <div class="note">
-    <b>Making the token.</b> On GitHub: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Settings → Developer settings → Fine-grained tokens</a>.
+  <div class="note"${isLocal() ? " hidden" : ""}>
+    <b>Making the token.</b> On GitHub: <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">Settings → Developer settings → Fine-grained tokens</a>.
     Point it at <b>only this repository</b>, give it <b>Contents: Read and write</b>, and set an expiry —
     90 days is sensible. Nothing else needs ticking.<br><br>
     It is stored in this browser alone. If you lose the laptop, or paste it somewhere you should not have,
     delete the token on GitHub and it stops working immediately.
-  </div>`;
+  </div>
 
-  logBox = $("#s-log");
+  ${isLocal() ? `<div class="log" id="s-log2"></div>` : ""}`;
+
+  document.querySelectorAll("input[name=mode]").forEach(r => r.onchange = () => {
+    MODE = r.value;
+    try { localStorage.setItem("qala.mode", MODE); } catch (e) {}
+    stamp(); renderSettings();
+  });
+
+  logBox = $("#s-log") || $("#s-log2");
+  if (!$("#s-save")) return;
   $("#s-save").onclick = async () => {
     CFG.owner = $("#s-owner").value.trim();
     CFG.repo = $("#s-repo").value.trim().replace(/^.*\//, "");
@@ -360,6 +501,18 @@ function renderSettings(){
       say("You are set. Use the Add photos tab.", "ok");
     } catch (e) { say(e.message, "er"); }
   };
+  $("#s-check").onclick = async () => {
+    logBox.innerHTML = "";
+    if (!ready()) { say("Save the repository and token first.", "wa"); return; }
+    try {
+      say("checking write access…");
+      await loadTree();
+      const probe = await gh(`${repoPath()}/git/blobs`, {
+        method: "POST", body: JSON.stringify({content: "cWFsYQ==", encoding: "base64"})
+      });
+      say(`write access confirmed (test object ${probe.sha.slice(0, 7)}, not committed to anything)`, "ok");
+    } catch (e) { say(e.message, "er"); }
+  };
   $("#s-forget").onclick = () => {
     CFG.token = ""; saveCfg(); $("#s-token").value = ""; stamp();
     say("Token cleared from this browser.", "wa");
@@ -375,17 +528,19 @@ function renderUpload(){
       <button class="btn" onclick="go('settings')">Open settings</button></div>`;
     return;
   }
-  const cats = repoShape();
+  const cats = folderShape();
   const catOpts = [...cats.keys()].sort().map(c => `<option value="${esc(c)}">${esc(titleish(c))}</option>`).join("");
   const bands = new Set();
-  cats.forEach(bs => bs.forEach((_, b) => bands.add(b)));
+  cats.forEach(bs => bs.forEach(b => bands.add(b)));
   const bandOpts = [...bands].sort((a,b) => parseInt(a) - parseInt(b))
       .map(b => `<option value="${esc(b)}">${esc(bandLabel(b))}</option>`).join("");
 
   box.innerHTML = `
   <div class="card">
     <h2>Add photographs</h2>
-    <p class="sub">Choose where they belong, drop them in, and commit. They are shrunk here before anything is uploaded.</p>
+    <p class="sub">${isLocal()
+        ? "Choose where they belong and drop them in. They are shrunk first, then written into <code>photos</code> on this computer and the catalogue rebuilds."
+        : "Choose where they belong, drop them in, and commit. They are shrunk here before anything is uploaded."}</p>
     <div class="row">
       <label class="f">Category
         <select id="u-cat">${catOpts}<option value="__new">＋ new category…</option></select>
@@ -410,7 +565,7 @@ function renderUpload(){
     <div class="queue" id="queue"></div>
 
     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
-      <button class="btn" id="u-commit" disabled>Commit to GitHub</button>
+      <button class="btn" id="u-commit" disabled>${isLocal() ? "Save to the folder" : "Commit to GitHub"}</button>
       <button class="btn ghost" id="u-clear" disabled>Clear</button>
       <span class="hint" id="u-tally"></span>
     </div>
@@ -481,16 +636,22 @@ function renderUpload(){
     });
 
     const btn = $("#u-commit"); btn.disabled = true;
-    btn.innerHTML = `<span class="spin"></span> Committing`;
+    btn.innerHTML = `<span class="spin"></span> ${isLocal() ? "Saving" : "Committing"}`;
     try {
       const sha = await commitChanges(`Add ${adds.length} photo${adds.length === 1 ? "" : "s"} to ${cat}/${band}`, adds, []);
-      say(`committed ${sha.slice(0, 7)} — ${adds.length} photograph${adds.length === 1 ? "" : "s"} added`, "ok");
-      say("The Action is rebuilding the catalogue. The shop is live in about a minute.", "ok");
-      const link = say("");
-      link.innerHTML = `<a href="https://github.com/${esc(CFG.owner)}/${esc(CFG.repo)}/actions" target="_blank" rel="noopener">Watch it run →</a>`;
+      if (isLocal()){
+        say(`${adds.length} photograph${adds.length === 1 ? "" : "s"} written into photos/${cat}/${band}/`, "ok");
+        const link = say("");
+        link.innerHTML = `Refresh <a href="/" target="_blank" rel="noopener">the shop</a> to see them. Commit and push when you are ready.`;
+      } else {
+        say(`committed ${sha.slice(0, 7)} — ${adds.length} photograph${adds.length === 1 ? "" : "s"} added`, "ok");
+        say("The Action is rebuilding the catalogue. The shop is live in about a minute.", "ok");
+        const link = say("");
+        link.innerHTML = `<a href="https://github.com/${esc(CFG.owner)}/${esc(CFG.repo)}/actions" target="_blank" rel="noopener">Watch it run →</a>`;
+      }
       QUEUE = []; paint(); await loadTree();
     } catch (e) { say(e.message, "er"); }
-    btn.textContent = "Commit to GitHub"; btn.disabled = !QUEUE.length;
+    btn.textContent = isLocal() ? "Save to the folder" : "Commit to GitHub"; btn.disabled = !QUEUE.length;
   };
 
   paint();
@@ -508,7 +669,7 @@ async function renderManage(){
     return;
   }
   box.innerHTML = `<div class="card"><h2>Everything in the shop</h2>
-    <p class="sub">Delete a piece, or move it to a different price band. Each action is one commit.</p>
+    <p class="sub">Delete a piece, or move it to a different price band. ${isLocal() ? "Changes are written into the folder straight away." : "Each action is one commit."}</p>
     <div class="log" id="m-log"></div></div>
     <div id="m-body"><div class="empty"><span class="spin"></span> reading the repository…</div></div>`;
   logBox = $("#m-log");
@@ -562,7 +723,7 @@ async function renderManage(){
               logBox.innerHTML = "";
               say(`deleting ${what}…`);
               const sha = await commitChanges(`Remove ${what}`, [], files);
-              say(`committed ${sha.slice(0, 7)} — deleted`, "ok");
+              say(isLocal() ? `${what} deleted from the folder` : `committed ${sha.slice(0, 7)} — deleted`, "ok");
               renderManage();
             } catch (e) { say(e.message, "er"); }
           };
@@ -574,15 +735,20 @@ async function renderManage(){
             try {
               logBox.innerHTML = "";
               say(`moving ${code || label} to ${target}…`);
-              const adds = [];
-              for (const path of files){
-                const res = await fetch(`${API}${repoPath()}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(CFG.branch)}`,
-                  {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
-                if (!res.ok) throw new Error("could not read " + path);
-                adds.push({path: path.replace(`/${band}/`, `/${target}/`), blob: await res.blob()});
+              if (isLocal()){
+                await localPost("/api/move", {pairs: files.map(path => ({from: path, to: path.replace(`/${band}/`, `/${target}/`)}))});
+                say(`moved to ${target}. Its reference code changes, because the code carries the price band.`, "ok");
+              } else {
+                const adds = [];
+                for (const path of files){
+                  const res = await fetch(`${API}${repoPath()}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(CFG.branch)}`,
+                    {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
+                  if (!res.ok) throw new Error("could not read " + path);
+                  adds.push({path: path.replace(`/${band}/`, `/${target}/`), blob: await res.blob()});
+                }
+                const sha = await commitChanges(`Move ${code || label} to ${target}`, adds, files);
+                say(`committed ${sha.slice(0, 7)} — moved. Its reference code changes, because the code carries the price band.`, "ok");
               }
-              const sha = await commitChanges(`Move ${code || label} to ${target}`, adds, files);
-              say(`committed ${sha.slice(0, 7)} — moved. Its reference code changes, because the code carries the price band.`, "ok");
               renderManage();
             } catch (e) { say(e.message, "er"); }
           };
@@ -595,9 +761,79 @@ async function renderManage(){
   if (!total) body.innerHTML = `<div class="empty">Nothing uploaded yet. Use the <b>Add photos</b> tab.</div>`;
 }
 
+/* ---------- commit and push ---------- */
+let GIT = null;
+async function refreshGit(){
+  const bar = $("#gitbar");
+  if (!isLocal()){ bar.hidden = true; return; }
+  try {
+    const res = await fetch("/api/git", {cache:"no-store"});
+    if (!res.ok) throw new Error();
+    GIT = await res.json();
+  } catch (e) { bar.hidden = true; return; }
+
+  bar.hidden = false;
+  const dot = $("#gitDot"), what = $("#gitWhat"), btn = $("#gitPush"), toggle = $("#gitToggle");
+  const pending = (GIT.changes || []).length;
+  const ahead = GIT.ahead || 0;
+
+  if (!GIT.installed || !GIT.repo){
+    dot.className = "dot"; what.textContent = GIT.note || "not a git repository";
+    btn.disabled = true; toggle.hidden = true; $("#gitDetail").hidden = true;
+    return;
+  }
+
+  const bits = [];
+  if (pending) bits.push(`${pending} change${pending === 1 ? "" : "s"} to commit`);
+  if (ahead)   bits.push(`${ahead} commit${ahead === 1 ? "" : "s"} to push`);
+  what.textContent = bits.length ? bits.join(" · ") : "everything is pushed";
+  if (!GIT.remote) what.textContent += " · " + GIT.note;
+  dot.className = "dot " + (pending || ahead ? "pending" : "clean");
+  btn.disabled = !(pending || ahead) || !GIT.remote;
+  toggle.hidden = !pending;
+  const box = $("#gitDetail");
+  if (!pending && !box.dataset.keep) box.hidden = true;
+}
+
+$("#gitToggle").onclick = () => {
+  const box = $("#gitDetail");
+  delete box.dataset.keep;
+  box.hidden = !box.hidden;
+  if (!box.hidden){
+    box.innerHTML = (GIT.changes || []).map(c =>
+      `<div><code>${esc(c.status)}</code> ${esc(c.path)}</div>`).join("")
+      || "<div>nothing</div>";
+  }
+};
+
+$("#gitPush").onclick = async () => {
+  const btn = $("#gitPush"), what = $("#gitWhat");
+  const message = $("#gitMsg").value.trim() || "Update photographs";
+  btn.disabled = true; btn.innerHTML = `<span class="spin"></span> Pushing`;
+  what.textContent = "committing and pushing…";
+  try {
+    const res = await fetch("/api/git", {method:"POST", headers:{"Content-Type":"application/json"},
+                                         body: JSON.stringify({message})});
+    let data = null; try { data = await res.json(); } catch (e) {}
+    if (!res.ok || (data && data.error)) throw new Error((data && data.error) || `the studio server said ${res.status}`);
+    $("#gitMsg").value = "";
+    const box = $("#gitDetail"); box.hidden = false; box.dataset.keep = "1";
+    box.innerHTML = (data.log || []).map(l => `<div>${esc(l)}</div>`).join("")
+      + (data.pushed ? `<div style="color:var(--ok);margin-top:6px">pushed — Cloudflare is deploying, live in about a minute</div>` : "");
+  } catch (e) {
+    const box = $("#gitDetail"); box.hidden = false; box.dataset.keep = "1";
+    box.innerHTML = `<div style="color:var(--bad);white-space:pre-wrap">${esc(e.message)}</div>`;
+  }
+  btn.textContent = "Commit & push";
+  await refreshGit();
+};
+
 /* ---------- tabs ---------- */
 function stamp(){
-  $("#repoLabel").textContent = ready() ? `${CFG.owner}/${CFG.repo} · ${CFG.branch}` : "not connected";
+  $("#repoLabel").textContent = isLocal()
+    ? "this computer · " + (LOCAL.root.split(/[\\/]/).pop() || "folder")
+    : (ready() ? `${CFG.owner}/${CFG.repo} · ${CFG.branch}` : "not connected");
+  $("#repoLabel").title = isLocal() ? LOCAL.root : "";
 }
 function go(name){
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
@@ -606,16 +842,21 @@ function go(name){
   if (name === "upload") renderUpload();
   if (name === "manage") renderManage();
   if (name === "settings") renderSettings();
+  refreshGit();
   location.hash = name;
 }
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => go(t.dataset.tab));
 
 /* ---------- boot ---------- */
-stamp();
 (async () => {
+  const found = await detectLocal();
+  let saved = "";
+  try { saved = localStorage.getItem("qala.mode") || ""; } catch (e) {}
+  MODE = found ? (saved === "github" ? "github" : "local") : "github";
+  stamp();
   const start = ["upload","manage","settings"].includes(location.hash.slice(1)) ? location.hash.slice(1)
               : (ready() ? "upload" : "settings");
-  if (ready()){
+  if (ready() && !isLocal()){
     try { await loadTree(); } catch (e) { /* the tab will report it */ }
   }
   go(start);
