@@ -1,26 +1,34 @@
 {
- "generated": "2026-08-31T19:02:20Z",
+ "generated": "2026-08-31T19:04:49Z",
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
  },
  "categories": [
   {
-   "slug": "rajwadi",
+   "slug": "bangles",
    "cover": null,
    "bands": [
     {
-     "min": 2000,
-     "max": 3000,
-     "next": 2,
+     "min": 1000,
+     "max": 2000,
+     "next": 3,
      "items": [
       {
        "n": 1,
-       "key": "rajwadi_1",
+       "key": "91-shop",
        "files": [
-        "photos/rajwadi/2000-3000/rajwadi_1.jpeg"
+        "photos/bangles/1000-2000/91-shop.jpg"
        ],
-       "code": "RAJWADI-2000-1"
+       "code": "BANGLES-1000-1"
+      },
+      {
+       "n": 2,
+       "key": "WhatsApp_Image_2026-06-25_at_11.33.12_202606300010",
+       "files": [
+        "photos/bangles/1000-2000/WhatsApp_Image_2026-06-25_at_11.33.12_202606300010.jpg"
+       ],
+       "code": "BANGLES-1000-2"
       }
      ]
     }
