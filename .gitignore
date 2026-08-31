@@ -1,3 +1,18 @@
+# ---------------------------------------------------------------
+# The studio is for this computer only. Keeping these out of the
+# repository is what guarantees they are never deployed with the
+# site — Cloudflare Pages publishes whatever is in the repo.
+#
+# They stay on your disk; git simply stops tracking them.
+# ---------------------------------------------------------------
+admin.html
+studio.py
+preview.bat
+
+# python leftovers
+__pycache__/
+*.pyc
+
 # OS junk
 .DS_Store
 Thumbs.db

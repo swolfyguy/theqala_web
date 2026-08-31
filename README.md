@@ -109,10 +109,22 @@ works; if not, push once from a terminal and it will thereafter.
 Nothing else on your network can reach the studio — the server only answers to
 this computer.
 
+**The studio is never deployed.** `admin.html`, `studio.py` and `preview.bat`
+are listed in `.gitignore`, so they stay on your disk and never reach the
+repository — and what is not in the repository cannot be published by Cloudflare
+Pages. They are yours alone.
+
+If you would rather keep them version-controlled as a backup, take them out of
+`.gitignore` and instead set Cloudflare Pages' **build command** to
+`rm -f admin.html studio.py preview.bat` — the files then live in git but are
+stripped out of every deploy. Pick one; the ignore file is the safer default
+because there is no dashboard setting to forget.
+
 **The same page, straight to GitHub**
 
-`admin.html` also works when the site is deployed, so you can add a piece from
-your phone. Open it on the live site, go to **Settings**, and connect a token:
+`admin.html` also works from any browser without the local server — open your
+local copy by double-clicking it and it will commit to GitHub instead. Go to
+**Settings** and connect a token:
 on GitHub → Settings → Developer settings → **Fine-grained tokens** → scoped to
 **only this repository**, permission **Contents: Read and write**, with an
 expiry. Press **Check write access** to be sure before you queue up photographs.

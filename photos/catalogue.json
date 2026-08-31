@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-31T19:04:49Z",
+ "generated": "2026-08-31T19:40:45Z",
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
@@ -29,6 +29,90 @@
         "photos/bangles/1000-2000/WhatsApp_Image_2026-06-25_at_11.33.12_202606300010.jpg"
        ],
        "code": "BANGLES-1000-2"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "rajwadi",
+   "cover": null,
+   "bands": [
+    {
+     "min": 3000,
+     "max": 4000,
+     "next": 12,
+     "items": [
+      {
+       "n": 2,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.43 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 5.57.43 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-2"
+      },
+      {
+       "n": 4,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.47 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 5.57.47 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-4"
+      },
+      {
+       "n": 6,
+       "key": "WhatsApp Image 2026-06-12 at 6.05.47 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 6.05.47 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-6"
+      },
+      {
+       "n": 7,
+       "key": "WhatsApp Image 2026-06-12 at 6.05.48 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 6.05.48 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-7"
+      },
+      {
+       "n": 8,
+       "key": "WhatsApp Image 2026-06-13 at 12.47.47 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-13 at 12.47.47 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-8"
+      },
+      {
+       "n": 9,
+       "key": "WhatsApp Image 2026-06-13 at 12.47.49 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-13 at 12.47.49 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-9"
+      },
+      {
+       "n": 11,
+       "key": "WhatsApp Image 2026-06-13 at 12.54.42 PM",
+       "files": [
+        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-13 at 12.54.42 PM.jpg"
+       ],
+       "code": "RAJWADI-3000-11"
+      }
+     ]
+    },
+    {
+     "min": 4000,
+     "max": 5000,
+     "next": 2,
+     "items": [
+      {
+       "n": 1,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.48 PM",
+       "files": [
+        "photos/rajwadi/4000-5000/WhatsApp Image 2026-06-12 at 5.57.48 PM.jpg"
+       ],
+       "code": "RAJWADI-4000-1"
       }
      ]
     }
