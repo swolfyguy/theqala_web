@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-01T12:04:50Z",
+ "generated": "2026-09-01T12:09:26Z",
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
@@ -12,7 +12,7 @@
     {
      "min": 1000,
      "max": 2000,
-     "next": 3,
+     "next": 4,
      "items": [
       {
        "n": 1,
@@ -29,6 +29,14 @@
         "photos/bangles/1000-2000/WhatsApp_Image_2026-06-25_at_11.33.12_202606300010.jpg"
        ],
        "code": "BANGLES-1000-2"
+      },
+      {
+       "n": 3,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.43 PM",
+       "files": [
+        "photos/bangles/1000-2000/WhatsApp Image 2026-06-12 at 5.57.43 PM.jpg"
+       ],
+       "code": "BANGLES-1000-3"
       }
      ]
     }
