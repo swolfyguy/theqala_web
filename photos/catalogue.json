@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-01T05:10:30Z",
+ "generated": "2026-09-01T05:11:13Z",
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
@@ -97,6 +97,91 @@
         "photos/rajwadi/4000-5000/WhatsApp Image 2026-06-12 at 5.57.48 PM.jpg"
        ],
        "code": "RAJWADI-4000-1"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "victorian",
+   "cover": null,
+   "bands": [
+    {
+     "min": 2000,
+     "max": 3000,
+     "next": 10,
+     "items": [
+      {
+       "n": 1,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.45 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-12 at 5.57.45 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-1"
+      },
+      {
+       "n": 2,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.47 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-12 at 5.57.47 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-2"
+      },
+      {
+       "n": 3,
+       "key": "WhatsApp Image 2026-06-12 at 5.57.48 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-12 at 5.57.48 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-3"
+      },
+      {
+       "n": 4,
+       "key": "WhatsApp Image 2026-06-12 at 6.05.47 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-12 at 6.05.47 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-4"
+      },
+      {
+       "n": 5,
+       "key": "WhatsApp Image 2026-06-12 at 6.05.48 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-12 at 6.05.48 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-5"
+      },
+      {
+       "n": 6,
+       "key": "WhatsApp Image 2026-06-13 at 12.47.47 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-13 at 12.47.47 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-6"
+      },
+      {
+       "n": 7,
+       "key": "WhatsApp Image 2026-06-13 at 12.47.49 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-13 at 12.47.49 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-7"
+      },
+      {
+       "n": 8,
+       "key": "WhatsApp Image 2026-06-13 at 12.51.35 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-13 at 12.51.35 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-8"
+      },
+      {
+       "n": 9,
+       "key": "WhatsApp Image 2026-06-13 at 12.54.42 PM",
+       "files": [
+        "photos/victorian/2000-3000/WhatsApp Image 2026-06-13 at 12.54.42 PM.jpg"
+       ],
+       "code": "VICTORIAN-2000-9"
       }
      ]
     }
