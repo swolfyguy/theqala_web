@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-31T19:59:40Z",
+ "generated": "2026-09-01T05:10:30Z",
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
@@ -44,14 +44,6 @@
      "next": 12,
      "items": [
       {
-       "n": 2,
-       "key": "WhatsApp Image 2026-06-12 at 5.57.43 PM",
-       "files": [
-        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 5.57.43 PM.jpg"
-       ],
-       "code": "RAJWADI-3000-2"
-      },
-      {
        "n": 4,
        "key": "WhatsApp Image 2026-06-12 at 5.57.47 PM",
        "files": [
@@ -66,14 +58,6 @@
         "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 6.05.47 PM.jpg"
        ],
        "code": "RAJWADI-3000-6"
-      },
-      {
-       "n": 7,
-       "key": "WhatsApp Image 2026-06-12 at 6.05.48 PM",
-       "files": [
-        "photos/rajwadi/3000-4000/WhatsApp Image 2026-06-12 at 6.05.48 PM.jpg"
-       ],
-       "code": "RAJWADI-3000-7"
       },
       {
        "n": 8,
