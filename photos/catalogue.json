@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-01T18:11:23Z",
+ "generated": "2026-09-01T18:22:59Z",
  "version": 2,
  "hero": {
   "image": null,
@@ -13,10 +13,6 @@
   {
    "min": 1000,
    "max": 2000
-  },
-  {
-   "min": 3000,
-   "max": 4000
   }
  ],
  "categories": [
@@ -52,31 +48,6 @@
      },
      "images": [
       "photos/necklace/1550 (2)/1.jpg"
-     ],
-     "video": null
-    }
-   ]
-  },
-  {
-   "slug": "rajwadi",
-   "cover": null,
-   "next": 2,
-   "products": [
-    {
-     "n": 1,
-     "code": "RAJWADI-01",
-     "folder": "photos/rajwadi/3200 rajwadi baby pink",
-     "title": "rajwadi baby pink",
-     "price": 3200,
-     "band": {
-      "min": 3000,
-      "max": 4000
-     },
-     "images": [
-      "photos/rajwadi/3200 rajwadi baby pink/1.jpg",
-      "photos/rajwadi/3200 rajwadi baby pink/2.jpg",
-      "photos/rajwadi/3200 rajwadi baby pink/3.jpg",
-      "photos/rajwadi/3200 rajwadi baby pink/4.jpg"
      ],
      "video": null
     }
