@@ -20,182 +20,103 @@ retype them.
 
 ---
 
-## The folders are the shop
+## One folder is one product
 
-You never list a product anywhere, and **filenames do not matter.** Drop
-photographs in straight off your phone. The folder decides the category and the
-price band; the script hands out the numbers.
+You never list a product anywhere. **The folder is the product, and its name
+starts with the price.**
 
 ```
 photos/
-  hero.mp4                              plays when the site opens
-  hero-1.jpg                            still picture, used if there is no video
-  catalogue.json                        generated — do not edit by hand
+  hero.mp4                                  plays when the site opens
+  hero-1.jpg                                still, used if there is no video
+  catalogue.json                            generated — keep it in git
 
   rajwadi/
-    whatever-you-like.jpg               the category tile (any loose image here)
-    2000-3000/
-      IMG_4432.jpg                      -> RAJWADI-2000-1
-      WhatsApp Image 2026-08-29.jpeg    -> RAJWADI-2000-2
-      thushi shoot/                     -> RAJWADI-2000-3
-        IMG_5501.jpg                       all three are views
-        IMG_5502.jpg                       of that one piece
-        IMG_5503.jpg
+    cover.jpg                               the tile for this category
+    2300 Kolhapuri Thushi/                  ONE PRODUCT
+        1.jpg  2.jpg  3.jpg                 every angle, shown in this order
+        video.mp4                           optional, appears in the gallery
+    3100 Peshwai Saaj/
+        1.jpg
 ```
 
-**The rules — all of them**
+The price band is worked out from the price: **2,300 shows under ₹2,000 – ₹3,000,
+3,100 under ₹3,000 – ₹4,000.** You never make band folders. The customer sees
+the exact price; the band is only the filter in the sidebar.
 
-1. Category folder, then a price folder named `low-high` (e.g. `3000-4000`).
-2. One loose image = one piece. Call it anything.
-3. Several photos of the *same* piece? Put them in a subfolder together. The
-   folder can be called anything too; the first image alphabetically is the
-   one shown on the shop page.
-4. **Any image format.** `.jpg` `.jpeg` `.png` `.webp` `.avif` `.gif` `.svg`
-   go straight on the page. `.heic` — what an iPhone shoots by default —
-   plus `.tif` `.tiff` `.bmp` are **converted to `.jpg` automatically**,
-   because no browser can display them. Upper or lower case, doesn't matter.
+The name after the price is optional — `photos/bangles/4750/` is a perfectly
+good product, it just shows as "Bangles 03" instead of a name.
 
-Customers see the photo, the reference code (`RAJWADI-2000-1`), the category and
-the price band. The exact price is settled on WhatsApp — the code is what they
-send you.
+**Filenames inside the folder do not matter.** The studio writes them as
+1.jpg, 2.jpg… so the order is explicit, but anything works; they are shown in
+filename order and the first one is the cover.
 
-### The numbers never move
+### Reference codes never move
 
-A number is handed out the first time the script sees a file, and then it is
-that piece's number forever.
+Each product keeps a small hidden `.id` file with its number, so
+`RAJWADI-07` stays `RAJWADI-07` when you change its price or rename it — which
+matters, because that code is what customers send you on WhatsApp. Numbers of
+deleted products are retired and never handed out again.
 
-- Add a photo whose name sorts before everything else: it gets the **next**
-  number, not number 1. Nothing renumbers.
-- Delete a piece: its number is retired and never handed out again, so an old
-  WhatsApp conversation about `RAJWADI-2000-3` can never point at a different
-  necklace later.
+### Adding and deleting products, day to day
 
-The one thing to avoid is **renaming a file after it has gone live** — to the
-script that is a delete plus a new upload, so it gets a fresh number. Since
-names don't matter, there is no reason to rename.
+**Double-click `preview.bat`.** It starts the studio on this computer and opens
+it. To add a piece: choose the category, type the price, optionally a name, drop
+in every photograph you have of it plus a video if you have one, and press
+**Save the product**.
 
-**New folders need no code change.** Make `photos/rajwadi/6000-8000/`, drop
-photos in, and a `₹6,000 – ₹8,000` filter appears on the shop page. Add a whole
-new category folder and it shows up too — the only thing worth adding then is
-its Marathi name in `CAT_NAMES` at the top of `index.html`.
+- Photographs are shrunk in the browser before anything is written.
+- The first one is the cover; the ↑ ↓ buttons reorder them.
+- One video per product. Keep it under about 4 MB.
 
-### Adding and deleting pieces, day to day
+The **Manage** tab lists every product with its code, name and price.
+**Price / name** renames the folder and re-files it under the right band without
+changing the code. **Add views** appends more photographs. **Delete** removes the
+whole folder.
 
-**The studio — double-click `preview.bat`**
-
-It starts a small server on this computer and opens the studio. Adding a piece
-is: pick the category and price band, drag the photographs in, press
-**Save to the folder**.
-
-They are shrunk in the browser first, written straight into
-`photos\<category>\<band>\` on this machine, and the catalogue rebuilds. Then
-you commit and push whenever you like — the studio never touches GitHub in this
-mode.
-
-The **Manage** tab lists everything in the shop with its real reference code.
-Delete removes the file (all of them, for a piece with several views) and tidies
-up the folder. Move re-files a piece under a different price band.
-
-**Commit and push, one button.** A strip across the top of the studio shows how
-many changes are waiting. Type a message if you want one, press **Commit &
-push**, and it stages everything, commits and pushes. "what changed?" lists the
-files first if you want to look before you leap. The button greys out when
-there is nothing to send.
-
-The first push needs git to already know your GitHub credentials. If you have
-pushed from that computer before, Windows has them cached and the button just
-works; if not, push once from a terminal and it will thereafter.
+**Commit and push, one button.** The strip across the top shows how many changes
+are waiting. Type a message if you want one and press **Commit & push**; "what
+changed?" lists the files first. The first push needs git to already know your
+GitHub credentials — if you have pushed from that computer before, it just works.
 
 Nothing else on your network can reach the studio — the server only answers to
 this computer.
 
 **The studio is never deployed.** `admin.html`, `studio.py` and `preview.bat`
-are listed in `.gitignore`, so they stay on your disk and never reach the
-repository — and what is not in the repository cannot be published by Cloudflare
-Pages. They are yours alone.
+are in `.gitignore`, so they stay on your disk and never reach the repository —
+and what is not in the repository cannot be published by Cloudflare Pages.
 
-If you would rather keep them version-controlled as a backup, take them out of
-`.gitignore` and instead set Cloudflare Pages' **build command** to
-`rm -f admin.html studio.py preview.bat` — the files then live in git but are
-stripped out of every deploy. Pick one; the ignore file is the safer default
-because there is no dashboard setting to forget.
+### Doing it by hand instead
 
-**The same page, straight to GitHub**
-
-`admin.html` also works from any browser without the local server — open your
-local copy by double-clicking it and it will commit to GitHub instead. Go to
-**Settings** and connect a token:
-on GitHub → Settings → Developer settings → **Fine-grained tokens** → scoped to
-**only this repository**, permission **Contents: Read and write**, with an
-expiry. Press **Check write access** to be sure before you queue up photographs.
-
-The token is stored in that browser alone — never in the repository. Delete it
-on GitHub if a device goes missing and it stops working immediately.
-
-When the studio server is running, Settings lets you switch between the two.
-
-**Or github.com directly — no git, no laptop needed**
-
-1. Open your repository on github.com and click into
-   `photos/` → the category → the price folder.
-2. **Add file → Upload files**, drag the photographs in, type a short message,
-   **Commit changes**.
-3. That is the whole job. The Action shrinks anything oversized, renumbers
-   nothing that already exists, gives the new photos the next free numbers, and
-   Cloudflare redeploys. About a minute.
-
-**Deleting a piece** — open the photo in github.com, click the bin icon, commit.
-It disappears from the shop on the next deploy, and its code is retired for
-good so an old WhatsApp conversation can never point at a different necklace.
-
-**Moving a piece to a different price** — open it, **⋯ → Move file**, change the
-folder in the path box, commit. It gets a new code, because the code contains
-the price band.
-
-**From your laptop instead** — drop the files into the folders, double-click
-`preview.bat` to check them, then `git add . && git commit -m "new pieces" &&
-git push`. Better for a batch of twenty; overkill for one.
-
-One habit worth keeping either way: **shrink before you upload** when you can.
-The Action shrinks photos in the working tree, but git keeps the original heavy
-file in its history forever. `preview.bat` does the shrinking for you.
-
-### Checking your work before you push
+Make the folder yourself and drop the pictures in:
 
 ```
-python3 build_catalogue.py
+photos\rajwadi\2300 Kolhapuri Thushi\
 ```
 
-It prints what it found and warns about anything it needs you to look at — a
-folder that isn't a price range, a photo still too heavy, a `.heic` it could
-not read:
+then run `python build_catalogue.py --optimize` (or just start `preview.bat`,
+which does it). `--optimize` resizes anything wider than 1400px or over 400 KB
+in place — worth running before you commit, because the originals live in the
+repository forever.
+
+The script tells you what it found and warns about anything it could not read:
 
 ```
-photos/catalogue.json: 40 pieces, 68 photos, 6 categories
-  rajwadi              1000-2000: 3, 2000-3000: 5, 3000-4000: 4
-  ...
+photos/catalogue.json: 12 products, 31 files, 4 categories
+  rajwadi              7 product(s), ₹850–₹9,800
 ```
 
-`photos/catalogue.json` is where the number assignments live, so **it belongs in
-git** — never delete it, or every piece gets renumbered from 1.
+Any image format works — jpg, png, webp and the rest go straight on the page;
+`.heic` (what an iPhone shoots), `.tif` and `.bmp` are converted to jpg for you.
 
-### Previewing locally
+### Previewing
 
-**Double-click `preview.bat`** (or run `python studio.py`). The shop is at
-`http://localhost:8000/` and the studio at `http://localhost:8000/admin.html`.
-Leave the black window open while you work; Ctrl+C stops it.
+`preview.bat` serves the shop at `http://localhost:8000/` and the studio at
+`http://localhost:8000/admin.html`. To see it on your phone, run `ipconfig`,
+take the **IPv4 Address**, and open `http://<that address>:8000` on the phone.
 
-Anything you save in the studio appears in the shop as soon as you refresh —
-no restart needed. If you added photographs in Explorer instead, restart it so
-the catalogue rebuilds, or press Save in the studio.
-
-To see it on your phone, run `ipconfig` in another window, take the **IPv4
-Address**, and open `http://<that address>:8000` on the phone. The studio itself
-stays on this computer only.
-
-**Do not just double-click `index.html`.** The page reads `catalogue.json` over
-HTTP, and browsers block that on a `file://` address — the shop will look
-empty and tell you so.
+**Do not just double-click `index.html`** — the page reads `catalogue.json` over
+HTTP and browsers block that on a `file://` address.
 
 ---
 

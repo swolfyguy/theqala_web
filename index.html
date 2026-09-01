@@ -191,6 +191,11 @@ nav.main a:hover,nav.main a.on{color:var(--accent)}
 .arch::after{content:"";position:absolute;inset:9px;border:1px solid var(--gold-2);opacity:.35;border-radius:191px 191px 4px 4px;pointer-events:none;z-index:2}
 .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:var(--panel-2);transition:transform .55s cubic-bezier(.2,.7,.3,1)}
 .ph{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38%;height:auto;color:var(--gold-2);opacity:.3;z-index:0}
+.arch .views{position:absolute;top:12px;left:12px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:.66rem;letter-spacing:.06em;padding:4px 9px;border-radius:999px;display:flex;align-items:center;gap:3px}
+.thumb.vidthumb .playbadge{position:absolute;inset:0;display:grid;place-items:center;z-index:3}
+.thumb.vidthumb .playbadge svg{width:20px !important;height:20px !important;color:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.thumb.vidthumb::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28);z-index:2}
+video.photo{background:#000;object-fit:contain}
 .arch .tag{position:absolute;bottom:14px;left:0;background:var(--accent);color:var(--on-accent);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;padding:5px 11px 5px 13px;font-weight:700;z-index:3;border-radius:0 999px 999px 0}
 
 /* ---------- hero ---------- */
@@ -600,13 +605,17 @@ const titleish = s => s.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.sli
 const catName = slug => CAT_NAMES[slug] || {mr:"", en:titleish(slug)};
 
 /* ============ catalogue ============ */
-let CATALOGUE = null;      // the raw file
-let ITEMS = [];            // every piece, flattened
-let BANDS = [];            // every price band in use, low to high
+/* One folder is one product: photos/<category>/<price> <name>/ holds every
+   view of that piece, and a video if there is one. The price band is worked
+   out from the price, so 2,300 lands in ₹2,000 – ₹3,000. */
+let CATALOGUE = null;
+let ITEMS = [];            // every product, flattened
+let BANDS = [];            // the bands actually in use, cheapest first
 let LOAD_STATE = "loading"; // loading | ok | offline | error
 
 function bandKey(b){ return b.min + "-" + b.max; }
-function bandLabel(b){ return rupees(b.min) + " – " + rupees(b.max); }
+function bandLabel(b){ return b.min === 0 ? "Under " + rupees(b.max) : rupees(b.min) + " – " + rupees(b.max); }
+const bandOf = it => ({min: it.band.min, max: it.band.max});
 
 async function loadCatalogue(){
   try {
@@ -615,45 +624,49 @@ async function loadCatalogue(){
     CATALOGUE = await res.json();
     LOAD_STATE = "ok";
   } catch (e) {
-    CATALOGUE = {categories: [], hero: {}};
+    CATALOGUE = {categories: [], bands: [], hero: {}};
     LOAD_STATE = location.protocol === "file:" ? "offline" : "error";
   }
 
   ITEMS = [];
-  const bands = new Map();
   (CATALOGUE.categories || []).forEach(c => {
-    (c.bands || []).forEach(b => {
-      bands.set(bandKey(b), {min:b.min, max:b.max});
-      (b.items || []).forEach(it => {
-        ITEMS.push({
-          code: it.code,
-          cat: c.slug,
-          catMr: catName(c.slug).mr,
-          catEn: catName(c.slug).en,
-          min: b.min, max: b.max,
-          files: it.files || []
-        });
+    const name = catName(c.slug);
+    (c.products || []).forEach(p => {
+      ITEMS.push({
+        code: p.code,
+        n: p.n,
+        cat: c.slug,
+        catMr: name.mr,
+        catEn: name.en,
+        title: (p.title || "").trim(),
+        price: p.price,
+        band: p.band || {min:0, max:1000},
+        images: p.images || [],
+        video: p.video || null
       });
     });
   });
-  BANDS = [...bands.values()].sort((a,b) => a.min - b.min);
 
-  // house order: categories as CAT_NAMES lists them, then cheapest band first
+  BANDS = (CATALOGUE.bands || []).slice().sort((a,b) => a.min - b.min);
+
+  // house order: categories as CAT_NAMES lists them, then cheapest first
   const order = Object.keys(CAT_NAMES);
   const rank = slug => { const i = order.indexOf(slug); return i < 0 ? 99 : i; };
-  ITEMS.sort((a,b) => rank(a.cat) - rank(b.cat) || a.min - b.min || a.code.localeCompare(b.code, undefined, {numeric:true}));
+  ITEMS.sort((a,b) => rank(a.cat) - rank(b.cat) || a.price - b.price || a.n - b.n);
 }
 
 const byCode = code => ITEMS.find(i => i.code === code);
-/* categories in the order CAT_NAMES lists them; anything new goes on the end */
-const CAT_ORDER = Object.keys(CAT_NAMES);
 const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
-  .filter(c => (c.bands||[]).length)
+  .filter(c => (c.products || []).length)
   .sort((a,b) => {
-    const ia = CAT_ORDER.indexOf(a.slug), ib = CAT_ORDER.indexOf(b.slug);
+    const order = Object.keys(CAT_NAMES);
+    const ia = order.indexOf(a.slug), ib = order.indexOf(b.slug);
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.slug.localeCompare(b.slug);
   });
-const priceRange = it => rupees(it.min) + " – " + rupees(it.max);
+
+const titleOf = it => it.title || it.catEn + " " + String(it.n).padStart(2, "0");
+const priceOf = it => rupees(it.price);
+const mediaCount = it => it.images.length + (it.video ? 1 : 0);
 
 /* ============ pictures ============ */
 function mark(){
@@ -707,10 +720,10 @@ try { const raw = localStorage.getItem("qala.bag"); if (raw) BAG = JSON.parse(ra
 function saveBag(){ try { localStorage.setItem("qala.bag", JSON.stringify(BAG)); } catch (e) {} }
 
 const bagCount = () => BAG.reduce((a,l) => a + l.qty, 0);
-function bagTotals(){
-  let min = 0, max = 0;
-  BAG.forEach(l => { const it = byCode(l.code); if (it){ min += it.min * l.qty; max += it.max * l.qty; } });
-  return {min, max};
+function bagTotal(){
+  let sum = 0;
+  BAG.forEach(l => { const it = byCode(l.code); if (it) sum += it.price * l.qty; });
+  return sum;
 }
 function addToBag(code, qty){
   const line = BAG.find(l => l.code === code);
@@ -762,12 +775,11 @@ function toast(msg){
 function bagWaText(){
   const lines = BAG.map((l, i) => {
     const it = byCode(l.code); if (!it) return "";
-    return `${i+1}. ${it.code} — ${it.catEn}\n   ${priceRange(it)} · quantity ${l.qty}\n   ${pieceUrl(it.code)}`;
+    return `${i+1}. ${it.code} — ${titleOf(it)}\n   ${priceOf(it)} × ${l.qty}\n   ${pieceUrl(it.code)}`;
   }).filter(Boolean).join("\n\n");
-  const t = bagTotals();
   return `Namaskar The Qala 🙏\n\nI would like to order:\n\n${lines}\n\n`
-    + `Estimated: ${rupees(t.min)} – ${rupees(t.max)}\n\n`
-    + `Please confirm the exact price, availability and sizing.`;
+    + `Total: ${rupees(bagTotal())}\n\n`
+    + `Please confirm availability and sizing.`;
 }
 function orderRef(){
   const d = new Date();
@@ -776,35 +788,37 @@ function orderRef(){
 }
 function orderWaText(o){
   const lines = o.items.map((l, i) =>
-    `${i+1}. ${l.code} — ${l.catEn}\n   ${l.range} · quantity ${l.qty}\n   ${l.url}`).join("\n\n");
+    `${i+1}. ${l.code} — ${l.title}\n   ${rupees(l.price)} × ${l.qty} = ${rupees(l.price * l.qty)}\n   ${l.url}`).join("\n\n");
   return `Namaskar The Qala 🙏\n\nNew order — ${o.ref}\n\n${lines}\n\n`
-    + `Estimated: ${rupees(o.min)} – ${rupees(o.max)}\n\n`
+    + `Total: ${rupees(o.total)}\n\n`
     + `Name: ${o.name}\nPhone: ${o.phone}\nPincode: ${o.pin}\nAddress: ${o.addr}\n\n`
-    + `Please confirm the exact price and the dispatch date.`;
+    + `Please confirm availability and the dispatch date.`;
 }
 
 function pieceWaText(it, qty){
   return `Namaskar The Qala 🙏\n\nI would like to order:\n\n`
-    + `${it.code} — ${it.catEn}\n${priceRange(it)} · quantity ${qty}\n${pieceUrl(it.code)}\n\n`
-    + `Please confirm the exact price, availability and sizing.`;
+    + `${it.code} — ${titleOf(it)}\n${priceOf(it)} × ${qty} = ${rupees(it.price * qty)}\n${pieceUrl(it.code)}\n\n`
+    + `Please confirm availability and sizing.`;
 }
 </script>
 
 <script>
 /* ============ fragments ============ */
+const VIDEO_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:10px;height:10px;vertical-align:-1px"><path d="M8 5v14l11-7z"/></svg>`;
 const HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>`;
 
 function card(it){
   return `<a class="card rise" href="#/piece/${encodeURIComponent(it.code)}">
     <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}"
       aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
-    <div class="arch">${mark()}${shot(it.files[0], {alt: it.code + " — " + it.catEn})}</div>
+    <div class="arch">${mark()}${shot(it.images[0], {alt: titleOf(it) + " — " + it.catEn})}${
+      mediaCount(it) > 1 ? `<span class="views">${it.video ? VIDEO_ICON + " " : ""}${mediaCount(it)}</span>` : ""}</div>
     <div>
       <span class="mr">${it.catMr}</span>
-      <h3>${esc(it.code)}</h3>
-      <p class="meta">${esc(it.catEn)}</p>
+      <h3>${esc(titleOf(it))}</h3>
+      <p class="meta">${esc(it.catEn)} · ${esc(it.code)}</p>
     </div>
-    <div class="price"><span class="now rupee">${priceRange(it)}</span></div>
+    <div class="price"><span class="now rupee">${priceOf(it)}</span></div>
   </a>`;
 }
 function saajRule(){ return `<div class="saaj" aria-hidden="true"></div>`; }
@@ -814,7 +828,7 @@ function nothingYet(where){
     ? `<p class="muted">Opened straight from the file system, so the browser will not read <code>photos/catalogue.json</code>. Run <code>python3 -m http.server</code> in this folder and open <code>localhost:8000</code> to preview it properly.</p>`
     : LOAD_STATE === "error"
     ? `<p class="muted"><code>photos/catalogue.json</code> could not be loaded. Push once so the GitHub Action can build it, or run <code>python3 build_catalogue.py</code> yourself.</p>`
-    : `<p class="muted">Drop photographs into <code>photos/&lt;category&gt;/&lt;price range&gt;/</code> — any filename at all — then push. They appear here on their own.</p>`;
+    : `<p class="muted">Add a product in the studio, or make a folder like <code>photos/rajwadi/2300 Kolhapuri Thushi/</code> and put its photographs in it.</p>`;
   return `<div class="empty"><div class="emptymark">${mark()}</div>
     <h2 style="font-family:Marcellus,serif;font-weight:400;font-size:1.8rem;margin-bottom:10px">${where}</h2>
     ${msg}</div>`;
@@ -981,22 +995,23 @@ function piece(code){
   <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${it.cat}">← Back to ${esc(it.catEn)}</a></div>
   <div class="wrap pdp">
     <div class="gallery">
-      <div class="arch" id="mainArt" role="button" tabindex="0" aria-label="Enlarge photograph">${mark()}${shot(it.files[0], {alt: it.code + " — " + it.catEn, eager:true})}</div>
-      <div class="thumbs" ${it.files.length < 2 ? "hidden" : ""}>
-        ${it.files.map((f,i) => `<button class="thumb ${i===0?"on":""}" data-slot data-src="${esc(url(f))}" aria-label="View ${i+1}">${shot(f)}</button>`).join("")}
+      <div class="arch" id="mainArt" role="button" tabindex="0" aria-label="Enlarge photograph">${mark()}${shot(it.images[0], {alt: titleOf(it) + " — " + it.catEn, eager:true})}</div>
+      <div class="thumbs" ${mediaCount(it) < 2 ? "hidden" : ""}>
+        ${it.images.map((f,i) => `<button class="thumb ${i===0?"on":""}" data-slot data-src="${esc(url(f))}" aria-label="View ${i+1}">${shot(f)}</button>`).join("")}
+        ${it.video ? `<button class="thumb vidthumb" data-video="${esc(url(it.video))}" aria-label="Play the video">${shot(it.images[0])}<span class="playbadge">${VIDEO_ICON}</span></button>` : ""}
       </div>
     </div>
     <div>
       <span class="mrname">${it.catMr}</span>
-      <h1>${esc(it.code)}
+      <h1>${esc(titleOf(it))}
         <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}" style="position:static;display:inline-grid;vertical-align:middle;margin-left:10px"
           aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
       </h1>
-      <p class="muted" style="margin:2px 0 0">${esc(it.catEn)}</p>
-      <div class="pdprice rupee">${priceRange(it)}</div>
-      <p class="muted" style="font-size:.85rem;margin:0">Price range for this piece · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
+      <p class="muted" style="margin:2px 0 0">${esc(it.catEn)} · ${esc(it.code)}</p>
+      <div class="pdprice rupee">${priceOf(it)}</div>
+      <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
       ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
-      <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the exact price, the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
+      <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       <div class="qtyrow">
         <div class="qty"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
         <span class="muted" style="font-size:.86rem">Ready to ship in 2 working days</span>
@@ -1011,20 +1026,21 @@ function piece(code){
       <dl class="spec">
         <div><dt>Reference</dt><dd style="margin:0">${esc(it.code)}</dd></div>
         <div><dt>Category</dt><dd style="margin:0">${esc(it.catEn)} · ${it.catMr}</dd></div>
-        <div><dt>Price band</dt><dd style="margin:0">${priceRange(it)}, exact price on WhatsApp</dd></div>
+        <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}, inclusive of GST</dd></div>
+        <div><dt>Photographs</dt><dd style="margin:0">${it.images.length} view${it.images.length === 1 ? "" : "s"}${it.video ? " and a video" : ""}</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
         <div><dt>Payment</dt><dd style="margin:0">UPI, bank transfer, or partial COD — settled with us on WhatsApp</dd></div>
       </dl>
     </div>
   </div>
   <div class="orderbar">
-    <div class="p"><b class="rupee">${priceRange(it)}</b><span>${esc(it.code)}</span></div>
+    <div class="p"><b class="rupee">${priceOf(it)}</b><span>${esc(titleOf(it))}</span></div>
     <a class="btn" id="orderBar" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>
     <a class="wabtn" id="waBar" target="_blank" rel="noopener" href="#" aria-label="Order on WhatsApp"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg></a>
   </div>
   ${also.length ? `${saajRule()}
   <section class="band wrap">
-    <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>More ${esc(it.catEn)}</h2></div></div>
+    <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>More ${esc(it.catEn)}</h2></div><a class="seclink" href="#/shop?c=${it.cat}">See all</a></div>
     <div class="grid">${also.map(card).join("")}</div>
   </section>` : ""}`;
 }
@@ -1037,7 +1053,7 @@ function bagView(){
       <p class="muted">Nothing chosen yet.</p>
       <div style="margin-top:22px"><a class="btn" href="#/shop">Browse the collection</a></div>
     </div>`;
-  const t = bagTotals();
+  const total = bagTotal();
   return `
   <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">पिशवी</span><h1>Your bag</h1></div>
   <div class="wrap cartlayout">
@@ -1046,24 +1062,23 @@ function bagView(){
         const it = byCode(l.code);
         if (!it) return `<div class="lineitem"><div></div><div><h3>${esc(l.code)}</h3><p class="meta muted">No longer in the shop.</p><button class="linkbtn" data-del="${esc(l.code)}">Remove</button></div><div></div></div>`;
         return `<div class="lineitem">
-          <div class="art">${mark()}${shot(it.files[0], {alt:""})}</div>
+          <div class="art">${mark()}${shot(it.images[0], {alt:""})}</div>
           <div>
             <span class="mr">${it.catMr}</span>
-            <h3><a href="#/piece/${encodeURIComponent(it.code)}">${esc(it.code)}</a></h3>
-            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(it.catEn)}</p>
+            <h3><a href="#/piece/${encodeURIComponent(it.code)}">${esc(titleOf(it))}</a></h3>
+            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(it.catEn)} · ${esc(it.code)} · ${priceOf(it)} each</p>
             <div class="qty" style="display:inline-flex"><button data-dec="${esc(it.code)}" aria-label="Decrease">−</button><span>${l.qty}</span><button data-inc="${esc(it.code)}" aria-label="Increase">+</button></div>
             <button class="linkbtn" data-del="${esc(it.code)}" style="margin-left:14px">Remove</button>
           </div>
-          <div class="right"><div class="rupee">${rupees(it.min*l.qty)} – ${rupees(it.max*l.qty)}</div></div>
+          <div class="right"><div class="rupee" style="font-weight:700">${rupees(it.price*l.qty)}</div></div>
         </div>`;}).join("")}
       <p class="muted" style="font-size:.86rem;margin-top:18px">Tap <b>Order on WhatsApp</b> and your whole bag arrives in our chat as a list of references. We confirm the exact prices, sizes, address and payment there — nothing to fill in here.</p>
     </div>
     <aside class="summary">
       <h3>Order summary</h3>
-      <div class="srow"><span>${bagCount()} piece${bagCount()===1?"":"s"}</span><span class="rupee">${rupees(t.min)} – ${rupees(t.max)}</span></div>
-      <div class="srow"><span>Shipping</span><span>${t.min >= SHIP_FREE_OVER ? "Free" : "Confirmed on WhatsApp"}</span></div>
-      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(t.min)} – ${rupees(t.max)}</span></div>
-      <p class="muted" style="font-size:.8rem;margin:6px 0 0">These are the price bands. We confirm each exact price in the chat before you pay anything.</p>
+      <div class="srow"><span>${bagCount()} piece${bagCount()===1?"":"s"}</span><span class="rupee">${rupees(total)}</span></div>
+      <div class="srow"><span>Shipping</span><span>${total >= SHIP_FREE_OVER ? "Free" : rupees(SHIP_FLAT)}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee">${rupees(total + (total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT))}</span></div>
       <div style="display:grid;gap:10px;margin-top:18px">
         <a class="btn wide" href="#/order">Order now</a>
         <a class="btn wa wide wa-order" href="#" target="_blank" rel="noopener">Order on WhatsApp</a>
@@ -1106,8 +1121,8 @@ function orderLines(params){
 function orderView(params){
   const lines = orderLines(params);
   if (!lines.length) { location.hash = "#/shop"; return ""; }
-  const min = lines.reduce((a,l) => a + l.it.min * l.qty, 0);
-  const max = lines.reduce((a,l) => a + l.it.max * l.qty, 0);
+  const total = lines.reduce((a,l) => a + l.it.price * l.qty, 0);
+  const ship = total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT;
   const back = params.get("p") ? `#/piece/${encodeURIComponent(params.get("p"))}` : "#/bag";
 
   return `
@@ -1147,10 +1162,10 @@ function orderView(params){
 
     <aside class="summary">
       <h3>${lines.reduce((a,l)=>a+l.qty,0)} piece${lines.reduce((a,l)=>a+l.qty,0)===1?"":"s"}</h3>
-      ${lines.map(l => `<div class="srow"><span>${esc(l.it.code)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.min*l.qty)} – ${rupees(l.it.max*l.qty)}</span></div>`).join("")}
-      <div class="srow"><span>Shipping</span><span>${min >= SHIP_FREE_OVER ? "Free" : "Confirmed on WhatsApp"}</span></div>
-      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(min)} – ${rupees(max)}</span></div>
-      <p class="muted" style="font-size:.8rem;margin:8px 0 0">These are the price bands. We confirm each exact price in the chat before you pay anything.</p>
+      ${lines.map(l => `<div class="srow"><span>${esc(titleOf(l.it))} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.price*l.qty)}</span></div>`).join("")}
+      <div class="srow"><span>Shipping</span><span>${ship ? rupees(ship) : "Free"}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee">${rupees(total + ship)}</span></div>
+      <p class="muted" style="font-size:.8rem;margin:8px 0 0">We confirm sizing and the dispatch date in the chat before you pay anything.</p>
     </aside>
   </div>`;
 }
@@ -1168,8 +1183,8 @@ function placedView(){
     <p class="muted">WhatsApp should have opened with your order already written out. If it did not, or you closed it, use the button below — nothing reaches us until that message is sent.</p>
     <a class="btn wa" style="margin-top:20px" href="${waLink(o.text)}" target="_blank" rel="noopener">Send the order on WhatsApp</a>
     <div class="box">
-      ${o.items.map(l => `<div class="srow"><span>${esc(l.code)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${l.range}</span></div>`).join("")}
-      <div class="srow total"><span>Estimated</span><span class="rupee">${rupees(o.min)} – ${rupees(o.max)}</span></div>
+      ${o.items.map(l => `<div class="srow"><span>${esc(l.title)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.price * l.qty)}</span></div>`).join("")}
+      <div class="srow total"><span>Total</span><span class="rupee">${rupees(o.total)}</span></div>
       <div class="srow" style="align-items:flex-start"><span>Delivering to</span><span style="text-align:right;max-width:60%">${esc(o.name)}<br>${esc(o.phone)}<br>${esc(o.addr)}<br>${esc(o.pin)}</span></div>
     </div>
     <a class="linkbtn" href="#/shop">Continue shopping</a>
@@ -1321,7 +1336,7 @@ function wire(route){
     $("#addBtn").onclick = () => addToBag(it.code, q);
 
     const main = $("#mainArt");
-    const zoom = () => { const im = main.querySelector("img"); if (im) openLightbox(im.getAttribute("src"), it.code); };
+    const zoom = () => { const im = main.querySelector("img"); if (im) openLightbox(im.getAttribute("src"), titleOf(it)); };
     main.onclick = zoom;
     main.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoom(); } };
 
@@ -1329,7 +1344,16 @@ function wire(route){
       t.onclick = () => {
         document.querySelectorAll(".thumb").forEach(x => x.classList.remove("on"));
         t.classList.add("on");
-        $("#mainArt").innerHTML = mark() + `<img class="photo" src="${t.dataset.src}" alt="${esc(it.code)}" decoding="async" onerror="qalaMiss(this)">`;
+        const frame = $("#mainArt");
+        if (t.dataset.video){
+          frame.innerHTML = mark() + `<video class="photo" src="${t.dataset.video}" controls autoplay muted loop playsinline></video>`;
+          frame.removeAttribute("role"); frame.removeAttribute("tabindex");
+          frame.onclick = null; frame.style.cursor = "default";
+        } else {
+          frame.innerHTML = mark() + `<img class="photo" src="${t.dataset.src}" alt="${esc(titleOf(it))}" decoding="async" onerror="qalaMiss(this)">`;
+          frame.setAttribute("role", "button"); frame.setAttribute("tabindex", "0");
+          frame.onclick = zoom; frame.style.cursor = "";
+        }
       };
     });
   }
@@ -1374,10 +1398,12 @@ function wire(route){
 
       const o = Object.assign({}, BUYER, {
         ref: orderRef(),
-        items: lines.map(l => ({code: l.it.code, catEn: l.it.catEn, qty: l.qty,
-                                range: priceRange(l.it), url: pieceUrl(l.it.code)})),
-        min: lines.reduce((a, l) => a + l.it.min * l.qty, 0),
-        max: lines.reduce((a, l) => a + l.it.max * l.qty, 0)
+        items: lines.map(l => ({code: l.it.code, title: titleOf(l.it), qty: l.qty,
+                                price: l.it.price, url: pieceUrl(l.it.code)})),
+        total: (() => {
+          const sum = lines.reduce((a, l) => a + l.it.price * l.qty, 0);
+          return sum + (sum >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+        })()
       });
       o.text = orderWaText(o);
       LAST_ORDER = o;
