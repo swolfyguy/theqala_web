@@ -1,11 +1,15 @@
 {
- "generated": "2026-09-01T18:05:47Z",
+ "generated": "2026-09-01T18:11:23Z",
  "version": 2,
  "hero": {
   "image": null,
   "video": "photos/hero.mp4"
  },
  "bands": [
+  {
+   "min": 0,
+   "max": 1000
+  },
   {
    "min": 1000,
    "max": 2000
@@ -73,6 +77,78 @@
       "photos/rajwadi/3200 rajwadi baby pink/2.jpg",
       "photos/rajwadi/3200 rajwadi baby pink/3.jpg",
       "photos/rajwadi/3200 rajwadi baby pink/4.jpg"
+     ],
+     "video": null
+    }
+   ]
+  },
+  {
+   "slug": "victorian",
+   "cover": null,
+   "next": 5,
+   "products": [
+    {
+     "n": 4,
+     "code": "VICTORIAN-04",
+     "folder": "photos/victorian/800",
+     "title": "",
+     "price": 800,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/victorian/800/1.jpg",
+      "photos/victorian/800/2.jpg"
+     ],
+     "video": null
+    },
+    {
+     "n": 3,
+     "code": "VICTORIAN-03",
+     "folder": "photos/victorian/900",
+     "title": "",
+     "price": 900,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/victorian/900/1.jpg",
+      "photos/victorian/900/2.jpg"
+     ],
+     "video": null
+    },
+    {
+     "n": 1,
+     "code": "VICTORIAN-01",
+     "folder": "photos/victorian/999",
+     "title": "",
+     "price": 999,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/victorian/999/1.jpg",
+      "photos/victorian/999/2.jpg",
+      "photos/victorian/999/3.jpg"
+     ],
+     "video": null
+    },
+    {
+     "n": 2,
+     "code": "VICTORIAN-02",
+     "folder": "photos/victorian/1050",
+     "title": "",
+     "price": 1050,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1050/1.jpg",
+      "photos/victorian/1050/2.jpg"
      ],
      "video": null
     }
