@@ -275,19 +275,34 @@ section.band{padding:70px 0}
 .player video{display:block;width:100%;height:auto;max-height:76vh;background:#000;object-fit:contain}
 .wcap{margin:18px 0 0;color:color-mix(in srgb,var(--on-velvet) 74%,transparent);max-width:60ch;font-size:.95rem}
 
-/* ---------- where else to find us ---------- */
-.socialgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
-.social{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,border-color .22s}
-.social:hover{transform:translateY(-3px);border-color:var(--gold-2);box-shadow:0 20px 38px -26px var(--shadow-2)}
-.social .shot{position:relative;display:block;aspect-ratio:4/5;background:var(--panel-2);overflow:hidden}
-.social .shot .photo{object-position:top}
-.social .shot .ph{width:34%}
-.social .body{display:flex;flex-direction:column;gap:3px;padding:16px 18px 18px}
-.social .kind{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
-.social b{font-size:1.02rem;font-family:Marcellus,serif;font-weight:400}
-.social .note{font-size:.85rem;color:var(--ink-2)}
-.social .go{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
-.social .go svg{width:13px;height:13px;flex:none}
+/* ---------- contact ---------- */
+.contact{max-width:min(640px,92vw);margin-inline:auto;padding-bottom:84px}
+.contact .btn.wide{display:flex;align-items:center;justify-content:center;gap:9px}
+.contact h2{font-family:Marcellus,serif;font-weight:400;font-size:.74rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);margin:34px 0 12px}
+.crows{display:grid;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:var(--panel)}
+.crow{display:flex;align-items:center;gap:14px;padding:14px 16px;min-width:0;
+  border-bottom:1px solid var(--line);transition:background .15s}
+.crow:last-child{border-bottom:0}
+.crow:hover,.crow:active{background:var(--wash-gold)}
+.cico{position:relative;flex:none;width:46px;height:46px;border-radius:12px;overflow:hidden;
+  display:grid;place-items:center;background:var(--panel-2);color:var(--accent)}
+.cico svg{width:22px;height:22px}
+.cico .photo{width:100%;height:100%;object-fit:cover;object-position:top}
+.cico.wa{background:rgba(37,163,84,.12);color:#25A354}
+.ctext{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}
+.ctext b{font-family:Marcellus,serif;font-weight:400;font-size:1.06rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctext>span{font-size:.83rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.cgo{flex:none;color:var(--ink-2);display:grid;place-items:center}
+.cbox{border:1px solid var(--line);border-radius:16px;padding:20px 18px;background:var(--panel);
+  display:grid;gap:14px}
+.cbox p{margin:0;line-height:1.65}
+.cbox .hours b{color:var(--accent)}
+.cbox .shut{font-size:.88rem;color:var(--ink-2)}
+body.on-contact .fab{display:none}
 
 /* ---------- client videos ---------- */
 .clipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
@@ -518,6 +533,7 @@ footer a:hover{color:var(--accent)}
       <a href="#/shop?c=bangles">Bangles</a>
       <a href="#/shop?c=short-mangalsutra">Mangalsutra</a>
       <a href="#/story">Our Story</a>
+      <a href="#/contact">Contact</a>
     </nav>
     <a class="iconbtn" id="savedBtn" href="#/saved" aria-label="Saved pieces">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>
@@ -558,6 +574,7 @@ footer a:hover{color:var(--accent)}
       <div>
         <h4>Help</h4>
         <ul>
+          <li><a href="#/contact">Contact us</a></li>
           <li><a href="#/story">Our story</a></li>
           <li><a href="#/care">Care &amp; polish</a></li>
           <li><a href="#/shipping">Shipping &amp; COD</a></li>
@@ -709,7 +726,7 @@ const SOCIAL = [
   {key:"theqala-com", url:"https://www.instagram.com/theqala_com",
    label:"@theqala_com", kind:"Instagram", note:"Brides who wore Qala"},
   {key:"google",      url:"https://share.google/hnuQYDUO4meuP11dX",
-   label:"The shop in Dighi", kind:"Google Maps", note:"Tue \u2013 Sun, 9 am \u2013 9 pm \u00b7 Monday closed"}
+   label:"The shop in Dighi", kind:"Google Maps", note:"Open in Maps for directions"}
 ];
 
 
@@ -1051,7 +1068,6 @@ function home(){
   </section>
 
   ${welcomeSection()}
-  ${socialSection()}
 
   ${cats.length ? `
   ${saajRule()}
@@ -1128,29 +1144,34 @@ function clientWall(){
     </div>`;
 }
 
-function socialSection(){
+function contactRows(){
   const shots = (CATALOGUE && CATALOGUE.social) || {};
-  return `
-  <section class="band wrap">
-    <div class="sechead">
-      <div><span class="mr" style="color:var(--accent)">आम्ही इथे</span><h2>Where else you can find us</h2></div>
-      <span class="seclink secnote">A real shop, and a real shelf of photographs</span>
-    </div>
-    <div class="socialgrid">
-      ${SOCIAL.map(s => `
-        <a class="social rise" href="${esc(s.url)}" target="_blank" rel="noopener">
-          <span class="shot">${mark()}${shots[s.key] ? shot(shots[s.key], {alt: s.label}) : ""}</span>
-          <span class="body">
-            <span class="kind">${esc(s.kind)}</span>
-            <b>${esc(s.label)}</b>
-            <span class="note">${esc(s.note)}</span>
-            <span class="go">Open ${OUT_ICON}</span>
-          </span>
-        </a>`).join("")}
-    </div>
-  </section>`;
+  const row = (o) => `
+    <a class="crow" href="${esc(o.href)}"${o.blank ? ` target="_blank" rel="noopener"` : ""}>
+      <span class="cico ${o.kind}">${o.shot ? shot(o.shot, {alt:""}) : o.icon}</span>
+      <span class="ctext"><b>${esc(o.title)}</b><span>${esc(o.sub)}</span></span>
+      <span class="cgo" aria-hidden="true">${o.blank ? OUT_ICON : CHEV}</span>
+    </a>`;
+
+  const phones = PHONES.map(n => row({
+    href: `https://wa.me/${n.wa}`, blank: true, kind: "wa", icon: WA_ICON,
+    title: n.label, sub: "WhatsApp or call"
+  })).join("");
+
+  const socials = SOCIAL.map(x => row({
+    href: x.url, blank: true, kind: x.key === "google" ? "map" : "ig",
+    icon: x.key === "google" ? PIN_ICON : IG_ICON, shot: shots[x.key],
+    title: x.label, sub: x.note
+  })).join("");
+
+  return {phones, socials};
 }
 
+const WA_ICON_BTN = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>`;
+const CHEV = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px"><path d="M9 5l7 7-7 7"/></svg>`;
+const WA_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>`;
+const IG_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>`;
+const PIN_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7-6.3-7-11a7 7 0 1 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>`;
 const OUT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>`;
 
 function shop(params){
@@ -1453,6 +1474,31 @@ function page(mr, title, body){
 function notFound(){ return page("नाही","Page not found",`<p class="muted">That link does not lead anywhere. <a href="#/shop" style="border-bottom:1px solid var(--gold-2)">Browse the collection</a> instead.</p>`); }
 
 const PAGES = {
+  contact: () => {
+    const {phones, socials} = contactRows();
+    return `
+    <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">संपर्क</span>
+      <h1>Contact us</h1>
+      <p class="muted">Message us on any of these. Whoever is free answers first.</p></div>
+    <div class="wrap contact">
+      <a class="btn wide wa" href="#" id="contactWa">
+        ${WA_ICON_BTN} Start a WhatsApp chat</a>
+
+      <h2>Call or WhatsApp</h2>
+      <div class="crows">${phones}</div>
+
+      <h2>See our work</h2>
+      <div class="crows">${socials}</div>
+
+      <h2>Come to the shop</h2>
+      <div class="cbox">
+        <p><b>The Qala</b><br>Dighi, Pune 411015<br>Maharashtra</p>
+        <p class="hours"><b>${esc(HOURS)}</b><br><span class="shut">${esc(CLOSED)}</span></p>
+        <p class="muted" style="margin:0">Bring the reference code from the piece you liked and we
+          will have it out on the counter for you.</p>
+      </div>
+    </div>`;
+  },
   story: () => page("आमची गोष्ट","Our story",`
     <p>The Qala began in a two-room flat in Dighi, Pune, with a spool of triple thread and a box of hollow gold beads. We wanted the Rajwadi pieces our grandmothers wore, made properly, at a price a young bride could actually pay.</p>
     <p>Every piece is strung, set and polished here before it is packed. We buy brass and 925 silver from Zaveri Bazaar and Kolhapur, plate to a real micron thickness rather than a wash that leaves within a month, and photograph each finished piece in daylight — which is why our product photos look like jewellery on a table and not like a rendering.</p>
@@ -1537,6 +1583,7 @@ function render(){
 
   view.innerHTML = html;
   document.body.classList.toggle("on-piece", r === "piece");
+  document.body.classList.toggle("on-contact", r === "contact");
   document.querySelectorAll("nav.main a").forEach(a => {
     a.classList.toggle("on", a.getAttribute("href") === "#" + (location.hash.replace(/^#/, "") || "/"));
   });
@@ -1545,6 +1592,8 @@ function render(){
   $("#menuToggle").setAttribute("aria-expanded", "false");
   $("#menuToggle").innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
   document.querySelectorAll(".wa-order").forEach(a => { a.href = waLink(bagWaText()); });
+  const cw = $("#contactWa");
+  if (cw) cw.href = waLink("Namaskar The Qala 🙏 I have a question.");
 
   document.querySelectorAll("[data-save]").forEach(btn => {
     btn.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleSaved(btn.dataset.save, btn); };
