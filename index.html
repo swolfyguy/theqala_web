@@ -154,7 +154,17 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
 /* ---------- header ---------- */
-.topbar{background:var(--velvet);color:var(--on-velvet);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:9px 12px}
+.topbar{background:var(--velvet);color:var(--on-velvet);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;padding:9px 12px;display:flex;flex-wrap:wrap;justify-content:center;
+  align-items:center;gap:5px 12px;line-height:1.5}
+.topbar a{color:var(--gold-2);white-space:nowrap}
+.topbar a:hover{color:#fff}
+.topbar .sep{opacity:.4}
+.topbar span{white-space:nowrap}
+@media(max-width:760px){
+  .topbar{letter-spacing:.1em;gap:4px 10px}
+  .topbar .tag{display:none}
+}
 header.site{position:sticky;top:0;z-index:40;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
 .navrow{display:flex;align-items:center;gap:16px;padding:12px 0}
 .brand{display:flex;align-items:center;gap:11px;margin-right:auto}
@@ -223,6 +233,8 @@ section.band{padding:70px 0}
 .sechead .mr{display:block;font-size:.95rem;color:var(--accent);margin-bottom:5px}
 .seclink{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid var(--gold-2);padding-bottom:3px;white-space:nowrap;transition:color .18s}
 .seclink:hover{color:var(--accent)}
+.secnote{border:0;color:var(--ink-2);cursor:default;white-space:normal;max-width:100%;min-width:0}
+@media(max-width:760px){.secnote{display:none}}
 
 .catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:16px}
 .cat{background:var(--panel);border:1px solid var(--line);padding:20px 16px 18px;text-align:center;cursor:pointer;transition:border-color .22s,transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s;border-radius:14px}
@@ -252,6 +264,63 @@ section.band{padding:70px 0}
 .heart.on svg{fill:var(--rose)}
 .heart.beat{animation:beat .5s cubic-bezier(.3,1.6,.5,1)}
 @keyframes beat{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+/* ---------- welcome video ---------- */
+.welcome{background:var(--velvet);color:var(--on-velvet);padding:66px 0 70px;position:relative;overflow:hidden}
+.welcome::after{content:"";position:absolute;inset:0;background:radial-gradient(760px 420px at 84% 6%,rgba(255,255,255,.07),transparent 60%);pointer-events:none}
+.welcome .wrap{position:relative}
+.welcome h2{color:var(--on-velvet);font-size:clamp(1.6rem,3vw,2.3rem)}
+.welcome .sechead{margin-bottom:22px}
+.player{position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(240,216,155,.34);background:#000;box-shadow:0 34px 70px -40px rgba(0,0,0,.8);margin-inline:auto;max-width:100%;transition:max-width .2s}
+.player video{display:block;width:100%;height:auto;max-height:76vh;background:#000;object-fit:contain}
+.wcap{margin:18px 0 0;color:color-mix(in srgb,var(--on-velvet) 74%,transparent);max-width:60ch;font-size:.95rem}
+
+/* ---------- where else to find us ---------- */
+.socialgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.social{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,border-color .22s}
+.social:hover{transform:translateY(-3px);border-color:var(--gold-2);box-shadow:0 20px 38px -26px var(--shadow-2)}
+.social .shot{position:relative;display:block;aspect-ratio:4/5;background:var(--panel-2);overflow:hidden}
+.social .shot .photo{object-position:top}
+.social .shot .ph{width:34%}
+.social .body{display:flex;flex-direction:column;gap:3px;padding:16px 18px 18px}
+.social .kind{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.social b{font-size:1.02rem;font-family:Marcellus,serif;font-weight:400}
+.social .note{font-size:.85rem;color:var(--ink-2)}
+.social .go{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.social .go svg{width:13px;height:13px;flex:none}
+
+/* ---------- client videos ---------- */
+.clipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.clip{margin:0;min-width:0}
+.clipbox{position:relative;display:block;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.clip video{width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--panel-2);display:block}
+.clipplay{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:46px;height:46px;
+  border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.45);
+  backdrop-filter:blur(2px);pointer-events:none;transition:opacity .2s}
+.clipplay svg{width:16px !important;height:16px !important;color:#fff}
+.clipbox:hover .clipplay{opacity:.75}
+.clip figcaption{margin-top:8px;font-size:.84rem;color:var(--ink-2);line-height:1.45}
+
+/* ---------- how you can pay ---------- */
+.paybox{margin-top:26px;border:1px solid var(--line);border-radius:16px;padding:20px 22px;background:var(--panel)}
+.paybox h4{margin:0 0 12px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);font-family:Karla,sans-serif;font-weight:700}
+.paybox ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.paybox li{display:flex;flex-direction:column;gap:1px;min-width:0}
+.paybox li b{font-family:Marcellus,serif;font-weight:400;font-size:1.02rem}
+.paybox li span{font-size:.86rem;color:var(--ink-2)}
+.paybox p{margin:14px 0 0;font-size:.86rem;color:var(--ink-2)}
+
+.paypick{border:1px solid var(--line);border-radius:16px;padding:16px 18px 6px;margin:6px 0 4px;min-width:0}
+.paypick legend{padding:0 8px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);font-weight:700}
+.payopt{display:flex;align-items:flex-start;gap:12px;padding:11px 0;cursor:pointer;
+  border-bottom:1px solid var(--line);min-width:0}
+.payopt:last-child{border-bottom:0}
+.payopt input{accent-color:var(--accent);width:17px;height:17px;margin-top:3px;flex:none}
+.payopt>span{display:flex;flex-direction:column;gap:1px;min-width:0}
+.payopt b{font-family:Marcellus,serif;font-weight:400;font-size:1.02rem}
+.payopt>span>span{font-size:.84rem;color:var(--ink-2)}
 
 /* ---------- story strip ---------- */
 .story{background:var(--velvet);color:var(--on-velvet);position:relative;overflow:hidden}
@@ -421,7 +490,7 @@ footer a:hover{color:var(--accent)}
 }
 </style>
 
-<div class="topbar">Order on WhatsApp &nbsp;·&nbsp; Free insured shipping across India &nbsp;·&nbsp; Handmade in Dighi, Pune</div>
+<div class="topbar" id="topbar"></div>
 
 <header class="site">
   <div class="wrap navrow">
@@ -492,16 +561,21 @@ footer a:hover{color:var(--accent)}
           <li><a href="#/story">Our story</a></li>
           <li><a href="#/care">Care &amp; polish</a></li>
           <li><a href="#/shipping">Shipping &amp; COD</a></li>
-          <li><a href="#/returns">Returns</a></li>
+          <li><a href="#/returns">Returns &amp; damage</a></li>
         </ul>
       </div>
       <div>
         <h4>Reach us</h4>
         <ul>
           <li><a id="waFooter" href="#" target="_blank" rel="noopener">WhatsApp &middot; order or ask</a></li>
-          <li><a href="https://instagram.com/theqala_com" target="_blank" rel="noopener">Instagram &middot; @theqala_com</a></li>
+          <li><a href="https://wa.me/919011240352" target="_blank" rel="noopener">90112 40352</a></li>
+          <li><a href="https://wa.me/917558209163" target="_blank" rel="noopener">75582 09163</a></li>
+          <li><a href="https://wa.me/919579628754" target="_blank" rel="noopener">95796 28754</a></li>
+          <li><a href="https://www.instagram.com/theqala_com" target="_blank" rel="noopener">Instagram &middot; @theqala_com</a></li>
+          <li><a href="https://www.instagram.com/qala_shree/" target="_blank" rel="noopener">Instagram &middot; @qala_shree</a></li>
           <li class="muted">Dighi, Pune 411015, Maharashtra</li>
-          <li class="muted">Mon&ndash;Sat, 10am&ndash;8pm IST</li>
+          <li class="muted">Tuesday to Sunday, 9 am &ndash; 9 pm</li>
+          <li class="muted">Monday closed</li>
         </ul>
       </div>
     </div>
@@ -527,12 +601,37 @@ footer a:hover{color:var(--accent)}
    ========================================================= */
 const WA = "919579628754";
 
+/* Every number you answer on. The first one is where orders land (WA above). */
+const PHONES = [
+  {label:"90112 40352", wa:"919011240352"},
+  {label:"75582 09163", wa:"917558209163"},
+  {label:"95796 28754", wa:"919579628754"}
+];
+
+/* Shop timings and the two Instagram pages. */
+const HOURS    = "Tuesday to Sunday, 9 am \u2013 9 pm";
+const HOURS_MR = "\u0938\u094b\u092e\u0935\u093e\u0930 \u092c\u0902\u0926";
+const CLOSED   = "Monday closed";
+const INSTA = [
+  {handle:"@theqala_com", url:"https://www.instagram.com/theqala_com"},
+  {handle:"@qala_shree",  url:"https://www.instagram.com/qala_shree/"}
+];
+
+/* How people can pay. COD costs extra because the courier charges us for it. */
+const COD_EXTRA = 200;
+const PAY = [
+  {id:"online", t:"Online",           d:"UPI, bank transfer or a payment link, sent on WhatsApp"},
+  {id:"shop",   t:"Cash at the shop", d:"Pay and collect at Dighi \u2014 no shipping to pay"},
+  {id:"cod",    t:"Cash on delivery", d:"\u20b9" + 200 + " extra, paid to the courier at your door"}
+];
+
 /* Your live address, used to build the links inside every WhatsApp order.
    Leave it empty and the site uses whatever address the page is open at —
    which is right once it is live, but is "localhost" while you preview.
    Once you have the domain, set it:  const SITE = "https://theqala.com/"; */
 const SITE = "";
 const SHIP_FREE_OVER = 1499;
+const SHIP_FLAT = 79;
 
 /* ---------------------------------------------------------
    THE FOLDERS ARE THE SHOP. FILENAMES DO NOT MATTER.
@@ -589,6 +688,32 @@ const CAT_NAMES = {
   }
 };
 
+/* ---------------------------------------------------------
+   WHERE ELSE WE ARE — shown near the top of the home page so a
+   first-time customer can see the real shop before she orders.
+
+   Put a screenshot of each page at  photos/social/<key>.jpg
+   (the key is the filename), and the card links out to the url
+   below. A card with no screenshot still shows, as words.
+
+     photos/social/qala-shree.jpg
+     photos/social/theqala-com.jpg
+     photos/social/google.jpg
+
+   And put your introduction video at  photos/welcome.mp4 ,
+   with  photos/welcome.jpg  as its still if you have one.
+   --------------------------------------------------------- */
+const SOCIAL = [
+  {key:"qala-shree",  url:"https://www.instagram.com/qala_shree/",
+   label:"@qala_shree",  kind:"Instagram", note:"Everything new, as it is made"},
+  {key:"theqala-com", url:"https://www.instagram.com/theqala_com",
+   label:"@theqala_com", kind:"Instagram", note:"Brides who wore Qala"},
+  {key:"google",      url:"https://share.google/hnuQYDUO4meuP11dX",
+   label:"The shop in Dighi", kind:"Google Maps", note:"Tue \u2013 Sun, 9 am \u2013 9 pm \u00b7 Monday closed"}
+];
+
+
+
 /* ============ small helpers ============ */
 const $ = s => document.querySelector(s);
 const view = $("#view");
@@ -614,8 +739,14 @@ let BANDS = [];            // the bands actually in use, cheapest first
 let LOAD_STATE = "loading"; // loading | ok | offline | error
 
 function bandKey(b){ return b.min + "-" + b.max; }
+/* "1000-2000" -> {min:1000, max:2000}. The filter compares the piece's own price
+   against this, rather than matching band labels, so a price that has been
+   edited always lands in the right range even if the label was built earlier. */
+function bandRange(key){
+  const [min, max] = String(key).split("-").map(Number);
+  return Number.isFinite(min) && Number.isFinite(max) ? {min, max} : null;
+}
 function bandLabel(b){ return b.min === 0 ? "Under " + rupees(b.max) : rupees(b.min) + " – " + rupees(b.max); }
-const bandOf = it => ({min: it.band.min, max: it.band.max});
 
 async function loadCatalogue(){
   try {
@@ -642,7 +773,8 @@ async function loadCatalogue(){
         price: p.price,
         band: p.band || {min:0, max:1000},
         images: p.images || [],
-        video: p.video || null
+        video: p.video || null,
+        videoPoster: p.videoPoster || null
       });
     });
   });
@@ -667,6 +799,39 @@ const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
 const titleOf = it => it.title || it.catEn + " " + String(it.n).padStart(2, "0");
 const priceOf = it => rupees(it.price);
 const mediaCount = it => it.images.length + (it.video ? 1 : 0);
+
+/* A <video> with no poster paints black. build_catalogue.py normally cuts a still
+   for us; when it could not (no ffmpeg on that machine), we ask the browser for
+   the frame at 0.1s instead — #t= makes it fetch and paint that one frame. */
+function videoAttrs(src, poster, {preload = "metadata"} = {}){
+  const u = url(src);
+  return poster
+    ? `src="${esc(u)}" poster="${esc(url(poster))}" preload="${preload}"`
+    : `src="${esc(u)}#t=0.1" preload="metadata" data-noposter`;
+}
+
+/* Last resort for a video that reached the browser without a still: seek to the
+   first tenth of a second, draw that frame onto a canvas, and use it as the
+   poster. Only runs for videos build_catalogue.py could not cut a frame for. */
+function paintPosters(){
+  document.querySelectorAll("video[data-noposter]").forEach(v => {
+    const draw = () => {
+      v.removeAttribute("data-noposter");
+      try {
+        if (!v.videoWidth) return;
+        const c = document.createElement("canvas");
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+        v.poster = c.toDataURL("image/jpeg", 0.72);
+      } catch (e) { /* a cross-origin or codec-shy video: leave it be */ }
+    };
+    const seek = () => { try { if (v.currentTime < 0.05) v.currentTime = 0.1; } catch (e) {} };
+    v.addEventListener("loadedmetadata", seek, {once:true});
+    v.addEventListener("loadeddata", draw, {once:true});
+    if (v.readyState >= 2) draw();
+    else if (v.readyState >= 1) seek();
+  });
+}
 
 /* ============ pictures ============ */
 function mark(){
@@ -746,7 +911,7 @@ function syncCount(){
 }
 
 /* ============ the customer's details, remembered on their own device ============ */
-let BUYER = {name:"", phone:"", pin:"", addr:""};
+let BUYER = {name:"", phone:"", pin:"", addr:"", pay:"online"};
 try { const raw = localStorage.getItem("qala.buyer"); if (raw) BUYER = Object.assign(BUYER, JSON.parse(raw) || {}); } catch (e) {}
 function saveBuyer(){ try { localStorage.setItem("qala.buyer", JSON.stringify(BUYER)); } catch (e) {} }
 
@@ -786,12 +951,29 @@ function orderRef(){
   return "QALA-" + String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0")
        + "-" + String(Math.floor(Math.random()*9000)+1000);
 }
+/* goods + shipping + COD handling, for whichever way they chose to pay */
+function orderTotals(goods, pay){
+  const pickup = pay === "shop";
+  const ship = pickup ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+  const cod  = pay === "cod" ? COD_EXTRA : 0;
+  return {goods, ship, cod, pickup, total: goods + ship + cod};
+}
+const payName = id => (PAY.find(x => x.id === id) || PAY[0]).t;
+
 function orderWaText(o){
   const lines = o.items.map((l, i) =>
     `${i+1}. ${l.code} — ${l.title}\n   ${rupees(l.price)} × ${l.qty} = ${rupees(l.price * l.qty)}\n   ${l.url}`).join("\n\n");
+  const t = o.totals;
+  const money = [`Pieces: ${rupees(t.goods)}`,
+                 t.pickup ? `Collecting at the shop` : `Shipping: ${t.ship ? rupees(t.ship) : "Free"}`,
+                 t.cod ? `Cash on delivery: ${rupees(t.cod)}` : null,
+                 `Total: ${rupees(t.total)}`].filter(Boolean).join("\n");
+  const where = t.pickup
+    ? `Name: ${o.name}\nPhone: ${o.phone}\n(Collecting from the shop in Dighi)`
+    : `Name: ${o.name}\nPhone: ${o.phone}\nPincode: ${o.pin}\nAddress: ${o.addr}`;
   return `Namaskar The Qala 🙏\n\nNew order — ${o.ref}\n\n${lines}\n\n`
-    + `Total: ${rupees(o.total)}\n\n`
-    + `Name: ${o.name}\nPhone: ${o.phone}\nPincode: ${o.pin}\nAddress: ${o.addr}\n\n`
+    + `${money}\nPaying by: ${payName(o.pay)}\n\n`
+    + `${where}\n\n`
     + `Please confirm availability and the dispatch date.`;
 }
 
@@ -862,30 +1044,16 @@ function home(){
     </div>
     <div class="wrap"><div class="trustrow">
       <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
-      <div><b>Partial COD</b> ₹500 advance, rest on delivery</div>
-      <div><b>7-day returns</b> unworn, in the box</div>
+      <div><b>Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra</div>
+      <div><b>See it on a video call</b> before you decide</div>
       <div><b>Order on WhatsApp</b> · we reply within the hour</div>
     </div></div>
   </section>
 
-  ${cats.length ? `
-  <section class="band wrap">
-    <div class="sechead">
-      <div><span class="mr" style="color:var(--accent)">प्रकार</span><h2>Shop by tradition</h2></div>
-      <a class="seclink" href="#/shop">All pieces</a>
-    </div>
-    <div class="catgrid">
-      ${cats.map(c => {
-        const n = catName(c.slug), count = (c.bands||[]).reduce((a,b) => a + b.items.length, 0);
-        return `<a class="cat" href="#/shop?c=${c.slug}">
-          <span class="catshot">${mark()}${shot(c.cover, {alt:n.en})}</span>
-          <span class="mr">${n.mr}</span>
-          <span class="en">${esc(n.en)}</span>
-          <span class="count">${count} piece${count===1?"":"s"}</span>
-        </a>`;}).join("")}
-    </div>
-  </section>
+  ${welcomeSection()}
+  ${socialSection()}
 
+  ${cats.length ? `
   ${saajRule()}
 
   <section class="band wrap">
@@ -912,7 +1080,7 @@ function home(){
     <div class="sechead"><div><span class="mr" style="color:var(--accent)">कसे</span><h2>From your message to your door</h2></div></div>
     <div class="catgrid">
       ${[["01","You send the code","Every piece has a reference like RAJWADI-2000-1. Tap Order on WhatsApp and it reaches us with the photo you were looking at."],
-         ["02","We confirm and fit","Exact price, sizing and dispatch date settled in the chat. ₹500 books the piece; the rest can come on delivery."],
+         ["02","We confirm and fit","Exact price, sizing and dispatch date settled in the chat. Pay online, in cash at the shop, or on delivery for ₹200 extra."],
          ["03","Insured dispatch","Shipped from Pune with insurance and a tracking link. Most of Maharashtra sees it in two days."]]
         .map(s => `<div class="cat" style="text-align:left;cursor:default">
           <div style="font-size:1.5rem;font-family:Marcellus,serif;letter-spacing:.04em;color:var(--gold-2)">${s[0]}</div>
@@ -923,6 +1091,68 @@ function home(){
   </section>`;
 }
 
+function welcomeSection(){
+  const w = (CATALOGUE && CATALOGUE.welcome) || {};
+  if (!w.video) return "";
+  return `
+  <section class="welcome">
+    <div class="wrap">
+      <div class="sechead rise">
+        <div><span class="mr" style="color:var(--gold-2)">मनोगत</span><h2>Come and meet us</h2></div>
+      </div>
+      <div class="player rise">
+        <video id="welcomeVid" controls playsinline ${videoAttrs(w.video, w.poster)}></video>
+      </div>
+      <p class="wcap rise">Two rooms in Dighi, a spool of triple thread, and every piece finished by hand before it is packed.</p>
+    </div>
+  </section>`;
+}
+
+
+/* Brides and customers wearing their piece — photos/clients/*.mp4 */
+function clientWall(){
+  const clips = (CATALOGUE && CATALOGUE.clients) || [];
+  if (!clips.length) return "";
+  return `
+    <h2 style="font-family:Marcellus,serif;font-weight:400;font-size:1.7rem;margin:44px 0 6px">She wore Qala</h2>
+    <p class="muted" style="margin:0 0 20px">Sent to us by the women who wore them. Tap to play.</p>
+    <div class="clipgrid">
+      ${clips.map((c,i) => `
+        <figure class="clip">
+          <span class="clipbox">
+            <video playsinline controls ${videoAttrs(c.video, c.poster, {preload:"none"})}></video>
+            <span class="clipplay" aria-hidden="true">${VIDEO_ICON}</span>
+          </span>
+          ${c.caption ? `<figcaption>${esc(c.caption)}</figcaption>` : ""}
+        </figure>`).join("")}
+    </div>`;
+}
+
+function socialSection(){
+  const shots = (CATALOGUE && CATALOGUE.social) || {};
+  return `
+  <section class="band wrap">
+    <div class="sechead">
+      <div><span class="mr" style="color:var(--accent)">आम्ही इथे</span><h2>Where else you can find us</h2></div>
+      <span class="seclink secnote">A real shop, and a real shelf of photographs</span>
+    </div>
+    <div class="socialgrid">
+      ${SOCIAL.map(s => `
+        <a class="social rise" href="${esc(s.url)}" target="_blank" rel="noopener">
+          <span class="shot">${mark()}${shots[s.key] ? shot(shots[s.key], {alt: s.label}) : ""}</span>
+          <span class="body">
+            <span class="kind">${esc(s.kind)}</span>
+            <b>${esc(s.label)}</b>
+            <span class="note">${esc(s.note)}</span>
+            <span class="go">Open ${OUT_ICON}</span>
+          </span>
+        </a>`).join("")}
+    </div>
+  </section>`;
+}
+
+const OUT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>`;
+
 function shop(params){
   const active = (params.get("c") || "").split(",").filter(Boolean);
   const band = params.get("p") || "";
@@ -931,9 +1161,10 @@ function shop(params){
 
   let list = ITEMS.slice();
   if (active.length) list = list.filter(i => active.includes(i.cat));
-  if (band) list = list.filter(i => bandKey(i) === band);
-  if (sort === "lowhigh") list.sort((a,b) => a.min - b.min || a.code.localeCompare(b.code));
-  if (sort === "highlow") list.sort((a,b) => b.min - a.min || a.code.localeCompare(b.code));
+  const range = band ? bandRange(band) : null;
+  if (range) list = list.filter(i => i.price >= range.min && i.price < range.max);
+  if (sort === "lowhigh") list.sort((a,b) => a.price - b.price || a.code.localeCompare(b.code));
+  if (sort === "highlow") list.sort((a,b) => b.price - a.price || a.code.localeCompare(b.code));
 
   const heading = active.length === 1 ? catName(active[0]) : {mr:"संग्रह", en:"The collection"};
   const blurb = active.length === 1 ? (catName(active[0]).blurb || "") : "";
@@ -998,7 +1229,7 @@ function piece(code){
       <div class="arch" id="mainArt" role="button" tabindex="0" aria-label="Enlarge photograph">${mark()}${shot(it.images[0], {alt: titleOf(it) + " — " + it.catEn, eager:true})}</div>
       <div class="thumbs" ${mediaCount(it) < 2 ? "hidden" : ""}>
         ${it.images.map((f,i) => `<button class="thumb ${i===0?"on":""}" data-slot data-src="${esc(url(f))}" aria-label="View ${i+1}">${shot(f)}</button>`).join("")}
-        ${it.video ? `<button class="thumb vidthumb" data-video="${esc(url(it.video))}" aria-label="Play the video">${shot(it.images[0])}<span class="playbadge">${VIDEO_ICON}</span></button>` : ""}
+        ${it.video ? `<button class="thumb vidthumb" data-video="${esc(url(it.video))}" data-poster="${esc(it.videoPoster ? url(it.videoPoster) : "")}" aria-label="Play the video">${shot(it.videoPoster || it.images[0])}<span class="playbadge">${VIDEO_ICON}</span></button>` : ""}
       </div>
     </div>
     <div>
@@ -1023,13 +1254,24 @@ function piece(code){
           Order on WhatsApp</a>
       </div>
       <div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>
+
+      <div class="paybox">
+        <h4>How you can pay</h4>
+        <ul>
+          ${PAY.map(x => `<li><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}
+        </ul>
+        <p>Want to see it moving before you decide? Ask for a video call on WhatsApp and we will
+           hold the piece up for you.</p>
+      </div>
+
       <dl class="spec">
         <div><dt>Reference</dt><dd style="margin:0">${esc(it.code)}</dd></div>
         <div><dt>Category</dt><dd style="margin:0">${esc(it.catEn)} · ${it.catMr}</dd></div>
         <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}, inclusive of GST</dd></div>
         <div><dt>Photographs</dt><dd style="margin:0">${it.images.length} view${it.images.length === 1 ? "" : "s"}${it.video ? " and a video" : ""}</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
-        <div><dt>Payment</dt><dd style="margin:0">UPI, bank transfer, or partial COD — settled with us on WhatsApp</dd></div>
+        <div><dt>Payment</dt><dd style="margin:0">Online, cash at the shop, or cash on delivery (${rupees(COD_EXTRA)} extra)</dd></div>
+        <div><dt>Returns</dt><dd style="margin:0">Only if it reaches you damaged, with your opening video</dd></div>
       </dl>
     </div>
   </div>
@@ -1130,7 +1372,7 @@ function orderView(params){
   <div class="wrap pagehead">
     <span class="mr" style="font-size:1.3rem;color:var(--accent)">ऑर्डर</span>
     <h1>Place your order</h1>
-    <p class="muted">Four details, then we take it forward on WhatsApp.</p>
+    <p class="muted">A few details, then we take it forward on WhatsApp.</p>
   </div>
   <div class="wrap orderlayout">
     <form class="orderform" id="orderForm" novalidate>
@@ -1156,6 +1398,14 @@ function orderView(params){
         <textarea id="f-addr" name="addr" rows="4" autocomplete="street-address" placeholder="Flat and building, lane, landmark, city">${esc(BUYER.addr)}</textarea>
         <span class="err"></span>
       </div>
+      <fieldset class="paypick">
+        <legend>How would you like to pay?</legend>
+        ${PAY.map((x,i) => `<label class="payopt">
+          <input type="radio" name="pay" value="${x.id}" ${(BUYER.pay||"online")===x.id?"checked":""}>
+          <span><b>${esc(x.t)}</b><span>${esc(x.d)}</span></span>
+        </label>`).join("")}
+      </fieldset>
+
       <button class="btn wide" type="submit" style="margin-top:4px">Place the order</button>
       <p class="hint" style="margin:0;text-align:center">Your order opens in WhatsApp with everything filled in. Tap send and it reaches us.</p>
     </form>
@@ -1163,8 +1413,9 @@ function orderView(params){
     <aside class="summary">
       <h3>${lines.reduce((a,l)=>a+l.qty,0)} piece${lines.reduce((a,l)=>a+l.qty,0)===1?"":"s"}</h3>
       ${lines.map(l => `<div class="srow"><span>${esc(titleOf(l.it))} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.price*l.qty)}</span></div>`).join("")}
-      <div class="srow"><span>Shipping</span><span>${ship ? rupees(ship) : "Free"}</span></div>
-      <div class="srow total"><span>Total</span><span class="rupee">${rupees(total + ship)}</span></div>
+      <div class="srow" id="shipRow"><span id="shipLbl">Shipping</span><span id="shipVal">${ship ? rupees(ship) : "Free"}</span></div>
+      <div class="srow" id="codRow" hidden><span>Cash on delivery</span><span class="rupee">${rupees(COD_EXTRA)}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee" id="grandTotal">${rupees(total + ship)}</span></div>
       <p class="muted" style="font-size:.8rem;margin:8px 0 0">We confirm sizing and the dispatch date in the chat before you pay anything.</p>
     </aside>
   </div>`;
@@ -1185,7 +1436,11 @@ function placedView(){
     <div class="box">
       ${o.items.map(l => `<div class="srow"><span>${esc(l.title)} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.price * l.qty)}</span></div>`).join("")}
       <div class="srow total"><span>Total</span><span class="rupee">${rupees(o.total)}</span></div>
-      <div class="srow" style="align-items:flex-start"><span>Delivering to</span><span style="text-align:right;max-width:60%">${esc(o.name)}<br>${esc(o.phone)}<br>${esc(o.addr)}<br>${esc(o.pin)}</span></div>
+      <div class="srow"><span>Paying by</span><span>${esc(payName(o.pay))}${o.totals && o.totals.cod ? ` · +${rupees(o.totals.cod)}` : ""}</span></div>
+      <div class="srow" style="align-items:flex-start"><span>${o.totals && o.totals.pickup ? "Collecting at" : "Delivering to"}</span><span style="text-align:right;max-width:60%">${
+        o.totals && o.totals.pickup
+          ? `${esc(o.name)}<br>${esc(o.phone)}<br>The shop, Dighi, Pune`
+          : `${esc(o.name)}<br>${esc(o.phone)}<br>${esc(o.addr)}<br>${esc(o.pin)}`}</span></div>
     </div>
     <a class="linkbtn" href="#/shop">Continue shopping</a>
   </div>`;
@@ -1202,7 +1457,10 @@ const PAGES = {
     <p>The Qala began in a two-room flat in Dighi, Pune, with a spool of triple thread and a box of hollow gold beads. We wanted the Rajwadi pieces our grandmothers wore, made properly, at a price a young bride could actually pay.</p>
     <p>Every piece is strung, set and polished here before it is packed. We buy brass and 925 silver from Zaveri Bazaar and Kolhapur, plate to a real micron thickness rather than a wash that leaves within a month, and photograph each finished piece in daylight — which is why our product photos look like jewellery on a table and not like a rendering.</p>
     <p>We sell mostly over WhatsApp, and most of our customers are someone's sister-in-law, sent by a bride who wore ours. That is the whole marketing plan.</p>
-    <p style="font-family:Marcellus,serif;font-size:1.4rem;color:var(--accent);border-left:2px solid var(--gold-2);padding-left:18px;margin-top:30px">She wore Qala and turned heads.</p>`),
+    <p style="font-family:Marcellus,serif;font-size:1.4rem;color:var(--accent);border-left:2px solid var(--gold-2);padding-left:18px;margin-top:30px">She wore Qala and turned heads.</p>
+    ${clientWall()}
+    <p class="muted" style="margin-top:34px">Come and see the work yourself — the shop is in Dighi,
+       open ${HOURS}. ${CLOSED}.</p>`),
   care: () => page("काळजी","Care & polish",`
     <p>Plated jewellery lasts as long as you keep it dry and away from chemicals. In practice:</p>
     <ul style="padding-left:20px;display:grid;gap:9px">
@@ -1216,12 +1474,39 @@ const PAGES = {
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
-    <p><b>Partial COD:</b> pay ₹500 to book the piece and the balance in cash at your door. Full COD is not available — plated jewellery refuses too often for a small maker to absorb.</p>
-    <p><b>How you pay:</b> there is no card form on this site. Send us the reference, we confirm the exact price, and you get a UPI ID or a payment link in the chat.</p>`),
-  returns: () => page("परतावा","Returns",`
-    <p>Seven days from delivery, on any piece that is unworn and back in its original box with the polishing cloth and tags.</p>
-    <p>Message us on WhatsApp with your reference and a photo. We arrange the reverse pickup where the courier serves; elsewhere we reimburse the postage.</p>
-    <p>Refunds go back to the source within five working days of the piece reaching us. Pieces fitted to a measurement and pierced-fitting earrings are exchange-only, for hygiene.</p>`)
+    <p><b>How you pay</b> — three ways, and you choose in the chat:</p>
+    <ul style="padding-left:20px;display:grid;gap:9px">
+      <li><b>Online</b> — UPI, bank transfer or a payment link. Nothing extra.</li>
+      <li><b>Cash at the shop</b> — pay and collect at Dighi. Nothing extra, and no shipping either.</li>
+      <li><b>Cash on delivery</b> — ${rupees(COD_EXTRA)} extra on the order. The courier charges us for carrying cash, and that is what it costs.</li>
+    </ul>
+    <p style="margin-top:20px">There is no card form on this site. Send us the reference, we confirm the exact price, and the rest happens in the chat.</p>
+    <p><b>The shop:</b> Dighi, Pune. Open ${HOURS}. ${CLOSED}.</p>`),
+  returns: () => page("परतावा","Returns & damage",`
+    <p>We photograph every piece in daylight, in the state it will reach you, and we will happily
+       show it to you on a video call before you order. So please read this once — it is short and
+       it is the whole policy.</p>
+
+    <h3 style="font-family:Marcellus,serif;font-weight:400;font-size:1.25rem;margin:28px 0 8px">If it arrives damaged</h3>
+    <p>We replace it or refund it. What we need is an <b>unbroken opening video</b> — start recording
+       before you cut the tape and keep filming until the piece is fully out of its box, in one take,
+       without stopping. That single video is what lets us claim from the courier, and without it we
+       cannot tell a transit break from a drop at home.</p>
+    <p>Send it to us on WhatsApp with your order reference within 48 hours of delivery and we will
+       take it from there.</p>
+
+    <h3 style="font-family:Marcellus,serif;font-weight:400;font-size:1.25rem;margin:28px 0 8px">If you simply do not like it</h3>
+    <p>We do not take it back. We are a small workshop and each piece is checked, polished and packed
+       by hand before it leaves — a returned piece cannot be sold as new. Please be sure before you
+       order, and use the video call so there are no surprises.</p>
+
+    <h3 style="font-family:Marcellus,serif;font-weight:400;font-size:1.25rem;margin:28px 0 8px">See it before you buy</h3>
+    <p>Ask us for a <b>video call</b> on WhatsApp. We will hold the piece up, turn it in the light,
+       show you the clasp and the back, and answer anything you want to ask. Come to the shop in
+       Dighi if you are nearby — ${HOURS}. ${CLOSED}.</p>
+
+    <p class="muted" style="margin-top:26px;font-size:.9rem">Wrong piece sent, or something missing
+       from the parcel? That is our mistake, not a return — tell us and we will fix it at our cost.</p>`)
 };
 </script>
 
@@ -1267,6 +1552,7 @@ function render(){
 
   reveal();
   wire(r);
+  paintPosters();
   window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "instant"});
 }
 
@@ -1306,6 +1592,17 @@ const ICON_PLAY  = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="tr
 
 function wire(route){
   if (route === "") {
+    const wv = $("#welcomeVid");
+    if (wv){
+      const fit = () => {
+        if (!wv.videoWidth || !wv.videoHeight) return;
+        const ar = wv.videoWidth / wv.videoHeight;
+        const cap = Math.round(Math.min(innerHeight * 0.76, 760) * ar);
+        wv.parentElement.style.maxWidth = (ar < 1.2 ? Math.min(cap, 560) : Math.min(cap, 1100)) + "px";
+      };
+      if (wv.readyState >= 1) fit(); else wv.addEventListener("loadedmetadata", fit, {once:true});
+      addEventListener("resize", fit, {passive:true});
+    }
     const v = $("#heroVid"), btn = $("#vidBtn");
     if (v && btn) {
       v.addEventListener("loadeddata", () => { btn.hidden = false; }, {once:true});
@@ -1346,7 +1643,7 @@ function wire(route){
         t.classList.add("on");
         const frame = $("#mainArt");
         if (t.dataset.video){
-          frame.innerHTML = mark() + `<video class="photo" src="${t.dataset.video}" controls autoplay muted loop playsinline></video>`;
+          frame.innerHTML = mark() + `<video class="photo" src="${t.dataset.video}" ${t.dataset.poster ? `poster="${t.dataset.poster}"` : ""} controls autoplay muted loop playsinline></video>`;
           frame.removeAttribute("role"); frame.removeAttribute("tabindex");
           frame.onclick = null; frame.style.cursor = "default";
         } else {
@@ -1369,6 +1666,28 @@ function wire(route){
       ["pin",   v => /^\d{6}$/.test(v.trim()),                    "A pincode is 6 digits"],
       ["addr",  v => v.trim().length >= 12,                       "We need the full address to ship to"]
     ];
+    const payNow = () => (form.querySelector("input[name=pay]:checked") || {}).value || "online";
+    const needsAddress = () => payNow() !== "shop";
+    const goods = lines.reduce((a, l) => a + l.it.price * l.qty, 0);
+
+    /* collecting at the shop needs no address, and the total moves with the choice */
+    const refresh = () => {
+      const t = orderTotals(goods, payNow());
+      const shipRow = $("#shipRow"), codRow = $("#codRow");
+      if (shipRow) {
+        $("#shipLbl").textContent = t.pickup ? "Collecting at" : "Shipping";
+        $("#shipVal").textContent = t.pickup ? "The shop, Dighi" : (t.ship ? rupees(t.ship) : "Free");
+      }
+      if (codRow) codRow.hidden = !t.cod;
+      $("#grandTotal").textContent = rupees(t.total);
+      document.querySelectorAll("#f-pin, #f-addr").forEach(el => {
+        const field = el.closest(".field");
+        field.hidden = !needsAddress();
+        if (!needsAddress()) { field.classList.remove("bad"); field.querySelector(".err").textContent = ""; }
+      });
+    };
+    form.querySelectorAll("input[name=pay]").forEach(r => r.onchange = refresh);
+    refresh();
 
     const check = (name, show) => {
       const [, test, msg] = rules.find(r => r[0] === name);
@@ -1384,6 +1703,7 @@ function wire(route){
       e.preventDefault();
       let ok = true, firstBad = null;
       rules.forEach(([name]) => {
+        if (!needsAddress() && (name === "pin" || name === "addr")) return;
         if (!check(name, true)) { ok = false; firstBad = firstBad || form[name]; }
       });
       if (!ok) { firstBad.focus(); firstBad.scrollIntoView({block:"center", behavior:"smooth"}); return; }
@@ -1392,7 +1712,8 @@ function wire(route){
         name: form.name.value.trim(),
         phone: form.phone.value.replace(/\D/g, "").slice(-10),
         pin: form.pin.value.trim(),
-        addr: form.addr.value.trim()
+        addr: form.addr.value.trim(),
+        pay: payNow()
       };
       saveBuyer();
 
@@ -1400,11 +1721,10 @@ function wire(route){
         ref: orderRef(),
         items: lines.map(l => ({code: l.it.code, title: titleOf(l.it), qty: l.qty,
                                 price: l.it.price, url: pieceUrl(l.it.code)})),
-        total: (() => {
-          const sum = lines.reduce((a, l) => a + l.it.price * l.qty, 0);
-          return sum + (sum >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
-        })()
+        pay: payNow(),
+        totals: orderTotals(goods, payNow())
       });
+      o.total = o.totals.total;
       o.text = orderWaText(o);
       LAST_ORDER = o;
 
@@ -1437,6 +1757,13 @@ $("#menuToggle").onclick = () => {
     ? `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`
     : `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
 };
+$("#topbar").innerHTML = [
+  `<span>Order on WhatsApp</span>`,
+  ...PHONES.map(n => `<a href="https://wa.me/${n.wa}" target="_blank" rel="noopener">${esc(n.label)}</a>`),
+  `<span class="tag"><span class="sep">&middot;</span> Free insured shipping across India</span>`,
+  `<span class="tag"><span class="sep">&middot;</span> Handmade in Dighi, Pune</span>`
+].join("");
+
 const ASK = waLink("Namaskar The Qala 🙏 I have a question about a piece.");
 $("#waFooter").href = ASK;
 $("#fab").href = ASK;

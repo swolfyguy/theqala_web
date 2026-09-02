@@ -34,6 +34,8 @@ numbers of deleted products are never handed out again.
 
 import json
 import re
+import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,6 +66,81 @@ def warn(msg):
 
 def rel(path):
     return path.relative_to(ROOT).as_posix()
+
+
+# ---------------------------------------------------------------- video posters
+#
+# A <video> with no poster is a black rectangle until someone presses play. So for
+# every video we pull one frame out and keep it in photos/.thumbs/. The frame is
+# taken at 0.6s, because frame zero is very often a blur or a black fade-in.
+#
+_ffmpeg_exe = "unknown"
+
+
+def ffmpeg_exe():
+    """The ffmpeg we can actually run: the one pip ships with imageio-ffmpeg if it
+       is installed, else whatever is on PATH. None if there is neither."""
+    global _ffmpeg_exe
+    if _ffmpeg_exe != "unknown":
+        return _ffmpeg_exe
+    _ffmpeg_exe = None
+    try:
+        import imageio_ffmpeg
+        _ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        _ffmpeg_exe = shutil.which("ffmpeg")
+    return _ffmpeg_exe
+
+
+def poster_for(video):
+    """The still for a video: a .jpg beside it, with the same name.
+
+       video.mp4  ->  video.jpg
+       Video-10132.mp4  ->  Video-10132.jpg
+
+       If that file is already there we leave it alone — it may be a frame he
+       picked himself. If it is missing we take one out of the video. To get a
+       fresh one, delete the .jpg and run again."""
+    out = video.with_suffix(".jpg")
+    if out.exists():
+        return rel(out)
+
+    exe = ffmpeg_exe()
+    if not exe:
+        return None
+
+    for seek in ("0.6", "0"):
+        cmd = [exe, "-y", "-loglevel", "error", "-ss", seek, "-i", str(video),
+               "-frames:v", "1", "-vf", "scale='min(1000,iw)':-2", "-q:v", "4", str(out)]
+        try:
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=90, check=False)
+        except Exception:
+            return None
+        if out.exists() and out.stat().st_size > 0:
+            return rel(out)
+    return None
+
+
+def poster_of(video, files):
+    """The still already sitting beside this video, if any. `files` is the folder
+       listing, so we do not stat the disk twice."""
+    stem = video.stem.lower()
+    for f in files:
+        if f.is_file() and f.stem.lower() == stem and f.suffix.lower() in IMAGE_EXT:
+            return f
+    return None
+
+
+def poster_note():
+    """Said once, at the end, if we had no ffmpeg to make posters with."""
+    if ffmpeg_exe() is None:
+        warn("I could not take a picture out of your videos, so each visitor's "
+             "browser has to fetch part of every video to draw its own thumbnail. "
+             "It works, but it costs them data. Fix it once with:  pip install "
+             "imageio-ffmpeg  then run this again. Or save a .jpg next to each "
+             "video with the same name — video.mp4 and video.jpg — and that "
+             "picture is used as it is.")
 
 
 def natural(name):
@@ -146,10 +223,16 @@ def to_jpeg(src):
 
 
 def media_in(folder):
-    """Images (converted and optionally shrunk) and videos inside a product folder."""
+    """Images (converted and optionally shrunk) and videos inside a product folder.
+       A picture whose name matches a video in the same folder is that video's
+       still, not another view of the piece, so it is left out of the gallery."""
+    files = sorted((f for f in folder.iterdir() if f.is_file()), key=lambda f: natural(f.name))
+    video_stems = {f.stem.lower() for f in files if f.suffix.lower() in VIDEO_EXT}
     images, videos = [], []
-    for f in sorted((f for f in folder.iterdir() if f.is_file()), key=lambda f: natural(f.name)):
+    for f in files:
         if f.name.startswith("."):
+            continue
+        if f.suffix.lower() in IMAGE_EXT and f.stem.lower() in video_stems:
             continue
         ext = f.suffix.lower()
         if ext in WEB_EXT:
@@ -223,6 +306,77 @@ def product_id(folder, slug, nxt, taken):
 
 # --------------------------------------------------------------------------- #
 
+def find_welcome():
+    """photos/welcome.mp4 — the introduction video — and photos/welcome.jpg as its poster."""
+    out = {"video": None, "poster": None}
+    if not PHOTOS.is_dir():
+        return out
+    for f in sorted(PHOTOS.iterdir(), key=lambda p: natural(p.name)):
+        if not f.is_file() or not f.stem.lower().startswith("welcome"):
+            continue
+        if f.suffix.lower() in VIDEO_EXT and out["video"] is None:
+            out["video"] = rel(f)
+            if f.stat().st_size > 40_000_000:
+                warn(f"{rel(f)} is {f.stat().st_size/1_000_000:.0f} MB — Cloudflare Pages refuses "
+                     f"any file over 25 MB. Compress it before you push.")
+            elif f.stat().st_size > 12_000_000:
+                warn(f"{rel(f)} is {f.stat().st_size/1_000_000:.0f} MB — it will play, but that is "
+                     f"heavy for a customer on mobile data.")
+        elif f.suffix.lower() in IMAGE_EXT and out["poster"] is None:
+            out["poster"] = rel(f)
+    if out["video"] and not out["poster"]:
+        out["poster"] = poster_for(ROOT / out["video"])
+    return out
+
+
+def find_social():
+    """photos/social/<key>.jpg — screenshots of the Instagram pages and the shop on Maps.
+       The key is the filename; index.html maps it to a link."""
+    folder = PHOTOS / "social"
+    if not folder.is_dir():
+        return {}
+    out = {}
+    for f in sorted(folder.iterdir(), key=lambda p: natural(p.name)):
+        if f.is_file() and f.suffix.lower() in IMAGE_EXT and not f.name.startswith("."):
+            if OPTIMIZE:
+                optimize(f)
+            out.setdefault(f.stem.lower(), rel(f))
+    return out
+
+
+def find_clients():
+    """photos/clients/ — short videos of customers wearing their piece.
+       One video per file; a still with the same name is used as its poster.
+       A caption can ride along in the filename after a dash:
+           priya-she-wore-the-thushi-at-her-haldi.mp4
+       becomes  "She wore the thushi at her haldi"."""
+    folder = PHOTOS / "clients"
+    if not folder.is_dir():
+        return []
+    out = []
+    for f in sorted(folder.iterdir(), key=lambda p: natural(p.name)):
+        if not f.is_file() or f.suffix.lower() not in VIDEO_EXT or f.name.startswith("."):
+            continue
+        mb = f.stat().st_size / (1024 * 1024)
+        if mb > 12:
+            warn(f"{rel(f)} is {mb:.0f} MB. Every push keeps a copy of it forever — "
+                 f"trim it or export it smaller before you commit.")
+        poster = poster_for(f)
+        if OPTIMIZE and poster:
+            optimize(ROOT / poster)
+
+        # A caption only if the name actually says something. "Video-10132" does
+        # not, so that clip simply shows without a line under it.
+        caption = ""
+        if "-" in f.stem:
+            rest = f.stem.split("-", 1)[1].replace("-", " ").replace("_", " ").strip()
+            if re.search(r"[A-Za-z]{2}", rest) and len(rest) > 3:
+                caption = rest[:1].upper() + rest[1:]
+
+        out.append({"video": rel(f), "poster": poster, "caption": caption})
+    return out
+
+
 def find_hero():
     hero = {"image": None, "video": None}
     if not PHOTOS.is_dir():
@@ -234,6 +388,8 @@ def find_hero():
             hero["image"] = rel(f)
         elif f.suffix.lower() in VIDEO_EXT and hero["video"] is None:
             hero["video"] = rel(f)
+    if hero["video"] and not hero["image"]:
+        hero["image"] = poster_for(ROOT / hero["video"])
     return hero
 
 
@@ -278,6 +434,7 @@ def read_category(catdir, nxt):
             "band": band_for(price),
             "images": [rel(f) for f in images],
             "video": rel(videos[0]) if videos else None,
+            "videoPoster": poster_for(videos[0]) if videos else None,
         })
         if len(videos) > 1:
             warn(f"{rel(folder)} has more than one video — only {videos[0].name} is used")
@@ -304,6 +461,8 @@ def main():
     total_products = total_files = 0
 
     for catdir in sorted((p for p in PHOTOS.iterdir() if p.is_dir()), key=lambda d: natural(d.name)):
+        if catdir.name[0] in "._" or catdir.name.lower() in ("social", "clients"):
+            continue
         cat = read_category(catdir, nxt)
         for p in cat["products"]:
             bands[p["band"]["min"]] = p["band"]
@@ -316,9 +475,13 @@ def main():
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "version": 2,
         "hero": find_hero(),
+        "welcome": find_welcome(),
+        "social": find_social(),
+        "clients": find_clients(),
         "bands": [bands[k] for k in sorted(bands)],
         "categories": categories,
     }
+    poster_note()
     OUT.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print(f"{OUT.relative_to(ROOT)}: {total_products} product{'' if total_products == 1 else 's'}, "

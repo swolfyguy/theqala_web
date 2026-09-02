@@ -1,10 +1,96 @@
 {
- "generated": "2026-09-01T18:22:59Z",
+ "generated": "2026-09-02T06:25:24Z",
  "version": 2,
  "hero": {
-  "image": null,
+  "image": "photos/hero.jpg",
   "video": "photos/hero.mp4"
  },
+ "welcome": {
+  "video": null,
+  "poster": null
+ },
+ "social": {
+  "google": "photos/social/google.jpg",
+  "qala-shree": "photos/social/qala-shree.jpeg",
+  "theqala-com": "photos/social/theqala-com.jpeg"
+ },
+ "clients": [
+  {
+   "video": "photos/clients/Video-7295.mp4",
+   "poster": "photos/clients/Video-7295.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-8621.mp4",
+   "poster": "photos/clients/Video-8621.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-10132.mp4",
+   "poster": "photos/clients/Video-10132.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-16142.mp4",
+   "poster": "photos/clients/Video-16142.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-26771.mp4",
+   "poster": "photos/clients/Video-26771.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-31108.mp4",
+   "poster": "photos/clients/Video-31108.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-43739.mp4",
+   "poster": "photos/clients/Video-43739.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-46311.mp4",
+   "poster": "photos/clients/Video-46311.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-52803.mp4",
+   "poster": "photos/clients/Video-52803.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-63699.mp4",
+   "poster": "photos/clients/Video-63699.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-70065.mp4",
+   "poster": "photos/clients/Video-70065.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-73275.mp4",
+   "poster": "photos/clients/Video-73275.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-75519.mp4",
+   "poster": "photos/clients/Video-75519.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-77722.mp4",
+   "poster": "photos/clients/Video-77722.jpg",
+   "caption": ""
+  },
+  {
+   "video": "photos/clients/Video-85909.mp4",
+   "poster": "photos/clients/Video-85909.jpg",
+   "caption": ""
+  }
+ ],
  "bands": [
   {
    "min": 0,
@@ -34,7 +120,8 @@
      "images": [
       "photos/necklace/1550/1.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     },
     {
      "n": 2,
@@ -49,7 +136,8 @@
      "images": [
       "photos/necklace/1550 (2)/1.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     }
    ]
   },
@@ -72,7 +160,8 @@
       "photos/victorian/800/1.jpg",
       "photos/victorian/800/2.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     },
     {
      "n": 3,
@@ -88,7 +177,8 @@
       "photos/victorian/900/1.jpg",
       "photos/victorian/900/2.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     },
     {
      "n": 1,
@@ -105,7 +195,8 @@
       "photos/victorian/999/2.jpg",
       "photos/victorian/999/3.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     },
     {
      "n": 2,
@@ -121,7 +212,8 @@
       "photos/victorian/1050/1.jpg",
       "photos/victorian/1050/2.jpg"
      ],
-     "video": null
+     "video": null,
+     "videoPoster": null
     }
    ]
   }

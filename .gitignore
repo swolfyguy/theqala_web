@@ -26,3 +26,7 @@ desktop.ini
 photos/**/raw/
 *.HEIC
 *.heic
+
+# the full-size client videos, kept on your computer only.
+# The compressed ones sitting next to them are what the site uses.
+photos/clients/_originals/
