@@ -415,6 +415,8 @@ def read_category(catdir, nxt):
             continue
         price = int(m.group(1))
         title = re.sub(r"\s+", " ", m.group(2)).strip()
+        # "800 (2)" is a folder the studio had to make unique, not a piece called "(2)"
+        title = re.sub(r"^\((\d+)\)$", "", title).strip()
 
         images, videos = media_in(folder)
         if not images and not videos:
