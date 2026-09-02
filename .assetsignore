@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------
+# Cloudflare publishes every file in this folder as part of the
+# website. These are not part of the website, so they stay out.
+#
+# Same rules as .gitignore. One name per line.
+# ---------------------------------------------------------------
+
+# git's own storage. This is what broke the deploy: the packed
+# history is far over Cloudflare's 25 MB per-file limit, and it
+# has no business being on the web anyway.
+.git
+.github
+.gitignore
+.assetsignore
+
+# the studio, and anything python leaves behind
+*.py
+*.pyc
+__pycache__
+.venv
+preview.bat
+admin.html
+
+# editors and working leftovers
+.idea
+.vscode
+_to_delete
+README.md
+
+# the full-size masters — the compressed clips beside them are
+# what the site actually plays
+photos/clients/_originals

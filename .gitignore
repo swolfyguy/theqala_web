@@ -30,3 +30,8 @@ photos/**/raw/
 # the full-size client videos, kept on your computer only.
 # The compressed ones sitting next to them are what the site uses.
 photos/clients/_originals/
+
+# python virtual environment — 97 MB of Windows binaries,
+# and it belongs to this computer, not to the website
+.venv/
+_to_delete/
