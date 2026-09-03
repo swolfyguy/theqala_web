@@ -377,6 +377,55 @@ def find_clients():
     return out
 
 
+def find_reviews():
+    """photos/reviews.json — what your customers said on Google.
+
+       Fill it by hand, or later from the Google Business Profile API. Either
+       way the shape is the same, so the website never has to change:
+
+       {"url": "https://share.google/...",      the link to your listing
+        "rating": 4.9, "count": 37,             what Google shows overall
+        "reviews": [
+          {"name": "Sneha K.", "stars": 5,
+           "when": "2 months ago",
+           "text": "..."}
+        ]}
+
+       Only "reviews" is required. Anything missing is simply not shown."""
+    f = PHOTOS / "reviews.json"
+    if not f.is_file():
+        return None
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        warn(f"photos/reviews.json could not be read ({e}). The reviews section is skipped.")
+        return None
+    items = []
+    for r in (data.get("reviews") or []):
+        text = str(r.get("text") or "").strip()
+        name = str(r.get("name") or "").strip()
+        if not text or not name:
+            warn("a review in photos/reviews.json has no name or no text — skipped")
+            continue
+        try:
+            stars = int(r.get("stars") or 5)
+        except Exception:
+            stars = 5
+        items.append({"name": name, "text": text,
+                      "stars": max(1, min(5, stars)),
+                      "when": str(r.get("when") or "").strip()})
+    if not items:
+        return None
+    out = {"reviews": items}
+    if data.get("url"):
+        out["url"] = str(data["url"])
+    if data.get("rating"):
+        out["rating"] = data["rating"]
+    if data.get("count"):
+        out["count"] = data["count"]
+    return out
+
+
 def find_hero():
     hero = {"image": None, "video": None}
     if not PHOTOS.is_dir():
@@ -480,6 +529,7 @@ def main():
         "welcome": find_welcome(),
         "social": find_social(),
         "clients": find_clients(),
+        "reviews": find_reviews(),
         "bands": [bands[k] for k in sorted(bands)],
         "categories": categories,
     }

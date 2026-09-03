@@ -296,6 +296,29 @@ section.band{padding:70px 0}
 .player video{display:block;width:100%;height:auto;max-height:76vh;background:#000;object-fit:contain}
 .wcap{margin:18px 0 0;color:color-mix(in srgb,var(--on-velvet) 74%,transparent);max-width:60ch;font-size:.95rem}
 
+/* ---------- what people say ---------- */
+.score{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-8px 0 22px}
+.score b{font-family:Marcellus,serif;font-size:2rem;font-weight:400;line-height:1;color:var(--accent)}
+.score .cnt{font-size:.85rem;color:var(--ink-2)}
+.stars{display:inline-flex;gap:2px;color:var(--gold)}
+.stars svg{width:15px;height:15px}
+.revrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(268px,1fr);gap:16px;
+  overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;
+  scrollbar-width:none;margin-inline:calc(50% - 50vw);padding-inline:max(22px,calc(50vw - 50%))}
+.revrow::-webkit-scrollbar{display:none}
+.rev{scroll-snap-align:start;margin:0;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:11px;min-width:0}
+.rev blockquote{margin:0;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.rev figcaption{margin-top:auto;display:flex;flex-direction:column;gap:1px;padding-top:4px;
+  border-top:1px solid var(--line)}
+.rev figcaption b{font-family:Marcellus,serif;font-weight:400;font-size:1rem}
+.rev figcaption span{font-size:.79rem;color:var(--ink-3,var(--ink-2))}
+.revnote{margin:16px 0 0;font-size:.86rem;color:var(--ink-2);max-width:60ch}
+@media(min-width:900px){
+  .revrow{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    overflow:visible;margin-inline:0;padding-inline:0}
+}
+
 /* ---------- contact ---------- */
 .contact{max-width:min(640px,92vw);margin-inline:auto;padding-bottom:84px}
 .contact .btn.wide{display:flex;align-items:center;justify-content:center;gap:9px}
@@ -1092,6 +1115,7 @@ function home(){
   </section>
 
   ${welcomeSection()}
+  ${reviewsSection()}
 
   ${cats.length ? `
   ${saajRule()}
@@ -1166,6 +1190,38 @@ function clientWall(){
           ${c.caption ? `<figcaption>${esc(c.caption)}</figcaption>` : ""}
         </figure>`).join("")}
     </div>`;
+}
+
+const STAR = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>`;
+
+/* What people wrote on Google. photos/reviews.json holds them — filled by hand
+   today, or by the Business Profile API later. The shape is the same either way. */
+function reviewsSection(){
+  const r = (CATALOGUE && CATALOGUE.reviews) || null;
+  if (!r || !r.reviews || !r.reviews.length) return "";
+  const stars = n => `<span class="stars" aria-label="${n} out of 5">${STAR.repeat(n)}</span>`;
+  const overall = r.rating
+    ? `<span class="score"><b>${esc(String(r.rating))}</b>${stars(Math.round(r.rating))}${
+        r.count ? `<span class="cnt">${esc(String(r.count))} reviews on Google</span>` : ""}</span>`
+    : "";
+  return `
+  <section class="band wrap reviews">
+    <div class="sechead">
+      <div><span class="mr" style="color:var(--accent)">अभिप्राय</span><h2>What people say</h2></div>
+      ${r.url ? `<a class="seclink" href="${esc(r.url)}" target="_blank" rel="noopener">Read them on Google</a>` : ""}
+    </div>
+    ${overall}
+    <div class="revrow">
+      ${r.reviews.map(v => `
+        <figure class="rev">
+          ${stars(v.stars)}
+          <blockquote>${esc(v.text)}</blockquote>
+          <figcaption><b>${esc(v.name)}</b>${v.when ? `<span>${esc(v.when)}</span>` : ""}</figcaption>
+        </figure>`).join("")}
+    </div>
+    ${r.url ? `<p class="revnote">Every one of these is on our Google listing, written by the
+      person named. <a href="${esc(r.url)}" target="_blank" rel="noopener">See all of them</a>.</p>` : ""}
+  </section>`;
 }
 
 function contactRows(){

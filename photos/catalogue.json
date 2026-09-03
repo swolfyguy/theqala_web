@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-03T16:15:04Z",
+ "generated": "2026-09-03T16:43:10Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -91,6 +91,7 @@
    "caption": ""
   }
  ],
+ "reviews": null,
  "bands": [
   {
    "min": 0,

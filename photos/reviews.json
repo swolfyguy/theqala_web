@@ -1,0 +1,11 @@
+{
+  "_how": "Your Google reviews. Copy each one across exactly as the customer wrote it — real name, real words. Delete this _how line whenever you like.",
+  "_fields": "name and text are required. stars (1-5), when, rating and count are optional.",
+
+  "url": "https://share.google/pjpoupn7VKn2VxNNz",
+  "rating": null,
+  "count": null,
+
+  "reviews": [
+  ]
+}
