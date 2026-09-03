@@ -9,8 +9,21 @@
 <meta property="og:site_name" content="The Qala">
 <meta property="og:title" content="The Qala — Rajwadi &amp; Victorian jewellery, Dighi, Pune">
 <meta property="og:description" content="Thushi, saaj, mangalsutra, bangles and bridal pieces, made by hand and sent insured across India. Order on WhatsApp.">
-<meta property="og:image" content="photos/hero-1.jpg">
+<meta property="og:image" content="photos/logo-square.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="photos/apple-touch-icon.png">
+<meta name="theme-color" content="#8E1F31">
+<script>
+/* If the logo artwork is missing, show the typeset name rather than a broken
+   picture. Declared here because the header <img> can fail before the main
+   script at the foot of the page has run. */
+window.qalaLogoMiss = function(img){
+  img.hidden = true;
+  const alt = img.parentElement.querySelector(".wordmark, .fword");
+  if (alt) alt.hidden = false;
+};
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Tiro+Devanagari+Marathi:ital@0;1&display=swap">
@@ -167,11 +180,19 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 }
 header.site{position:sticky;top:0;z-index:40;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
 .navrow{display:flex;align-items:center;gap:16px;padding:12px 0}
-.brand{display:flex;align-items:center;gap:11px;margin-right:auto}
-.brand .mark{width:42px;height:42px;flex:none}
+.brand{display:flex;align-items:center;margin-right:auto;min-width:0}
+/* The artwork carries its own cream ground, so it sits as a small plate.
+   In the dark theme a gold hairline stops it reading as a stray white box. */
+.logo{height:56px;width:auto;border-radius:9px;display:block}
+html[data-theme="dark"] .logo{box-shadow:0 0 0 1px var(--gold-2)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .logo{box-shadow:0 0 0 1px var(--gold-2)}
+}
+.flogo{height:74px;border-radius:12px}
 .brand .wordmark{display:flex;flex-direction:column;line-height:1}
 .brand .devnag{font-family:"Tiro Devanagari Marathi",serif;font-size:1.6rem;color:var(--accent);letter-spacing:.02em}
 .brand .latin{font-family:Marcellus,serif;font-size:.62rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+@media(max-width:900px){ .logo{height:48px} .flogo{height:66px} }
 nav.main{display:flex;gap:22px;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
 nav.main a{position:relative;padding:6px 0;transition:color .18s}
 nav.main a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--gold-2);transition:right .28s cubic-bezier(.2,.7,.3,1)}
@@ -301,6 +322,18 @@ section.band{padding:70px 0}
   display:grid;gap:14px}
 .cbox p{margin:0;line-height:1.65}
 .cbox .hours b{color:var(--accent)}
+.crow.big{padding:12px 14px;gap:15px;align-items:stretch}
+.crow.big .cico{width:112px;height:142px;border-radius:12px;align-self:center}
+.crow.big .ctext{justify-content:center;gap:3px}
+.crow.big .cgo{align-self:center}
+.ckind{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;white-space:nowrap}
+.crow.big .ctext b{font-size:1.12rem;white-space:normal}
+.crow.big .ctext>span:last-child{white-space:normal;line-height:1.45}
+@media(min-width:640px){
+  .crow.big .cico{width:140px;height:176px}
+  .crow.big{padding:14px 16px;gap:18px}
+}
 .cbox .shut{font-size:.88rem;color:var(--ink-2)}
 body.on-contact .fab{display:none}
 
@@ -510,18 +543,8 @@ footer a:hover{color:var(--accent)}
 <header class="site">
   <div class="wrap navrow">
     <a class="brand" href="#/" aria-label="The Qala, home">
-      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
-        <g fill="none" stroke="var(--gold-2)" stroke-width="2.4">
-          <circle cx="50" cy="50" r="46"/>
-        </g>
-        <g fill="var(--accent)">
-          <path d="M50 22c7 10 10 18 10 25 0 8-4 14-10 18-6-4-10-10-10-18 0-7 3-15 10-25z"/>
-          <path d="M50 70c-9-2-16-7-20-14-2-4-3-9-3-14 8 2 15 7 19 14 2 4 3 9 4 14z" opacity=".75"/>
-          <path d="M50 70c9-2 16-7 20-14 2-4 3-9 3-14-8 2-15 7-19 14-2 4-3 9-4 14z" opacity=".75"/>
-        </g>
-        <circle cx="50" cy="78" r="4.2" fill="var(--gold-2)"/>
-      </svg>
-      <span class="wordmark">
+      <img class="logo" src="photos/logo.jpg" alt="The Qala" width="440" height="293" decoding="async" onerror="qalaLogoMiss(this)">
+      <span class="wordmark" hidden>
         <span class="devnag">कला</span>
         <span class="latin">The Qala</span>
       </span>
@@ -555,7 +578,8 @@ footer a:hover{color:var(--accent)}
   <div class="wrap">
     <div class="fgrid">
       <div>
-        <div class="devnag mr" style="font-size:2rem;color:var(--accent);line-height:1">कला</div>
+        <img class="logo flogo" src="photos/logo.jpg" alt="The Qala" width="440" height="293" decoding="async" loading="lazy" onerror="qalaLogoMiss(this)">
+        <div class="devnag mr fword" hidden style="font-size:2rem;color:var(--accent);line-height:1">कला</div>
         <p class="muted" style="max-width:34ch;margin:10px 0 0;font-size:.92rem">Rajwadi, Peshwai and moissanite jewellery, made piece by piece in Dighi, Pune, and sent to brides across Maharashtra and beyond.</p>
         <p style="font-family:Marcellus,serif;font-size:1.05rem;color:var(--accent);margin:16px 0 0">She wore Qala and turned heads.</p>
       </div>
@@ -1147,9 +1171,9 @@ function clientWall(){
 function contactRows(){
   const shots = (CATALOGUE && CATALOGUE.social) || {};
   const row = (o) => `
-    <a class="crow" href="${esc(o.href)}"${o.blank ? ` target="_blank" rel="noopener"` : ""}>
+    <a class="crow${o.big ? " big" : ""}" href="${esc(o.href)}"${o.blank ? ` target="_blank" rel="noopener"` : ""}>
       <span class="cico ${o.kind}">${o.shot ? shot(o.shot, {alt:""}) : o.icon}</span>
-      <span class="ctext"><b>${esc(o.title)}</b><span>${esc(o.sub)}</span></span>
+      <span class="ctext">${o.kindline ? `<span class="ckind">${esc(o.kindline)}</span>` : ""}<b>${esc(o.title)}</b><span>${esc(o.sub)}</span></span>
       <span class="cgo" aria-hidden="true">${o.blank ? OUT_ICON : CHEV}</span>
     </a>`;
 
@@ -1159,9 +1183,9 @@ function contactRows(){
   })).join("");
 
   const socials = SOCIAL.map(x => row({
-    href: x.url, blank: true, kind: x.key === "google" ? "map" : "ig",
+    href: x.url, blank: true, big: true, kind: x.key === "google" ? "map" : "ig",
     icon: x.key === "google" ? PIN_ICON : IG_ICON, shot: shots[x.key],
-    title: x.label, sub: x.note
+    title: x.label, sub: x.note, kindline: x.kind
   })).join("");
 
   return {phones, socials};
