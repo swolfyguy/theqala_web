@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-03T16:05:37Z",
+ "generated": "2026-09-03T16:13:14Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -106,6 +106,141 @@
   }
  ],
  "categories": [
+  {
+   "slug": "hand-made-rajwadi",
+   "cover": null,
+   "next": 9,
+   "products": [
+    {
+     "n": 1,
+     "code": "HAND-MADE-RAJWADI-01",
+     "folder": "photos/hand-made-rajwadi/1000",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 2,
+     "code": "HAND-MADE-RAJWADI-02",
+     "folder": "photos/hand-made-rajwadi/1000 (2)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 3,
+     "code": "HAND-MADE-RAJWADI-03",
+     "folder": "photos/hand-made-rajwadi/1000 (3)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 4,
+     "code": "HAND-MADE-RAJWADI-04",
+     "folder": "photos/hand-made-rajwadi/1000 (4)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 5,
+     "code": "HAND-MADE-RAJWADI-05",
+     "folder": "photos/hand-made-rajwadi/1000 (5)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 6,
+     "code": "HAND-MADE-RAJWADI-06",
+     "folder": "photos/hand-made-rajwadi/1000 (6)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 7,
+     "code": "HAND-MADE-RAJWADI-07",
+     "folder": "photos/hand-made-rajwadi/1000 (7)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    },
+    {
+     "n": 8,
+     "code": "HAND-MADE-RAJWADI-08",
+     "folder": "photos/hand-made-rajwadi/1000 (8)",
+     "title": "",
+     "price": 1000,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1000 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null
+    }
+   ]
+  },
   {
    "slug": "necklace",
    "cover": null,
