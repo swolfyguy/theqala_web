@@ -407,13 +407,15 @@ def find_reviews():
         if not text or not name:
             warn("a review in photos/reviews.json has no name or no text — skipped")
             continue
-        try:
-            stars = int(r.get("stars") or 5)
-        except Exception:
-            stars = 5
-        items.append({"name": name, "text": text,
-                      "stars": max(1, min(5, stars)),
-                      "when": str(r.get("when") or "").strip()})
+        item = {"name": name, "text": text, "when": str(r.get("when") or "").strip()}
+        # Stars are optional. If we do not know how many a person gave, we show
+        # none rather than assume five.
+        if r.get("stars") not in (None, ""):
+            try:
+                item["stars"] = max(1, min(5, int(r["stars"])))
+            except Exception:
+                pass
+        items.append(item)
     if not items:
         return None
     out = {"reviews": items}

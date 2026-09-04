@@ -1,11 +1,48 @@
 {
-  "_how": "Your Google reviews. Copy each one across exactly as the customer wrote it — real name, real words. Delete this _how line whenever you like.",
-  "_fields": "name and text are required. stars (1-5), when, rating and count are optional.",
-
-  "url": "https://share.google/pjpoupn7VKn2VxNNz",
-  "rating": null,
-  "count": null,
-
-  "reviews": [
-  ]
+ "_how": "Real Google reviews, copied across word for word. Eight fit the page neatly (two rows of four). Add or remove entries as new ones come in — whatever is in this list is what appears. name and text are required; when and stars optional.",
+ "url": "https://share.google/vjfURMvSSSaIv8Kna",
+ "rating": 4.9,
+ "count": 208,
+ "reviews": [
+  {
+   "name": "Priyanka Sarak",
+   "when": "4 weeks ago",
+   "text": "Super fast shipping and secure, beautiful packaging. The unboxing experience felt so special. A gorgeous piece that balances high-end elegance with an affordable price tag."
+  },
+  {
+   "name": "Aarti Pawar",
+   "when": "5 months ago",
+   "text": "Hidden gem store PUNE..!! Qala's jewellery collection is so awesome and unique. In market I saw so many collections of jewelleries but I really love qala's collection. I found pretty victorian mangalsutra that I adore. The prices are very affordable for any occasion. Best shop in pune for jewellery. Must visit & keep shopping."
+  },
+  {
+   "name": "Kanchan Katare",
+   "when": "2 months ago",
+   "text": "Thank you so much, Ma'am; the Mangalsutra has turned out beautifully. It looks exactly like the photo I saw when placing the order. I ordered it just yesterday, and it arrived today—I really love it. I will definitely make any future purchases from you."
+  },
+  {
+   "name": "Madhuri Dhole",
+   "when": "3 months ago",
+   "text": "I have bought almost 3/4 mangalsutras from The Qala... Quality is extremely good... Designs are unique and elegant... also they provide customisation as per our need.... rates are reasonable. I am really very happy & satisfied with each and every purchase I have done from The Qala 🫶🏻❤️"
+  },
+  {
+   "name": "Netra Adsul",
+   "when": "2 months ago",
+   "text": "Absolutely loved my Raani Haar! The quality and craftsmanship are excellent, and it looks exactly like the pictures. They have a wide variety of beautiful jewellery at very affordable prices. The ordering process was smooth, and the packaging was excellent. Highly recommended. I'll definitely shop from them again!"
+  },
+  {
+   "name": "Archana kapare",
+   "when": "2 months ago",
+   "text": "This is my third purchase from Qala, and I absolutely love their unique and beautiful designs. I needed this jewelry within 2–3 days, and she went out of her way to make special arrangements to ensure it reached me in time. Thanks to her exceptional support, highly recommended!"
+  },
+  {
+   "name": "Deepa Joshi",
+   "when": "4 months ago",
+   "text": "This is my first shopping with The Qala.. Very nice quality and I am extremely happy with this purchase. I also received an unexpected Nath as a complimentary gift.. which made it even more special 😊 Thank you."
+  },
+  {
+   "name": "mrunal deshmukh",
+   "when": "6 months ago",
+   "text": "Me online order klela je jewellery order kli tich same ani best quality madhe receive zali ahe. Thank you so much — The Qala"
+  }
+ ]
 }

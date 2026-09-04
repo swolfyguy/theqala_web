@@ -300,24 +300,43 @@ section.band{padding:70px 0}
 .score{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-8px 0 22px}
 .score b{font-family:Marcellus,serif;font-size:2rem;font-weight:400;line-height:1;color:var(--accent)}
 .score .cnt{font-size:.85rem;color:var(--ink-2)}
+a.cnt{border-bottom:1px solid var(--gold-2);padding-bottom:1px;transition:color .18s}
+a.cnt:hover{color:var(--accent);border-bottom-color:var(--accent)}
+a.cnt svg{display:inline-block;vertical-align:-1px;margin-left:1px}
 .stars{display:inline-flex;gap:2px;color:var(--gold)}
 .stars svg{width:15px;height:15px}
-.revrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(268px,1fr);gap:16px;
-  overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;
-  scrollbar-width:none;margin-inline:calc(50% - 50vw);padding-inline:max(22px,calc(50vw - 50%))}
+.revtop{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;margin:-8px 0 18px}
+.revtop .score{margin:0}
+.revnav{display:flex;gap:8px;flex:none;margin-left:auto}
+.rnav{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line-2);color:var(--ink);
+  transition:border-color .18s,background .18s,opacity .18s}
+.rnav svg{width:17px;height:17px}
+.rnav:hover:not(:disabled){border-color:var(--gold-2);background:var(--wash-gold);color:var(--accent)}
+.rnav:disabled{opacity:.32;cursor:default}
+.revrow{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  padding-bottom:10px;scrollbar-width:none;
+  margin-inline:calc(50% - 50vw);padding-inline:max(22px,calc(50vw - 50%));
+  scroll-padding-inline-start:max(22px,calc(50vw - 50%))}
 .revrow::-webkit-scrollbar{display:none}
-.rev{scroll-snap-align:start;margin:0;background:var(--panel);border:1px solid var(--line);
-  border-radius:16px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:11px;min-width:0}
+.revrow:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.rev{flex:0 0 min(78vw,330px);scroll-snap-align:start;margin:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;
+  display:flex;flex-direction:column;gap:11px;min-width:0}
 .rev blockquote{margin:0;font-size:.95rem;line-height:1.6;color:var(--ink)}
 .rev figcaption{margin-top:auto;display:flex;flex-direction:column;gap:1px;padding-top:4px;
   border-top:1px solid var(--line)}
 .rev figcaption b{font-family:Marcellus,serif;font-weight:400;font-size:1rem}
 .rev figcaption span{font-size:.79rem;color:var(--ink-3,var(--ink-2))}
 .revnote{margin:16px 0 0;font-size:.86rem;color:var(--ink-2);max-width:60ch}
+/* Edge to edge on a phone, where that reads as "swipe me". Inside the column on
+   a laptop, so the first card lines up with the heading above it. */
 @media(min-width:900px){
-  .revrow{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    overflow:visible;margin-inline:0;padding-inline:0}
+  .rev{flex-basis:330px}
+  .revrow{margin-inline:0;padding-inline:0;scroll-padding-inline-start:0}
 }
+@media (prefers-reduced-motion:reduce){ .revrow{scroll-behavior:auto} }
 
 /* ---------- contact ---------- */
 .contact{max-width:min(640px,92vw);margin-inline:auto;padding-bottom:84px}
@@ -1200,21 +1219,36 @@ function reviewsSection(){
   const r = (CATALOGUE && CATALOGUE.reviews) || null;
   if (!r || !r.reviews || !r.reviews.length) return "";
   const stars = n => `<span class="stars" aria-label="${n} out of 5">${STAR.repeat(n)}</span>`;
-  const overall = r.rating
-    ? `<span class="score"><b>${esc(String(r.rating))}</b>${stars(Math.round(r.rating))}${
-        r.count ? `<span class="cnt">${esc(String(r.count))} reviews on Google</span>` : ""}</span>`
+  const count = r.count
+    ? (r.url
+        ? `<a class="cnt" href="${esc(r.url)}" target="_blank" rel="noopener">${
+            esc(String(r.count))} reviews on Google ${OUT_ICON}</a>`
+        : `<span class="cnt">${esc(String(r.count))} reviews on Google</span>`)
     : "";
+  const overall = r.rating
+    ? `<span class="score"><b>${esc(String(r.rating))}</b>${stars(Math.round(r.rating))}${count}</span>`
+    : count;
   return `
   <section class="band wrap reviews">
     <div class="sechead">
       <div><span class="mr" style="color:var(--accent)">अभिप्राय</span><h2>What people say</h2></div>
       ${r.url ? `<a class="seclink" href="${esc(r.url)}" target="_blank" rel="noopener">Read them on Google</a>` : ""}
     </div>
-    ${overall}
-    <div class="revrow">
+    <div class="revtop">
+      ${overall}
+      <div class="revnav" id="revNav" hidden>
+        <button class="rnav" type="button" data-rev="-1" aria-label="Previous reviews" aria-controls="revRow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="rnav" type="button" data-rev="1" aria-label="Next reviews" aria-controls="revRow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="revrow" id="revRow" tabindex="0" role="group" aria-label="Customer reviews">
       ${r.reviews.map(v => `
         <figure class="rev">
-          ${stars(v.stars)}
+          ${v.stars ? stars(v.stars) : ""}
           <blockquote>${esc(v.text)}</blockquote>
           <figcaption><b>${esc(v.name)}</b>${v.when ? `<span>${esc(v.when)}</span>` : ""}</figcaption>
         </figure>`).join("")}
@@ -1721,6 +1755,28 @@ const ICON_PLAY  = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="tr
 
 function wire(route){
   if (route === "") {
+    /* Reviews slide left and right. The arrows move one card at a time and grey
+       out at each end; the row still swipes and takes arrow keys on its own. */
+    const row = $("#revRow"), nav = $("#revNav");
+    if (row && nav) {
+      const gap = 16;
+      const step = () => { const c = row.querySelector(".rev"); return c ? c.offsetWidth + gap : row.clientWidth * 0.8; };
+      const btns = nav.querySelectorAll("[data-rev]");
+      /* The row is inset so the first card lines up with the text above it, and
+         snapping parks it there — so "all the way left" is that inset, not zero. */
+      const sync = () => {
+        const room = row.scrollWidth - row.clientWidth;
+        nav.hidden = room < 8;
+        btns.forEach(b => {
+          b.disabled = Number(b.dataset.rev) < 0 ? row.scrollLeft <= 6 : row.scrollLeft >= room - 6;
+        });
+      };
+      btns.forEach(b => b.onclick = () => row.scrollBy({left: step() * Number(b.dataset.rev)}));
+      row.addEventListener("scroll", sync, {passive:true});
+      addEventListener("resize", sync, {passive:true});
+      requestAnimationFrame(sync);
+    }
+
     const wv = $("#welcomeVid");
     if (wv){
       const fit = () => {

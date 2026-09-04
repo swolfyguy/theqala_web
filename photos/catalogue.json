@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-03T16:43:10Z",
+ "generated": "2026-09-04T12:42:19Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -91,7 +91,53 @@
    "caption": ""
   }
  ],
- "reviews": null,
+ "reviews": {
+  "reviews": [
+   {
+    "name": "Priyanka Sarak",
+    "text": "Super fast shipping and secure, beautiful packaging. The unboxing experience felt so special. A gorgeous piece that balances high-end elegance with an affordable price tag.",
+    "when": "4 weeks ago"
+   },
+   {
+    "name": "Aarti Pawar",
+    "text": "Hidden gem store PUNE..!! Qala's jewellery collection is so awesome and unique. In market I saw so many collections of jewelleries but I really love qala's collection. I found pretty victorian mangalsutra that I adore. The prices are very affordable for any occasion. Best shop in pune for jewellery. Must visit & keep shopping.",
+    "when": "5 months ago"
+   },
+   {
+    "name": "Kanchan Katare",
+    "text": "Thank you so much, Ma'am; the Mangalsutra has turned out beautifully. It looks exactly like the photo I saw when placing the order. I ordered it just yesterday, and it arrived today—I really love it. I will definitely make any future purchases from you.",
+    "when": "2 months ago"
+   },
+   {
+    "name": "Madhuri Dhole",
+    "text": "I have bought almost 3/4 mangalsutras from The Qala... Quality is extremely good... Designs are unique and elegant... also they provide customisation as per our need.... rates are reasonable. I am really very happy & satisfied with each and every purchase I have done from The Qala 🫶🏻❤️",
+    "when": "3 months ago"
+   },
+   {
+    "name": "Netra Adsul",
+    "text": "Absolutely loved my Raani Haar! The quality and craftsmanship are excellent, and it looks exactly like the pictures. They have a wide variety of beautiful jewellery at very affordable prices. The ordering process was smooth, and the packaging was excellent. Highly recommended. I'll definitely shop from them again!",
+    "when": "2 months ago"
+   },
+   {
+    "name": "Archana kapare",
+    "text": "This is my third purchase from Qala, and I absolutely love their unique and beautiful designs. I needed this jewelry within 2–3 days, and she went out of her way to make special arrangements to ensure it reached me in time. Thanks to her exceptional support, highly recommended!",
+    "when": "2 months ago"
+   },
+   {
+    "name": "Deepa Joshi",
+    "text": "This is my first shopping with The Qala.. Very nice quality and I am extremely happy with this purchase. I also received an unexpected Nath as a complimentary gift.. which made it even more special 😊 Thank you.",
+    "when": "4 months ago"
+   },
+   {
+    "name": "mrunal deshmukh",
+    "text": "Me online order klela je jewellery order kli tich same ani best quality madhe receive zali ahe. Thank you so much — The Qala",
+    "when": "6 months ago"
+   }
+  ],
+  "url": "https://share.google/vjfURMvSSSaIv8Kna",
+  "rating": 4.9,
+  "count": 208
+ },
  "bands": [
   {
    "min": 0,
@@ -112,22 +158,6 @@
    "cover": null,
    "next": 12,
    "products": [
-    {
-     "n": 1,
-     "code": "HAND-MADE-RAJWADI-01",
-     "folder": "photos/hand-made-rajwadi/1000",
-     "title": "",
-     "price": 1000,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1000/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null
-    },
     {
      "n": 2,
      "code": "HAND-MADE-RAJWADI-02",
@@ -172,22 +202,6 @@
      },
      "images": [
       "photos/hand-made-rajwadi/1000 (4)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null
-    },
-    {
-     "n": 5,
-     "code": "HAND-MADE-RAJWADI-05",
-     "folder": "photos/hand-made-rajwadi/1000 (5)",
-     "title": "",
-     "price": 1000,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1000 (5)/1.jpg"
      ],
      "video": null,
      "videoPoster": null
@@ -334,22 +348,6 @@
    "cover": null,
    "next": 17,
    "products": [
-    {
-     "n": 1,
-     "code": "RAJWADI-01",
-     "folder": "photos/rajwadi/4200",
-     "title": "",
-     "price": 4200,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4200/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null
-    },
     {
      "n": 2,
      "code": "RAJWADI-02",
