@@ -534,29 +534,6 @@ form.orderform{display:grid;gap:18px;background:var(--panel);border:1px solid va
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
 .field .err{color:var(--accent-2);font-size:.75rem;min-height:1.1em}
 .field.bad input,.field.bad textarea,.field.bad select{border-color:var(--accent-2)}
-.sizepick{display:grid;gap:10px;background:var(--panel);border:1px solid var(--line);
-  border-radius:14px;padding:16px 18px}
-.sizepick + .sizepick{margin-top:-6px}
-.sizepick > h4{font-size:.9rem;font-weight:600;margin:0;font-family:inherit}
-.sizepick > h4 span{color:var(--ink-2);font-weight:400;font-size:.82rem}
-.sizerow{display:flex;flex-wrap:wrap;gap:8px}
-.sizeopt{position:relative}
-.sizeopt input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0}
-.sizeopt span{display:block;min-width:52px;text-align:center;padding:9px 10px;border-radius:11px;
-  border:1px solid var(--line-2);background:var(--ground);font-size:.92rem;
-  transition:border-color .15s,background .15s}
-.sizeopt input:checked + span{border-color:var(--accent);background:var(--accent);
-  color:var(--on-accent);font-weight:600}
-.sizeopt input:focus-visible + span{outline:2px solid var(--gold-2);outline-offset:2px}
-.sizeopt.gone span{color:var(--ink-2);background:transparent;border-style:dashed;
-  text-decoration:line-through;cursor:not-allowed;opacity:.65}
-.sizeopt.gone input{cursor:not-allowed}
-.sizenote{font-size:.78rem;color:var(--ink-2);margin:0}
-.sizepick.bad{border-color:var(--accent-2)}
-.sizepick .err{color:var(--accent-2);font-size:.75rem;min-height:1.1em}
-.note-race{margin:18px auto 0;max-width:520px;border:1px solid var(--line);
-  border-left:3px solid var(--accent);border-radius:12px;background:var(--panel);
-  padding:14px 16px;text-align:left;font-size:.9rem;line-height:1.55}
 .field select{appearance:none;-webkit-appearance:none;cursor:pointer;
   background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
   background-position:calc(100% - 20px) calc(50% + 2px),calc(100% - 15px) calc(50% + 2px);
@@ -988,27 +965,14 @@ async function loadCatalogue(){
 
 const byCode = code => ITEMS.find(i => i.code === code);
 
-/* How many of each size other people have already taken. Cloudflare works it
-   out from the orders themselves. If it cannot be reached we show every size
-   the piece was made in — better to take an order and sort it out in the chat
-   than to hide a piece that is sitting on the shelf. */
-let HELD = {};
-async function loadHeld(){
-  try {
-    const r = await fetch("/api/stock", {cache: "no-store"});
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d && d.ok) HELD = d.held || {};
-  } catch (e) {}
+/* The even lengths this piece is made in, shortest first. */
+function lengthsOf(it){
+  const r = it.sizes || {};
+  const lo = Number(r.min), hi = Number(r.max);
+  if (!lo || !hi) return [];
+  return POTH.filter(n => n >= lo && n <= hi);
 }
-const sizesOf = it => Object.entries(it.sizes || {})
-  .map(([size, made]) => ({
-    size,
-    made,
-    left: Math.max(0, made - (((HELD[it.code] || {})[size]) || 0))
-  }))
-  .sort((a, b) => Number(a.size) - Number(b.size));
-const hasSizes = it => Object.keys(it.sizes || {}).length > 0;
+const hasSizes = it => lengthsOf(it).length > 0;
 const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
   .filter(c => (c.products || []).length)
   .sort((a,b) => {
@@ -1653,46 +1617,29 @@ function recordOrder(o){
       headers: {"content-type": "application/json"},
       body,
       keepalive: true          // survives the page moving on to #/placed
-    }).then(async r => {
-      /* Somebody reached the last one first, in the seconds between the page
-         painting and this order arriving. WhatsApp has already opened, so the
-         conversation will happen anyway — we just say so plainly. */
-      if (r.status === 409 && LAST_ORDER && LAST_ORDER.ref === o.ref) {
-        const d = await r.json().catch(() => ({}));
-        LAST_ORDER.raced = (d.gone || []).map(g => g.size).filter(Boolean);
-        HELD_AT = 0;
-        if ((parseHash().parts[0] || "") === "placed") render();
-      }
     }).catch(() => {});
   } catch (e) { /* nothing here is worth interrupting an order for */ }
 }
 
-/* A piece the shop made in several lengths gets its own row of sizes, with the
-   ones already spoken for struck through. If none of the pieces in this order
-   have sizes recorded, we fall back to the plain list, so nothing about the
-   older pieces changes. */
+/* A piece made in several lengths gets its own dropdown, starting on the
+   shortest. A piece with no lengths recorded falls back to the plain list, so
+   nothing about the older pieces changes. */
 function sizeFields(lines){
   const sized = lines.filter(l => hasSizes(l.it));
   if (!sized.length) return plainPoth();
 
   return sized.map((l, i) => {
-    const it = l.it;
-    const avail = sizesOf(it);
-    const anyLeft = avail.some(a => a.left > 0);
+    const it = l.it, lens = lengthsOf(it);
+    const want = BUYER.poth && lens.includes(Number(BUYER.poth)) ? Number(BUYER.poth) : lens[0];
     return `
-      <div class="sizepick" data-code="${esc(it.code)}">
-        <h4>Poth length${sized.length > 1 ? ` <span>· ${esc(titleOf(it))}</span>` : ""}</h4>
-        <div class="sizerow">
-          ${avail.map(a => `<label class="sizeopt ${a.left ? "" : "gone"}"${
-              a.left ? "" : ' title="spoken for"'}>
-            <input type="radio" name="size-${i}" value="${a.size}" ${a.left ? "" : "disabled"}>
-            <span>${a.size}&Prime;</span>
-          </label>`).join("")}
-        </div>
-        <p class="sizenote">${anyLeft
-          ? "Inches. The struck-through ones are spoken for."
-          : `Every length is spoken for just now — <a href="${ASK}" target="_blank" rel="noopener" style="border-bottom:1px solid var(--gold-2)">ask us on WhatsApp</a> and we will make one for you.`}</p>
-        <span class="err"></span>
+      <div class="field" style="max-width:300px" data-code="${esc(it.code)}">
+        <label for="f-size-${i}">Poth length${sized.length > 1 ? ` · ${esc(titleOf(it))}` : ""}</label>
+        <select id="f-size-${i}" name="size-${i}">
+          ${lens.map(n => `<option value="${n}" ${n === want ? "selected" : ""}>${n} inches</option>`).join("")}
+        </select>
+        <span class="hint">${lens.length === 1
+          ? `This one is made in ${lens[0]} inches.`
+          : `Made from ${lens[0]} to ${lens[lens.length - 1]} inches.`}</span>
       </div>`;
   }).join("");
 }
@@ -1779,10 +1726,7 @@ function placedView(){
     <p class="eyebrow">Order placed</p>
     <h1 style="font-size:2.1rem">Thank you, ${esc(o.name.split(" ")[0])}.</h1>
     <div class="oid">${esc(o.ref)}</div>
-    ${o.raced && o.raced.length ? `<div class="note-race">
-      <b>One thing.</b> ${o.raced.length === 1 ? `The ${esc(o.raced[0])}″ length was` : `Those lengths were`}
-      taken by someone else while you were filling this in. Your message has still reached us —
-      we will make one for you, or find you another length, in the chat.</div>` : ""}
+
     <p class="muted">WhatsApp should have opened with your order already written out. If it did not, or you closed it, use the button below — nothing reaches us until that message is sent.</p>
     <a class="btn wa" style="margin-top:20px" href="${waLink(o.text)}" target="_blank" rel="noopener">Send the order on WhatsApp</a>
     <div class="box">
@@ -1897,28 +1841,6 @@ function parseHash(){
   return {parts: path.split("/").filter(Boolean).map(decodeURIComponent), params: new URLSearchParams(qs || "")};
 }
 
-/* The order page paints from whatever we last knew, then quietly asks
-   Cloudflare and paints again if a size has gone in the meantime. */
-let HELD_AT = 0, HELD_BUSY = false;
-async function freshenSizes(params){
-  if (HELD_BUSY || Date.now() - HELD_AT < 15000) return;
-  HELD_BUSY = true;
-  const before = JSON.stringify(HELD);
-  await loadHeld();
-  HELD_BUSY = false; HELD_AT = Date.now();
-  if (JSON.stringify(HELD) === before) return;
-  if ((parseHash().parts[0] || "") !== "order") return;
-  const form = $("#orderForm");
-  if (form) {                       // keep what they have typed
-    BUYER = Object.assign({}, BUYER, {
-      name: form.name.value, phone: form.phone.value,
-      pin: form.pin ? form.pin.value : "", addr: form.addr ? form.addr.value : "",
-      pay: (form.querySelector("input[name=pay]:checked") || {}).value || BUYER.pay
-    });
-  }
-  render();
-}
-
 function render(){
   const {parts, params} = parseHash();
   const r = parts[0] || "";
@@ -1931,7 +1853,7 @@ function render(){
   else if (r === "piece") html = piece(parts[1]);
   else if (r === "cart" || r === "bag") html = bagView();
   else if (r === "saved") html = savedView();
-  else if (r === "order") { html = orderView(params); freshenSizes(params); }
+  else if (r === "order") html = orderView(params);
   else if (r === "placed") html = placedView();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
@@ -2130,31 +2052,12 @@ function wire(route){
     form.querySelectorAll("input[name=pay]").forEach(r => r.onchange = refresh);
     refresh();
 
-    /* One chosen size per sized piece, in the same order the blocks were drawn. */
+    /* One length per sized piece, in the order the dropdowns were drawn.
+       A dropdown always has a value, so there is nothing to complain about. */
     const sizedLines = () => lines.filter(l => hasSizes(l.it));
     const chosenSizes = () => sizedLines().map((l, i) => {
-      const picked = form.querySelector(`input[name="size-${i}"]:checked`);
-      return {code: l.it.code, size: picked ? picked.value : ""};
-    });
-    const checkSizes = show => {
-      let ok = true, first = null;
-      chosenSizes().forEach((c, i) => {
-        const box = document.querySelectorAll(".sizepick")[i];
-        if (!box) return;
-        const err = box.querySelector(".err");
-        const anyLeft = sizesOf(sizedLines()[i].it).some(a => a.left > 0);
-        const good = !!c.size || !anyLeft;   // nothing left to pick is not the buyer's fault
-        if (good || !show) { box.classList.remove("bad"); err.textContent = ""; }
-        else {
-          box.classList.add("bad");
-          err.textContent = "Please choose a length";
-          ok = false; first = first || box;
-        }
-      });
-      return {ok, first};
-    };
-    document.addEventListener("change", e => {
-      if (e.target && /^size-\d+$/.test(e.target.name || "")) checkSizes(false);
+      const sel = form.querySelector(`[name="size-${i}"]`);
+      return {code: l.it.code, size: sel ? sel.value : ""};
     });
 
     const check = (name, show) => {
@@ -2176,8 +2079,6 @@ function wire(route){
       });
       if (!ok) { firstBad.focus(); firstBad.scrollIntoView({block:"center", behavior:"smooth"}); return; }
 
-      const sizes = checkSizes(true);
-      if (!sizes.ok) { sizes.first.scrollIntoView({block:"center", behavior:"smooth"}); return; }
       const picked = chosenSizes();
 
       BUYER = {

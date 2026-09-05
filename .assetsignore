@@ -42,3 +42,8 @@ schema.sql
 # (it would otherwise be downloadable, and it names a password).
 dev.mjs
 dev.bat
+
+# the worker itself and its config. Cloudflare compiles _worker.js
+# rather than serving it, and neither belongs on the web.
+_worker.js
+wrangler.toml

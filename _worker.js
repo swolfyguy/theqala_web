@@ -4,7 +4,6 @@
    Everything else here is plain files. This one file adds:
 
      POST /api/order      the website records an order after WhatsApp opens
-     GET  /api/stock      what is still available in each size            (public)
      POST /office/login   you sign in                          (public)
      POST /office/logout  you sign out
      GET  /office/api     the order book reads them back       (signed in only)
@@ -28,13 +27,6 @@ const COD_EXTRA      = 200;
 /* Poth lengths the shop offers, in inches. Same list as the order form. */
 const POTH = ["24", "26", "28", "30", "32", "34", "36", "38", "40"];
 
-/* A size is held the moment somebody orders it, but an order is only an
-   intent — most of the work happens on WhatsApp afterwards. So a hold on an
-   order still sitting at "new" lets go by itself after this long, and the size
-   comes back. Marking the order confirmed makes the hold permanent. */
-const HOLD_HOURS = 24;
-const HOLDS_FOREVER = ["confirmed", "sent", "done"];   // cancelled releases at once
-
 /* Flood guards. Generous for a real shop, tight enough to stop a script. */
 const MAX_PER_PHONE_PER_DAY = 8;
 const MAX_PER_MINUTE        = 20;
@@ -55,7 +47,6 @@ export default {
       const path = url.pathname.replace(/\/+$/, "") || "/";
 
       if (path === "/api/order"     && request.method === "POST") return takeOrder(request, env);
-      if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
@@ -116,12 +107,6 @@ async function takeOrder(request, env) {
     ).bind(minuteAgo).first();
     if (all && all.n >= MAX_PER_MINUTE)
       return json({ok: false, stored: false, why: "busy"}, 429);
-
-    /* Two people can reach the last one at the same moment. The page greys out
-       what it knew about; this is the check that actually decides. */
-    const gone = await soldOut(env, o.items);
-    if (gone.length)
-      return json({ok: false, stored: false, why: "size gone", gone}, 409);
 
     /* OR IGNORE, so a customer who taps twice does not make two rows. */
     await env.DB.prepare(
@@ -192,93 +177,6 @@ function clean(b) {
     ref, placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };
-}
-
-/* ===========================================================================
-   What is still available
-   ===========================================================================
-   There is no second set of books. How many of a size are spoken for is worked
-   out from the orders themselves every time, so it can never drift away from
-   what the order book shows.
-
-   An order holds a size while it is confirmed, sent or done — or while it is
-   still new and less than a day old. Cancel an order and the size is free at
-   once; ignore one and it frees itself.
-*/
-async function heldNow(env) {
-  const held = {};                                    // {"NECKLACE-01": {"28": 2}}
-  if (!env.DB) return held;
-
-  const cutoff = new Date(Date.now() - HOLD_HOURS * 3600e3).toISOString();
-  const marks = HOLDS_FOREVER.map(() => "?").join(",");
-  /* Narrowed by status and date only. A row's sizes may be on the order or on
-     each piece, so which rows matter is decided below, not in SQL. */
-  const {results} = await env.DB.prepare(
-    `SELECT items, poth FROM orders
-      WHERE status IN (${marks}) OR (status = 'new' AND placed_at > ?)`
-  ).bind(...HOLDS_FOREVER, cutoff).all();
-
-  for (const row of results || []) {
-    let items;
-    try { items = JSON.parse(row.items) || []; } catch { continue; }
-    for (const it of items) {
-      /* The size the customer chose for this line, or the order's own if the
-         order was placed before sizes were kept per piece. */
-      const size = String(it.size || row.poth || "");
-      if (!size || !it.code) continue;
-      held[it.code] = held[it.code] || {};
-      held[it.code][size] = (held[it.code][size] || 0) + (Number(it.qty) || 1);
-    }
-  }
-  return held;
-}
-
-/* How many of each size were made. That lives with the piece, in the
-   catalogue the site already publishes, so there is nothing extra to keep
-   in step. Held briefly in memory because it only changes on a deploy. */
-let OPENING = null, OPENING_AT = 0;
-
-async function openingStock(env) {
-  if (OPENING && Date.now() - OPENING_AT < 300e3) return OPENING;
-  const out = {};
-  try {
-    const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
-    if (res.ok) {
-      const cat = await res.json();
-      for (const c of cat.categories || [])
-        for (const p of c.products || [])
-          if (p.sizes && Object.keys(p.sizes).length) out[p.code] = p.sizes;
-    }
-  } catch { /* no catalogue is the same as no sizes anywhere */ }
-  OPENING = out; OPENING_AT = Date.now();
-  return out;
-}
-
-/* Sizes on this order that somebody else has already taken. */
-async function soldOut(env, items) {
-  const sized = items.filter(i => i.size);
-  if (!sized.length) return [];
-
-  const [opening, held] = await Promise.all([openingStock(env), heldNow(env)]);
-  const gone = [];
-  const mine = {};
-  for (const it of sized) {
-    const made = (opening[it.code] || {})[it.size];
-    if (made == null) continue;               // the piece has no sizes; nothing to count
-    mine[it.code] = mine[it.code] || {};
-    mine[it.code][it.size] = (mine[it.code][it.size] || 0) + it.qty;
-    const taken = ((held[it.code] || {})[it.size] || 0) + mine[it.code][it.size];
-    if (taken > made) gone.push({code: it.code, size: it.size});
-  }
-  return gone;
-}
-
-async function stockNow(request, env) {
-  const held = await heldNow(env);
-  return json({ok: true, held, holdHours: HOLD_HOURS}, 200,
-    /* Half a minute is short enough that a sold-out size greys out promptly,
-       long enough that a busy evening does not hammer the database. */
-    {"cache-control": "public, max-age=30"});
 }
 
 /* ===========================================================================

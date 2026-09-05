@@ -1,0 +1,42 @@
+#  The Qala — how Cloudflare should build the site.
+#
+#  ONE THING TO FILL IN: the name below must be the EXACT name of the Worker
+#  you already have. Find it on the Workers & Pages list in the dashboard.
+#  Get it wrong and you create a SECOND Worker, and the broken one stays live.
+#
+#  Everything else is right as it stands.
+
+name = "the-qala-site"                  # <-- CHECK THIS AGAINST THE DASHBOARD
+main = "_worker.js"
+compatibility_date = "2025-09-01"
+
+
+#  The whole repository is the website. Cloudflare serves these files
+#  directly, and .assetsignore says which ones to leave out.
+[assets]
+directory = "."
+binding = "ASSETS"
+
+#  Only these paths go through _worker.js first. Everything else — every
+#  photograph, every page — is served straight from the files, which is
+#  faster and does not spend the 100,000 free Worker requests a day.
+#
+#  If your version of Wrangler will not accept a list here, replace the
+#  whole line with:   run_worker_first = true
+run_worker_first = ["/api/*", "/office/*", "/studio/*"]
+
+
+#  The order book. The database already exists — this is the id Cloudflare
+#  gave it, so nothing needs creating again.
+[[d1_databases]]
+binding = "DB"
+database_name = "qala-orders"
+database_id = "5cddd75c-301a-44a0-ac35-71aeb83714f5"
+
+
+#  STUDIO_PASSWORD is deliberately NOT here. A password in a file in the
+#  repository is a password anybody can read. Set it once as a Secret:
+#
+#      npx wrangler secret put STUDIO_PASSWORD
+#
+#  or in the dashboard under Settings, Variables and Secrets, type Secret.
