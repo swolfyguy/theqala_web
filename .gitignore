@@ -31,7 +31,6 @@ photos/**/raw/
 # The compressed ones sitting next to them are what the site uses.
 photos/clients/_originals/
 
-# python virtual environment — 97 MB of Windows binaries,
-# and it belongs to this computer, not to the website
-.venv/
-_to_delete/
+# the studio's trash. Deleted pieces wait here on your computer
+# until you empty it — they never reach the website.
+photos/_trash/
