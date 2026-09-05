@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05T05:34:52Z",
+ "generated": "2026-09-05T05:50:24Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -376,22 +376,6 @@
      },
      "images": [
       "photos/rajwadi/4200 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null
-    },
-    {
-     "n": 4,
-     "code": "RAJWADI-04",
-     "folder": "photos/rajwadi/4200 (4)",
-     "title": "",
-     "price": 4200,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4200 (4)/1.jpg"
      ],
      "video": null,
      "videoPoster": null
