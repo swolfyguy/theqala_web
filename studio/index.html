@@ -35,6 +35,13 @@ button,input,select{font:inherit;color:inherit}
 header{border-bottom:1px solid var(--line);background:var(--panel)}
 .hrow{display:flex;align-items:center;gap:16px;padding:16px 0;flex-wrap:wrap}
 .brand{font-family:Marcellus,serif;font-size:1.3rem;margin-right:auto;display:flex;align-items:baseline;gap:10px}
+#nowhere{margin:18px auto}
+#nowhere .box{border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:12px;background:var(--panel);padding:16px 18px}
+#nowhere h2{font-size:1rem;margin:0 0 6px;font-family:inherit}
+#nowhere p{margin:0 0 8px}
+#nowhere p:last-child{margin-bottom:0}
+#nowhere code{background:var(--panel-2);padding:1px 6px;border-radius:4px}
 .crossnav{display:flex;align-items:center;gap:4px;font-size:.82rem}
 .crossnav a,.crossnav span,.crossnav button{padding:5px 11px;border-radius:999px;
   text-decoration:none;color:var(--ink-2);border:1px solid transparent;
@@ -186,6 +193,8 @@ label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2p
     </nav>
   </div>
 </header>
+
+<div class="wrap" id="nowhere" hidden></div>
 
 <div class="gitbar" id="gitbar" hidden>
   <div class="wrap gitrow">
@@ -1227,6 +1236,22 @@ document.querySelectorAll(".tab").forEach(t => t.onclick = () => go(t.dataset.ta
       MODE = "hosted"; API = "/office/gh";
     }
   }
+  /* A studio with nothing behind it would otherwise just look empty — no
+     categories, no pieces — and leave you wondering what broke. */
+  if (isHosted() && HOSTED.why) {
+    const box = document.getElementById("nowhere");
+    box.hidden = false;
+    box.innerHTML = `<div class="box">
+      <h2>Nothing to show yet</h2>
+      <p>${esc(HOSTED.why)}</p>
+      <p>Until then this studio cannot read the pieces or write any, so the
+         categories are empty. Nothing is broken.</p>
+      <p><b>To work on the shop right now:</b> run <code>preview.bat</code> and open
+         <code>http://localhost:8000/studio/</code>. That writes straight into the
+         folder on this computer and needs no token at all.</p>
+    </div>`;
+  }
+
   if (isHosted()) {
     const nav = document.getElementById("crossnav");
     if (nav) {

@@ -72,10 +72,10 @@ const ASSETS = {
   async fetch(request) {
     let p = decodeURIComponent(new URL(request.url).pathname);
 
-    /* The studio is a different server on a different port. Opened from here it
-       would find no studio API, fall back to committing straight to GitHub, and
-       a "test" upload would land on the live site. So it is not served here. */
-    if (/^\/admin\.html$/i.test(p)) return new Response(
+    /* The studio is a different server on a different port. This one has no
+       studio API and no GitHub token, so the studio opened here would find
+       nothing to show and nothing to write to. Sent next door instead. */
+    if (/^\/(admin\.html|studio\/?(index\.html)?)$/i.test(p)) return new Response(
       `<!doctype html><meta charset=utf-8>
        <title>Wrong window</title>
        <style>body{font:16px/1.6 system-ui;max-width:34rem;margin:16vh auto;padding:0 6vw;
@@ -83,10 +83,11 @@ const ASSETS = {
        border-radius:4px}</style>
        <h1 style="font-weight:400">The studio lives next door</h1>
        <p>This window is the order side — the shop, the order form and the order book.
-       It has no studio API, so <code>admin.html</code> opened here would try to commit
-       straight to GitHub, and a test upload would reach the live site.</p>
-       <p>Close this and run <code>preview.bat</code> instead. The studio is at
-       <a href="http://localhost:8000/admin.html">localhost:8000/admin.html</a>.</p>`,
+       It has no studio API and no GitHub token, so the studio opened here would show
+       no categories and no pieces, and would have nowhere to save anything.</p>
+       <p>Run <code>preview.bat</code> instead and open
+       <a href="http://localhost:8000/studio/">localhost:8000/studio/</a>. That writes
+       straight into the folder on this computer.</p>`,
       {status: 409, headers: {"content-type": "text/html; charset=utf-8"}});
 
     if (p.endsWith("/")) p += "index.html";
