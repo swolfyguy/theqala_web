@@ -5,7 +5,8 @@
 #
 # They stay on your disk; git simply stops tracking them.
 # ---------------------------------------------------------------
-admin.html
+# The studio now lives at studio/index.html and IS part of the site,
+# served at /studio/ behind the sign-in. Only these stay local.
 studio.py
 preview.bat
 

@@ -34,9 +34,21 @@ database_name = "qala-orders"
 database_id = "5cddd75c-301a-44a0-ac35-71aeb83714f5"
 
 
-#  STUDIO_PASSWORD is deliberately NOT here. A password in a file in the
+#  The repository the studio is allowed to write to. Not secret — knowing it
+#  gets nobody anywhere without the token, and fixing it here is what stops
+#  the studio being talked into writing somewhere else.
+[vars]
+GITHUB_REPO = "swolfyguy/the-qala-site"
+GITHUB_BRANCH = "main"
+
+
+#  STUDIO_PASSWORD and GITHUB_TOKEN are deliberately NOT here. A password in a file in the
 #  repository is a password anybody can read. Set it once as a Secret:
 #
 #      npx wrangler secret put STUDIO_PASSWORD
+#      npx wrangler secret put GITHUB_TOKEN
 #
 #  or in the dashboard under Settings, Variables and Secrets, type Secret.
+#
+#  The GitHub token is a fine-grained one, pointed at ONLY this repository,
+#  with Contents: Read and write. Nothing else needs ticking.

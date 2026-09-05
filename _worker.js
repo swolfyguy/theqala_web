@@ -8,7 +8,8 @@
      POST /office/logout  you sign out
      GET  /office/api     the order book reads them back       (signed in only)
      POST /office/api     the order book changes a status      (signed in only)
-     /studio*             the studio, once it is hosted        (signed in only)
+     /office/gh/*         the studio's way to GitHub           (signed in only)
+     /studio*             the studio itself                    (signed in only)
 
    Orders live in a D1 database bound to this project under the name DB.
    If that binding is missing, or the database is asleep, the order still
@@ -50,6 +51,7 @@ export default {
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
+      if (path.startsWith("/office/gh/"))                         return toGitHub(request, env, path);
 
       /* The studio, when it is hosted, is never handed out unsigned-in. */
       if (path === "/studio" || path.startsWith("/studio/")) {
@@ -177,6 +179,108 @@ function clean(b) {
     ref, placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };
+}
+
+/* ===========================================================================
+   The studio's way to GitHub
+   ===========================================================================
+   The studio used to hold a GitHub token in the browser, which meant the token
+   travelled to every phone anybody signed in on. It does not any more. The
+   token lives here as a secret, and the studio asks this to pass its requests
+   along.
+
+   Three things make that safe to do:
+
+     1. Only a signed-in person gets through at all.
+     2. The repository is fixed here, from GITHUB_REPO. Nothing the browser
+        sends can change which repository is written to.
+     3. Only the handful of GitHub paths the studio actually uses are allowed,
+        and only for reading, adding and moving a branch — never deleting.
+
+   Needs two variables on the project:
+     GITHUB_REPO    owner/repository, e.g. swolfyguy/the-qala-site
+     GITHUB_TOKEN   a fine-grained token with Contents: Read and write
+                    on that one repository. Set it as a SECRET.
+*/
+
+/* Exactly what the studio does, and nothing else. */
+const GH_ALLOWED = [
+  ["GET",   /^git\/ref\/heads\/[^?]+$/],       // where the branch points
+  ["GET",   /^git\/commits\/[0-9a-f]{40}$/],    // that commit
+  ["GET",   /^git\/trees\/[0-9a-f]{40}/],       // and its tree
+  ["GET",   /^contents\//],                     // a file, for thumbnails
+  ["POST",  /^git\/blobs$/],                    // add a file
+  ["POST",  /^git\/trees$/],                    // build the new tree
+  ["POST",  /^git\/commits$/],                  // make the commit
+  ["PATCH", /^git\/refs\/heads\/[^?]+$/]       // and move the branch to it
+];
+
+async function toGitHub(request, env, path) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return json({ok: false, login: true, why: who.why}, 401);
+
+  const rest = path.slice("/office/gh/".length);
+
+  /* The studio asks what it is allowed to see before it does anything. */
+  if (rest === "config") {
+    const set = !!(env.GITHUB_TOKEN && env.GITHUB_REPO);
+    return json({ok: set, hosted: true, repo: env.GITHUB_REPO || "",
+                 branch: env.GITHUB_BRANCH || "main", you: who.who,
+                 why: set ? "" :
+                   "This site has no GitHub token yet. Add GITHUB_REPO and GITHUB_TOKEN " +
+                   "to the project, then deploy again."});
+  }
+
+  if (!env.GITHUB_TOKEN || !env.GITHUB_REPO)
+    return json({ok: false, why: "No GitHub token is set on this project."}, 503);
+  if (!/^[\w.-]+\/[\w.-]+$/.test(env.GITHUB_REPO))
+    return json({ok: false, why: "GITHUB_REPO should look like owner/repository."}, 503);
+
+  const url = new URL(request.url);
+  const asked = rest + (url.search || "");
+
+  /* Both the runtime and the browser flatten "..", so this should never fire.
+     It is here so that the guarantee is this file's, not the runtime's:
+     checked decoded too, since %2e%2e is the same thing wearing a hat. */
+  let plain = rest;
+  try { plain = decodeURIComponent(rest); } catch (e) { /* leave it as it came */ }
+  if (rest.startsWith("/") || /(^|[\\/])\.\.([\\/]|$)/.test(plain) || plain.includes("\\"))
+    return json({ok: false, why: "not a path this can reach"}, 400);
+
+  const allowed = GH_ALLOWED.some(([m, re]) => m === request.method && re.test(rest));
+  if (!allowed) return json({ok: false, why: `${request.method} ${rest} is not something the studio does`}, 403);
+
+  /* Built here, from the repository this project is fixed to. Nothing the
+     browser sent takes part in choosing it. */
+  const target = `https://api.github.com/repos/${env.GITHUB_REPO}/${asked}`;
+
+  const headers = new Headers({
+    "Authorization": "Bearer " + env.GITHUB_TOKEN,
+    "Accept": request.headers.get("Accept") || "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "the-qala-studio"
+  });
+  const ct = request.headers.get("Content-Type");
+  if (ct) headers.set("Content-Type", ct);
+
+  let res;
+  try {
+    res = await fetch(target, {
+      method: request.method,
+      headers,
+      /* Passed straight through, so a batch of photographs costs almost no
+         processing here — which matters on the free plan. */
+      body: (request.method === "GET" || request.method === "HEAD") ? undefined : request.body
+    });
+  } catch (err) {
+    return json({ok: false, why: "Could not reach GitHub just now."}, 502);
+  }
+
+  const out = new Headers();
+  const keep = ["content-type", "etag", "link", "x-ratelimit-remaining"];
+  for (const k of keep) { const v = res.headers.get(k); if (v) out.set(k, v); }
+  out.set("cache-control", "no-store");
+  return new Response(res.body, {status: res.status, headers: out});
 }
 
 /* ===========================================================================

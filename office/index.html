@@ -42,6 +42,11 @@ header[hidden]{display:none}
 .bar h1{font-size:1.35rem}
 .bar .who{margin-left:auto;font-size:.8rem;color:var(--ink-2);
   min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crossnav{display:flex;align-items:center;gap:4px;font-size:.82rem}
+.crossnav a,.crossnav span{padding:5px 11px;border-radius:999px;text-decoration:none;
+  color:var(--ink-2);border:1px solid transparent}
+.crossnav a:hover{border-color:var(--line-2);color:var(--ink)}
+.crossnav span[aria-current]{background:var(--panel-2);color:var(--ink);font-weight:600}
 .bar .out{border:1px solid var(--line);background:transparent;color:var(--ink-2);
   padding:5px 12px;border-radius:999px;font:inherit;font-size:.78rem;cursor:pointer}
 .bar .out:hover{border-color:var(--accent);color:var(--accent)}
@@ -152,6 +157,10 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
   <div class="wrap">
     <div class="bar">
       <h1>Order book</h1>
+      <div class="crossnav">
+        <span aria-current="page">Orders</span>
+        <a href="/studio/">Studio</a>
+      </div>
       <span class="who" id="who"></span>
       <button class="out" id="out">Sign out</button>
     </div>

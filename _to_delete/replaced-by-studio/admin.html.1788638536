@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Qala — studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --on-accent:#FFF6E9; --gold:#9A7325; --gold-2:#CFA84F;
+  --ok:#1F7A52; --warn:#9A5B12; --bad:#9E2C3E;
+  --shadow:rgba(74,42,14,.14);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+  --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+  --accent:#E0BC72; --on-accent:#1A1215; --gold:#E0BC72; --gold-2:#F0D89D;
+  --ok:#5FCB9B; --warn:#E0A857; --bad:#F08098; --shadow:rgba(0,0,0,.55);
+}}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:Karla,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.2}
+a{color:var(--accent)}
+img{display:block;max-width:100%}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+[hidden]{display:none !important}
+.wrap{width:min(1080px,94vw);margin-inline:auto}
+
+header{border-bottom:1px solid var(--line);background:var(--panel)}
+.hrow{display:flex;align-items:center;gap:16px;padding:16px 0;flex-wrap:wrap}
+.brand{font-family:Marcellus,serif;font-size:1.3rem;margin-right:auto;display:flex;align-items:baseline;gap:10px}
+.brand small{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);font-family:Karla,sans-serif}
+.repo{font-size:.8rem;color:var(--ink-2)}
+.tabs{display:flex;gap:6px}
+.tab{background:none;border:1px solid transparent;border-radius:999px;padding:8px 16px;cursor:pointer;font-size:.82rem;letter-spacing:.06em}
+.tab:hover{background:var(--panel-2)}
+.tab.on{background:var(--accent);color:var(--on-accent)}
+
+.gitbar{border-bottom:1px solid var(--line);background:var(--panel-2)}
+.gitrow{display:flex;align-items:center;gap:12px;padding:11px 0;flex-wrap:wrap}
+.gitbar .dot{width:9px;height:9px;border-radius:50%;background:var(--line-2);flex:none}
+.gitbar .dot.pending{background:var(--warn)}
+.gitbar .dot.clean{background:var(--ok)}
+.gitbar .what{font-size:.88rem;margin-right:auto}
+.gitbar input{flex:1 1 230px;min-width:0;max-width:380px;background:var(--ground);border:1px solid var(--line-2);border-radius:999px;padding:9px 15px;font-size:.86rem}
+.gitbar input:focus{outline:none;border-color:var(--gold-2)}
+.plain{background:none;border:0;padding:0;color:var(--ink-2);font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.plain:hover{color:var(--accent)}
+.gitdetail{padding:0 0 14px;font-size:.82rem;color:var(--ink-2);display:grid;gap:3px;max-height:220px;overflow:auto}
+.gitdetail code{color:var(--ink)}
+main{padding:34px 0 90px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:22px}
+.card h2{font-size:1.3rem;margin-bottom:4px}
+.card p.sub{color:var(--ink-2);font-size:.92rem;margin:0 0 18px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
+label.f input,label.f select{background:var(--ground);border:1px solid var(--line-2);border-radius:10px;padding:11px 13px;width:100%}
+label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)}
+.hint{font-size:.82rem;color:var(--ink-2)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:12px 22px;border-radius:999px;cursor:pointer;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.btn:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.sm{padding:8px 14px;font-size:.7rem}
+
+.sizes{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  background:var(--panel-2)}
+.sizes-top{display:grid;gap:4px;margin-bottom:12px}
+.sizes .row{margin:0}
+.sizes select{max-width:220px}
+.sizes-top b{font-size:.95rem}
+  border-radius:11px;padding:7px 10px;background:var(--ground)}
+  font:inherit;font-size:.95rem;padding:2px 0;text-align:right}
+.modepick{display:grid;gap:0;margin-top:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.swopt{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer;
+  border-bottom:1px solid var(--line);background:var(--panel);transition:background .15s}
+.swopt:last-child{border-bottom:0}
+.swopt:hover{background:var(--panel-2,rgba(0,0,0,.02))}
+.swopt input{accent-color:var(--accent);width:17px;height:17px;margin-top:3px;flex:none}
+.swopt>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.swopt b{font-size:.95rem}
+.swopt>span>span{font-size:.83rem;color:var(--ink-2);line-height:1.45}
+.swopt:has(input:checked){background:var(--wash,rgba(140,20,40,.05))}
+.swopt:has(input:checked) b{color:var(--accent)}
+.drop{border:2px dashed var(--line-2);border-radius:14px;padding:38px 20px;text-align:center;cursor:pointer;transition:border-color .18s,background .18s}
+.drop:hover,.drop.over{border-color:var(--gold-2);background:var(--panel-2)}
+.drop b{display:block;font-size:1.02rem;margin-bottom:4px}
+
+.queue{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:18px}
+.qitem{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel-2)}
+.qitem img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.qitem .meta{padding:8px 10px;font-size:.72rem;color:var(--ink-2)}
+.qitem .meta b{display:block;color:var(--ink);font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qitem video{width:100%;aspect-ratio:4/5;object-fit:cover;background:#000}
+.qitem .badge{position:absolute;top:8px;left:8px;background:var(--accent);color:var(--on-accent);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:700}
+.qitem.isvideo .badge{background:#128C7E;color:#fff}
+.qitem .nudge{position:absolute;bottom:52px;right:8px;display:flex;gap:4px}
+.qitem .nudge button{width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;line-height:1;font-size:.8rem}
+.piece .ttl{font-size:.9rem;margin:2px 0 1px}
+.qitem .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;line-height:1}
+.saved{color:var(--ok)}
+
+.pieces{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:18px}
+.piece{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.piece .shot{position:relative;aspect-ratio:4/5;background:var(--panel-2)}
+.piece .shot img{width:100%;height:100%;object-fit:cover}
+.piece .n{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.66rem;padding:3px 8px;border-radius:999px}
+.piece .body{padding:11px 12px 13px}
+.piece code{font-size:.78rem;font-weight:700;display:block;margin-bottom:2px}
+.piece .band{font-size:.74rem;color:var(--ink-2)}
+.piece .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.groupname{display:flex;align-items:baseline;gap:12px;margin:30px 0 14px;flex-wrap:wrap}
+.groupname h3{font-size:1.1rem}
+.groupname span{font-size:.78rem;color:var(--ink-2)}
+
+/* Deleting is instant and reversible, so there is no dialog to dismiss —
+   just this bar, and ten seconds to change your mind. */
+.snack{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:80;
+  display:flex;align-items:center;gap:16px;max-width:min(560px,92vw);
+  background:var(--ink);color:var(--ground);border-radius:12px;
+  padding:13px 16px 13px 18px;box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+  font-size:.9rem;overflow:hidden;animation:snackin .22s cubic-bezier(.2,.8,.3,1)}
+.snack[hidden]{display:none}
+@keyframes snackin{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+.snack .stext{flex:1;min-width:0}
+.snack .sundo{flex:none;background:none;color:var(--ground);border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--ground) 40%,transparent);
+  padding:6px 15px;cursor:pointer;
+  font:inherit;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  font-size:.72rem;transition:background .15s,border-color .15s}
+.snack .sundo:hover{background:color-mix(in srgb,var(--ground) 16%,transparent);
+  border-color:color-mix(in srgb,var(--ground) 70%,transparent)}
+.snack .sbar{position:absolute;left:0;bottom:0;height:2px;background:var(--gold-2);
+  width:100%;transform-origin:left;animation:snackrun 10s linear forwards}
+@keyframes snackrun{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){.snack,.snack .sbar{animation:none}}
+.piece.going{opacity:.25;transform:scale(.97);pointer-events:none;transition:opacity .2s,transform .2s}
+.btn.danger.armed{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.log{margin-top:18px;font-size:.86rem;border-left:3px solid var(--line-2);padding-left:14px;display:grid;gap:5px;max-height:230px;overflow:auto}
+.log .ok{color:var(--ok)} .log .er{color:var(--bad)} .log .wa{color:var(--warn)}
+.log div{line-height:1.55}
+label.pick{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;cursor:pointer;background:var(--ground)}
+label.pick.on{border-color:var(--gold-2);box-shadow:inset 0 0 0 1px var(--gold-2)}
+label.pick input{margin-top:5px;accent-color:var(--accent)}
+label.pick b{display:block;font-size:.98rem}
+label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2px;word-break:break-all}
+.note{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:15px 17px;font-size:.88rem;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.empty{text-align:center;padding:60px 20px;color:var(--ink-2)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <div class="brand">The Qala <small>Studio</small></div>
+    <div class="repo" id="repoLabel"></div>
+    <nav class="tabs">
+      <button class="tab on" data-tab="upload">Add a product</button>
+      <button class="tab" data-tab="manage">Manage</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+  </div>
+</header>
+
+<div class="gitbar" id="gitbar" hidden>
+  <div class="wrap gitrow">
+    <span class="dot" id="gitDot"></span>
+    <span class="what" id="gitWhat">checking…</span>
+    <input id="gitMsg" placeholder="Update photographs" aria-label="Commit message">
+    <button class="btn sm" id="gitPush" disabled>Commit &amp; push</button>
+    <button class="plain" id="gitToggle" hidden>what changed?</button>
+  </div>
+  <div class="wrap gitdetail" id="gitDetail" hidden></div>
+</div>
+
+<div class="snack" id="snack" hidden>
+  <span class="stext" id="snackText"></span>
+  <button class="sundo" id="snackUndo" type="button">Undo</button>
+  <span class="sbar" id="snackBar"></span>
+</div>
+
+<main class="wrap">
+  <section id="tab-upload"></section>
+  <section id="tab-manage" hidden></section>
+  <section id="tab-settings" hidden></section>
+</main>
+
+<script>
+/* =====================================================================
+   The Qala — studio
+
+   A private admin page. It talks to the GitHub API straight from your
+   browser: photographs are shrunk here, then committed to the repository
+   in one commit. The Action rebuilds the catalogue and Cloudflare
+   redeploys, exactly as if you had used github.com.
+
+   Your token is kept in this browser's local storage only. It is never
+   part of the repository and never reaches any other server.
+   ===================================================================== */
+
+const SIZES = [24,26,28,30,32,34,36,38,40];   // poth lengths, in inches
+const MAX_EDGE = 1400;      // longest side after shrinking
+const JPEG_Q   = 0.82;
+const API      = "https://api.github.com";
+
+const $  = s => document.querySelector(s);
+const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h != null) n.innerHTML = h; return n; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const kb = n => n >= 1e6 ? (n/1e6).toFixed(1) + " MB" : Math.round(n/1000) + " KB";
+
+let CFG = {owner:"", repo:"", branch:"main", token:""};
+try { CFG = Object.assign(CFG, JSON.parse(localStorage.getItem("qala.studio") || "{}")); } catch (e) {}
+const saveCfg = () => { try { localStorage.setItem("qala.studio", JSON.stringify(CFG)); } catch (e) {} };
+const ready = () => isLocal() || !!(CFG.owner && CFG.repo && CFG.token);
+
+let MODE = "github";        // "local" when studio.py is serving this page
+const LOCAL = {available:false, root:"", catalogue:null, folders:[], trash:0};
+
+async function detectLocal(){
+  try {
+    const res = await fetch("/api/state", {cache:"no-store"});
+    if (!res.ok) return false;
+    const state = await res.json();
+    if (!state || state.mode !== "local") return false;
+    LOCAL.available = true; LOCAL.root = state.root || "";
+    applyLocalState(state);
+    return true;
+  } catch (e) { return false; }
+}
+function applyLocalState(state){
+  if (state.catalogue !== undefined) LOCAL.catalogue = state.catalogue || null;
+  if (state.folders) LOCAL.folders = state.folders;
+  if (state.trash !== undefined) LOCAL.trash = state.trash || 0;
+  TREE = (state.photos || []).map(path => ({path, type:"blob"}));
+}
+const isLocal = () => MODE === "local";
+
+let TREE = [];              // every path under photos/
+
+/* ---------- undo bar ----------
+   A deleted piece is moved to the trash, not destroyed, so the studio can be
+   quick about it: no dialog, just this bar and ten seconds to change your mind. */
+let SNACK = null;
+function snack(text, undo){
+  const box = $("#snack"), bar = $("#snackBar"), btn = $("#snackUndo");
+  clearTimeout(SNACK);
+  $("#snackText").textContent = text;
+  btn.hidden = !undo;
+  box.hidden = false;
+  bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
+  btn.onclick = async () => {
+    box.hidden = true; clearTimeout(SNACK);
+    try { await undo(); } catch (e) { snack(e.message); }
+  };
+  SNACK = setTimeout(() => { box.hidden = true; }, 10000);
+}
+
+/* ---------- log ---------- */
+let logBox = null;
+function say(msg, kind){
+  if (!logBox) return;
+  const line = el("div", kind || "", esc(msg).replace(/\n/g, "<br>"));
+  logBox.appendChild(line); logBox.scrollTop = logBox.scrollHeight;
+  return line;
+}
+</script>
+
+<script>
+/* ---------- GitHub ---------- */
+async function gh(path, opts){
+  const res = await fetch(API + path, Object.assign({}, opts, {
+    headers: Object.assign({
+      "Authorization": "Bearer " + CFG.token,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    }, (opts && opts.headers) || {})
+  }));
+  if (!res.ok){
+    let detail = "";
+    try { detail = (await res.json()).message || ""; } catch (e) {}
+    const writing = opts && /POST|PATCH|PUT|DELETE/.test(opts.method || "");
+    if (res.status === 403 || (res.status === 404 && writing)){
+      throw new Error(
+        "Your token is not allowed to write to this repository.\n\n" +
+        "On github.com → Settings → Developer settings → Personal access tokens → " +
+        "Fine-grained tokens → open your token, then:\n" +
+        "1. Repository access — make sure " + CFG.repo + " is in the list.\n" +
+        "2. Permissions → Repository permissions → Contents → Read and write.\n" +
+        "3. Update token at the bottom.\n\n" +
+        "The same token then works — no need to make a new one. " +
+        "(A classic token instead needs the whole 'repo' scope.)" +
+        (detail ? "\n\nGitHub said: " + detail : ""));
+    }
+    if (res.status === 401) throw new Error("GitHub rejected the token. It may have expired — check the expiry date, or paste a fresh one in Settings.");
+    if (res.status === 409) throw new Error("Someone else pushed while this was uploading. Press the button again — nothing was lost.");
+    throw new Error(`GitHub said ${res.status}${detail ? " — " + detail : ""}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+const repoPath = () => `/repos/${encodeURIComponent(CFG.owner)}/${encodeURIComponent(CFG.repo)}`;
+
+async function loadTree(){
+  if (isLocal()){
+    const res = await fetch("/api/state", {cache:"no-store"});
+    if (!res.ok) throw new Error("the studio server stopped — restart it with `python studio.py`");
+    applyLocalState(await res.json());
+    return null;
+  }
+  const ref = await gh(`${repoPath()}/git/ref/heads/${encodeURIComponent(CFG.branch)}`);
+  const commit = await gh(`${repoPath()}/git/commits/${ref.object.sha}`);
+  const tree = await gh(`${repoPath()}/git/trees/${commit.tree.sha}?recursive=1`);
+  TREE = (tree.tree || []).filter(n => n.type === "blob" && n.path.startsWith("photos/"));
+  return {headSha: ref.object.sha, treeSha: commit.tree.sha};
+}
+
+/* one commit for a whole batch: blobs -> tree -> commit -> move the branch */
+async function localPost(path, body){
+  const res = await fetch(path, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok || (data && data.error)) throw new Error((data && data.error) || `the studio server said ${res.status}`);
+  if (data){
+    if (data.photos) applyLocalState({photos: data.photos, folders: data.folders, catalogue: data.catalogue});
+    const gd = $("#gitDetail"); if (gd) delete gd.dataset.keep;
+    setTimeout(refreshGit, 150);
+    (data.log || []).forEach(l => say("  " + l));
+    (data.warnings || []).forEach(w => say("  ! " + w, "wa"));
+  }
+  return data;
+}
+
+async function commitChanges(message, adds, removes){
+  if (isLocal()){
+    if (removes && removes.length) await localPost("/api/delete", {paths: removes});
+    if (adds && adds.length){
+      const files = [];
+      for (const a of adds) files.push({path: a.path, b64: await toBase64(a.blob)});
+      await localPost("/api/upload", {files});
+    }
+    return "folder";
+  }
+  const {headSha, treeSha} = await loadTree();
+  const entries = [];
+
+  for (const a of adds){
+    say(`uploading ${a.path}…`);
+    const blob = await gh(`${repoPath()}/git/blobs`, {
+      method: "POST",
+      body: JSON.stringify({content: await toBase64(a.blob), encoding: "base64"})
+    });
+    entries.push({path: a.path, mode: "100644", type: "blob", sha: blob.sha});
+  }
+  for (const path of removes) entries.push({path, mode: "100644", type: "blob", sha: null});
+
+  const tree = await gh(`${repoPath()}/git/trees`, {
+    method: "POST", body: JSON.stringify({base_tree: treeSha, tree: entries})
+  });
+  const commit = await gh(`${repoPath()}/git/commits`, {
+    method: "POST", body: JSON.stringify({message, tree: tree.sha, parents: [headSha]})
+  });
+  await gh(`${repoPath()}/git/refs/heads/${encodeURIComponent(CFG.branch)}`, {
+    method: "PATCH", body: JSON.stringify({sha: commit.sha})
+  });
+  return commit.sha;
+}
+
+const stockBlob = sizes =>
+  new Blob([JSON.stringify(sizes, null, 2) + "\n"], {type: "application/json"});
+
+function toBase64(blob){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(",")[1]);
+    r.onerror = () => reject(new Error("could not read the file"));
+    r.readAsDataURL(blob);
+  });
+}
+
+/* thumbnails: fetch through the API so private repositories work too */
+const thumbCache = new Map();
+async function thumb(path){
+  if (thumbCache.has(path)) return thumbCache.get(path);
+  const p = (async () => {
+    if (isLocal()) return "/" + path.split("/").map(encodeURIComponent).join("/") + "?v=" + Date.now();
+    const res = await fetch(`${API}${repoPath()}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(CFG.branch)}`, {
+      headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}
+    });
+    if (!res.ok) throw new Error("thumbnail " + res.status);
+    return URL.createObjectURL(await res.blob());
+  })();
+  thumbCache.set(path, p);
+  return p;
+}
+
+/* ---------- shrink in the browser ---------- */
+async function shrink(file){
+  const out = {name: file.name, before: file.size, converted: false};
+  let bitmap = null;
+  try { bitmap = await createImageBitmap(file); }
+  catch (e) {
+    // HEIC and friends: this browser cannot decode them. Send as-is —
+    // build_catalogue.py converts them on the server.
+    out.blob = file; out.after = file.size; out.undecodable = true;
+    out.url = ""; return out;
+  }
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);       // flatten transparency for JPEG
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close && bitmap.close();
+  const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", JPEG_Q));
+
+  // keep the original if shrinking somehow made it bigger and it was already small
+  if (blob && (blob.size < file.size || file.size > 400000 || !/\.jpe?g$/i.test(file.name))){
+    out.blob = blob; out.after = blob.size; out.converted = true;
+  } else {
+    out.blob = file; out.after = file.size;
+  }
+  out.w = w; out.h = h;
+  out.url = URL.createObjectURL(out.blob);
+  return out;
+}
+
+/* ---------- reading the repo ---------- */
+const BAND_RE = /^(\d+)-(\d+)$/;
+const IMG_RE = /\.(jpe?g|jfif|png|webp|avif|gif|svg|heic|heif|tiff?|bmp)$/i;
+
+/* every category and band folder that exists, even the empty ones */
+function folderShape(){
+  const cats = new Map();
+  const note = slug => { if (slug && !cats.has(slug)) cats.set(slug, true); };
+  TREE.forEach(n => { const p = n.path.split("/"); if (p.length >= 3) note(p[1]); });
+  LOCAL.folders.forEach(f => { const p = f.split("/"); if (p.length >= 2) note(p[1]); });
+  return cats;
+}
+
+const titleish = s => s.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+const rupees = n => "₹" + Number(n).toLocaleString("en-IN");
+const bandLabel = b => { const m = BAND_RE.exec(b); return m ? rupees(m[1]) + " – " + rupees(m[2]) : b; };
+</script>
+
+<script>
+/* ---------- settings ---------- */
+function renderSettings(){
+  const box = $("#tab-settings");
+  const trashCard = (isLocal() && LOCAL.trash) ? `
+  <div class="card">
+    <h2>Trash</h2>
+    <p class="sub">Deleted pieces are moved here on this computer, not destroyed, which is what
+      lets Undo work. They are not in git and never reach the website.</p>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <b>${LOCAL.trash} deleted ${LOCAL.trash === 1 ? "piece" : "pieces"} waiting</b>
+      <button class="btn ghost sm" id="s-emptytrash">Empty the trash</button>
+      <span class="sub" style="margin:0">in <code>photos/_trash</code></span>
+    </div>
+  </div>` : "";
+
+  const modeCard = LOCAL.available ? `
+  <div class="card">
+    <h2>Where changes go</h2>
+    <p class="sub">The studio server is running, so it can write straight into the folder on this computer.</p>
+    <div style="display:grid;gap:12px">
+      <label class="pick ${isLocal() ? "on" : ""}"><input type="radio" name="mode" value="local" ${isLocal() ? "checked" : ""}>
+        <span><b>This computer's folder</b><small>${esc(LOCAL.root)}</small>
+        <small>Photos are written and deleted here, the catalogue rebuilds, and you commit and push yourself.</small></span></label>
+      <label class="pick ${isLocal() ? "" : "on"}"><input type="radio" name="mode" value="github" ${isLocal() ? "" : "checked"}>
+        <span><b>Straight to GitHub</b><small>Commits from anywhere, including your phone. Needs a token below.</small></span></label>
+    </div>
+  </div>` : `
+  <div class="note" style="margin-bottom:22px">
+    <b>Working with the folder on this computer?</b> Close this page, run
+    <code>python studio.py</code> in <code>the-qala-site</code>, and open
+    <code>http://localhost:8000/admin.html</code>. The studio then writes into the folder
+    directly and you push when you are ready. Right now it can only commit to GitHub.
+  </div>`;
+
+  box.innerHTML = trashCard + modeCard + `
+  <div class="card"${isLocal() ? ' hidden id="ghcard"' : ' id="ghcard"'}>
+    <h2>Connect your repository</h2>
+    <p class="sub">Everything below stays in this browser. It is never committed and never sent anywhere except GitHub.</p>
+    <div class="row">
+      <label class="f">GitHub username<input id="s-owner" placeholder="swolfyguy" value="${esc(CFG.owner)}"></label>
+      <label class="f">Repository<input id="s-repo" placeholder="the-qala-site" value="${esc(CFG.repo)}"></label>
+      <label class="f">Branch<input id="s-branch" placeholder="main" value="${esc(CFG.branch || "main")}"></label>
+    </div>
+    <div style="margin-top:16px">
+      <label class="f">Access token<input id="s-token" type="password" placeholder="github_pat_…" value="${esc(CFG.token)}"></label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+      <button class="btn" id="s-save">Save and test</button>
+      <button class="btn ghost" id="s-check">Check write access</button>
+      <button class="btn ghost" id="s-forget">Forget the token</button>
+    </div>
+    <div class="log" id="s-log"></div>
+  </div>
+
+  <div class="note"${isLocal() ? " hidden" : ""}>
+    <b>Making the token.</b> On GitHub: <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">Settings → Developer settings → Fine-grained tokens</a>.
+    Point it at <b>only this repository</b>, give it <b>Contents: Read and write</b>, and set an expiry —
+    90 days is sensible. Nothing else needs ticking.<br><br>
+    It is stored in this browser alone. If you lose the laptop, or paste it somewhere you should not have,
+    delete the token on GitHub and it stops working immediately.
+  </div>
+
+  ${isLocal() ? `<div class="log" id="s-log2"></div>` : ""}`;
+
+  document.querySelectorAll("input[name=mode]").forEach(r => r.onchange = () => {
+    MODE = r.value;
+    try { localStorage.setItem("qala.mode", MODE); } catch (e) {}
+    stamp(); renderSettings();
+  });
+
+  const empty = $("#s-emptytrash");
+  if (empty) empty.onclick = async () => {
+    empty.disabled = true;
+    try {
+      const r = await fetch("/api/trash", {method:"POST", headers:{"Content-Type":"application/json"},
+                                           body: JSON.stringify({empty:true})});
+      const d = await r.json();
+      LOCAL.trash = d.trash || 0;
+      snack("Trash emptied");
+      renderSettings();
+    } catch (e) { empty.disabled = false; snack(e.message); }
+  };
+
+  logBox = $("#s-log") || $("#s-log2");
+  if (!$("#s-save")) return;
+  $("#s-save").onclick = async () => {
+    CFG.owner = $("#s-owner").value.trim();
+    CFG.repo = $("#s-repo").value.trim().replace(/^.*\//, "");
+    CFG.branch = $("#s-branch").value.trim() || "main";
+    CFG.token = $("#s-token").value.trim();
+    saveCfg(); stamp();
+    logBox.innerHTML = "";
+    if (!ready()) { say("Fill in the username, repository and token.", "wa"); return; }
+    try {
+      say("checking…");
+      const r = await gh(repoPath());
+      say(`connected to ${r.full_name}${r.private ? " (private)" : ""}`, "ok");
+      await loadTree();
+      const res2 = await fetch(`${API}${repoPath()}/contents/photos/catalogue.json?ref=${encodeURIComponent(CFG.branch)}`,
+        {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
+      GH_CATALOGUE = res2.ok ? await res2.json() : {categories: []};
+      const n = allProducts().length;
+      say(`found ${(GH_CATALOGUE.categories || []).length} categor${(GH_CATALOGUE.categories || []).length === 1 ? "y" : "ies"} and ${n} product${n === 1 ? "" : "s"}`, "ok");
+      say("You are set. Use the Add photos tab.", "ok");
+    } catch (e) { say(e.message, "er"); }
+  };
+  $("#s-check").onclick = async () => {
+    logBox.innerHTML = "";
+    if (!ready()) { say("Save the repository and token first.", "wa"); return; }
+    try {
+      say("checking write access…");
+      await loadTree();
+      const probe = await gh(`${repoPath()}/git/blobs`, {
+        method: "POST", body: JSON.stringify({content: "cWFsYQ==", encoding: "base64"})
+      });
+      say(`write access confirmed (test object ${probe.sha.slice(0, 7)}, not committed to anything)`, "ok");
+    } catch (e) { say(e.message, "er"); }
+  };
+  $("#s-forget").onclick = () => {
+    CFG.token = ""; saveCfg(); $("#s-token").value = ""; stamp();
+    say("Token cleared from this browser.", "wa");
+  };
+}
+
+/* ---------- add a product ---------- */
+/* One product is one folder: photos/<category>/<price> <name>/ holding every
+   view of that piece, and a video if there is one. The price band the shop
+   filters by is worked out from the price. */
+let QUEUE = [];        // {name, blob, url, before, after, kind, ext}
+
+function catalogueCats(){
+  const fromCat = (LOCAL.catalogue && LOCAL.catalogue.categories || []).map(c => c.slug);
+  const set = new Set(fromCat);
+  folderShape().forEach((_, slug) => set.add(slug));
+  return [...set].sort();
+}
+function allProducts(){
+  const cat = (isLocal() ? LOCAL.catalogue : GH_CATALOGUE) || {categories: []};
+  const out = [];
+  (cat.categories || []).forEach(c => (c.products || []).forEach(p => out.push({...p, cat: c.slug})));
+  return out;
+}
+let GH_CATALOGUE = null;
+
+function renderUpload(){
+  const box = $("#tab-upload");
+  if (!ready()){
+    box.innerHTML = `<div class="card"><h2>Not connected yet</h2>
+      <p class="sub">Add your repository and token under Settings, then come back.</p>
+      <button class="btn" onclick="go('settings')">Open settings</button></div>`;
+    return;
+  }
+  const catOpts = catalogueCats().map(c => `<option value="${esc(c)}">${esc(titleish(c))}</option>`).join("");
+
+  box.innerHTML = `
+  <div class="card">
+    <h2>Add a product</h2>
+    <p class="sub">Choose how the photographs should be read, then drop them in. ${isLocal() ? "Everything is shrunk here, then written into the folder on this computer." : "Everything is shrunk here before it is committed."}</p>
+    <div class="row">
+      <label class="f">Category
+        <select id="u-cat">${catOpts}<option value="__new">＋ new category…</option></select>
+      </label>
+      <label class="f" id="u-catnew-wrap" hidden>New category folder
+        <input id="u-catnew" placeholder="bangles">
+      </label>
+      <label class="f">Price (₹)
+        <input id="u-price" inputmode="numeric" placeholder="2300">
+        <span class="hint" id="u-band">the band is worked out from this</span>
+      </label>
+      <label class="f">Name <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
+        <input id="u-title" placeholder="Kolhapuri Thushi" maxlength="70">
+        <span class="hint" id="u-titlehint">leave it blank and we number it for you</span>
+      </label>
+    </div>
+
+    <div class="modepick">
+      <label class="swopt">
+        <input type="radio" name="umode" value="one" checked>
+        <span><b>One piece, several photographs</b><span>Every photograph you drop in is another
+          angle of the same piece. A video can come too.</span></span>
+      </label>
+      <label class="swopt">
+        <input type="radio" name="umode" value="many">
+        <span><b>Each photograph is its own piece</b><span>Different pieces, all at this price.
+          Drop twenty photographs and you get twenty products.</span></span>
+      </label>
+    </div>
+
+    <div class="sizes" id="u-sizes">
+      <div class="sizes-top">
+        <b>Poth lengths</b>
+        <span class="hint">The shortest and the longest this piece is made in. The shop
+          offers every even length between them, and starts on the shortest.
+          Leave both blank for rings, bangles and anything with no poth.</span>
+      </div>
+      <div class="row" style="margin:0">
+        <label class="f">Shortest
+          <select id="u-min">
+            <option value="">—</option>
+            ${SIZES.map(n => `<option value="${n}">${n} inches</option>`).join("")}
+          </select>
+        </label>
+        <label class="f">Longest
+          <select id="u-max">
+            <option value="">—</option>
+            ${SIZES.map(n => `<option value="${n}">${n} inches</option>`).join("")}
+          </select>
+        </label>
+      </div>
+      <p class="hint" id="u-sizesum">no lengths set — the shop will ask on WhatsApp</p>
+    </div>
+
+    <div class="drop" id="drop" style="margin-top:16px">
+      <b id="drop-title">Drop this product's photographs here</b>
+      <span class="hint" id="drop-hint">or click to choose · every angle you have · one video is welcome too</span>
+      <input type="file" id="file" accept="image/*,video/*,.heic,.heif" multiple hidden>
+    </div>
+
+    <div class="queue" id="queue"></div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="u-commit" disabled>${isLocal() ? "Save the product" : "Commit the product"}</button>
+      <button class="btn ghost" id="u-clear" disabled>Clear</button>
+      <span class="hint" id="u-tally"></span>
+    </div>
+    <div class="log" id="u-log"></div>
+  </div>`;
+
+  logBox = $("#u-log");
+  const catSel = $("#u-cat");
+  catSel.onchange = () => { $("#u-catnew-wrap").hidden = catSel.value !== "__new"; };
+
+  /* {"min": 24, "max": 36}, or nothing at all. */
+  const readSizes = () => {
+    const lo = $("#u-min").value, hi = $("#u-max").value;
+    if (!lo && !hi) return {};
+    return {min: lo, max: hi};
+  };
+  const sizeSummary = () => {
+    const lo = Number($("#u-min").value), hi = Number($("#u-max").value);
+    const box = $("#u-sizesum");
+    if (!lo && !hi) { box.textContent = "no lengths set — the shop will ask on WhatsApp"; return; }
+    if (!lo || !hi) { box.textContent = "give both, or neither"; return; }
+    const [a, b] = lo <= hi ? [lo, hi] : [hi, lo];
+    const many = (b - a) / 2 + 1;
+    box.textContent = `${many} length${many === 1 ? "" : "s"} — `
+      + SIZES.filter(n => n >= a && n <= b).map(n => n + "\u2033").join(", ")
+      + ` · the shop starts on ${a}\u2033`;
+  };
+  $("#u-min").onchange = sizeSummary;
+  $("#u-max").onchange = sizeSummary;
+  sizeSummary();
+
+  const priceIn = $("#u-price");
+  priceIn.oninput = () => {
+    const n = parseInt(priceIn.value.replace(/\D/g, ""), 10);
+    $("#u-band").textContent = Number.isFinite(n) && n > 0
+      ? "shows " + bandPhrase(n)
+      : "the band is worked out from this";
+  };
+
+  const drop = $("#drop"), input = $("#file");
+  drop.onclick = () => input.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); take(e.dataTransfer.files); };
+  input.onchange = () => { take(input.files); input.value = ""; };
+
+  async function take(fileList){
+    const files = [...fileList].filter(f => /^(image|video)\//.test(f.type) || /\.(heic|heif|tiff?|bmp|mp4|mov|webm|m4v)$/i.test(f.name));
+    if (!files.length) { say("Those did not look like photographs or a video.", "wa"); return; }
+    for (const f of files){
+      if (/^video\//.test(f.type) || /\.(mp4|mov|webm|m4v)$/i.test(f.name)){
+        if (separate()) { say("A video belongs to one piece — " + f.name + " was skipped. Switch to \u201cOne piece, several photographs\u201d if you want it.", "wa"); continue; }
+        if (QUEUE.some(q => q.kind === "video")) { say("One video per product — " + f.name + " was skipped.", "wa"); continue; }
+        if (f.size > 25_000_000) { say(f.name + " is " + kb(f.size) + " — trim it under 25 MB first.", "er"); continue; }
+        if (f.size > 5_000_000) say(f.name + " is " + kb(f.size) + " — it will play, but it is heavy for mobile data.", "wa");
+        QUEUE.push({name: f.name, blob: f, url: URL.createObjectURL(f), before: f.size, after: f.size,
+                    kind: "video", ext: "." + f.name.split(".").pop().toLowerCase()});
+        continue;
+      }
+      const done = await shrink(f);
+      done.kind = "image";
+      done.ext = done.converted ? ".jpg" : "." + f.name.split(".").pop().toLowerCase();
+      QUEUE.push(done);
+      if (done.undecodable) say(`${f.name} — this browser cannot open ${f.name.split(".").pop().toUpperCase()} files, so it goes up as it is and is converted afterwards.`, "wa");
+    }
+    paint();
+  }
+
+  const separate = () => (document.querySelector("input[name=umode]:checked") || {}).value === "many";
+
+  function applyMode(){
+    const many = separate();
+    $("#drop-title").textContent = many
+      ? "Drop every piece's photograph here" : "Drop this product's photographs here";
+    $("#drop-hint").textContent = many
+      ? "or click to choose · one photograph per piece · no video in this mode"
+      : "or click to choose · every angle you have · one video is welcome too";
+    $("#u-titlehint").textContent = many
+      ? "used for all of them, numbered 1, 2, 3 — or leave it blank"
+      : "leave it blank and we number it for you";
+    $("#file").accept = many ? "image/*,.heic,.heif" : "image/*,video/*,.heic,.heif";
+    if (many && QUEUE.some(x => x.kind === "video")){
+      QUEUE = QUEUE.filter(x => x.kind !== "video");
+      say("A video belongs to one piece, so it was taken out of the queue.", "wa");
+    }
+    paint();
+  }
+  document.querySelectorAll("input[name=umode]").forEach(r => r.onchange = applyMode);
+
+  function paint(){
+    const q = $("#queue"); q.innerHTML = "";
+    QUEUE.forEach((it, i) => {
+      const card = el("div", "qitem" + (it.kind === "video" ? " isvideo" : ""));
+      const idx = QUEUE.filter(x => x.kind !== "video").indexOf(it);
+      const first = it.kind !== "video" && idx === 0 && !separate();
+      card.innerHTML = `${it.kind === "video"
+          ? `<video src="${it.url}" muted playsinline></video>`
+          : (it.url ? `<img src="${it.url}" alt="">` : `<div style="aspect-ratio:4/5;display:grid;place-items:center;color:var(--ink-2);font-size:.8rem">no preview</div>`)}
+        ${first ? `<span class="badge">cover</span>` : ""}
+        ${separate() && it.kind !== "video" ? `<span class="badge">piece ${idx + 1}</span>` : ""}
+        ${it.kind === "video" ? `<span class="badge">video</span>` : ""}
+        <div class="meta"><b>${esc(it.name)}</b>${kb(it.before)}${it.converted ? ` → <span class="saved">${kb(it.after)}</span>` : ""}</div>
+        <button class="x" title="Remove">×</button>
+        ${it.kind !== "video" && !separate() ? `<div class="nudge"><button data-up title="Move earlier">↑</button><button data-down title="Move later">↓</button></div>` : ""}`;
+      card.querySelector(".x").onclick = () => { QUEUE.splice(i, 1); paint(); };
+      const up = card.querySelector("[data-up]"), down = card.querySelector("[data-down]");
+      if (up)   up.onclick   = () => { if (i > 0){ [QUEUE[i-1], QUEUE[i]] = [QUEUE[i], QUEUE[i-1]]; paint(); } };
+      if (down) down.onclick = () => { if (i < QUEUE.length - 1){ [QUEUE[i+1], QUEUE[i]] = [QUEUE[i], QUEUE[i+1]]; paint(); } };
+      q.appendChild(card);
+    });
+    const images = QUEUE.filter(x => x.kind !== "video").length;
+    const video = QUEUE.some(x => x.kind === "video");
+    const after = QUEUE.reduce((a, x) => a + x.after, 0);
+    $("#u-tally").textContent = QUEUE.length
+      ? (separate()
+          ? `${images} photograph${images === 1 ? "" : "s"} → ${images} separate product${images === 1 ? "" : "s"} · ${kb(after)}`
+          : `${images} photograph${images === 1 ? "" : "s"}${video ? " and a video" : ""} · one product · ${kb(after)}`)
+      : "";
+    const label = separate() ? `${isLocal() ? "Save" : "Commit"} ${images || ""} product${images === 1 ? "" : "s"}`.replace(/\s+/g, " ")
+                             : (isLocal() ? "Save the product" : "Commit the product");
+    $("#u-commit").textContent = label;
+    $("#u-commit").disabled = !images;
+    $("#u-clear").disabled = !QUEUE.length;
+  }
+
+  $("#u-clear").onclick = () => { QUEUE = []; paint(); logBox.innerHTML = ""; };
+
+  $("#u-commit").onclick = async () => {
+    const cat = (catSel.value === "__new" ? $("#u-catnew").value : catSel.value).trim().toLowerCase().replace(/\s+/g, "-");
+    const price = parseInt($("#u-price").value.replace(/\D/g, ""), 10);
+    const title = $("#u-title").value.trim();
+    const many = separate();
+    const sizes = readSizes();
+    logBox.innerHTML = "";
+    if (!cat) { say("Which category?", "wa"); return; }
+    if (!Number.isFinite(price) || price < 1) { say("Give the price as a plain number, e.g. 2300.", "wa"); return; }
+
+    const btn = $("#u-commit"); btn.disabled = true;
+    btn.innerHTML = `<span class="spin"></span> ${isLocal() ? "Saving" : "Committing"}`;
+    try {
+      if (isLocal()){
+        const files = [];
+        for (const q of QUEUE) files.push({kind: q.kind, ext: q.ext, b64: await toBase64(q.blob)});
+        const data = await localPost("/api/product", {category: cat, price, title, files,
+                                                     separate: many, sizes});
+        const made = data.createdAll || [data.created];
+        if (made.length > 1) {
+          say(`saved ${made.length} products`, "ok");
+          made.forEach(f => say(f));
+        } else {
+          say(`saved as ${made[0]}`, "ok");
+        }
+        const link = say("");
+        link.innerHTML = `${made.length > 1 ? "They show" : "It shows"} ${bandPhrase(price).replace(bandLabelFor(price), "<b>" + bandLabelFor(price) + "</b>")}. Refresh <a href="/" target="_blank" rel="noopener">the shop</a> to see ${made.length > 1 ? "them" : "it"}.`;
+      } else {
+        const safe = title.replace(/[\\/:*?"<>|]/g, " ").replace(/\s+/g, " ").trim();
+        const taken = new Set(TREE.map(t => t.path));
+        const freeFolder = base => {
+          let f = base, n = 2;
+          while ([...taken].some(p => p.startsWith(f + "/"))) f = `${base} (${n++})`;
+          taken.add(f + "/");
+          return f;
+        };
+        const adds = []; const made = [];
+        if (many) {
+          QUEUE.filter(q => q.kind !== "video").forEach((q, i) => {
+            const base = `photos/${cat}/${price}${safe ? " " + safe + " " + (i + 1) : ""}`;
+            const folder = safe ? base : freeFolder(base);
+            made.push(folder);
+            adds.push({path: `${folder}/1${q.ext}`, blob: q.blob});
+            if (Object.keys(sizes).length)
+              adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes)});
+          });
+        } else {
+          const folder = `photos/${cat}/${price}${safe ? " " + safe : ""}`;
+          made.push(folder);
+          let n = 1;
+          for (const q of QUEUE) adds.push({path: q.kind === "video" ? `${folder}/video${q.ext}` : `${folder}/${n++}${q.ext}`, blob: q.blob});
+          if (Object.keys(sizes).length)
+            adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes)});
+        }
+        const sha = await commitChanges(
+          many ? `Add ${made.length} ${cat} pieces at ₹${price}` : `Add ${title || cat} at ₹${price}`, adds, []);
+        say(`committed ${sha.slice(0, 7)} — ${made.length > 1 ? made.length + " products" : "the product is in " + made[0]}`, "ok");
+        const link = say("");
+        link.innerHTML = `<a href="https://github.com/${esc(CFG.owner)}/${esc(CFG.repo)}/actions" target="_blank" rel="noopener">Watch the catalogue rebuild →</a>`;
+      }
+      QUEUE = []; paint();
+      $("#u-price").value = ""; $("#u-title").value = "";
+      $("#u-min").value = ""; $("#u-max").value = "";
+      sizeSummary();
+      $("#u-band").textContent = "the band is worked out from this";
+      await loadTree();
+    } catch (e) { say(e.message, "er"); }
+    paint();
+  };
+
+  applyMode();
+}
+
+const bandLabelFor = price => {
+  const low = Math.max(0, Math.floor(price / 1000) * 1000);
+  return low === 0 ? "under ₹1,000" : `₹${low.toLocaleString("en-IN")} – ₹${(low + 1000).toLocaleString("en-IN")}`;
+};
+/* "under ₹1,000" already carries its own preposition; the other bands need one. */
+const bandPhrase = price => (Math.floor(price / 1000) === 0 ? "" : "in ") + bandLabelFor(price);
+
+/* ---------- manage ---------- */
+async function renderManage(){
+  const box = $("#tab-manage");
+  if (!ready()){
+    box.innerHTML = `<div class="card"><h2>Not connected yet</h2>
+      <p class="sub">Add your repository and token under Settings first.</p>
+      <button class="btn" onclick="go('settings')">Open settings</button></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="card"><h2>Everything in the shop</h2>
+    <p class="sub">Change a price or a name, add more views, or delete a product. ${isLocal() ? "Changes are written into the folder straight away." : "Each action is one commit."}</p>
+    <div class="log" id="m-log"></div></div>
+    <div id="m-body"><div class="empty"><span class="spin"></span> reading…</div></div>`;
+  logBox = $("#m-log");
+
+  try {
+    await loadTree();
+    if (!isLocal()){
+      const res = await fetch(`${API}${repoPath()}/contents/photos/catalogue.json?ref=${encodeURIComponent(CFG.branch)}`,
+        {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
+      GH_CATALOGUE = res.ok ? await res.json() : {categories: []};
+    }
+  } catch (e) {
+    $("#m-body").innerHTML = `<div class="card"><p>${esc(e.message)}</p></div>`; return;
+  }
+
+  const products = allProducts();
+  const body = $("#m-body"); body.innerHTML = "";
+  if (!products.length){
+    body.innerHTML = `<div class="empty">Nothing yet. Use the <b>Add a product</b> tab.</div>`;
+    return;
+  }
+
+  const byCat = new Map();
+  products.forEach(p => { if (!byCat.has(p.cat)) byCat.set(p.cat, []); byCat.get(p.cat).push(p); });
+
+  [...byCat.keys()].sort().forEach(cat => {
+    const list = byCat.get(cat).sort((a, b) => a.price - b.price);
+    const head = el("div", "groupname");
+    head.innerHTML = `<h3>${esc(titleish(cat))}</h3><span>${list.length} product${list.length === 1 ? "" : "s"}</span>`;
+    body.appendChild(head);
+
+    const grid = el("div", "pieces");
+    list.forEach(p => {
+      const views = (p.images || []).length + (p.video ? 1 : 0);
+      const card = el("div", "piece");
+      card.innerHTML = `<div class="shot">${views > 1 ? `<span class="n">${views} views</span>` : ""}</div>
+        <div class="body">
+          <code>${esc(p.code)}</code>
+          <div class="ttl">${esc(p.title || titleish(cat) + " " + String(p.n).padStart(2, "0"))}</div>
+          <div class="band">₹${Number(p.price).toLocaleString("en-IN")} · ${bandLabelFor(p.price)}</div>
+          <div class="acts">
+            <button class="btn ghost sm" data-edit>Price / name</button>
+            <button class="btn ghost sm" data-more>Add views</button>
+            <button class="btn danger sm" data-del>Delete</button>
+          </div>
+        </div>`;
+      const shot = card.querySelector(".shot");
+      if ((p.images || []).length) thumb(p.images[0]).then(u => { const i = el("img"); i.src = u; i.alt = p.code; shot.prepend(i); }).catch(() => {});
+
+      const delBtn = card.querySelector("[data-del]");
+      const label = p.title ? `${p.code} — ${p.title}` : p.code;
+
+      if (isLocal()) {
+        /* Straight to the trash. No dialog: the bar at the bottom carries the undo. */
+        delBtn.onclick = async () => {
+          card.classList.add("going");
+          try {
+            const res = await localPost("/api/delete", {folders: [p.folder]});
+            snack(`${label} moved to the trash`, async () => {
+              await localPost("/api/undelete", {undo: res.undo});
+              snack(`${label} is back`);
+              renderManage();
+            });
+            renderManage();
+          } catch (e) {
+            card.classList.remove("going");
+            snack(e.message);
+          }
+        };
+      } else {
+        /* On GitHub a delete is a commit, so there is nothing to move back.
+           The button asks once, in place, instead of throwing up a dialog. */
+        let armed = null;
+        delBtn.onclick = async () => {
+          if (!armed) {
+            delBtn.textContent = "Sure?";
+            delBtn.classList.add("armed");
+            armed = setTimeout(() => {
+              armed = null; delBtn.textContent = "Delete"; delBtn.classList.remove("armed");
+            }, 4000);
+            return;
+          }
+          clearTimeout(armed); armed = null;
+          card.classList.add("going");
+          try {
+            const files = TREE.filter(n => n.path.startsWith(p.folder + "/")).map(n => n.path);
+            await commitChanges(`Remove ${p.code}`, [], files);
+            snack(`${label} removed — the files are still in your git history`);
+            renderManage();
+          } catch (e) {
+            card.classList.remove("going");
+            delBtn.textContent = "Delete"; delBtn.classList.remove("armed");
+            snack(e.message);
+          }
+        };
+      }
+
+      card.querySelector("[data-edit]").onclick = async () => {
+        if (!isLocal()) { alert("Changing a price renames the folder — do that with the studio running on your computer."); return; }
+        const price = prompt(`New price for ${p.code}, in rupees:`, String(p.price));
+        if (price === null) return;
+        const n = parseInt(String(price).replace(/\D/g, ""), 10);
+        if (!Number.isFinite(n) || n < 1) { alert("Give the price as a plain number, e.g. 2300."); return; }
+        const title = prompt("Name (leave empty for none):", p.title || "");
+        if (title === null) return;
+        try {
+          logBox.innerHTML = "";
+          say(`updating ${p.code}…`);
+          await localPost("/api/product/edit", {folder: p.folder, price: n, title});
+          say(`${p.code} is now ₹${n.toLocaleString("en-IN")} — ${bandLabelFor(n)}. Its code did not change.`, "ok");
+          renderManage();
+        } catch (e) { say(e.message, "er"); }
+      };
+
+      card.querySelector("[data-more]").onclick = () => {
+        const input = document.createElement("input");
+        input.type = "file"; input.accept = "image/*,.heic,.heif"; input.multiple = true;
+        input.onchange = async () => {
+          try {
+            logBox.innerHTML = "";
+            const files = [];
+            for (const f of input.files){
+              const done = await shrink(f);
+              files.push({kind: "image", ext: done.converted ? ".jpg" : "." + f.name.split(".").pop().toLowerCase(),
+                          b64: await toBase64(done.blob)});
+              say(`${f.name} ${kb(done.before)} → ${kb(done.after)}`);
+            }
+            if (!files.length) return;
+            if (isLocal()) await localPost("/api/product/files", {folder: p.folder, files});
+            else {
+              const used = TREE.filter(n => n.path.startsWith(p.folder + "/")).length;
+              const adds = files.map((f, i) => ({path: `${p.folder}/${used + i + 1}${f.ext}`, blob: dataToBlob(f.b64)}));
+              await commitChanges(`More views for ${p.code}`, adds, []);
+            }
+            say(`${files.length} view${files.length === 1 ? "" : "s"} added to ${p.code}`, "ok");
+            renderManage();
+          } catch (e) { say(e.message, "er"); }
+        };
+        input.click();
+      };
+
+      grid.appendChild(card);
+    });
+    body.appendChild(grid);
+  });
+}
+
+function dataToBlob(b64){
+  const bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr]);
+}
+
+/* ---------- commit and push ---------- */
+let GIT = null;
+async function refreshGit(){
+  const bar = $("#gitbar");
+  if (!isLocal()){ bar.hidden = true; return; }
+  try {
+    const res = await fetch("/api/git", {cache:"no-store"});
+    if (!res.ok) throw new Error();
+    GIT = await res.json();
+  } catch (e) { bar.hidden = true; return; }
+
+  bar.hidden = false;
+  const dot = $("#gitDot"), what = $("#gitWhat"), btn = $("#gitPush"), toggle = $("#gitToggle");
+  const pending = (GIT.changes || []).length;
+  const ahead = GIT.ahead || 0;
+
+  if (!GIT.installed || !GIT.repo){
+    dot.className = "dot"; what.textContent = GIT.note || "not a git repository";
+    btn.disabled = true; toggle.hidden = true; $("#gitDetail").hidden = true;
+    return;
+  }
+
+  const bits = [];
+  if (pending) bits.push(`${pending} change${pending === 1 ? "" : "s"} to commit`);
+  if (ahead)   bits.push(`${ahead} commit${ahead === 1 ? "" : "s"} to push`);
+  what.textContent = bits.length ? bits.join(" · ") : "everything is pushed";
+  if (!GIT.remote) what.textContent += " · " + GIT.note;
+  dot.className = "dot " + (pending || ahead ? "pending" : "clean");
+  btn.disabled = !(pending || ahead) || !GIT.remote;
+  toggle.hidden = !pending;
+  const box = $("#gitDetail");
+  if (!pending && !box.dataset.keep) box.hidden = true;
+}
+
+$("#gitToggle").onclick = () => {
+  const box = $("#gitDetail");
+  delete box.dataset.keep;
+  box.hidden = !box.hidden;
+  if (!box.hidden){
+    box.innerHTML = (GIT.changes || []).map(c =>
+      `<div><code>${esc(c.status)}</code> ${esc(c.path)}</div>`).join("")
+      || "<div>nothing</div>";
+  }
+};
+
+$("#gitPush").onclick = async () => {
+  const btn = $("#gitPush"), what = $("#gitWhat");
+  const message = $("#gitMsg").value.trim() || "Update photographs";
+  btn.disabled = true; btn.innerHTML = `<span class="spin"></span> Pushing`;
+  what.textContent = "committing and pushing…";
+  try {
+    const res = await fetch("/api/git", {method:"POST", headers:{"Content-Type":"application/json"},
+                                         body: JSON.stringify({message})});
+    let data = null; try { data = await res.json(); } catch (e) {}
+    if (!res.ok || (data && data.error)) throw new Error((data && data.error) || `the studio server said ${res.status}`);
+    $("#gitMsg").value = "";
+    const box = $("#gitDetail"); box.hidden = false; box.dataset.keep = "1";
+    box.innerHTML = (data.log || []).map(l => `<div>${esc(l)}</div>`).join("")
+      + (data.pushed ? `<div style="color:var(--ok);margin-top:6px">pushed — Cloudflare is deploying, live in about a minute</div>` : "");
+  } catch (e) {
+    const box = $("#gitDetail"); box.hidden = false; box.dataset.keep = "1";
+    box.innerHTML = `<div style="color:var(--bad);white-space:pre-wrap">${esc(e.message)}</div>`;
+  }
+  btn.textContent = "Commit & push";
+  await refreshGit();
+};
+
+/* ---------- tabs ---------- */
+function stamp(){
+  $("#repoLabel").textContent = isLocal()
+    ? "this computer · " + (LOCAL.root.split(/[\\/]/).pop() || "folder")
+    : (ready() ? `${CFG.owner}/${CFG.repo} · ${CFG.branch}` : "not connected");
+  $("#repoLabel").title = isLocal() ? LOCAL.root : "";
+}
+function go(name){
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
+  ["upload","manage","settings"].forEach(n => { $("#tab-" + n).hidden = n !== name; });
+  logBox = null;
+  if (name === "upload") renderUpload();
+  if (name === "manage") renderManage();
+  if (name === "settings") renderSettings();
+  refreshGit();
+  location.hash = name;
+}
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => go(t.dataset.tab));
+
+/* ---------- boot ---------- */
+(async () => {
+  const found = await detectLocal();
+  let saved = "";
+  try { saved = localStorage.getItem("qala.mode") || ""; } catch (e) {}
+  MODE = found ? (saved === "github" ? "github" : "local") : "github";
+  stamp();
+  const start = ["upload","manage","settings"].includes(location.hash.slice(1)) ? location.hash.slice(1)
+              : (ready() ? "upload" : "settings");
+  if (ready() && !isLocal()){
+    try { await loadTree(); } catch (e) { /* the tab will report it */ }
+  }
+  go(start);
+})();
+</script>
+</body>
+</html>

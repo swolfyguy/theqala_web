@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05T19:01:47Z",
+ "generated": "2026-09-05T20:05:35Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -150,9 +150,37 @@
   {
    "min": 4000,
    "max": 5000
+  },
+  {
+   "min": 55000,
+   "max": 56000
   }
  ],
  "categories": [
+  {
+   "slug": "bangles",
+   "cover": null,
+   "next": 2,
+   "products": [
+    {
+     "n": 1,
+     "code": "BANGLES-01",
+     "folder": "photos/bangles/55555",
+     "title": "",
+     "price": 55555,
+     "band": {
+      "min": 55000,
+      "max": 56000
+     },
+     "images": [
+      "photos/bangles/55555/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {}
+    }
+   ]
+  },
   {
    "slug": "hand-made-rajwadi",
    "cover": null,
