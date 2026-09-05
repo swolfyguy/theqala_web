@@ -222,6 +222,48 @@ def to_jpeg(src):
         return None
 
 
+STOCK_FILE = "stock.json"
+# The poth lengths the shop makes, in inches. Same list as the order form.
+SIZES = [str(n) for n in range(24, 41, 2)]
+
+
+def read_stock(folder):
+    """How many of each size this piece was made in.
+
+       photos/<cat>/<price> <name>/stock.json holds {"24": 2, "28": 1} — the
+       sizes offered and how many were made. No file, or an empty one, means
+       the piece has no sizes and the shop asks for none."""
+    f = folder / STOCK_FILE
+    if not f.is_file():
+        return {}
+    try:
+        raw = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        warn(f"{rel(f)} is not readable as JSON ({e}) — sizes ignored for this piece")
+        return {}
+    if not isinstance(raw, dict):
+        warn(f"{rel(f)} should look like {{\"24\": 2, \"28\": 1}} — sizes ignored")
+        return {}
+
+    out = {}
+    for k, v in raw.items():
+        size = str(k).strip()
+        if size not in SIZES:
+            warn(f"{rel(f)} mentions size {size!r}, which the shop does not make "
+                 f"(even numbers 24 to 40) — that line ignored")
+            continue
+        try:
+            n = int(v)
+        except Exception:
+            warn(f"{rel(f)} has {v!r} against size {size} — that should be a number")
+            continue
+        if n < 0:
+            warn(f"{rel(f)} has {n} against size {size} — that cannot be less than none")
+            continue
+        out[size] = n
+    return {k: out[k] for k in SIZES if k in out}      # always in size order
+
+
 def media_in(folder):
     """Images (converted and optionally shrunk) and videos inside a product folder.
        A picture whose name matches a video in the same folder is that video's
@@ -233,6 +275,8 @@ def media_in(folder):
         if f.name.startswith("."):
             continue
         if f.suffix.lower() in IMAGE_EXT and f.stem.lower() in video_stems:
+            continue
+        if f.name.lower() == STOCK_FILE:      # how many of each size — not a picture
             continue
         ext = f.suffix.lower()
         if ext in WEB_EXT:
@@ -488,6 +532,7 @@ def read_category(catdir, nxt):
             "images": [rel(f) for f in images],
             "video": rel(videos[0]) if videos else None,
             "videoPoster": poster_for(videos[0]) if videos else None,
+            "sizes": read_stock(folder),
         })
         if len(videos) > 1:
             warn(f"{rel(folder)} has more than one video — only {videos[0].name} is used")

@@ -34,3 +34,6 @@ photos/clients/_originals/
 # the studio's trash. Deleted pieces wait here on your computer
 # until you empty it — they never reach the website.
 photos/_trash/
+
+# the local test database made by dev.mjs. Never pushed.
+.qala-dev.sqlite

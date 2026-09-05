@@ -33,3 +33,12 @@ photos/clients/_originals
 
 # pieces you deleted in the studio, waiting on this computer
 photos/_trash
+
+# the shape of the order table. It is run once against D1 by hand;
+# there is no reason for the web to be able to download it.
+schema.sql
+
+# the local test server. It runs on your computer, never on the web
+# (it would otherwise be downloadable, and it names a password).
+dev.mjs
+dev.bat

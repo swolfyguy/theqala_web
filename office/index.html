@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Order book — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&family=Tiro+Devanagari+Marathi&display=swap">
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
+  --new:#7E1226; --confirmed:#9A7325; --sent:#2F6E5B; --done:#4B5A66; --cancelled:#8A8A8A;
+  --on-accent:#FFF6E9;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4);
+    --new:#E0BC72; --confirmed:#CFA84F; --sent:#7FC0A8; --done:#9DB0BD; --cancelled:#8A8A8A;
+    --on-accent:#131011;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+header{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+header[hidden]{display:none}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+.bar h1{font-size:1.35rem}
+.bar .who{margin-left:auto;font-size:.8rem;color:var(--ink-2);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .out{border:1px solid var(--line);background:transparent;color:var(--ink-2);
+  padding:5px 12px;border-radius:999px;font:inherit;font-size:.78rem;cursor:pointer}
+.bar .out:hover{border-color:var(--accent);color:var(--accent)}
+@media (max-width:560px){ .bar{gap:8px} .bar .who{margin-left:auto;flex:0 1 auto} }
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--ink-2);
+  padding:7px 14px;border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tab b{font-weight:600}
+
+.tools[hidden]{display:none}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:16px 0 4px}
+input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--panel);color:inherit;font:inherit}
+.btn{border:1px solid var(--line-2);background:var(--panel);color:var(--ink);
+  padding:9px 14px;border-radius:10px;font:inherit;font-size:.85rem;cursor:pointer;text-decoration:none;
+  display:inline-block}
+.btn:hover{border-color:var(--gold)}
+
+.note{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:10px;background:var(--panel);font-size:.9rem}
+.note.bad{border-left-color:var(--accent)}
+.note h2{font-size:1rem;margin-bottom:6px}
+.note code{background:var(--panel-2);padding:1px 5px;border-radius:4px;font-size:.85em}
+
+/* ---------- the way in ---------- */
+.gate{max-width:380px;margin:0 auto;padding:56px 0 80px;text-align:center}
+.gate .mr{font-family:"Tiro Devanagari Marathi",serif;font-size:2rem;color:var(--accent);display:block}
+.gate h1{font-size:1.6rem;margin:10px 0 6px}
+.gate p.sub{color:var(--ink-2);font-size:.9rem;margin:0 0 26px}
+.gate form{display:grid;gap:14px;text-align:left;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:24px;
+  box-shadow:0 16px 36px -30px var(--shadow)}
+.gate label{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;display:block;margin-bottom:7px}
+.gate select,.gate input{width:100%;background:var(--ground);border:1px solid var(--line-2);
+  border-radius:12px;padding:13px 15px;color:inherit;font:inherit}
+.gate select:focus,.gate input:focus{outline:none;border-color:var(--gold-2);
+  box-shadow:0 0 0 3px var(--wash-gold)}
+.gate button{background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);
+  padding:13px;border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+.gate button:disabled{opacity:.6;cursor:default}
+.gate .err{color:var(--accent);font-size:.85rem;min-height:1.2em;text-align:center;margin:0}
+.gate .foot{color:var(--ink-2);font-size:.78rem;margin:18px 0 0}
+
+.list{display:grid;gap:14px;padding:12px 0 60px}
+.order{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 1px 3px var(--shadow);overflow:hidden}
+.otop{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;padding:14px 16px 0}
+.ref{font-family:Marcellus,Georgia,serif;font-size:1.05rem;letter-spacing:.04em}
+.when{font-size:.78rem;color:var(--ink-2)}
+.pill{margin-left:auto;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid currentColor;border-radius:999px;padding:2px 10px}
+.pill.new{color:var(--new)} .pill.confirmed{color:var(--confirmed)}
+.pill.sent{color:var(--sent)} .pill.done{color:var(--done)} .pill.cancelled{color:var(--cancelled)}
+
+.obody{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:10px 16px 14px}
+@media (max-width:640px){ .obody{grid-template-columns:1fr} }
+.obody h3{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+  font-weight:600;margin:10px 0 4px}
+.who-lines{white-space:pre-wrap;word-break:break-word}
+.who-lines a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--gold-2)}
+.poth{display:inline-block;border:1px solid var(--gold-2);color:var(--gold);
+  border-radius:8px;padding:2px 10px;font-size:.85rem;font-weight:600}
+.items{margin:0;padding:0;list-style:none}
+.items li{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.items li:last-child{border-bottom:0}
+.items .code{color:var(--ink-2);font-size:.78rem}
+.items .len{color:var(--gold);font-weight:600;font-size:.85rem}
+.money{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.money.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:6px;font-weight:700}
+
+.acts{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 14px;border-top:1px solid var(--line);padding-top:12px}
+.act{border:1px solid var(--line);background:transparent;color:var(--ink-2);
+  padding:6px 12px;border-radius:999px;font:inherit;font-size:.8rem;cursor:pointer}
+.act:hover{border-color:var(--gold);color:var(--ink)}
+.act[aria-pressed="true"]{background:var(--panel-2);border-color:var(--line-2);color:var(--ink);font-weight:600}
+.act.wa{margin-left:auto;border-color:var(--gold-2);color:var(--gold)}
+
+.empty{text-align:center;padding:70px 20px;color:var(--ink-2)}
+.empty .mark{font-size:2rem;color:var(--gold-2)}
+.spin{text-align:center;padding:60px;color:var(--ink-2)}
+
+#snack{position:fixed;left:50%;bottom:22px;transform:translate(-50%,120%);
+  background:var(--ink);color:var(--ground);padding:11px 18px;border-radius:999px;
+  font-size:.87rem;box-shadow:0 6px 22px var(--shadow);transition:transform .25s;z-index:60;
+  max-width:92vw;text-align:center}
+#snack.up{transform:translate(-50%,0)}
+#snack:empty{display:none}
+</style>
+</head>
+<body>
+
+<header id="head" hidden>
+  <div class="wrap">
+    <div class="bar">
+      <h1>Order book</h1>
+      <span class="who" id="who"></span>
+      <button class="out" id="out">Sign out</button>
+    </div>
+    <div class="tabs" id="tabs"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tools" hidden>
+    <input type="search" id="q" placeholder="Search a name, number or order code" autocomplete="off">
+    <button class="btn" id="refresh">Refresh</button>
+    <a class="btn" id="csv" href="#">Download CSV</a>
+  </div>
+  <div id="msg"></div>
+  <div class="list" id="list"><div class="spin">Opening the book…</div></div>
+</div>
+
+<div id="snack"></div>
+
+<script>
+const STATUSES = [
+  {id:"all",       t:"Everything"},
+  {id:"new",       t:"New"},
+  {id:"confirmed", t:"Confirmed"},
+  {id:"sent",      t:"Sent"},
+  {id:"done",      t:"Done"},
+  {id:"cancelled", t:"Cancelled"}
+];
+const NEXT  = ["new","confirmed","sent","done","cancelled"];
+const STAFF = ["9011240352","7558209163","9579628754"];
+
+let VIEW = "all", ORDERS = [], COUNTS = {}, TIMER = null;
+
+const $  = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rupees = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+const pretty = p => p.slice(0,5) + " " + p.slice(5);
+
+function snack(text){
+  const el = $("#snack");
+  el.textContent = text; el.classList.add("up");
+  clearTimeout(TIMER);
+  TIMER = setTimeout(() => el.classList.remove("up"), 3200);
+}
+
+/* Indian time, so the dates read the way they do in the shop. */
+function when(iso){
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const day = new Intl.DateTimeFormat("en-IN", {timeZone:"Asia/Kolkata",
+    day:"numeric", month:"short", hour:"numeric", minute:"2-digit", hour12:true}).format(d);
+  const mins = (Date.now() - d.getTime()) / 60000;
+  const ago = mins < 2 ? "just now"
+            : mins < 60 ? Math.floor(mins) + " min ago"
+            : mins < 1440 ? Math.floor(mins / 60) + " h ago"
+            : Math.floor(mins / 1440) + " d ago";
+  return day + " · " + ago;
+}
+
+const PAYNAME = {online:"Paying online", shop:"Cash at the shop", cod:"Cash on delivery"};
+
+const api = (path, opts) =>
+  fetch(path, Object.assign({credentials:"same-origin", cache:"no-store"}, opts));
+
+/* ---------- the way in ---------- */
+
+function gate(why){
+  $("#head").hidden = true;
+  $(".tools").hidden = true;
+  $("#msg").innerHTML = "";
+  $("#list").innerHTML = `
+    <div class="gate">
+      <span class="mr">कला</span>
+      <h1>The Qala</h1>
+      <p class="sub">The order book is for the shop only.</p>
+      <form id="gateForm" autocomplete="on">
+        <div>
+          <label for="g-phone">Your number</label>
+          <select id="g-phone" name="phone">
+            ${STAFF.map(p => `<option value="${p}">${pretty(p)}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <label for="g-pass">Password</label>
+          <input id="g-pass" name="password" type="password" autocomplete="current-password"
+                 placeholder="••••••••" autocapitalize="off" spellcheck="false">
+        </div>
+        <p class="err" id="g-err">${why && !/^Sign in/.test(why) ? esc(why) : ""}</p>
+        <button type="submit" id="g-go">Sign in</button>
+      </form>
+      <p class="foot">Signed in for 30 days on this device.</p>
+    </div>`;
+
+  const form = $("#gateForm"), err = $("#g-err"), go = $("#g-go");
+  const last = (() => { try { return localStorage.getItem("qala.staff"); } catch { return null; } })();
+  if (last && STAFF.includes(last)) form.phone.value = last;
+  setTimeout(() => $("#g-pass").focus(), 60);
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const password = form.password.value;
+    if (!password) { err.textContent = "Enter the password."; return; }
+    go.disabled = true; go.textContent = "Checking…"; err.textContent = "";
+    try {
+      const r = await api("/office/login", {
+        method: "POST", headers: {"content-type":"application/json"},
+        body: JSON.stringify({phone: form.phone.value, password})
+      });
+      const d = await r.json();
+      if (!r.ok || !d.ok) throw new Error(d.why || "That did not work.");
+      try { localStorage.setItem("qala.staff", form.phone.value); } catch {}
+      const next = new URLSearchParams(location.search).get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//")) { location.href = next; return; }
+      $("#list").innerHTML = `<div class="spin">Opening the book…</div>`;
+      load();
+    } catch (e2) {
+      err.textContent = e2.message;
+      go.disabled = false; go.textContent = "Sign in";
+      form.password.value = ""; form.password.focus();
+    }
+  };
+}
+
+async function signOut(){
+  try { await api("/office/logout", {method:"POST"}); } catch {}
+  ORDERS = []; COUNTS = {};
+  gate("");
+}
+
+/* ---------- the book ---------- */
+
+async function load(){
+  const q = $("#q") ? $("#q").value.trim() : "";
+  const url = "/office/api?status=" + encodeURIComponent(VIEW)
+            + (q ? "&q=" + encodeURIComponent(q) : "");
+
+  let r, data;
+  try { r = await api(url); data = await r.json(); }
+  catch { shut("Could not reach the order book. Check you are online, then refresh."); return; }
+
+  if (r.status === 401 || (data && data.login)) { gate(data && data.why); return; }
+  if (!r.ok || !data.ok) { shut(data && data.why ? data.why : "The order book refused that request."); return; }
+
+  $("#head").hidden = false;
+  $(".tools").hidden = false;
+  $("#csv").href = url + "&format=csv";
+  $("#msg").innerHTML = "";
+  $("#who").textContent = data.you ? "signed in as " + data.you : "";
+  COUNTS = {};
+  (data.counts || []).forEach(c => { COUNTS[c.status] = c.n; });
+  COUNTS.all = Object.values(COUNTS).reduce((a, b) => a + b, 0);
+  ORDERS = data.orders || [];
+  paintTabs();
+  paintList();
+}
+
+/* Signed in, but something on Cloudflare's side is not finished yet. */
+function shut(why){
+  $("#list").innerHTML = "";
+  $(".tools").hidden = true;
+  $("#tabs").innerHTML = "";
+  $("#msg").innerHTML = `<div class="note bad">
+    <h2>The order book cannot open</h2>
+    <p style="margin-bottom:0">${esc(why)}</p></div>`;
+}
+
+function paintTabs(){
+  $("#tabs").innerHTML = STATUSES.map(s => {
+    const n = COUNTS[s.id] || 0;
+    return `<button class="tab" data-view="${s.id}" aria-pressed="${VIEW === s.id}">
+      ${s.t}${n ? ` <b>${n}</b>` : ""}</button>`;
+  }).join("");
+  document.querySelectorAll("[data-view]").forEach(b => {
+    b.onclick = () => { VIEW = b.dataset.view; load(); };
+  });
+}
+
+function paintList(){
+  if (!ORDERS.length){
+    $("#list").innerHTML = `<div class="empty"><div class="mark">॥</div>
+      <p>Nothing here yet.${VIEW === "all" ? " Orders appear the moment someone places one." : ""}</p></div>`;
+    return;
+  }
+  $("#list").innerHTML = ORDERS.map(card).join("");
+  wire();
+}
+
+function card(o){
+  const items = (o.items || []).map(l => `<li>
+      <span>${esc(l.title || l.code)}${l.size ? ` <b class="len">${esc(l.size)}&Prime;</b>` : ""}
+        <span class="code">${esc(l.code)} × ${l.qty}</span></span>
+      <span>${rupees(l.price * l.qty)}</span></li>`).join("");
+
+  /* Older orders carry one length for the whole order; newer ones carry it
+     against each piece, where it is already shown above. */
+  const perItem = (o.items || []).some(l => l.size);
+
+  const pickup = o.pay === "shop";
+  const where = pickup
+    ? `${esc(o.name)}\n<a href="tel:+91${esc(o.phone)}">${esc(o.phone)}</a>\nCollecting at the shop`
+    : `${esc(o.name)}\n<a href="tel:+91${esc(o.phone)}">${esc(o.phone)}</a>\n${esc(o.address)}\n${esc(o.pincode)}`;
+
+  return `<article class="order" data-ref="${esc(o.ref)}">
+    <div class="otop">
+      <span class="ref">${esc(o.ref)}</span>
+      <span class="when">${esc(when(o.placed_at))}</span>
+      <span class="pill ${esc(o.status)}">${esc(o.status)}</span>
+    </div>
+    <div class="obody">
+      <div>
+        <h3>Who</h3>
+        <div class="who-lines">${where}</div>
+        <h3>How they are paying</h3>
+        <div>${esc(PAYNAME[o.pay] || o.pay)}</div>
+        ${perItem ? "" : `<h3>Poth length</h3>
+        <div>${o.poth ? `<span class="poth">${esc(o.poth)} inches</span>`
+                      : `<span style="color:var(--ink-2)">to be settled on WhatsApp</span>`}</div>`}
+      </div>
+      <div>
+        <h3>${(o.items || []).length} piece${(o.items || []).length === 1 ? "" : "s"}</h3>
+        <ul class="items">${items}</ul>
+        <div class="money"><span>Pieces</span><span>${rupees(o.goods)}</span></div>
+        ${pickup ? "" : `<div class="money"><span>Shipping</span><span>${o.shipping ? rupees(o.shipping) : "Free"}</span></div>`}
+        ${o.cod_fee ? `<div class="money"><span>Cash on delivery</span><span>${rupees(o.cod_fee)}</span></div>` : ""}
+        <div class="money tot"><span>Total</span><span>${rupees(o.total)}</span></div>
+      </div>
+    </div>
+    <div class="acts">
+      ${NEXT.map(s => `<button class="act" data-set="${s}" aria-pressed="${o.status === s}">${s}</button>`).join("")}
+      <a class="act wa" href="https://wa.me/91${esc(o.phone)}" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </article>`;
+}
+
+function wire(){
+  document.querySelectorAll(".order").forEach(el => {
+    const ref = el.dataset.ref;
+    el.querySelectorAll("[data-set]").forEach(b => {
+      b.onclick = async () => {
+        const was = ORDERS.find(o => o.ref === ref);
+        const from = was ? was.status : null;
+        if (from === b.dataset.set) return;
+
+        /* Move it on screen first, put it back if the save does not land. */
+        setStatus(ref, b.dataset.set);
+        try {
+          const r = await api("/office/api", {
+            method: "POST",
+            headers: {"content-type": "application/json"},
+            body: JSON.stringify({ref, status: b.dataset.set})
+          });
+          const d = await r.json();
+          if (r.status === 401) { gate(d.why); return; }
+          if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+          snack(ref + " — " + b.dataset.set);
+        } catch (err) {
+          if (from) setStatus(ref, from);
+          snack("That did not save. " + (err.message || ""));
+        }
+      };
+    });
+  });
+}
+
+function setStatus(ref, status){
+  const o = ORDERS.find(x => x.ref === ref);
+  if (o) o.status = status;
+  const el = document.querySelector(`.order[data-ref="${CSS.escape(ref)}"]`);
+  if (!el) return;
+  const pill = el.querySelector(".pill");
+  pill.className = "pill " + status;
+  pill.textContent = status;
+  el.querySelectorAll("[data-set]").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.set === status)));
+}
+
+$("#refresh").onclick = load;
+$("#out").onclick = signOut;
+let typing = null;
+$("#q").oninput = () => { clearTimeout(typing); typing = setTimeout(load, 350); };
+load();
+</script>
+</body>
+</html>
