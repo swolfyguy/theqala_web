@@ -37,8 +37,15 @@ database_id = "5cddd75c-301a-44a0-ac35-71aeb83714f5"
 #  The repository the studio is allowed to write to. Not secret — knowing it
 #  gets nobody anywhere without the token, and fixing it here is what stops
 #  the studio being talked into writing somewhere else.
+#
+#  This must be the repository's real name on github.com, which is NOT the
+#  same as the name of the folder on your computer. Get it wrong and every
+#  studio request comes back "GitHub said 404 — Not Found", because GitHub
+#  answers 404 rather than admit whether a repository exists.
+#
+#  Check it with:   git remote -v
 [vars]
-GITHUB_REPO = "swolfyguy/the-qala-site"
+GITHUB_REPO = "swolfyguy/theqala_web"
 GITHUB_BRANCH = "main"
 
 
@@ -50,5 +57,6 @@ GITHUB_BRANCH = "main"
 #
 #  or in the dashboard under Settings, Variables and Secrets, type Secret.
 #
-#  The GitHub token is a fine-grained one, pointed at ONLY this repository,
-#  with Contents: Read and write. Nothing else needs ticking.
+#  The GitHub token is a fine-grained one, pointed at ONLY this repository —
+#  swolfyguy/theqala_web — with Contents: Read and write. Nothing else needs
+#  ticking. A token that cannot see the repository gives 404, not 403.

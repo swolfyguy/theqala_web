@@ -123,6 +123,27 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
 .saved{color:var(--ok)}
 
 .pieces{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:18px}
+
+/* the shop side has filters down the left of everything it lists; so does this */
+.mlayout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){ .mlayout{grid-template-columns:1fr} }
+.mfilters{position:sticky;top:14px;border:1px solid var(--line);border-radius:14px;
+  background:var(--panel);padding:14px 15px 16px;display:grid;gap:14px}
+@media (max-width:820px){ .mfilters{position:static} }
+.mfilters h4{margin:0;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700}
+.mfilters label{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer;font-size:.9rem}
+.mfilters label:hover{color:var(--accent)}
+.mfilters input{accent-color:var(--accent);width:15px;height:15px;flex:none;margin:0}
+.mfilters .tally{margin-left:auto;color:var(--ink-2);font-size:.78rem}
+.mfilters .clear{background:none;border:0;padding:0;color:var(--accent);font:inherit;
+  font-size:.8rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  justify-self:start}
+.mfilters .clear[hidden]{display:none}
+.mfilters .msearch{width:100%;border:1px solid var(--line-2);border-radius:10px;
+  padding:8px 11px;background:var(--ground);color:inherit;font:inherit;font-size:.86rem}
+.mfilters .msearch:focus{outline:none;border-color:var(--gold-2)}
+.mcount{color:var(--ink-2);font-size:.84rem;margin:0 0 12px}
 .piece{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
 .piece .shot{position:relative;aspect-ratio:4/5;background:var(--panel-2)}
 .piece .shot img{width:100%;height:100%;object-fit:cover}
@@ -1003,7 +1024,10 @@ async function renderManage(){
   box.innerHTML = `<div class="card"><h2>Everything in the shop</h2>
     <p class="sub">Change a price or a name, add more views, or delete a product. ${isLocal() ? "Changes are written into the folder straight away." : "Each action is one commit."}</p>
     <div class="log" id="m-log"></div></div>
-    <div id="m-body"><div class="empty"><span class="spin"></span> reading…</div></div>`;
+    <div class="mlayout">
+      <aside class="mfilters" id="m-filters" hidden></aside>
+      <div id="m-body"><div class="empty"><span class="spin"></span> reading…</div></div>
+    </div>`;
   logBox = $("#m-log");
 
   try {
@@ -1017,15 +1041,88 @@ async function renderManage(){
     $("#m-body").innerHTML = `<div class="card"><p>${esc(e.message)}</p></div>`; return;
   }
 
-  const products = allProducts();
-  const body = $("#m-body"); body.innerHTML = "";
+  MPRODUCTS = allProducts();
+  paintManage();
+}
+
+/* Which categories are being shown, and what is being searched for. Kept out
+   here so that deleting a piece — which paints the tab again — does not throw
+   away what you had narrowed it down to. */
+let MPRODUCTS = [];
+const MFILTER = new Set();      // empty means everything
+let MSEARCH = "";
+
+function paintManage(){
+  const products = MPRODUCTS;
+  const side = $("#m-filters"), body = $("#m-body");
+  if (!side || !body) return;
+  body.innerHTML = "";
+
   if (!products.length){
+    side.hidden = true;
     body.innerHTML = `<div class="empty">Nothing yet. Use the <b>Add a product</b> tab.</div>`;
     return;
   }
 
+  /* Down the left, the same idea as the shop: every category that has
+     something in it, with how many, and nothing that would show you nothing. */
+  const tally = new Map();
+  products.forEach(p => tally.set(p.cat, (tally.get(p.cat) || 0) + 1));
+  const cats = [...tally.keys()].sort();
+  for (const c of [...MFILTER]) if (!tally.has(c)) MFILTER.delete(c);
+
+  side.hidden = false;
+  side.innerHTML = `
+    <div>
+      <h4>Category</h4>
+      ${cats.map(c => `<label><input type="checkbox" data-cat="${esc(c)}" ${
+        MFILTER.has(c) ? "checked" : ""}> ${esc(titleish(c))}
+        <span class="tally">${tally.get(c)}</span></label>`).join("")}
+    </div>
+    <div>
+      <h4>Find one</h4>
+      <input class="msearch" id="m-search" type="search" placeholder="code or name"
+             value="${esc(MSEARCH)}" autocomplete="off">
+    </div>
+    <button class="clear" type="button" id="m-clear" ${
+      MFILTER.size || MSEARCH ? "" : "hidden"}>Show everything</button>`;
+
+  side.querySelectorAll("[data-cat]").forEach(cb => {
+    cb.onchange = () => {
+      cb.checked ? MFILTER.add(cb.dataset.cat) : MFILTER.delete(cb.dataset.cat);
+      paintManage();
+    };
+  });
+  const search = side.querySelector("#m-search");
+  search.oninput = () => {
+    MSEARCH = search.value;
+    clearTimeout(search._t);
+    search._t = setTimeout(() => {
+      const at = search.selectionStart;
+      paintManage();
+      const again = $("#m-search");
+      if (again) { again.focus(); try { again.setSelectionRange(at, at); } catch (e) {} }
+    }, 220);
+  };
+  side.querySelector("#m-clear").onclick = () => { MFILTER.clear(); MSEARCH = ""; paintManage(); };
+
+  const needle = MSEARCH.trim().toLowerCase();
+  const shown = products.filter(p =>
+    (!MFILTER.size || MFILTER.has(p.cat)) &&
+    (!needle || (p.code + " " + (p.title || "")).toLowerCase().includes(needle)));
+
+  body.innerHTML = `<p class="mcount">${shown.length} of ${products.length} piece${
+    products.length === 1 ? "" : "s"}${
+    MFILTER.size || needle ? "" : " · everything"}</p>`;
+
+  if (!shown.length){
+    body.insertAdjacentHTML("beforeend",
+      `<div class="empty">Nothing matches that. <b>Show everything</b> is on the left.</div>`);
+    return;
+  }
+
   const byCat = new Map();
-  products.forEach(p => { if (!byCat.has(p.cat)) byCat.set(p.cat, []); byCat.get(p.cat).push(p); });
+  shown.forEach(p => { if (!byCat.has(p.cat)) byCat.set(p.cat, []); byCat.get(p.cat).push(p); });
 
   [...byCat.keys()].sort().forEach(cat => {
     const list = byCat.get(cat).sort((a, b) => a.price - b.price);
