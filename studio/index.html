@@ -667,6 +667,26 @@ function renderSettings(){
    filters by is worked out from the price. */
 let QUEUE = [];        // {name, blob, url, before, after, kind, ext}
 
+/* Hosted, but the site has no GitHub token behind it. Neither tab can read a
+   thing or write a thing, so say so where the person is looking rather than
+   letting them fill in a form that could never be committed. */
+function noTokenCard(what){
+  return `<div class="card">
+    <h2>The studio cannot reach the shop yet</h2>
+    <p class="sub">${esc(HOSTED.why || "This site has no GitHub token yet.")}</p>
+    <p class="sub">That is why there are no categories and no pieces here — the studio
+      has nothing to read them from, and nowhere to ${esc(what)}. Nothing is broken.</p>
+    <p class="sub"><b>To fix it once:</b> in the Cloudflare dashboard open this project →
+      <b>Settings → Variables and Secrets</b> → add <code>GITHUB_TOKEN</code>, type
+      <b>Secret</b>, holding a fine-grained GitHub token with <b>Contents: Read and
+      write</b> on <code>${esc(HOSTED.repo || "your repository")}</code>. Then deploy once
+      more — a secret only reaches a deployment made after it existed.</p>
+    <p class="sub"><b>To work on the shop right now instead:</b> run <code>preview.bat</code>
+      on the shop computer and open <code>http://localhost:8000/studio/</code>. That writes
+      straight into the folder and needs no token at all.</p>
+  </div>`;
+}
+
 function catalogueCats(){
   const fromCat = (LOCAL.catalogue && LOCAL.catalogue.categories || []).map(c => c.slug);
   const set = new Set(fromCat);
@@ -683,6 +703,7 @@ let GH_CATALOGUE = null;
 
 function renderUpload(){
   const box = $("#tab-upload");
+  if (isHosted() && HOSTED.why){ box.innerHTML = noTokenCard("put a photograph"); return; }
   if (!ready()){
     box.innerHTML = `<div class="card"><h2>Not connected yet</h2>
       <p class="sub">Add your repository and token under Settings, then come back.</p>
@@ -972,6 +993,7 @@ const bandPhrase = price => (Math.floor(price / 1000) === 0 ? "" : "in ") + band
 /* ---------- manage ---------- */
 async function renderManage(){
   const box = $("#tab-manage");
+  if (isHosted() && HOSTED.why){ box.innerHTML = noTokenCard("save a change"); return; }
   if (!ready()){
     box.innerHTML = `<div class="card"><h2>Not connected yet</h2>
       <p class="sub">Add your repository and token under Settings first.</p>
