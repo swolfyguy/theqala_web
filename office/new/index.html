@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>New order — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&family=Tiro+Devanagari+Marathi&display=swap">
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
+  --on-accent:#FFF6E9; --good:#2F6E5B;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4); --on-accent:#131011; --good:#7FC0A8;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+header{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+.bar h1{font-size:1.35rem}
+.crossnav{display:flex;align-items:center;gap:4px;font-size:.82rem;flex-wrap:wrap}
+.crossnav a,.crossnav span{padding:5px 11px;border-radius:999px;text-decoration:none;
+  color:var(--ink-2);border:1px solid transparent}
+.crossnav a:hover{border-color:var(--line-2);color:var(--ink)}
+.crossnav span[aria-current]{background:var(--panel-2);color:var(--ink);font-weight:600}
+.bar .out{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--ink-2);
+  padding:5px 12px;border-radius:999px;font:inherit;font-size:.78rem;cursor:pointer}
+.bar .out:hover{border-color:var(--accent);color:var(--accent)}
+
+form{padding:20px 0 80px;display:grid;gap:18px}
+fieldset{border:1px solid var(--line);border-radius:14px;background:var(--panel);
+  margin:0;padding:16px 18px 20px;box-shadow:0 1px 2px var(--shadow)}
+legend{font-family:Marcellus,Georgia,serif;font-size:1.05rem;padding:0 8px;color:var(--ink)}
+.hint{color:var(--ink-2);font-size:.83rem;margin:-2px 0 14px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.grid .wide{grid-column:1/-1}
+@media (max-width:560px){ .grid{grid-template-columns:1fr} }
+label.f{display:block}
+label.f>span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;display:block;margin-bottom:7px}
+label.f>span em{font-style:normal;text-transform:none;letter-spacing:0;
+  font-weight:400;opacity:.75}
+input[type=text],input[type=tel],input[type=number],select,textarea{
+  width:100%;background:var(--ground);border:1px solid var(--line-2);border-radius:12px;
+  padding:12px 14px;color:inherit;font:inherit}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold-2);
+  box-shadow:0 0 0 3px var(--wash-gold)}
+input:invalid:not(:placeholder-shown){border-color:var(--accent)}
+
+/* where it came from, and how they are paying */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{border:1px solid var(--line-2);background:var(--ground);color:var(--ink-2);
+  padding:9px 16px;border-radius:999px;font-size:.88rem;cursor:pointer;user-select:none}
+.chips label:hover{border-color:var(--gold-2)}
+.chips input:checked+label{background:var(--accent);border-color:var(--accent);
+  color:var(--on-accent);font-weight:600}
+.chips input:focus-visible+label{box-shadow:0 0 0 3px var(--wash-gold)}
+
+/* the photograph */
+.shot{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.drop{flex:0 0 auto;width:132px;height:164px;border-radius:12px;border:1px dashed var(--line-2);
+  background:var(--ground);display:grid;place-items:center;overflow:hidden;position:relative;
+  cursor:pointer;text-align:center;color:var(--ink-2);font-size:.8rem;padding:10px}
+.drop:hover{border-color:var(--gold-2);color:var(--ink)}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.drop .mark{font-family:"Tiro Devanagari Marathi",serif;font-size:1.6rem;color:var(--gold-2);
+  display:block;margin-bottom:4px}
+.shot .say{flex:1 1 180px;min-width:0;color:var(--ink-2);font-size:.85rem}
+.shot .say b{color:var(--ink);display:block;font-weight:600;font-size:.92rem}
+.shot .say b i,.drop i{font-style:normal;font-weight:400;color:var(--ink-2);font-size:.85em}
+.shot .btn{margin-top:10px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+.btn{border:1px solid var(--line-2);background:var(--panel);color:var(--ink);
+  padding:8px 14px;border-radius:10px;font:inherit;font-size:.84rem;cursor:pointer;
+  text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--gold)}
+.links{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.links code{background:var(--ground);border:1px solid var(--line);border-radius:8px;
+  padding:8px 12px;font-size:.85rem;overflow-wrap:anywhere}
+
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.total b{font-family:Marcellus,Georgia,serif;font-weight:400;font-size:1.4rem}
+
+.go{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+button.big{background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);
+  padding:14px 30px;border-radius:12px;font:inherit;font-weight:600;font-size:1rem;cursor:pointer}
+button.big:disabled{opacity:.55;cursor:default}
+.err{color:var(--accent);font-size:.88rem;min-height:1.2em;margin:0}
+
+.done{padding:56px 0 90px;text-align:center}
+.done .mark{font-family:"Tiro Devanagari Marathi",serif;font-size:2.2rem;color:var(--gold-2)}
+.done h2{font-size:1.7rem;margin:8px 0 6px}
+.done .ref{font-family:Marcellus,Georgia,serif;font-size:1.15rem;letter-spacing:.05em;
+  border:1px solid var(--gold-2);border-radius:10px;padding:8px 18px;display:inline-block;
+  margin:10px 0 6px;color:var(--gold)}
+.done p{color:var(--ink-2)}
+.done .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.done .row .btn.first{background:var(--accent);border-color:var(--accent);color:var(--on-accent);
+  font-weight:600}
+.warn{color:var(--accent);font-size:.86rem}
+
+.note{margin:22px 0;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:10px;background:var(--panel);font-size:.9rem}
+#snack{position:fixed;left:50%;bottom:22px;transform:translate(-50%,120%);
+  background:var(--ink);color:var(--ground);padding:11px 18px;border-radius:999px;
+  font-size:.87rem;box-shadow:0 6px 22px var(--shadow);transition:transform .25s;z-index:60;
+  max-width:92vw;text-align:center}
+#snack.up{transform:translate(-50%,0)}
+#snack:empty{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <h1>New order</h1>
+      <div class="crossnav">
+        <a href="/office/">Orders</a>
+        <span aria-current="page">New order</span>
+        <a href="/studio/">Studio</a>
+      </div>
+      <button class="out" id="out" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" id="main">
+
+<form id="f" autocomplete="on" novalidate>
+
+  <fieldset id="linkbox">
+    <legend>Or let her fill it in herself</legend>
+    <p class="hint">Send her this link in the chat and she types her own name,
+      address, pincode and length — no price, no photograph, nothing about the
+      shop. It lands in the order book the same way, waiting for you to put the
+      price and the picture on.</p>
+    <div class="links">
+      <code id="linkurl">theqalashree.com/order/</code>
+      <button class="btn" type="button" id="cp-wa">Copy for WhatsApp</button>
+      <button class="btn" type="button" id="cp-ig">Copy for Instagram</button>
+      <a class="btn" id="lk-open" href="/order/" target="_blank" rel="noopener">Open it</a>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Where it came from</legend>
+    <p class="hint">This is the one thing the website cannot know. It also keeps
+      the piece count honest — an order typed in here does not take anything off
+      the shop, because you already have it set aside.</p>
+    <div class="chips" id="src">
+      <input type="radio" name="source" id="s-whatsapp" value="whatsapp" checked>
+      <label for="s-whatsapp">WhatsApp</label>
+      <input type="radio" name="source" id="s-instagram" value="instagram">
+      <label for="s-instagram">Instagram</label>
+      <input type="radio" name="source" id="s-phone" value="phone">
+      <label for="s-phone">Phone call</label>
+      <input type="radio" name="source" id="s-shop" value="shop">
+      <label for="s-shop">At the shop</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Who</legend>
+    <div class="grid">
+      <label class="f"><span>Name</span>
+        <input type="text" name="name" id="i-name" placeholder=" " maxlength="80"
+               autocomplete="name" required></label>
+      <label class="f"><span>Phone <em>10 digits</em></span>
+        <input type="tel" name="phone" id="i-phone" placeholder=" " inputmode="numeric"
+               maxlength="14" autocomplete="tel-national" required></label>
+      <label class="f wide" id="w-addr"><span>Address</span>
+        <textarea name="addr" id="i-addr" maxlength="400" placeholder=" "
+                  autocomplete="street-address"></textarea></label>
+      <label class="f" id="w-pin"><span>Pincode</span>
+        <input type="text" name="pin" id="i-pin" inputmode="numeric" maxlength="6"
+               placeholder=" " autocomplete="postal-code"></label>
+      <label class="f"><span>How they are paying</span>
+        <select name="pay" id="i-pay">
+          <option value="cod">Cash on delivery</option>
+          <option value="online">Paying online</option>
+          <option value="shop">Collecting at the shop</option>
+        </select></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>The piece</legend>
+    <div class="shot">
+      <label class="drop" id="drop" for="i-file">
+        <input type="file" id="i-file" accept="image/*">
+        <span id="dropsay"><span class="mark">॥</span>Add the photograph<br>they sent<br><i>optional</i></span>
+        <img id="prev" alt="" hidden>
+      </label>
+      <div class="say">
+        <b>The photograph from the chat <i>optional</i></b>
+        Save the picture they sent you and add it here, or leave it — you can put
+        it on later from the order book, when you have it to hand. It is shrunk on
+        this phone before it goes anywhere.
+        <div id="shotsize"></div>
+        <button class="btn" type="button" id="drop-clear" hidden>Remove the picture</button>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:18px">
+      <label class="f wide"><span>What it is <em>a few words, for the book</em></span>
+        <input type="text" name="title" id="i-title" maxlength="120" placeholder=" "></label>
+      <label class="f"><span>Poth length <em>if it is settled</em></span>
+        <select name="poth" id="i-poth"><option value="">Not settled yet</option></select></label>
+      <label class="f"><span>Piece code <em>if it is on the website</em></span>
+        <input type="text" name="code" id="i-code" list="codes" maxlength="24"
+               placeholder=" " autocomplete="off">
+        <datalist id="codes"></datalist></label>
+      <label class="f wide"><span>Price <em>the whole amount, in rupees — or leave it for later</em></span>
+        <input type="number" name="price" id="i-price" min="0" max="5000000" step="1"
+               inputmode="numeric" placeholder=" "></label>
+      <label class="f wide"><span>Anything to remember <em>optional</em></span>
+        <textarea name="note" id="i-note" maxlength="500" placeholder=" "></textarea></label>
+    </div>
+
+    <div class="total"><span>Total for this order</span><b id="tot">not set yet</b></div>
+  </fieldset>
+
+  <div class="go">
+    <button class="big" type="submit" id="go">Put it in the book</button>
+    <p class="err" id="err"></p>
+  </div>
+</form>
+
+</div>
+
+<div id="snack"></div>
+
+<script>
+const POTH = ["24","26","28","30","32","34","36","38","40"];
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rupees = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+
+function snack(text){
+  const el = $("#snack");
+  el.textContent = text; el.classList.add("up");
+  clearTimeout(snack.t); snack.t = setTimeout(() => el.classList.remove("up"), 3600);
+}
+
+/* ---------- the lengths, and the pieces already on the website ---------- */
+
+$("#i-poth").insertAdjacentHTML("beforeend",
+  POTH.map(p => `<option value="${p}">${p} inches</option>`).join(""));
+
+let PIECES = {};
+(async () => {
+  try {
+    const r = await fetch("/photos/catalogue.json", {cache: "no-store"});
+    if (!r.ok) return;
+    const cat = await r.json();
+    const out = [];
+    for (const c of cat.categories || [])
+      for (const p of c.products || []){
+        PIECES[p.code] = p;
+        out.push(`<option value="${esc(p.code)}">${esc(p.title || "")}${
+          p.price ? " · " + rupees(p.price) : ""}</option>`);
+      }
+    $("#codes").innerHTML = out.join("");
+  } catch { /* the form works perfectly well without it */ }
+})();
+
+/* Picking a piece that is already on the website fills in the rest. */
+$("#i-code").addEventListener("change", () => {
+  const p = PIECES[$("#i-code").value.trim().toUpperCase()];
+  if (!p) return;
+  $("#i-code").value = p.code;
+  if (!$("#i-title").value.trim() && p.title) $("#i-title").value = p.title;
+  if (!$("#i-price").value && p.price) { $("#i-price").value = p.price; total(); }
+});
+
+/* ---------- collecting at the shop needs no address ---------- */
+
+function payChanged(){
+  const pickup = $("#i-pay").value === "shop";
+  $("#w-addr").hidden = pickup;
+  $("#w-pin").hidden = pickup;
+}
+$("#i-pay").addEventListener("change", payChanged);
+payChanged();
+
+const total = () => $("#tot").textContent =
+  $("#i-price").value ? rupees($("#i-price").value) : "not set yet";
+$("#i-price").addEventListener("input", total);
+
+/* ---------- the photograph, shrunk here before it goes anywhere ---------- */
+
+let SHOT = "";                                   // a data: URL, or nothing
+
+$("#i-file").addEventListener("change", async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  $("#shotsize").textContent = "Shrinking…";
+  try {
+    SHOT = await shrink(file);
+    $("#prev").src = SHOT; $("#prev").hidden = false;
+    $("#dropsay").hidden = true;
+    $("#drop-clear").hidden = false;
+    const kb = Math.round(SHOT.length * 0.75 / 1024);
+    $("#shotsize").textContent = `Ready — about ${kb} KB.`;
+  } catch (err) {
+    SHOT = "";
+    $("#shotsize").innerHTML = `<span class="warn">${esc(err.message)}</span>`;
+  }
+  e.target.value = "";
+});
+
+$("#drop-clear").addEventListener("click", () => {
+  SHOT = ""; $("#prev").hidden = true; $("#prev").removeAttribute("src");
+  $("#dropsay").hidden = false; $("#drop-clear").hidden = true;
+  $("#shotsize").textContent = "";
+});
+
+/* A chat photograph is often four thousand pixels wide and several megabytes.
+   Nothing in the order book is bigger than a thumbnail, so it is brought down
+   to something sensible here — on the phone, before it travels. */
+function shrink(file, longest = 1400){
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type))
+      return reject(new Error("That is not a picture."));
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, longest / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width  = Math.max(1, Math.round(img.width  * scale));
+      c.height = Math.max(1, Math.round(img.height * scale));
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);   /* PNGs with holes */
+      g.drawImage(img, 0, 0, c.width, c.height);
+      /* Down a step at a time until it is a size worth sending. */
+      let out = "";
+      for (const q of [0.72, 0.6, 0.48, 0.36]){
+        out = c.toDataURL("image/jpeg", q);
+        if (out.length < 900000) break;
+      }
+      if (out.length > 1400000) return reject(new Error("That picture is too big, even shrunk."));
+      resolve(out);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      /* iPhones save as HEIC, which most browsers cannot open. */
+      reject(new Error("This browser cannot open that picture. Send it to yourself "
+        + "on WhatsApp first, or save it as JPG."));
+    };
+    img.src = url;
+  });
+}
+
+/* ---------- putting it in the book ---------- */
+
+$("#f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("#err"), go = $("#go");
+  err.textContent = "";
+
+  const pay = $("#i-pay").value;
+  const body = {
+    source: (document.querySelector('input[name=source]:checked') || {}).value || "",
+    name:   $("#i-name").value,
+    phone:  $("#i-phone").value,
+    addr:   $("#i-addr").value,
+    pin:    $("#i-pin").value,
+    pay,
+    poth:   $("#i-poth").value,
+    title:  $("#i-title").value,
+    code:   $("#i-code").value,
+    price:  $("#i-price").value,
+    note:   $("#i-note").value,
+    photo:  SHOT
+  };
+
+  /* Said here as well as on the server, so a mistake is caught before a
+     photograph is carried all the way up a shop's mobile connection. */
+  if (String(body.name).trim().length < 2) return stop("Put in a name.", "#i-name");
+  if (!/^[6-9]\d{9}$/.test(String(body.phone).replace(/\D/g, "").slice(-10)))
+    return stop("That phone number does not look right.", "#i-phone");
+  if (String(body.price).trim() !== "" && !(Number(body.price) >= 0))
+    return stop("That is not a price.", "#i-price");
+  if (pay !== "shop"){
+    const pin = String(body.pin).replace(/\D/g, "");
+    if (pin && pin.length !== 6) return stop("A pincode is six digits.", "#i-pin");
+  }
+
+  function stop(why, focus){ err.textContent = why; if (focus) $(focus).focus(); }
+
+  go.disabled = true; go.textContent = "Saving…";
+  try {
+    const r = await fetch("/office/order", {
+      method: "POST",
+      headers: {"content-type": "application/json"},
+      credentials: "same-origin",
+      body: JSON.stringify(body)
+    });
+    if (r.status === 401){ location.href = "/office/?next=" + encodeURIComponent("/office/new/"); return; }
+    const d = await r.json();
+    if (!r.ok || !d.ok) throw new Error(d.why || "It would not save.");
+    done(d);
+  } catch (e2) {
+    err.textContent = e2.message || "It would not save.";
+    go.disabled = false; go.textContent = "Put it in the book";
+  }
+});
+
+function done(d){
+  document.querySelector("form").remove();
+  $("#main").insertAdjacentHTML("beforeend", `
+    <div class="done">
+      <div class="mark">॥</div>
+      <h2>It is in the book</h2>
+      <div class="ref">${esc(d.ref)}</div>
+      <p>Marked as new. Change it to confirmed once you have taken the money.</p>
+      ${d.warn ? `<p class="warn">${esc(d.warn)}</p>` : ""}
+      <div class="row">
+        <a class="btn first" href="/office/">Open the order book</a>
+        <a class="btn" href="/office/new/">Take another</a>
+      </div>
+    </div>`);
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+/* The link she gets. Written from wherever this page is open, so it is right
+   on the live site and right on this computer while testing. */
+(function links(){
+  const base = location.origin + "/order/";
+  $("#linkurl").textContent = base.replace(/^https?:\/\//, "");
+  $("#lk-open").href = base;
+  const copy = async (url, btn) => {
+    const was = btn.textContent;
+    try { await navigator.clipboard.writeText(url); btn.textContent = "Copied"; }
+    catch { 
+      /* Older phones will not hand a page the clipboard. Show it to copy by hand. */
+      prompt("Copy this link:", url); return;
+    }
+    snack("Link copied — paste it into the chat");
+    setTimeout(() => { btn.textContent = was; }, 1800);
+  };
+  $("#cp-wa").onclick = () => copy(base + "?from=whatsapp",  $("#cp-wa"));
+  $("#cp-ig").onclick = () => copy(base + "?from=instagram", $("#cp-ig"));
+})();
+
+$("#out").addEventListener("click", async () => {
+  try { await fetch("/office/logout", {method: "POST", credentials: "same-origin"}); } catch {}
+  location.href = "/office/";
+});
+</script>
+</body>
+</html>

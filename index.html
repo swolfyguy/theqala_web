@@ -2,14 +2,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Qala</title>
 <meta name="description" content="Rajwadi, Victorian and moissanite jewellery, made by hand in Dighi, Pune. Order on WhatsApp.">
+<link rel="canonical" href="https://theqalashree.com/">
 <!-- How the site looks when a link is shared on WhatsApp or Instagram.
-     Once you have your domain, make og:image the full address, e.g.
-     content="https://theqala.com/photos/hero-1.jpg" -->
+     These have to be full addresses — a relative one is quietly ignored by
+     WhatsApp, so the preview would come through with no picture. -->
+<meta property="og:url" content="https://theqalashree.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Qala">
 <meta property="og:title" content="The Qala — Rajwadi &amp; Victorian jewellery, Dighi, Pune">
 <meta property="og:description" content="Thushi, saaj, mangalsutra, bangles and bridal pieces, made by hand and sent insured across India. Order on WhatsApp.">
-<meta property="og:image" content="photos/logo-square.jpg">
+<meta property="og:image" content="https://theqalashree.com/photos/logo-square.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="photos/apple-touch-icon.png">
@@ -534,6 +536,18 @@ form.orderform{display:grid;gap:18px;background:var(--panel);border:1px solid va
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
 .field .err{color:var(--accent-2);font-size:.75rem;min-height:1.1em}
 .field.bad input,.field.bad textarea,.field.bad select{border-color:var(--accent-2)}
+.card.gone .arch{filter:grayscale(1);opacity:.55}
+.card.gone h3,.card.gone .price .now{color:var(--ink-2)}
+.soldout{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  background:var(--glass);backdrop-filter:blur(3px);border:1px solid var(--line-2);
+  color:var(--ink);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:600;padding:7px 16px;border-radius:999px;white-space:nowrap}
+.few{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);
+  font-weight:600;margin-left:10px}
+.gonebox{border:1px solid var(--line);border-left:3px solid var(--ink-2);border-radius:14px;
+  background:var(--panel);padding:16px 18px;margin:18px 0 0}
+.gonebox b{display:block;font-size:1rem;margin-bottom:4px}
+.gonebox p{margin:0;color:var(--ink-2);font-size:.92rem;max-width:46ch}
 .field select{appearance:none;-webkit-appearance:none;cursor:pointer;
   background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
   background-position:calc(100% - 20px) calc(50% + 2px),calc(100% - 15px) calc(50% + 2px);
@@ -756,11 +770,11 @@ const PAY = [
   {id:"cod",    t:"Cash on delivery", d:"\u20b9" + 200 + " extra, paid to the courier at your door"}
 ];
 
-/* Your live address, used to build the links inside every WhatsApp order.
-   Leave it empty and the site uses whatever address the page is open at —
-   which is right once it is live, but is "localhost" while you preview.
-   Once you have the domain, set it:  const SITE = "https://theqala.com/"; */
-const SITE = "";
+/* The live address, used to build the links inside every WhatsApp order.
+   Now that it is set, an order sent while you are previewing on localhost
+   still carries proper theqalashree.com links — which is what you want,
+   because those links go to a customer. */
+const SITE = "https://theqalashree.com/";
 const SHIP_FREE_OVER = 1499;
 const SHIP_FLAT = 79;
 
@@ -964,6 +978,24 @@ async function loadCatalogue(){
 }
 
 const byCode = code => ITEMS.find(i => i.code === code);
+
+/* How many of each piece are still to be had. Cloudflare works it out from
+   the orders themselves. If it cannot be reached we show everything as
+   available — better to take an order and sort it out in the chat than to
+   hide a piece that is sitting on the shelf. */
+let LEFT = null;
+async function loadLeft(){
+  try {
+    const r = await fetch("/api/stock", {cache: "no-store"});
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.ok) LEFT = d.left || {};
+  } catch (e) {}
+}
+/* null while we do not know, which reads as "available". */
+const leftOf   = it => (LEFT && it.code in LEFT) ? LEFT[it.code] : null;
+const soldOut  = it => leftOf(it) === 0;
+const fewLeft  = it => { const n = leftOf(it); return n !== null && n > 0 && n <= 3 ? n : 0; };
 
 /* The even lengths this piece is made in, shortest first. */
 function lengthsOf(it){
@@ -1178,17 +1210,20 @@ const VIDEO_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="tr
 const HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>`;
 
 function card(it){
-  return `<a class="card rise" href="#/piece/${encodeURIComponent(it.code)}">
+  const out = soldOut(it), few = fewLeft(it);
+  return `<a class="card rise ${out ? "gone" : ""}" href="#/piece/${encodeURIComponent(it.code)}">
     <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}"
       aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
     <div class="arch">${mark()}${shot(it.images[0], {alt: titleOf(it) + " — " + it.catEn})}${
-      mediaCount(it) > 1 ? `<span class="views">${it.video ? VIDEO_ICON + " " : ""}${mediaCount(it)}</span>` : ""}</div>
+      mediaCount(it) > 1 ? `<span class="views">${it.video ? VIDEO_ICON + " " : ""}${mediaCount(it)}</span>` : ""}${
+      out ? `<span class="soldout">Sold out</span>` : ""}</div>
     <div>
       <span class="mr">${it.catMr}</span>
       <h3>${esc(titleOf(it))}</h3>
       <p class="meta">${esc(it.catEn)} · ${esc(it.code)}</p>
     </div>
-    <div class="price"><span class="now rupee">${priceOf(it)}</span></div>
+    <div class="price"><span class="now rupee">${priceOf(it)}</span>${
+      few ? `<span class="few">${few} left</span>` : ""}</div>
   </a>`;
 }
 function saajRule(){ return `<div class="saaj" aria-hidden="true"></div>`; }
@@ -1484,17 +1519,23 @@ function piece(code){
       <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
       ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
       <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
+      ${soldOut(it) ? `<div class="gonebox">
+        <b>Sold out</b>
+        <p>This one has gone. Message us and we will tell you how soon another
+           can be made, or find you something close to it.</p>
+      </div>` : `
       <div class="qtyrow">
         <div class="qty"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
-        <span class="muted" style="font-size:.86rem">Ready to ship in 2 working days</span>
-      </div>
+        <span class="muted" style="font-size:.86rem">${fewLeft(it)
+          ? `Only ${fewLeft(it)} left` : "Ready to ship in 2 working days"}</span>
+      </div>`}
       <div class="buyrow">
-        <a class="btn" id="orderBtn" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>
+        ${soldOut(it) ? "" : `<a class="btn" id="orderBtn" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>`}
         <a class="btn wa" id="waBtn" target="_blank" rel="noopener" href="#">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
           Order on WhatsApp</a>
       </div>
-      <div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>
+      ${soldOut(it) ? "" : `<div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>`}
 
       <div class="paybox">
         <h4>How you can pay</h4>
@@ -1518,7 +1559,8 @@ function piece(code){
   </div>
   <div class="orderbar">
     <div class="p"><b class="rupee">${priceOf(it)}</b><span>${esc(titleOf(it))}</span></div>
-    <a class="btn" id="orderBar" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>
+    ${soldOut(it) ? `<span class="btn ghost" style="pointer-events:none;opacity:.7">Sold out</span>`
+      : `<a class="btn" id="orderBar" href="#/order?p=${encodeURIComponent(it.code)}&q=1">Order now</a>`}
     <a class="wabtn" id="waBar" target="_blank" rel="noopener" href="#" aria-label="Order on WhatsApp"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg></a>
   </div>
   ${also.length ? `${saajRule()}
@@ -1617,6 +1659,16 @@ function recordOrder(o){
       headers: {"content-type": "application/json"},
       body,
       keepalive: true          // survives the page moving on to #/placed
+    }).then(async r => {
+      /* Somebody got the last one in the seconds between the page painting and
+         this order arriving. WhatsApp has already opened, so the conversation
+         will happen anyway — we just say so plainly. */
+      if (r.status === 409 && LAST_ORDER && LAST_ORDER.ref === o.ref) {
+        const d = await r.json().catch(() => ({}));
+        LAST_ORDER.gone = (d.gone || []).map(g => g.title || g.code).filter(Boolean);
+        LEFT_AT = 0;
+        if ((parseHash().parts[0] || "") === "placed") render();
+      }
     }).catch(() => {});
   } catch (e) { /* nothing here is worth interrupting an order for */ }
 }
@@ -1726,6 +1778,12 @@ function placedView(){
     <p class="eyebrow">Order placed</p>
     <h1 style="font-size:2.1rem">Thank you, ${esc(o.name.split(" ")[0])}.</h1>
     <div class="oid">${esc(o.ref)}</div>
+    ${o.gone && o.gone.length ? `<div class="gonebox" style="text-align:left;margin:18px auto 0;max-width:520px">
+      <b>One thing</b>
+      <p>${o.gone.length === 1 ? `${esc(o.gone[0])} was` : `Those pieces were`} taken by
+         someone else while you were filling this in. Your message has still reached us —
+         we will tell you how soon another can be made, or find you something close.</p>
+    </div>` : ""}
 
     <p class="muted">WhatsApp should have opened with your order already written out. If it did not, or you closed it, use the button below — nothing reaches us until that message is sent.</p>
     <a class="btn wa" style="margin-top:20px" href="${waLink(o.text)}" target="_blank" rel="noopener">Send the order on WhatsApp</a>
@@ -1841,6 +1899,18 @@ function parseHash(){
   return {parts: path.split("/").filter(Boolean).map(decodeURIComponent), params: new URLSearchParams(qs || "")};
 }
 
+/* Pages paint from what we last knew, then quietly ask Cloudflare and paint
+   again if something has sold in the meantime. Never blocks the page. */
+let LEFT_AT = 0, LEFT_BUSY = false;
+async function freshenStock(){
+  if (LEFT_BUSY || Date.now() - LEFT_AT < 15000) return;
+  LEFT_BUSY = true;
+  const before = JSON.stringify(LEFT);
+  await loadLeft();
+  LEFT_BUSY = false; LEFT_AT = Date.now();
+  if (JSON.stringify(LEFT) !== before) render();
+}
+
 function render(){
   const {parts, params} = parseHash();
   const r = parts[0] || "";
@@ -1849,11 +1919,11 @@ function render(){
       <div class="skelgrid">${Array.from({length:8},()=>`<div class="skel"></div>`).join("")}</div>
     </div>`;
   else if (r === "") html = home();
-  else if (r === "shop") html = shop(params);
-  else if (r === "piece") html = piece(parts[1]);
+  else if (r === "shop") { html = shop(params); freshenStock(); }
+  else if (r === "piece") { html = piece(parts[1]); freshenStock(); }
   else if (r === "cart" || r === "bag") html = bagView();
   else if (r === "saved") html = savedView();
-  else if (r === "order") html = orderView(params);
+  else if (r === "order") { html = orderView(params); freshenStock(); }
   else if (r === "placed") html = placedView();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
@@ -1991,9 +2061,10 @@ function wire(route){
       ["#orderBtn", "#orderBar"].forEach(sel => { const el = $(sel); if (el) el.href = order; });
     };
     sync();
-    $("#qMinus").onclick = () => { q = Math.max(1, q - 1); sync(); };
-    $("#qPlus").onclick  = () => { q = Math.min(20, q + 1); sync(); };
-    $("#addBtn").onclick = () => addToBag(it.code, q);
+    /* Gone when the piece is sold out — there is nothing to count or add. */
+    if ($("#qMinus")) $("#qMinus").onclick = () => { q = Math.max(1, q - 1); sync(); };
+    if ($("#qPlus"))  $("#qPlus").onclick  = () => { q = Math.min(20, q + 1); sync(); };
+    if ($("#addBtn")) $("#addBtn").onclick = () => addToBag(it.code, q);
 
     const main = $("#mainArt");
     const zoom = () => { const im = main.querySelector("img"); if (im) openLightbox(im.getAttribute("src"), titleOf(it)); };

@@ -11,9 +11,17 @@ There are two ways to order, side by side on every piece and in the bag:
 - **Order on WhatsApp** — straight into the chat with just the piece and the
   price band, for someone who would rather ask first.
 
-There is no payment gateway and no orders database. Nothing reaches you until
-that WhatsApp message is actually sent — the confirmation screen says so and
-repeats the button in case she closed the tab.
+There is no payment gateway. Nothing is charged until you agree it in the chat —
+the confirmation screen says so and repeats the WhatsApp button in case she
+closed the tab.
+
+Every order is also written down in a small database on Cloudflare, so one that
+never makes it to WhatsApp is not lost. **The order book** at `/office/` is where
+you read them. Orders that arrive on WhatsApp or Instagram reach the same book
+two ways — you type them in at `/office/new/`, or you send her the public link at
+`/order/` and she fills in her own address. Either way the price and the
+photograph stay yours to fill in afterwards, and one list is the whole day's work.
+`claude/qala-orders.md` has all of it.
 
 Her details are remembered in her own browser, so a returning customer does not
 retype them.
@@ -124,7 +132,7 @@ HTTP and browsers block that on a `file://` address.
 
 ```js
 const WA   = "919579628754";   // your WhatsApp number — already set
-const SITE = "";               // -> "https://theqala.com/" once you have it
+const SITE = "https://theqalashree.com/";   // the live address
 ```
 
 `SITE` is what puts a **direct link to each piece** inside every WhatsApp order,
@@ -177,9 +185,9 @@ security. You need the domain and nothing else.
 2. At GoDaddy: **My Products → Domain → DNS → Nameservers → Change → I'll use
    my own** → paste those two.
 3. Wait — usually 10–30 minutes.
-4. Cloudflare Pages → your project → **Custom domains** → add `theqala.com` and
-   `www.theqala.com`. SSL is issued automatically.
-5. Set `const SITE = "https://theqala.com/";` in `index.html`, and make the
+4. Cloudflare → your project → **Custom domains** → `theqalashree.com` is
+   attached. SSL is issued automatically.
+5. `const SITE = "https://theqalashree.com/";` is set in `index.html`, and the
    `og:image` tag a full address.
 
 Moving the nameservers rather than adding a single DNS record matters: a CNAME
@@ -224,7 +232,8 @@ The domain, and nothing else.
 | | |
 |---|---|
 | Domain (.com) | ₹1,000–1,500 / year at renewal |
-| Cloudflare Pages hosting | ₹0 |
+| Cloudflare hosting | ₹0 |
+| Cloudflare D1, the order book | ₹0 — a shop this size is nowhere near the free limits |
 | GitHub Actions | ₹0 on public repos, and well inside the free minutes on private |
 | Payment gateway | ₹0 — there isn't one |
 | WhatsApp | ₹0 — plain `wa.me` links |
@@ -233,7 +242,11 @@ The domain, and nothing else.
 
 ## What this site deliberately does not do
 
-No orders database, no inventory count, no admin panel, no analytics. Every
-order lives in your WhatsApp chat. That is fine at 20–40 orders a month and
-painful past 100 — at that point the next step is Razorpay payment links sent
-in the chat, which needs no change to this site.
+No payment gateway, no analytics, no accounts for customers. Money is still
+settled in the chat, which is fine at 20–40 orders a month and gets tiring past
+100 — at that point the next step is Razorpay payment links sent in the chat,
+which needs no change to this site.
+
+It does now keep an order book and a count of how many of each piece there are.
+Both live on Cloudflare's free plan and both are described in
+`claude/qala-orders.md`.

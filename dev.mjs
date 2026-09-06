@@ -33,16 +33,29 @@ const DBFILE = path.join(ROOT, ".qala-dev.sqlite");
 const SCHEMA = fs.readFileSync(path.join(ROOT, "schema.sql"), "utf8")
   .split("\n").filter(l => !l.trim().startsWith("--")).join("\n");
 
+/* Columns added to the orders table after the first version. SQLite has no
+   "add this column if it is missing", so each one is asked for and its
+   complaint ignored — which is exactly what you do by hand on D1. */
+const LATER = [
+  "ALTER TABLE orders ADD COLUMN poth TEXT DEFAULT ''",
+  "ALTER TABLE orders ADD COLUMN source TEXT NOT NULL DEFAULT 'site'",
+  "ALTER TABLE orders ADD COLUMN photo TEXT DEFAULT ''"
+];
+
+const ready = db => {
+  db.exec(SCHEMA);
+  for (const line of LATER) { try { db.exec(line); } catch { /* already there */ } }
+  return db;
+};
+
 /* A file, so orders survive a restart. Some folders cannot hold a SQLite
    file — a network drive, OneDrive, a shared folder — so fall back to
    memory rather than refusing to start. */
 let sqlite, kept = DBFILE;
 try {
-  sqlite = new DatabaseSync(DBFILE);
-  sqlite.exec(SCHEMA);
+  sqlite = ready(new DatabaseSync(DBFILE));
 } catch (err) {
-  sqlite = new DatabaseSync(":memory:");
-  sqlite.exec(SCHEMA);
+  sqlite = ready(new DatabaseSync(":memory:"));
   kept = null;
 }
 
@@ -92,7 +105,11 @@ const ASSETS = {
 
     if (p.endsWith("/")) p += "index.html";
     if (p === "") p = "/index.html";
-    const file = path.join(ROOT, p);
+    let file = path.join(ROOT, p);
+    /* Cloudflare serves /office/new from /office/new/index.html. Do the same,
+       so a link without the closing slash works here too. */
+    if (fs.existsSync(file) && fs.statSync(file).isDirectory())
+      file = path.join(file, "index.html");
     if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory())
       return new Response("Not found", {status: 404});
     return new Response(fs.readFileSync(file), {
@@ -158,6 +175,7 @@ http.createServer(async (req, res) => {
 
     the shop        http://localhost:${PORT}/
     the order book  http://localhost:${PORT}/office/
+    a new order     http://localhost:${PORT}/office/new/
 
     password        ${PASSWORD}
     numbers         90112 40352 · 75582 09163 · 95796 28754

@@ -230,23 +230,40 @@ SIZES = [str(n) for n in range(24, 41, 2)]
 def read_stock(folder):
     """The poth lengths this piece comes in, as a range.
 
-       photos/<cat>/<price> <name>/stock.json holds {"min": 24, "max": 36} —
-       the shortest and longest the piece is made in. No file means the piece
-       has no poth at all, and the shop asks for no length.
+       photos/<cat>/<price> <name>/stock.json holds
+
+           {"qty": 3, "min": 24, "max": 36}
+
+       qty  — how many of this piece the shop has. Missing means one.
+       min/max — the shortest and longest poth it is made in. Missing means
+       the piece has no poth at all, and the shop asks for no length.
 
        An older file listing a count against each size is still understood:
        the smallest and largest length in it become the range."""
     f = folder / STOCK_FILE
     if not f.is_file():
-        return {}
+        return {"qty": 1}                 # no file: one of it, no poth lengths
     try:
         raw = json.loads(f.read_text(encoding="utf-8"))
     except Exception as e:
-        warn(f"{rel(f)} is not readable as JSON ({e}) — no lengths for this piece")
-        return {}
+        warn(f"{rel(f)} is not readable as JSON ({e}) — treated as one, with no lengths")
+        return {"qty": 1}
     if not isinstance(raw, dict) or not raw:
-        warn(f'{rel(f)} should look like {{"min": 24, "max": 36}} — no lengths for this piece')
-        return {}
+        warn(f'{rel(f)} should look like {{"qty": 3, "min": 24, "max": 36}} — treated as one')
+        return {"qty": 1}
+
+    qty = raw.get("qty", raw.get("quantity"))
+    if qty is None:
+        made = 1                      # nothing said means one of it
+    else:
+        try:
+            made = int(qty)
+        except Exception:
+            warn(f"{rel(f)} has {qty!r} as the quantity, which is not a number — treated as one")
+            made = 1
+        if made < 0:
+            warn(f"{rel(f)} has {made} as the quantity — treated as none left")
+            made = 0
 
     if "min" in raw or "max" in raw:
         lo, hi = raw.get("min"), raw.get("max")
@@ -254,20 +271,19 @@ def read_stock(folder):
         # the older shape: {"24": 1, "28": 2}
         found = [k for k in raw if str(k).strip() in SIZES]
         if not found:
-            warn(f'{rel(f)} lists no lengths the shop makes — ignored')
-            return {}
+            return {"qty": made}          # a quantity on its own is perfectly normal
         lo, hi = min(found, key=int), max(found, key=int)
 
     lo, hi = str(lo).strip(), str(hi).strip()
     if lo not in SIZES or hi not in SIZES:
         warn(f"{rel(f)} gives {lo}–{hi}, and the shop makes even lengths "
-             f"{SIZES[0]} to {SIZES[-1]} — ignored")
-        return {}
+             f"{SIZES[0]} to {SIZES[-1]} — the lengths ignored")
+        return {"qty": made}
     if int(lo) > int(hi):
         warn(f"{rel(f)} has the shortest length ({lo}) longer than the longest ({hi}) — "
              f"turned around")
         lo, hi = hi, lo
-    return {"min": int(lo), "max": int(hi)}
+    return {"min": int(lo), "max": int(hi), "qty": made}
 
 
 def media_in(folder):

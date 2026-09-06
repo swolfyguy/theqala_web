@@ -183,6 +183,7 @@ label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2p
     <div class="repo" id="repoLabel"></div>
     <div class="crossnav" id="crossnav" hidden>
       <a href="/office/">Orders</a>
+      <a href="/office/new/">New order</a>
       <span aria-current="page">Studio</span>
       <button type="button" id="signOut">Sign out</button>
     </div>
@@ -437,8 +438,9 @@ async function commitChanges(message, adds, removes){
   return commit.sha;
 }
 
-const stockBlob = sizes =>
-  new Blob([JSON.stringify(sizes, null, 2) + "\n"], {type: "application/json"});
+const stockBlob = (sizes, qty) =>
+  new Blob([JSON.stringify(Object.assign({qty: Number(qty) || 1}, sizes), null, 2) + "\n"],
+           {type: "application/json"});
 
 function toBase64(blob){
   return new Promise((resolve, reject) => {
@@ -704,6 +706,10 @@ function renderUpload(){
         <input id="u-price" inputmode="numeric" placeholder="2300">
         <span class="hint" id="u-band">the band is worked out from this</span>
       </label>
+      <label class="f">How many <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
+        <input id="u-qty" inputmode="numeric" placeholder="1">
+        <span class="hint">leave blank if you have just the one</span>
+      </label>
       <label class="f">Name <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
         <input id="u-title" placeholder="Kolhapuri Thushi" maxlength="70">
         <span class="hint" id="u-titlehint">leave it blank and we number it for you</span>
@@ -890,6 +896,7 @@ function renderUpload(){
     const title = $("#u-title").value.trim();
     const many = separate();
     const sizes = readSizes();
+    const qty = $("#u-qty").value.replace(/\D/g, "");
     logBox.innerHTML = "";
     if (!cat) { say("Which category?", "wa"); return; }
     if (!Number.isFinite(price) || price < 1) { say("Give the price as a plain number, e.g. 2300.", "wa"); return; }
@@ -901,7 +908,7 @@ function renderUpload(){
         const files = [];
         for (const q of QUEUE) files.push({kind: q.kind, ext: q.ext, b64: await toBase64(q.blob)});
         const data = await localPost("/api/product", {category: cat, price, title, files,
-                                                     separate: many, sizes});
+                                                     separate: many, sizes, qty});
         const made = data.createdAll || [data.created];
         if (made.length > 1) {
           say(`saved ${made.length} products`, "ok");
@@ -927,16 +934,14 @@ function renderUpload(){
             const folder = safe ? base : freeFolder(base);
             made.push(folder);
             adds.push({path: `${folder}/1${q.ext}`, blob: q.blob});
-            if (Object.keys(sizes).length)
-              adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes)});
+            adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty)});
           });
         } else {
           const folder = `photos/${cat}/${price}${safe ? " " + safe : ""}`;
           made.push(folder);
           let n = 1;
           for (const q of QUEUE) adds.push({path: q.kind === "video" ? `${folder}/video${q.ext}` : `${folder}/${n++}${q.ext}`, blob: q.blob});
-          if (Object.keys(sizes).length)
-            adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes)});
+          adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty)});
         }
         const sha = await commitChanges(
           many ? `Add ${made.length} ${cat} pieces at ₹${price}` : `Add ${title || cat} at ₹${price}`, adds, []);
@@ -945,7 +950,7 @@ function renderUpload(){
         link.innerHTML = `<a href="https://github.com/${esc(CFG.owner)}/${esc(CFG.repo)}/actions" target="_blank" rel="noopener">Watch the catalogue rebuild →</a>`;
       }
       QUEUE = []; paint();
-      $("#u-price").value = ""; $("#u-title").value = "";
+      $("#u-price").value = ""; $("#u-title").value = ""; $("#u-qty").value = "";
       $("#u-min").value = ""; $("#u-max").value = "";
       sizeSummary();
       $("#u-band").textContent = "the band is worked out from this";

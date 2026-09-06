@@ -4,6 +4,7 @@
    Everything else here is plain files. This one file adds:
 
      POST /api/order      the website records an order after WhatsApp opens
+     GET  /api/stock      how many of each piece are spoken for      (public)
      POST /office/login   you sign in                          (public)
      POST /office/logout  you sign out
      GET  /office/api     the order book reads them back       (signed in only)
@@ -28,10 +29,33 @@ const COD_EXTRA      = 200;
 /* Poth lengths the shop offers, in inches. Same list as the order form. */
 const POTH = ["24", "26", "28", "30", "32", "34", "36", "38", "40"];
 
+/* A piece is held the moment somebody orders it. But an order is only an
+   intent — the real conversation happens on WhatsApp afterwards — so a hold on
+   an order still sitting at "new" lets go by itself after this long, and the
+   piece comes back. Marking it confirmed makes the hold permanent.
+
+   Without that, anybody could empty the shop by filling in the form a few
+   times, and every abandoned order would lock a piece up for ever. */
+const HOLD_HOURS = 24;
+const HOLDS_FOREVER = ["confirmed", "sent", "done"];   // cancelled frees it at once
+
 /* Flood guards. Generous for a real shop, tight enough to stop a script. */
 const MAX_PER_PHONE_PER_DAY = 8;
 const MAX_PER_MINUTE        = 20;
 const MAX_ITEMS             = 20;
+
+/* Where an order came from. "site" is the website itself and is the only one
+   that counts against how many of a piece are left — see takenNow below.
+   Everything else was typed in by the shop, which set the piece aside by hand
+   the moment it answered the chat. */
+const SOURCES = ["whatsapp", "instagram", "phone", "shop"];
+const SOURCENAME = {whatsapp: "WhatsApp", instagram: "Instagram",
+                    phone: "a phone call", shop: "the shop"};
+
+/* A photograph from a chat, already shrunk in the browser before it is sent.
+   Base64 characters, so about three quarters of this in real bytes — roughly
+   one megabyte, well inside what a single D1 row will hold. */
+const MAX_PHOTO_CHARS = 1400000;
 
 /* Who may open the order book. The password is NOT here — it lives on the
    project as STUDIO_PASSWORD, so it never reaches anybody's browser. */
@@ -48,13 +72,20 @@ export default {
       const path = url.pathname.replace(/\/+$/, "") || "/";
 
       if (path === "/api/order"     && request.method === "POST") return takeOrder(request, env);
+      if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
       if (path.startsWith("/office/gh/"))                         return toGitHub(request, env, path);
+      if (path === "/api/chat-order" && request.method === "POST") return chatOrder(request, env);
+      if (path === "/office/order"  && request.method === "POST") return newOrder(request, env);
+      if (path.startsWith("/office/img/") && request.method === "GET")
+                                                                  return photoOut(request, env, path);
 
-      /* The studio, when it is hosted, is never handed out unsigned-in. */
-      if (path === "/studio" || path.startsWith("/studio/")) {
+      /* The studio and the office's order form are never handed out
+         unsigned-in. Everything they can do is checked again on the way in
+         below — this only saves showing a page to somebody who cannot use it. */
+      if (path === "/studio" || path.startsWith("/studio/") || path === "/office/new") {
         const who = await whoGoes(request, env);
         if (!who.ok) return Response.redirect(
           url.origin + "/office/?next=" + encodeURIComponent(url.pathname + url.search), 302);
@@ -109,6 +140,12 @@ async function takeOrder(request, env) {
     ).bind(minuteAgo).first();
     if (all && all.n >= MAX_PER_MINUTE)
       return json({ok: false, stored: false, why: "busy"}, 429);
+
+    /* Two people can reach the last one in the same moment. The shop greys out
+       what it knew about; this is the check that actually decides. */
+    const gone = await soldOut(env, o.items);
+    if (gone.length)
+      return json({ok: false, stored: false, why: "sold out", gone}, 409);
 
     /* OR IGNORE, so a customer who taps twice does not make two rows. */
     await env.DB.prepare(
@@ -179,6 +216,94 @@ function clean(b) {
     ref, placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };
+}
+
+/* ===========================================================================
+   How many are left
+   ===========================================================================
+   There is no second set of books. How many of a piece are spoken for is
+   worked out from the orders themselves, every time, so it can never drift
+   away from what the order book shows.
+*/
+async function takenNow(env) {
+  const taken = {};                                   // {"NECKLACE-01": 2}
+  if (!env.DB) return taken;
+
+  const cutoff = new Date(Date.now() - HOLD_HOURS * 3600e3).toISOString();
+  const marks = HOLDS_FOREVER.map(() => "?").join(",");
+  const held = `(status IN (${marks}) OR (status = 'new' AND placed_at > ?))`;
+
+  /* Only the website's own orders. An order taken on WhatsApp was agreed with
+     a piece already in somebody's hand, so counting it here would take the
+     same piece off the shop twice. */
+  let results;
+  try {
+    ({results} = await env.DB.prepare(
+      `SELECT items FROM orders WHERE source = 'site' AND ${held}`
+    ).bind(...HOLDS_FOREVER, cutoff).all());
+  } catch {
+    /* An order book from before the source column. Everything in it is a
+       website order, so there is nothing to leave out. */
+    ({results} = await env.DB.prepare(
+      `SELECT items FROM orders WHERE ${held}`
+    ).bind(...HOLDS_FOREVER, cutoff).all());
+  }
+
+  for (const row of results || []) {
+    let items;
+    try { items = JSON.parse(row.items) || []; } catch { continue; }
+    for (const it of items) {
+      if (!it || !it.code) continue;
+      taken[it.code] = (taken[it.code] || 0) + (Number(it.qty) || 1);
+    }
+  }
+  return taken;
+}
+
+/* How many the shop has of each piece. That lives with the piece, in the
+   catalogue the site already publishes, so there is nothing extra to keep in
+   step. Held briefly in memory because it only changes on a deploy. */
+let MADE = null, MADE_AT = 0;
+
+async function howManyMade(env) {
+  if (MADE && Date.now() - MADE_AT < 300e3) return MADE;
+  const out = {};
+  try {
+    const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
+    if (res.ok) {
+      const cat = await res.json();
+      for (const c of cat.categories || [])
+        for (const p of c.products || []) {
+          const n = p.sizes && p.sizes.qty;
+          out[p.code] = Number.isFinite(n) ? n : 1;      // nothing said means one
+        }
+    }
+  } catch { /* no catalogue is the same as knowing nothing */ }
+  MADE = out; MADE_AT = Date.now();
+  return out;
+}
+
+async function stockNow(request, env) {
+  const [made, taken] = await Promise.all([howManyMade(env), takenNow(env)]);
+  const left = {};
+  for (const code of Object.keys(made)) left[code] = Math.max(0, made[code] - (taken[code] || 0));
+  return json({ok: true, left, holdHours: HOLD_HOURS}, 200,
+    /* Half a minute: quick enough that a sold-out piece greys out promptly,
+       long enough that a busy evening does not hammer the database. */
+    {"cache-control": "public, max-age=30"});
+}
+
+/* Anything on this order that somebody else has already taken. */
+async function soldOut(env, items) {
+  const [made, taken] = await Promise.all([howManyMade(env), takenNow(env)]);
+  const gone = [], mine = {};
+  for (const it of items) {
+    if (!(it.code in made)) continue;             // a piece we know nothing about
+    mine[it.code] = (mine[it.code] || 0) + it.qty;
+    if ((taken[it.code] || 0) + mine[it.code] > made[it.code])
+      gone.push({code: it.code, title: it.title, left: Math.max(0, made[it.code] - (taken[it.code] || 0))});
+  }
+  return gone;
 }
 
 /* ===========================================================================
@@ -437,13 +562,53 @@ async function officeApi(request, env, url) {
   return json({ok: false, why: "method"}, 405);
 }
 
+/* A day picked in the order book means that whole day in the shop, not in
+   UTC — otherwise a day would start at half past five in the morning.
+   "2026-09-12" becomes the moment that day began in Indian time. */
+const IST = 5.5 * 3600e3;
+function dayStart(text) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(text || ""))) return null;
+  const t = Date.parse(text + "T00:00:00Z");
+  return Number.isFinite(t) ? new Date(t - IST).toISOString() : null;
+}
+function dayEnd(text) {
+  const start = dayStart(text);
+  return start ? new Date(Date.parse(start) + 24 * 3600e3 - 1).toISOString() : null;
+}
+
+/* "7d" means the last seven days. Worked out here so the list, the counts and
+   the CSV all agree with what the order book is showing. */
+function since(range) {
+  const days = {today: 1, "7d": 7, "30d": 30, "90d": 90}[range];
+  if (!days) return null;
+  if (range === "today") {
+    /* Midnight in Indian time, not UTC — "today" means today in the shop. */
+    const now = new Date();
+    const ist = new Date(now.getTime() + 5.5 * 3600e3);
+    ist.setUTCHours(0, 0, 0, 0);
+    return new Date(ist.getTime() - 5.5 * 3600e3).toISOString();
+  }
+  return new Date(Date.now() - days * 24 * 3600e3).toISOString();
+}
+
 async function listOrders(env, url, who) {
   const status = url.searchParams.get("status") || "";
   const q      = (url.searchParams.get("q") || "").trim();
+  const range  = url.searchParams.get("range") || "all";
+
+  /* Two picked days win over the presets, and either one alone is fine —
+     "from the 12th" and "up to the 18th" are both reasonable things to ask. */
+  const pickedFrom = dayStart(url.searchParams.get("from"));
+  const pickedTo   = dayEnd(url.searchParams.get("to"));
+  const picked     = !!(pickedFrom || pickedTo);
+  const from = picked ? pickedFrom : since(range);
+  const upto = picked ? pickedTo : null;
   const limit  = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "200", 10) || 200, 1), 1000);
 
   let sql = "SELECT * FROM orders", where = [], bind = [];
   if (status && status !== "all") { where.push("status = ?"); bind.push(status); }
+  if (from) { where.push("placed_at >= ?"); bind.push(from); }
+  if (upto) { where.push("placed_at <= ?"); bind.push(upto); }
   if (q) {
     where.push("(ref LIKE ? OR name LIKE ? OR phone LIKE ?)");
     const like = "%" + q.replace(/[%_]/g, "") + "%";
@@ -466,11 +631,18 @@ async function listOrders(env, url, who) {
     });
   }
 
+  /* Counted over the same stretch of time, so the tabs match the list. */
+  const cWhere = [], cBind = [];
+  if (from) { cWhere.push("placed_at >= ?"); cBind.push(from); }
+  if (upto) { cWhere.push("placed_at <= ?"); cBind.push(upto); }
   const counts = await env.DB.prepare(
-    "SELECT status, COUNT(*) AS n FROM orders GROUP BY status"
-  ).all();
+    "SELECT status, COUNT(*) AS n FROM orders"
+    + (cWhere.length ? " WHERE " + cWhere.join(" AND ") : "")
+    + " GROUP BY status"
+  ).bind(...cBind).all();
 
-  return json({ok: true, you: who, orders: rows, counts: counts.results || []});
+  return json({ok: true, you: who, orders: rows, counts: counts.results || [],
+                range: picked ? "picked" : range});
 }
 
 async function updateOrder(request, env) {
@@ -479,6 +651,9 @@ async function updateOrder(request, env) {
 
   const ref = String(b.ref || "");
   if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return json({ok: false, why: "ref"}, 400);
+
+  const was = await env.DB.prepare("SELECT * FROM orders WHERE ref = ?").bind(ref).first();
+  if (!was) return json({ok: false, why: "not found"}, 404);
 
   const allowed = ["new", "confirmed", "sent", "done", "cancelled"];
   const sets = [], bind = [];
@@ -492,7 +667,53 @@ async function updateOrder(request, env) {
     if (p && !POTH.includes(p)) return json({ok: false, why: "poth"}, 400);
     sets.push("poth = ?"); bind.push(p);
   }
-  if (!sets.length) return json({ok: false, why: "nothing to change"}, 400);
+
+  /* Filling in the price the shop agreed in the chat.
+     Only ever on an order that did not come through the website — a customer
+     who saw a price on the shop must not have it changed underneath her. */
+  if (b.price != null) {
+    if ((was.source || "site") === "site")
+      return json({ok: false, why: "A website order keeps the price the customer saw."}, 400);
+    const price = Math.floor(Number(b.price));
+    if (!Number.isFinite(price) || price < 0 || price > 5000000)
+      return json({ok: false, why: "That is not a price."}, 400);
+    sets.push("goods = ?", "total = ?"); bind.push(price, price);
+    /* Carry it onto the piece as well, so the card does not contradict itself. */
+    const items = safeItems(was.items);
+    if (items.length === 1) {
+      items[0].price = price;
+      sets.push("items = ?"); bind.push(JSON.stringify(items));
+    }
+  }
+
+  /* The photograph, added or replaced or taken away afterwards. An empty
+     string means remove it. */
+  let shot = null;
+  if (b.photo != null) {
+    const raw = String(b.photo).trim();
+    if (!raw) shot = {mime: "", data: ""};
+    else {
+      const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(raw);
+      if (!m) return json({ok: false, why: "That picture is not a kind we can keep."}, 400);
+      if (m[2].length > MAX_PHOTO_CHARS) return json({ok: false, why: "That picture is too big."}, 400);
+      shot = {mime: m[1], data: m[2]};
+    }
+  }
+
+  if (!sets.length && !shot) return json({ok: false, why: "nothing to change"}, 400);
+
+  if (shot) {
+    try {
+      if (shot.mime) await env.DB.prepare(
+        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
+      ).bind(ref, shot.mime, shot.data).run();
+      else await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run();
+    } catch {
+      return json({ok: false, why: "The order book has no order_photos table yet. "
+        + "Paste schema.sql into the D1 console again."}, 500);
+    }
+    sets.push("photo = ?"); bind.push(shot.mime);
+  }
 
   sets.push("updated_at = ?"); bind.push(new Date().toISOString());
   bind.push(ref);
@@ -506,7 +727,7 @@ async function updateOrder(request, env) {
 const safeItems = s => { try { return JSON.parse(s) || []; } catch { return []; } };
 
 function toCsv(rows) {
-  const head = ["ref", "placed_at", "status", "name", "phone", "pincode", "address",
+  const head = ["ref", "placed_at", "status", "came_from", "name", "phone", "pincode", "address",
                 "pay", "poth", "pieces", "goods", "shipping", "cod_fee", "total", "note"];
   const cell = v => {
     const s = v == null ? "" : String(v);
@@ -516,12 +737,285 @@ function toCsv(rows) {
     return /[",\n]/.test(safe) ? '"' + safe.replace(/"/g, '""') + '"' : safe;
   };
   const line = r => [
-    r.ref, r.placed_at, r.status, r.name, "'" + r.phone, r.pincode, r.address, r.pay,
+    r.ref, r.placed_at, r.status, SOURCENAME[r.source] || r.source || "the website",
+    r.name, "'" + r.phone, r.pincode, r.address, r.pay,
     r.poth ? r.poth + " in" : "",
     r.items.map(i => `${i.code} x${i.qty}`).join(" | "),
     r.goods, r.shipping, r.cod_fee, r.total, r.note
   ].map(cell).join(",");
   return "﻿" + [head.join(","), ...rows.map(line)].join("\r\n");
+}
+
+/* ===========================================================================
+   An order that did not come through the website
+   ===========================================================================
+   Most of the shop's orders are agreed in a chat. A photograph arrives on
+   WhatsApp or Instagram, a length is settled, a price is agreed, and that is
+   the whole order — living in the chat and nowhere else, until it is time to
+   pack and somebody has to scroll back through a month of messages.
+
+   This puts those in the same book as the website's, marked with where they
+   came from, so one list is the whole day's work. Two things make an office
+   order different:
+
+     1. Nobody outside can make one. It is behind the same sign-in as the
+        order book, and the price is whatever the shop types.
+     2. It does not touch how many are left on the website, because the piece
+        was already set aside by hand when the chat was answered.
+*/
+async function newOrder(request, env) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return json({ok: false, login: true, why: who.why}, 401);
+  if (!env.DB)  return json({ok: false, why: "The DB binding is not attached to this project yet."}, 503);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ok: false, why: "bad body"}, 400); }
+
+  const o = cleanOffline(body);
+  if (o.error) return json({ok: false, why: o.error}, 400);
+
+  /* A code nobody else has, in the website's own shape, so that everything
+     which reads the book afterwards — the status buttons, the CSV — treats
+     an office order exactly like any other. */
+  let ref = "";
+  for (let i = 0; i < 6 && !ref; i++) {
+    const t = officeRef();
+    const seen = await env.DB.prepare("SELECT 1 AS n FROM orders WHERE ref = ?").bind(t).first();
+    if (!seen) ref = t;
+  }
+  if (!ref) return json({ok: false, why: "Could not make an order code. Try once more."}, 503);
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO orders
+       (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+        goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,0,0,?,'new',?,?,?,?)`
+    ).bind(ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+           JSON.stringify(o.items), o.goods, o.total, o.note, o.source, o.mime, o.placed_at).run();
+  } catch (err) {
+    return json({ok: false, why: "The order book has not been given its newer columns yet. "
+      + "Run the three ALTER TABLE lines at the bottom of schema.sql, then try again."}, 500);
+  }
+
+  /* The picture is kept in a table of its own, so listing the book never drags
+     photographs along, and a picture that will not save never costs the order. */
+  let kept = false;
+  if (o.mime) {
+    try {
+      await env.DB.prepare(
+        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
+      ).bind(ref, o.mime, o.data).run();
+      kept = true;
+    } catch { kept = false; }
+    if (!kept) {
+      try { await env.DB.prepare("UPDATE orders SET photo = '' WHERE ref = ?").bind(ref).run(); }
+      catch { /* the order is saved either way, which is the part that matters */ }
+    }
+  }
+
+  return json({ok: true, ref, photo: kept,
+    warn: o.mime && !kept ? "The order is saved, but the picture would not go in." : ""});
+}
+
+/* ===========================================================================
+   The details she fills in herself
+   ===========================================================================
+   The other half of the same idea. Instead of the shop typing her address out
+   of a chat, the shop sends her a link — theqalashree.com/order/ — and she
+   fills in her own name, number, address and length. The photograph and the
+   price stay with the shop, because those are the shop's to decide.
+
+   This one IS open to the whole internet, so it is treated exactly like the
+   website's own order form: everything rebuilt from scratch, the same flood
+   guards, and no price of any kind accepted from the browser.
+*/
+async function chatOrder(request, env) {
+  if (!env.DB) return json({ok: false, stored: false, why: "no database"}, 200);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ok: false, why: "bad body"}, 400); }
+
+  const o = cleanChat(body);
+  if (o.error) return json({ok: false, why: o.error}, 400);
+
+  /* The same two counts the website's form does. */
+  const dayAgo    = new Date(Date.now() - 24 * 3600e3).toISOString();
+  const minuteAgo = new Date(Date.now() - 60e3).toISOString();
+  try {
+    const mine = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM orders WHERE phone = ? AND placed_at > ?"
+    ).bind(o.phone, dayAgo).first();
+    if (mine && mine.n >= MAX_PER_PHONE_PER_DAY)
+      return json({ok: false, why: "You have sent this a few times today already. "
+        + "Message us on WhatsApp and we will sort it out there."}, 429);
+
+    const all = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM orders WHERE placed_at > ?"
+    ).bind(minuteAgo).first();
+    if (all && all.n >= MAX_PER_MINUTE)
+      return json({ok: false, why: "We are a little busy. Try again in a minute."}, 429);
+  } catch { /* a count that will not run is no reason to lose her address */ }
+
+  let ref = "";
+  for (let i = 0; i < 6 && !ref; i++) {
+    const t = officeRef();
+    const seen = await env.DB.prepare("SELECT 1 AS n FROM orders WHERE ref = ?").bind(t).first();
+    if (!seen) ref = t;
+  }
+  if (!ref) return json({ok: false, why: "Something went wrong here. Please message us."}, 503);
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO orders
+       (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+        goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,'',?)`
+    ).bind(ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+           JSON.stringify(o.items), o.note, o.source, o.placed_at).run();
+  } catch (err) {
+    return json({ok: false, why: "We could not save that just now. "
+      + "Please send us your address on WhatsApp instead."}, 500);
+  }
+
+  return json({ok: true, ref});
+}
+
+/* What she is allowed to tell us, and nothing else. There is no price here on
+   purpose — not an ignored one, not a hidden one. The book gets a zero until
+   the shop types the figure it agreed with her. */
+function cleanChat(b) {
+  const s = (v, max) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, max);
+
+  const name = s(b.name, 80);
+  if (name.length < 2) return {error: "Please put in your name."};
+
+  const phone = String(b.phone || "").replace(/\D/g, "").slice(-10);
+  if (!/^[6-9]\d{9}$/.test(phone)) return {error: "That phone number does not look right."};
+
+  const pincode = String(b.pin || "").replace(/\D/g, "").slice(0, 6);
+  if (!/^\d{6}$/.test(pincode)) return {error: "A pincode is six digits."};
+
+  const address = s(b.addr, 400);
+  if (address.length < 12) return {error: "Please put in the whole address, so the parcel arrives."};
+
+  const poth = s(b.poth, 4);
+  if (poth && !POTH.includes(poth)) return {error: "That is not a length we make."};
+
+  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "cod";
+
+  /* Which chat she came from, carried in the link the shop sent her. Anything
+     else, and we simply do not know. */
+  const source = SOURCES.includes(b.source) ? b.source : "whatsapp";
+
+  const want = s(b.want, 120);
+  const note = s(b.note, 500);
+
+  return {placed_at: new Date().toISOString(), name, phone, pincode, address, pay, poth,
+          items: [Object.assign({code: "OFFLINE", title: want || "To be filled in by the shop",
+                                 qty: 1, price: 0}, poth ? {size: poth} : {})],
+          note, source};
+}
+
+/* The website makes its own order code in the browser. This one is made here,
+   because here is the only place that can check nobody has it already. */
+function officeRef() {
+  const d = new Date(Date.now() + IST);              // dated by the shop's day
+  return "QALA-" + String(d.getUTCFullYear()).slice(2)
+       + String(d.getUTCMonth() + 1).padStart(2, "0")
+       + "-" + String(Math.floor(Math.random() * 9000) + 1000);
+}
+
+/* Everything the office form can send, checked and rebuilt from scratch —
+   the same treatment the public form gets. Signed in is not the same as
+   careful, and a mistyped pincode is a parcel that goes nowhere. */
+function cleanOffline(b) {
+  const s = (v, max) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, max);
+
+  const name = s(b.name, 80);
+  if (name.length < 2) return {error: "Put in a name."};
+
+  const phone = String(b.phone || "").replace(/\D/g, "").slice(-10);
+  if (!/^[6-9]\d{9}$/.test(phone)) return {error: "That phone number does not look right."};
+
+  const source = SOURCES.includes(b.source) ? b.source : "";
+  if (!source) return {error: "Say where the order came from."};
+
+  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "cod";
+
+  const poth = s(b.poth, 4);
+  if (poth && !POTH.includes(poth)) return {error: "That is not a length the shop offers."};
+
+  const pickup  = pay === "shop";
+  const pincode = pickup ? "" : String(b.pin || "").replace(/\D/g, "").slice(0, 6);
+  const address = pickup ? "" : s(b.addr, 400);
+  /* An address often arrives later in the same chat, so it is not demanded
+     here — but half a pincode is worse than none. */
+  if (pincode && !/^\d{6}$/.test(pincode)) return {error: "A pincode is six digits."};
+
+  /* The price can wait. If it is not settled yet, the order goes in at nothing
+     and the book shows it as "not set yet" until somebody types the figure. */
+  const asked = String(b.price == null ? "" : b.price).trim();
+  const price = asked === "" ? 0 : Math.floor(Number(b.price));
+  if (!Number.isFinite(price) || price < 0 || price > 5000000)
+    return {error: "That is not a price."};
+
+  /* Optional: the code of a piece that is already on the website. When it is
+     given, the order book shows that piece's photograph and links to it. */
+  const code  = s(b.code, 24).toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+  const title = s(b.title, 120) || ("Piece from " + (SOURCENAME[source] || source));
+  const note  = s(b.note, 500);
+
+  const item = {code: code || "OFFLINE", title, qty: 1, price};
+  if (poth) item.size = poth;
+
+  /* The photograph, already shrunk in the browser to something a chat-sized
+     picture becomes anyway. Only the three kinds a phone camera produces. */
+  let mime = "", data = "";
+  const shot = typeof b.photo === "string" ? b.photo.trim() : "";
+  if (shot) {
+    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(shot);
+    if (!m) return {error: "That picture is not a kind we can keep. Use a photo from the chat."};
+    if (m[2].length > MAX_PHOTO_CHARS) return {error: "That picture is too big, even shrunk."};
+    mime = m[1]; data = m[2];
+  }
+
+  return {placed_at: new Date().toISOString(), name, phone, pincode, address, pay, poth,
+          items: [item], goods: price, total: price, note, source, mime, data};
+}
+
+/* Handing a picture back. Never straight from the database to the internet —
+   these are customers' own photographs, so the sign-in is checked first, and
+   the browser is told plainly what the file is and not to guess. */
+const EXT = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"};
+
+async function photoOut(request, env, path) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return new Response("Sign in first.", {status: 401});
+  if (!env.DB)  return new Response("No database.", {status: 503});
+
+  const ref = decodeURIComponent(path.slice("/office/img/".length));
+  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return new Response("Not found", {status: 404});
+
+  let row;
+  try {
+    row = await env.DB.prepare("SELECT mime, data FROM order_photos WHERE ref = ?").bind(ref).first();
+  } catch { return new Response("Not found", {status: 404}); }
+  if (!row || !EXT[row.mime]) return new Response("Not found", {status: 404});
+
+  const bin = atob(row.data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+  return new Response(bytes, {headers: {
+    "content-type": row.mime,
+    /* Signed in only, and a picture never changes once it is in. */
+    "cache-control": "private, max-age=86400",
+    "content-disposition": `inline; filename="${ref}.${EXT[row.mime]}"`,
+    "x-content-type-options": "nosniff"
+  }});
 }
 
 /* ===========================================================================

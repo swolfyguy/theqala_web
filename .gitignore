@@ -38,3 +38,10 @@ photos/_trash/
 
 # the local test database made by dev.mjs. Never pushed.
 .qala-dev.sqlite
+
+# the studio's and this session's leftovers on your computer. Old copies
+# and update bundles wait here until you delete the folder yourself.
+_to_delete/
+
+# sqlite writes a journal beside the database while it is open
+.qala-dev.sqlite*

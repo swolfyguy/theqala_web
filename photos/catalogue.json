@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-06T07:28:57Z",
+ "generated": "2026-09-06T19:02:38Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -173,7 +173,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 3,
@@ -190,7 +192,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 4,
@@ -207,7 +211,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 7,
@@ -224,7 +230,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 8,
@@ -241,7 +249,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 15,
@@ -260,7 +270,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -280,7 +291,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -300,7 +312,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -320,7 +333,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -340,7 +354,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -360,7 +375,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -380,7 +396,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -400,7 +417,8 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36
+      "max": 36,
+      "qty": 1
      }
     },
     {
@@ -418,7 +436,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 10,
@@ -435,7 +455,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 11,
@@ -452,7 +474,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 14,
@@ -469,7 +493,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     }
    ]
   },
@@ -493,7 +519,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 2,
@@ -510,7 +538,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     }
    ]
   },
@@ -534,7 +564,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 3,
@@ -551,7 +583,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 5,
@@ -568,7 +602,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 6,
@@ -585,7 +621,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 7,
@@ -602,7 +640,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 8,
@@ -619,7 +659,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 9,
@@ -636,7 +678,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 10,
@@ -653,7 +697,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 11,
@@ -670,7 +716,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 12,
@@ -687,7 +735,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 13,
@@ -704,7 +754,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 14,
@@ -721,7 +773,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 15,
@@ -738,7 +792,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 16,
@@ -755,7 +811,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     }
    ]
   },
@@ -780,7 +838,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 3,
@@ -798,7 +858,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 1,
@@ -817,7 +879,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     },
     {
      "n": 2,
@@ -835,7 +899,9 @@
      ],
      "video": null,
      "videoPoster": null,
-     "sizes": {}
+     "sizes": {
+      "qty": 1
+     }
     }
    ]
   }

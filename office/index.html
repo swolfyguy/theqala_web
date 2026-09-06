@@ -66,6 +66,15 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
   padding:9px 14px;border-radius:10px;font:inherit;font-size:.85rem;cursor:pointer;text-decoration:none;
   display:inline-block}
 .btn:hover{border-color:var(--gold)}
+.btn.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.btn.go:hover{border-color:var(--accent);opacity:.9}
+
+/* where an order came from, when it did not come from the website */
+.tag{display:inline-block;border:1px solid var(--line-2);border-radius:999px;
+  padding:1px 8px;font-size:.66rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--gold);vertical-align:1px;white-space:nowrap}
+.tag.whatsapp{color:var(--sent);border-color:var(--sent)}
+.tag.instagram{color:var(--accent);border-color:var(--accent)}
 
 .note{margin:18px 0;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--gold);
   border-radius:10px;background:var(--panel);font-size:.9rem}
@@ -93,18 +102,67 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .gate .err{color:var(--accent);font-size:.85rem;min-height:1.2em;text-align:center;margin:0}
 .gate .foot{color:var(--ink-2);font-size:.78rem;margin:18px 0 0}
 
-.list{display:grid;gap:14px;padding:12px 0 60px}
-.order{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-  box-shadow:0 1px 3px var(--shadow);overflow:hidden}
-.otop{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;padding:14px 16px 0}
-.ref{font-family:Marcellus,Georgia,serif;font-size:1.05rem;letter-spacing:.04em}
-.when{font-size:.78rem;color:var(--ink-2)}
-.pill{margin-left:auto;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;
-  border:1px solid currentColor;border-radius:999px;padding:2px 10px}
-.pill.new{color:var(--new)} .pill.confirmed{color:var(--confirmed)}
-.pill.sent{color:var(--sent)} .pill.done{color:var(--done)} .pill.cancelled{color:var(--cancelled)}
+/* ---------- the book, as rows ---------- */
+.pickdates{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:10px 0 2px}
+.pickdates[hidden]{display:none}
+.pickdates label{display:grid;gap:5px;font-size:.68rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-2);font-weight:700}
+.pickdates input{padding:8px 11px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--panel);color:inherit;font:inherit;font-size:.88rem;min-width:9.5rem}
+.pickdates input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.sum{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 0 2px;
+  color:var(--ink-2);font-size:.86rem}
+.sum b{color:var(--ink);font-size:1.05rem;font-family:Marcellus,Georgia,serif;font-weight:400}
+.sum .dot{width:3px;height:3px;border-radius:50%;background:var(--line-2);display:inline-block}
 
-.obody{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:10px 16px 14px}
+.head{display:none}
+@media (min-width:760px){
+  .head{display:grid;gap:14px;padding:10px 16px 8px;
+    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 6.4rem 16px;
+    font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);
+    font-weight:600;border-bottom:1px solid var(--line)}
+  .head .r{text-align:right}
+}
+
+.list{display:grid;gap:8px;padding:8px 0 60px}
+.order{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 1px 2px var(--shadow);overflow:hidden;transition:border-color .15s}
+.order:hover{border-color:var(--line-2)}
+.order.open{border-color:var(--gold-2);box-shadow:0 4px 16px -8px var(--shadow)}
+
+.row{display:grid;gap:6px 12px;align-items:center;padding:12px 14px;cursor:pointer;
+  width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;
+  grid-template-columns:12px 1fr auto;
+  grid-template-areas:"s ref money" "s who meta"}
+.row:focus-visible{outline:2px solid var(--gold-2);outline-offset:-2px}
+.row .dotst{grid-area:s;width:9px;height:9px;border-radius:50%;background:currentColor}
+.row .ref{grid-area:ref;font-family:Marcellus,Georgia,serif;font-size:1rem;letter-spacing:.03em}
+.row .who{grid-area:who;color:var(--ink-2);font-size:.84rem;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.row .money{grid-area:money;text-align:right;font-weight:700;white-space:nowrap}
+.row .meta{grid-area:meta;text-align:right;color:var(--ink-2);font-size:.76rem;white-space:nowrap}
+.row .chev{display:none}
+.row .stword{display:none}
+
+@media (min-width:760px){
+  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 6.4rem 16px;
+    grid-template-areas:"s ref who meta word money chev";padding:13px 16px}
+  .row .who{font-size:.9rem;color:var(--ink)}
+  .row .meta{text-align:left;font-size:.8rem}
+  .row .money{font-size:.95rem}
+  .row .chev{grid-area:chev;display:block;color:var(--ink-2);transition:transform .18s;
+    text-align:center}
+  .order.open .row .chev{transform:rotate(90deg)}
+  .row .stword{grid-area:word;display:block;font-size:.68rem;letter-spacing:.09em;
+    text-transform:uppercase;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+}
+.st.new{color:var(--new)} .st.confirmed{color:var(--confirmed)}
+.st.sent{color:var(--sent)} .st.done{color:var(--done)} .st.cancelled{color:var(--cancelled)}
+
+.more{border-top:1px solid var(--line);background:var(--ground)}
+.more[hidden]{display:none}
+
+.obody{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:12px 16px 14px}
 @media (max-width:640px){ .obody{grid-template-columns:1fr} }
 .obody h3{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
   font-weight:600;margin:10px 0 4px}
@@ -122,15 +180,27 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
   overflow-wrap:anywhere}
 .items .what a:hover{border-bottom-color:var(--gold-2);color:var(--accent)}
 .items .rup{flex:0 0 auto;white-space:nowrap}
+.thumbwrap{flex:0 0 auto;display:block;line-height:0}
 .thumb{flex:0 0 auto;display:block;width:48px;height:60px;border-radius:8px;overflow:hidden;
   background:var(--panel-2);border:1px solid var(--line);position:relative}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb.none::after{content:"॥";position:absolute;inset:0;display:grid;place-items:center;
   color:var(--gold-2);font-size:1rem}
-.opennew{display:inline-block;margin-left:6px;color:var(--ink-2);font-size:.72rem;
-  vertical-align:1px}
 .money{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
 .money.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:6px;font-weight:700}
+.unset{font-style:normal;font-weight:400;color:var(--accent);font-size:.88rem}
+
+/* the two things only the shop can supply */
+.fillin{margin-top:12px;padding-top:11px;border-top:1px dotted var(--line);display:grid;gap:9px}
+.fi-row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.fi-price{display:grid;gap:5px;flex:0 1 9rem}
+.fi-price span{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700}
+.fi-price input{width:100%;padding:8px 11px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--panel);color:inherit;font:inherit;font-size:.9rem}
+.fi-price input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.fillin .btn{padding:8px 13px;font-size:.8rem}
+.fi-say{color:var(--ink-2);font-size:.8rem;align-self:center}
 
 .acts{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 14px;border-top:1px solid var(--line);padding-top:12px}
 .act{border:1px solid var(--line);background:transparent;color:var(--ink-2);
@@ -159,6 +229,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
       <h1>Order book</h1>
       <div class="crossnav">
         <span aria-current="page">Orders</span>
+        <a href="/office/new/">New order</a>
         <a href="/studio/">Studio</a>
       </div>
       <span class="who" id="who"></span>
@@ -171,10 +242,22 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 <div class="wrap">
   <div class="tools" hidden>
     <input type="search" id="q" placeholder="Search a name, number or order code" autocomplete="off">
+    <a class="btn go" href="/office/new/">+ New order</a>
     <button class="btn" id="refresh">Refresh</button>
     <a class="btn" id="csv" href="#">Download CSV</a>
   </div>
+  <div class="tabs" id="dates" hidden></div>
+  <div class="pickdates" id="pick" hidden>
+    <label>From <input type="date" id="d-from"></label>
+    <label>To <input type="date" id="d-to"></label>
+    <button class="btn" id="d-clear" type="button">Clear</button>
+  </div>
+  <div class="sum" id="sum" hidden></div>
   <div id="msg"></div>
+  <div class="head" id="head2" hidden>
+    <span></span><span>Order</span><span>Customer</span><span>Placed</span>
+    <span>Status</span><span class="r">Total</span><span></span>
+  </div>
   <div class="list" id="list"><div class="spin">Opening the book…</div></div>
 </div>
 
@@ -190,9 +273,29 @@ const STATUSES = [
   {id:"cancelled", t:"Cancelled"}
 ];
 const NEXT  = ["new","confirmed","sent","done","cancelled"];
+const RANGES = [
+  {id:"today",  t:"Today"},
+  {id:"7d",     t:"7 days"},
+  {id:"30d",    t:"30 days"},
+  {id:"all",    t:"Everything"},
+  {id:"picked", t:"Pick dates"}
+];
 const STAFF = ["9011240352","7558209163","9579628754"];
 
-let VIEW = "all", ORDERS = [], COUNTS = {}, TIMER = null;
+let VIEW = "all", RANGE = "30d", FROM = "", TO = "", ORDERS = [], COUNTS = {}, TIMER = null;
+let OPEN = new Set();          // which orders are expanded
+
+/* Remember how you last left it, so the book opens the way you use it. */
+try {
+  const kept = JSON.parse(localStorage.getItem("qala.book") || "{}");
+  if (RANGES.some(r => r.id === kept.range)) RANGE = kept.range;
+  if (STATUSES.some(s => s.id === kept.view)) VIEW = kept.view;
+  FROM = kept.from || ""; TO = kept.to || "";
+} catch (e) {}
+const remember = () => {
+  try { localStorage.setItem("qala.book",
+    JSON.stringify({range: RANGE, view: VIEW, from: FROM, to: TO})); } catch (e) {}
+};
 
 const $  = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
@@ -205,6 +308,26 @@ function snack(text){
   el.textContent = text; el.classList.add("up");
   clearTimeout(TIMER);
   TIMER = setTimeout(() => el.classList.remove("up"), 3200);
+}
+
+/* Just how long ago, for the narrow column. */
+function ago(iso){
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const mins = (Date.now() - d.getTime()) / 60000;
+  return mins < 2 ? "just now"
+       : mins < 60 ? Math.floor(mins) + " min ago"
+       : mins < 1440 ? Math.floor(mins / 60) + " h ago"
+       : mins < 1440 * 7 ? Math.floor(mins / 1440) + " d ago"
+       : new Intl.DateTimeFormat("en-IN", {timeZone:"Asia/Kolkata",
+           day:"numeric", month:"short"}).format(d);
+}
+/* The whole thing, for the tooltip and the opened view. */
+function fullWhen(iso){
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return new Intl.DateTimeFormat("en-IN", {timeZone:"Asia/Kolkata", day:"numeric",
+    month:"long", year:"numeric", hour:"numeric", minute:"2-digit", hour12:true}).format(d);
 }
 
 /* Indian time, so the dates read the way they do in the shop. */
@@ -222,6 +345,10 @@ function when(iso){
 }
 
 const PAYNAME = {online:"Paying online", shop:"Cash at the shop", cod:"Cash on delivery"};
+/* "site" is the website itself and is not worth saying twice. */
+const SRCNAME = {whatsapp:"WhatsApp", instagram:"Instagram",
+                 phone:"Phone call", shop:"At the shop"};
+const cameFrom = o => (o.source && o.source !== "site") ? (SRCNAME[o.source] || o.source) : "";
 
 /* The pieces, as the shop publishes them. Read once, so an order can show
    the photograph and link back to the piece. It is the same public file the
@@ -251,6 +378,10 @@ const api = (path, opts) =>
 function gate(why){
   $("#head").hidden = true;
   $(".tools").hidden = true;
+  $("#dates").hidden = true;
+  $("#pick").hidden = true;
+  $("#sum").hidden = true;
+  $("#head2").hidden = true;
   $("#msg").innerHTML = "";
   $("#list").innerHTML = `
     <div class="gate">
@@ -315,7 +446,11 @@ async function signOut(){
 
 async function load(){
   const q = $("#q") ? $("#q").value.trim() : "";
+  const picked = RANGE === "picked" && (FROM || TO);
   const url = "/office/api?status=" + encodeURIComponent(VIEW)
+            + "&range=" + encodeURIComponent(picked ? "all" : RANGE)
+            + (picked && FROM ? "&from=" + encodeURIComponent(FROM) : "")
+            + (picked && TO   ? "&to="   + encodeURIComponent(TO)   : "")
             + (q ? "&q=" + encodeURIComponent(q) : "");
 
   let r, data;
@@ -331,6 +466,9 @@ async function load(){
 
   $("#head").hidden = false;
   $(".tools").hidden = false;
+  $("#dates").hidden = false;
+  $("#sum").hidden = false;
+  $("#pick").hidden = RANGE !== "picked";
   $("#csv").href = url + "&format=csv";
   $("#msg").innerHTML = "";
   $("#who").textContent = data.you ? "signed in as " + data.you : "";
@@ -338,7 +476,12 @@ async function load(){
   (data.counts || []).forEach(c => { COUNTS[c.status] = c.n; });
   COUNTS.all = Object.values(COUNTS).reduce((a, b) => a + b, 0);
   ORDERS = data.orders || [];
+  /* Only keep open the ones still on screen. */
+  OPEN = new Set([...OPEN].filter(ref => ORDERS.some(o => o.ref === ref)));
   paintTabs();
+  paintDates();
+  wirePicker();
+  paintSum();
   paintList();
 }
 
@@ -346,6 +489,10 @@ async function load(){
 function shut(why){
   $("#list").innerHTML = "";
   $(".tools").hidden = true;
+  $("#dates").hidden = true;
+  $("#pick").hidden = true;
+  $("#sum").hidden = true;
+  $("#head2").hidden = true;
   $("#tabs").innerHTML = "";
   $("#msg").innerHTML = `<div class="note bad">
     <h2>The order book cannot open</h2>
@@ -359,60 +506,172 @@ function paintTabs(){
       ${s.t}${n ? ` <b>${n}</b>` : ""}</button>`;
   }).join("");
   document.querySelectorAll("[data-view]").forEach(b => {
-    b.onclick = () => { VIEW = b.dataset.view; load(); };
+    b.onclick = () => { VIEW = b.dataset.view; remember(); load(); };
   });
 }
 
+function paintDates(){
+  $("#dates").innerHTML = RANGES.map(r => {
+    const label = r.id === "picked" && (FROM || TO) ? pickedLabel() : r.t;
+    return `<button class="tab" data-range="${r.id}" aria-pressed="${RANGE === r.id}">${esc(label)}</button>`;
+  }).join("");
+  document.querySelectorAll("[data-range]").forEach(b => {
+    b.onclick = () => {
+      RANGE = b.dataset.range;
+      $("#pick").hidden = RANGE !== "picked";
+      remember();
+      /* Picking dates shows the two boxes; nothing loads until a day is chosen. */
+      if (RANGE === "picked" && !FROM && !TO) { paintDates(); $("#d-from").focus(); return; }
+      load();
+    };
+  });
+}
+
+/* "12 – 18 Sep", or one end of it. */
+function pickedLabel(){
+  const nice = t => {
+    const d = new Date(t + "T00:00:00");
+    return isNaN(d) ? t : new Intl.DateTimeFormat("en-IN",
+      {day:"numeric", month:"short"}).format(d);
+  };
+  if (FROM && TO) return FROM === TO ? nice(FROM) : nice(FROM) + " – " + nice(TO);
+  if (FROM) return "From " + nice(FROM);
+  return "Up to " + nice(TO);
+}
+
+function wirePicker(){
+  const f = $("#d-from"), t = $("#d-to"), clear = $("#d-clear");
+  if (!f) return;
+  f.value = FROM; t.value = TO;
+  /* Nobody placed an order tomorrow. */
+  const today = new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Kolkata"}).format(new Date());
+  f.max = today; t.max = today;
+
+  const changed = () => {
+    FROM = f.value; TO = t.value;
+    /* Picked back to front? Turn it round rather than showing nothing. */
+    if (FROM && TO && FROM > TO) { [FROM, TO] = [TO, FROM]; f.value = FROM; t.value = TO; }
+    RANGE = "picked";
+    remember();
+    load();
+  };
+  f.onchange = changed;
+  t.onchange = changed;
+  clear.onclick = () => {
+    FROM = ""; TO = ""; f.value = ""; t.value = "";
+    RANGE = "30d"; $("#pick").hidden = true;
+    remember(); load();
+  };
+}
+
+/* What is on screen, and what it comes to. Cancelled orders are left out of
+   the money — they are not going to be paid. */
+function paintSum(){
+  const live = ORDERS.filter(o => o.status !== "cancelled");
+  const money = live.reduce((a, o) => a + (Number(o.total) || 0), 0);
+  const pieces = live.reduce((a, o) =>
+    a + (o.items || []).reduce((b, l) => b + (Number(l.qty) || 1), 0), 0);
+  /* Dates keep their capitals — "3 Sept" reads wrong as "3 sept". */
+  const label = RANGE === "picked" && (FROM || TO)
+    ? pickedLabel()
+    : (RANGES.find(r => r.id === RANGE) || {}).t.toLowerCase();
+  $("#sum").innerHTML = ORDERS.length
+    ? `<b>${ORDERS.length}</b> order${ORDERS.length === 1 ? "" : "s"}
+       <span class="dot"></span> ${pieces} piece${pieces === 1 ? "" : "s"}
+       <span class="dot"></span> <b>${rupees(money)}</b>
+       <span class="dot"></span> ${esc(label)}${
+         live.length !== ORDERS.length
+           ? ` <span class="dot"></span> ${ORDERS.length - live.length} cancelled, not counted` : ""}`
+    : "";
+}
+
 function paintList(){
+  $("#head2").hidden = !ORDERS.length;
   if (!ORDERS.length){
     $("#list").innerHTML = `<div class="empty"><div class="mark">॥</div>
-      <p>Nothing here yet.${VIEW === "all" ? " Orders appear the moment someone places one." : ""}</p></div>`;
+      <p>Nothing here${RANGE === "all" ? "" : " in this stretch of time"}.${
+        VIEW === "all" && RANGE === "all" ? " Orders appear the moment someone places one." : ""}</p></div>`;
     return;
   }
-  $("#list").innerHTML = ORDERS.map(card).join("");
+  $("#list").innerHTML = ORDERS.map(row).join("");
   wire();
 }
 
-function card(o){
-  const items = (o.items || []).map(l => {
+/* One line each, until you open one. */
+function row(o){
+  const open = OPEN.has(o.ref);
+  return `<article class="order ${open ? "open" : ""}" data-ref="${esc(o.ref)}">
+    <button class="row" type="button" aria-expanded="${open}">
+      <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
+      <span class="ref">${esc(o.ref)}</span>
+      <span class="who">${cameFrom(o) ? `<b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b> ` : ""
+        }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span></span>
+      <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}</span>
+      <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
+      <span class="money">${cameFrom(o) && !o.total
+        ? `<i class="unset" title="No price on this one yet">—</i>` : rupees(o.total)}</span>
+      <span class="chev">›</span>
+    </button>
+    <div class="more" ${open ? "" : "hidden"}>${open ? detail(o) : ""}</div>
+  </article>`;
+}
+
+/* Everything about one order — built only when it is opened. */
+function detail(o){
+  /* An order taken on WhatsApp has a photograph of its own instead of a piece
+     from the website. It is behind the same sign-in as this page. */
+  /* The moment it last changed rides along, so replacing a picture is seen
+     straight away rather than the browser showing yesterday's from its cache. */
+  const chat = o.photo
+    ? "/office/img/" + encodeURIComponent(o.ref) + "?v=" + encodeURIComponent(o.updated_at || "")
+    : "";
+
+  const items = (o.items || []).map((l, i) => {
     const piece = PIECES[l.code];
-    const shot = piece && (piece.images || [])[0];
-    const href = pieceUrl(l.code);
+    const shot  = piece && (piece.images || [])[0];
+    /* The website's photograph if we know the piece, otherwise the one they
+       sent in — which belongs to the first line, the only one an office
+       order ever has. */
+    const src  = shot ? fileUrl(shot) : (i === 0 ? chat : "");
+    const href = piece ? pieceUrl(l.code) : (i === 0 && chat ? chat : "");
+    const title = href
+      ? `<a href="${href}" target="_blank" rel="noopener">${esc(l.title || l.code)}</a>`
+      : esc(l.title || l.code);
+    const box = `<span class="thumb ${src ? "" : "none"}">${src
+      ? `<img src="${src}" alt="" loading="lazy"
+              onerror="this.remove();this.parentNode.classList.add('none')">` : ""}</span>`;
     return `<li>
-      <a class="thumb ${shot ? "" : "none"}" href="${href}" target="_blank" rel="noopener"
-         title="Open this piece on the shop">${shot
-           ? `<img src="${fileUrl(shot)}" alt="" loading="lazy"
-                   onerror="this.remove();this.parentNode.classList.add('none')">` : ""}</a>
+      ${href ? `<a class="thumbwrap" href="${href}" target="_blank" rel="noopener"
+                   title="${piece ? "Open this piece on the shop" : "See the whole picture"}"
+                >${box}</a>` : box}
       <span class="what">
-        <a href="${href}" target="_blank" rel="noopener">${esc(l.title || l.code)}</a>${
-          l.size ? ` <b class="len">${esc(l.size)}&Prime;</b>` : ""}
-        <span class="code">${esc(l.code)} × ${l.qty}${
+        ${title}${l.size ? ` <b class="len">${esc(l.size)}&Prime;</b>` : ""}
+        <span class="code">${l.code === "OFFLINE" ? "" : esc(l.code) + " "}× ${l.qty}${
           piece && piece.price !== l.price ? ` · now ${rupees(piece.price)}` : ""}</span>
       </span>
       <span class="rup">${rupees(l.price * l.qty)}</span></li>`;
   }).join("");
 
-  /* Older orders carry one length for the whole order; newer ones carry it
-     against each piece, where it is already shown above. */
-  const perItem = (o.items || []).some(l => l.size);
-
   const pickup = o.pay === "shop";
+  const perItem = (o.items || []).some(l => l.size);
   const where = pickup
     ? `${esc(o.name)}\n<a href="tel:+91${esc(o.phone)}">${esc(o.phone)}</a>\nCollecting at the shop`
     : `${esc(o.name)}\n<a href="tel:+91${esc(o.phone)}">${esc(o.phone)}</a>\n${esc(o.address)}\n${esc(o.pincode)}`;
 
-  return `<article class="order" data-ref="${esc(o.ref)}">
-    <div class="otop">
-      <span class="ref">${esc(o.ref)}</span>
-      <span class="when">${esc(when(o.placed_at))}</span>
-      <span class="pill ${esc(o.status)}">${esc(o.status)}</span>
-    </div>
-    <div class="obody">
+  return `<div class="obody">
       <div>
+        <h3>Placed</h3>
+        <div>${esc(fullWhen(o.placed_at))}</div>
+        ${cameFrom(o) ? `<h3>Came from</h3>
+        <div><b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b>
+          <span style="color:var(--ink-2);font-size:.85rem"> — not a website order, so it
+          does not change how many are left on the website</span></div>` : ""}
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
         <h3>How they are paying</h3>
         <div>${esc(PAYNAME[o.pay] || o.pay)}</div>
+        ${o.note ? `<h3>To remember</h3>
+        <div class="who-lines">${esc(o.note)}</div>` : ""}
         ${perItem ? "" : `<h3>Poth length</h3>
         <div>${o.poth ? `<span class="poth">${esc(o.poth)} inches</span>`
                       : `<span style="color:var(--ink-2)">to be settled on WhatsApp</span>`}</div>`}
@@ -420,46 +679,181 @@ function card(o){
       <div>
         <h3>${(o.items || []).length} piece${(o.items || []).length === 1 ? "" : "s"}</h3>
         <ul class="items">${items}</ul>
+        ${cameFrom(o) ? "" : `
         <div class="money"><span>Pieces</span><span>${rupees(o.goods)}</span></div>
         ${pickup ? "" : `<div class="money"><span>Shipping</span><span>${o.shipping ? rupees(o.shipping) : "Free"}</span></div>`}
-        ${o.cod_fee ? `<div class="money"><span>Cash on delivery</span><span>${rupees(o.cod_fee)}</span></div>` : ""}
-        <div class="money tot"><span>Total</span><span>${rupees(o.total)}</span></div>
+        ${o.cod_fee ? `<div class="money"><span>Cash on delivery</span><span>${rupees(o.cod_fee)}</span></div>` : ""}`}
+        <div class="money tot"><span>${cameFrom(o) ? "Agreed price" : "Total"}</span><span>${
+          cameFrom(o) && !o.total ? `<i class="unset">not set yet</i>` : rupees(o.total)}</span></div>
+        ${cameFrom(o) ? fillIn(o, chat) : ""}
       </div>
     </div>
     <div class="acts">
-      ${NEXT.map(s => `<button class="act" data-set="${s}" aria-pressed="${o.status === s}">${s}</button>`).join("")}
+      ${NEXT.map(st => `<button class="act" data-set="${st}" aria-pressed="${o.status === st}">${st}</button>`).join("")}
       <a class="act wa" href="https://wa.me/91${esc(o.phone)}" target="_blank" rel="noopener">WhatsApp</a>
+    </div>`;
+}
+
+/* The two things only the shop can supply: what it costs, and the picture.
+   Shown on every order that did not come through the website — whether we
+   typed it in or she filled the link in herself. */
+function fillIn(o, chat){
+  return `<div class="fillin">
+    <div class="fi-row">
+      <label class="fi-price">
+        <span>Price</span>
+        <input type="number" class="f-price" min="0" max="5000000" step="1"
+               inputmode="numeric" value="${o.total || ""}" placeholder="0">
+      </label>
+      <button class="btn f-save" type="button">Save the price</button>
     </div>
-  </article>`;
+    <div class="fi-row">
+      <button class="btn f-add" type="button">${chat ? "Replace the picture" : "Add the picture"}</button>
+      ${chat ? `<button class="btn f-drop" type="button">Remove it</button>` : ""}
+      <input type="file" class="f-file" accept="image/*" hidden>
+      <span class="fi-say"></span>
+    </div>
+  </div>`;
+}
+
+/* A chat photograph is often four thousand pixels wide and several megabytes.
+   Nothing here is bigger than a thumbnail, so it is brought down on this phone
+   before it travels. Same as the new-order form. */
+function shrink(file, longest = 1400){
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type)) return reject(new Error("That is not a picture."));
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, longest / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width  = Math.max(1, Math.round(img.width  * scale));
+      c.height = Math.max(1, Math.round(img.height * scale));
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(img, 0, 0, c.width, c.height);
+      let out = "";
+      for (const q of [0.72, 0.6, 0.48, 0.36]){
+        out = c.toDataURL("image/jpeg", q);
+        if (out.length < 900000) break;
+      }
+      if (out.length > 1400000) return reject(new Error("That picture is too big, even shrunk."));
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url);
+      reject(new Error("This browser cannot open that picture — save it as a JPG first.")); };
+    img.src = url;
+  });
 }
 
 function wire(){
   document.querySelectorAll(".order").forEach(el => {
     const ref = el.dataset.ref;
-    el.querySelectorAll("[data-set]").forEach(b => {
-      b.onclick = async () => {
-        const was = ORDERS.find(o => o.ref === ref);
-        const from = was ? was.status : null;
-        if (from === b.dataset.set) return;
+    const o = ORDERS.find(x => x.ref === ref);
 
-        /* Move it on screen first, put it back if the save does not land. */
-        setStatus(ref, b.dataset.set);
-        try {
-          const r = await api("/office/api", {
-            method: "POST",
-            headers: {"content-type": "application/json"},
-            body: JSON.stringify({ref, status: b.dataset.set})
-          });
-          const d = await r.json();
-          if (r.status === 401) { gate(d.why); return; }
-          if (!r.ok || !d.ok) throw new Error(d.why || "refused");
-          snack(ref + " — " + b.dataset.set);
-        } catch (err) {
-          if (from) setStatus(ref, from);
-          snack("That did not save. " + (err.message || ""));
-        }
-      };
-    });
+    /* Opening one is instant — the detail is built the first time it is asked for. */
+    el.querySelector(".row").onclick = () => {
+      const now = !OPEN.has(ref);
+      now ? OPEN.add(ref) : OPEN.delete(ref);
+      const box = el.querySelector(".more");
+      if (now && !box.innerHTML.trim()) box.innerHTML = detail(o);
+      box.hidden = !now;
+      el.classList.toggle("open", now);
+      el.querySelector(".row").setAttribute("aria-expanded", String(now));
+      if (now) { bindActs(el, ref); bindFill(el, ref); }
+    };
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); }
+  });
+}
+
+/* Filling in a price, or putting a picture on afterwards. */
+function bindFill(el, ref){
+  const say   = el.querySelector(".fi-say");
+  const price = el.querySelector(".f-price");
+  const save  = el.querySelector(".f-save");
+  const add   = el.querySelector(".f-add");
+  const drop  = el.querySelector(".f-drop");
+  const file  = el.querySelector(".f-file");
+  if (!save) return;
+
+  const send = async (body, working, done) => {
+    if (say) say.textContent = working;
+    try {
+      const r = await api("/office/api", {
+        method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify(Object.assign({ref}, body))
+      });
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return false; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      snack(ref + " — " + done);
+      /* Read it back rather than guess: the price lands on the piece too. */
+      await load();
+      return true;
+    } catch (err) {
+      if (say) say.textContent = "";
+      snack("That did not save. " + (err.message || ""));
+      return false;
+    }
+  };
+
+  save.onclick = e => {
+    e.stopPropagation();
+    const n = Math.floor(Number(price.value));
+    if (!Number.isFinite(n) || n < 0) { snack("That is not a price."); price.focus(); return; }
+    save.disabled = true;
+    send({price: n}, "", "price saved").then(() => { save.disabled = false; });
+  };
+  price.onclick = e => e.stopPropagation();
+  price.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); save.click(); } };
+
+  add.onclick = e => { e.stopPropagation(); file.click(); };
+  file.onchange = async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    if (say) say.textContent = "Shrinking…";
+    let shot;
+    try { shot = await shrink(f); }
+    catch (err) { if (say) say.textContent = err.message; return; }
+    add.disabled = true;
+    await send({photo: shot}, "Saving the picture…", "picture saved");
+    add.disabled = false;
+  };
+
+  if (drop) drop.onclick = e => {
+    e.stopPropagation();
+    drop.disabled = true;
+    send({photo: ""}, "Removing…", "picture removed").then(() => { drop.disabled = false; });
+  };
+}
+
+function bindActs(el, ref){
+  el.querySelectorAll("[data-set]").forEach(b => {
+    b.onclick = async e => {
+      e.stopPropagation();
+      const was = ORDERS.find(o => o.ref === ref);
+      const from = was ? was.status : null;
+      if (from === b.dataset.set) return;
+
+      /* Move it on screen first, put it back if the save does not land. */
+      setStatus(ref, b.dataset.set);
+      try {
+        const r = await api("/office/api", {
+          method: "POST",
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify({ref, status: b.dataset.set})
+        });
+        const d = await r.json();
+        if (r.status === 401) { gate(d.why); return; }
+        if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+        snack(ref + " — " + b.dataset.set);
+      } catch (err) {
+        if (from) setStatus(ref, from);
+        snack("That did not save. " + (err.message || ""));
+      }
+    };
   });
 }
 
@@ -468,9 +862,9 @@ function setStatus(ref, status){
   if (o) o.status = status;
   const el = document.querySelector(`.order[data-ref="${CSS.escape(ref)}"]`);
   if (!el) return;
-  const pill = el.querySelector(".pill");
-  pill.className = "pill " + status;
-  pill.textContent = status;
+  const dot = el.querySelector(".dotst"), word = el.querySelector(".stword");
+  if (dot)  { dot.className = "dotst st " + status; dot.title = status; }
+  if (word) { word.className = "stword st " + status; word.textContent = status; }
   el.querySelectorAll("[data-set]").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.set === status)));
 }
