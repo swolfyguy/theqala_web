@@ -7,6 +7,10 @@ REM  Press Ctrl+C in this window to stop.
 setlocal
 cd /d "%~dp0"
 
+REM  Start from what is actually on GitHub, not from whatever this folder
+REM  happened to be left as. Never fails the launch - see pull.bat.
+call "%~dp0pull.bat"
+
 where node >NUL 2>NUL || (
   echo.
   echo   Node is not installed on this computer. Get it from https://nodejs.org
