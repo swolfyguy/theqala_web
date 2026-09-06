@@ -633,12 +633,11 @@ footer a:hover{color:var(--accent)}
         <span class="latin">The Qala</span>
       </span>
     </a>
+    <!-- The categories in here are filled in from the folders once the
+         catalogue loads, so this menu and the filters down the side of the
+         shop can never disagree. See paintNav(). -->
     <nav class="main" id="nav">
       <a href="#/shop">Shop All</a>
-      <a href="#/shop?c=rajwadi">Rajwadi</a>
-      <a href="#/shop?c=victorian">Victorian</a>
-      <a href="#/shop?c=bangles">Bangles</a>
-      <a href="#/shop?c=short-mangalsutra">Mangalsutra</a>
       <a href="#/story">Our Story</a>
       <a href="#/contact">Contact</a>
     </nav>
@@ -669,15 +668,7 @@ footer a:hover{color:var(--accent)}
       </div>
       <div>
         <h4>Shop</h4>
-        <ul>
-          <li><a href="#/shop?c=rajwadi">Rajwadi</a></li>
-          <li><a href="#/shop?c=victorian">Victorian</a></li>
-          <li><a href="#/shop?c=short-mangalsutra">Short Mangalsutra</a></li>
-          <li><a href="#/shop?c=bangles">Bangles</a></li>
-          <li><a href="#/shop?c=rings">Rings</a></li>
-          <li><a href="#/shop?c=necklace">Necklace</a></li>
-          <li><a href="#/shop?c=heritage">Heritage</a></li>
-        </ul>
+        <ul id="footShop"><li><a href="#/shop">Everything</a></li></ul>
       </div>
       <div>
         <h4>Help</h4>
@@ -806,6 +797,13 @@ const CAT_NAMES = {
   "rajwadi": {
     mr: "राजवाडी", en: "Rajwadi",
     blurb: "The Peshwa-court jewellery of Maharashtra. Hollow gold beads strung so tightly the necklace holds its own curve, jav leaves laid in a row, struck Lakshmi coins, and a single red kundan at the heart of it. Thushi, saaj, mohanmal, nath and bugadi — the pieces a bride is dressed in — finished in a soft antique gold rather than a hard polish, the way they were made before machines."
+  },
+  "hand-made-rajwadi": {
+    mr: "हातघडणीची राजवाडी", en: "Hand Made Rajwadi",
+    /* Write a few lines here about what makes these different from the
+       Rajwadi above, and they will appear under the heading of that page —
+       exactly like the others. Left empty rather than guessed at. */
+    blurb: ""
   },
   "victorian": {
     mr: "व्हिक्टोरियन", en: "Victorian",
@@ -2220,5 +2218,31 @@ $("#yr").textContent = new Date().getFullYear();
 window.addEventListener("hashchange", render);
 syncCount();
 render();
-loadCatalogue().then(render);
+/* ---------------------------------------------------------
+   The menu, written from the folders
+
+   There is no list of categories kept by hand anywhere. The menu at the top,
+   the links in the footer and the tick-boxes down the side of the shop are all
+   built from catsInUse() — the categories that actually have pieces in them.
+
+   So a category appears in the menu the day you put a piece in its folder, and
+   leaves the day you empty it. Nothing to remember, and no menu item that leads
+   to an empty page.
+--------------------------------------------------------- */
+function paintNav(){
+  const cats = catsInUse();
+
+  const nav = $("#nav");
+  if (nav) nav.innerHTML =
+    `<a href="#/shop">Shop All</a>`
+    + cats.map(c => `<a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")
+    + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`;
+
+  const foot = $("#footShop");
+  if (foot) foot.innerHTML =
+    cats.map(c => `<li><a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a></li>`).join("")
+    + `<li><a href="#/shop">Everything</a></li>`;
+}
+
+loadCatalogue().then(() => { paintNav(); render(); });
 </script>
