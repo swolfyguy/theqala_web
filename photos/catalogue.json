@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05T20:49:42Z",
+ "generated": "2026-09-06T07:28:14Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -156,7 +156,7 @@
   {
    "slug": "hand-made-rajwadi",
    "cover": null,
-   "next": 12,
+   "next": 17,
    "products": [
     {
      "n": 2,
@@ -244,6 +244,86 @@
      "sizes": {}
     },
     {
+     "n": 15,
+     "code": "HAND-MADE-RAJWADI-15",
+     "folder": "photos/hand-made-rajwadi/1100",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1100/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 30,
+      "max": 36
+     }
+    },
+    {
+     "n": 16,
+     "code": "HAND-MADE-RAJWADI-16",
+     "folder": "photos/hand-made-rajwadi/1100 (2)",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1100 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 30,
+      "max": 36
+     }
+    },
+    {
+     "n": 12,
+     "code": "HAND-MADE-RAJWADI-12",
+     "folder": "photos/hand-made-rajwadi/1500",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1500/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 30,
+      "max": 36
+     }
+    },
+    {
+     "n": 13,
+     "code": "HAND-MADE-RAJWADI-13",
+     "folder": "photos/hand-made-rajwadi/1500 (2)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1500 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 30,
+      "max": 36
+     }
+    },
+    {
      "n": 9,
      "code": "HAND-MADE-RAJWADI-09",
      "folder": "photos/hand-made-rajwadi/1550",
@@ -289,6 +369,23 @@
      },
      "images": [
       "photos/hand-made-rajwadi/1550 (3)/1.jpeg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {}
+    },
+    {
+     "n": 14,
+     "code": "HAND-MADE-RAJWADI-14",
+     "folder": "photos/hand-made-rajwadi/1600",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1600/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
