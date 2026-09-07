@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-07T15:21:14Z",
+ "generated": "2026-09-07T15:22:21Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -251,28 +251,6 @@
      "videoPoster": null,
      "sizes": {
       "qty": 1
-     }
-    },
-    {
-     "n": 23,
-     "code": "HAND-MADE-RAJWADI-23",
-     "folder": "photos/hand-made-rajwadi/1000",
-     "title": "",
-     "price": 1000,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1000/1.jpg",
-      "photos/hand-made-rajwadi/1000/2.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5
      }
     },
     {
