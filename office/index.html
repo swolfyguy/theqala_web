@@ -16,6 +16,7 @@
   --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
   --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
   --new:#7E1226; --confirmed:#9A7325; --sent:#2F6E5B; --done:#4B5A66; --cancelled:#8A8A8A;
+  --deleted:#B0A79F;
   --on-accent:#FFF6E9;
 }
 @media (prefers-color-scheme:dark){
@@ -25,6 +26,7 @@
     --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
     --shadow:rgba(0,0,0,.4);
     --new:#E0BC72; --confirmed:#CFA84F; --sent:#7FC0A8; --done:#9DB0BD; --cancelled:#8A8A8A;
+    --deleted:#6E645E;
     --on-accent:#131011;
   }
 }
@@ -158,6 +160,13 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 }
 .st.new{color:var(--new)} .st.confirmed{color:var(--confirmed)}
 .st.sent{color:var(--sent)} .st.done{color:var(--done)} .st.cancelled{color:var(--cancelled)}
+.st.deleted{color:var(--deleted)}
+.order.binned{opacity:.72}
+.act.bin{margin-left:auto;border-color:var(--line-2);color:var(--ink-2)}
+.act.bin:hover{border-color:var(--cancelled);color:var(--cancelled)}
+.act.gone{border-color:var(--accent);color:var(--accent)}
+.act.gone.armed{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.binnote{padding:0 16px 12px;color:var(--ink-2);font-size:.84rem}
 
 .more{border-top:1px solid var(--line);background:var(--ground)}
 .more[hidden]{display:none}
@@ -270,8 +279,13 @@ const STATUSES = [
   {id:"confirmed", t:"Confirmed"},
   {id:"sent",      t:"Sent"},
   {id:"done",      t:"Done"},
-  {id:"cancelled", t:"Cancelled"}
+  {id:"cancelled", t:"Cancelled"},
+  /* A bin, not a state an order passes through — so it sits apart, at the end,
+     and Everything never shows what is in it. */
+  {id:"deleted",   t:"Deleted"}
 ];
+/* The five a real order moves between. "deleted" is not one of them — it has
+   its own button, and its own way back. */
 const NEXT  = ["new","confirmed","sent","done","cancelled"];
 const RANGES = [
   {id:"today",  t:"Today"},
@@ -474,7 +488,10 @@ async function load(){
   $("#who").textContent = data.you ? "signed in as " + data.you : "";
   COUNTS = {};
   (data.counts || []).forEach(c => { COUNTS[c.status] = c.n; });
-  COUNTS.all = Object.values(COUNTS).reduce((a, b) => a + b, 0);
+  /* Everything counts what Everything shows, so the bin is left out of it. */
+  COUNTS.all = Object.keys(COUNTS)
+    .filter(k => k !== "deleted")
+    .reduce((a, k) => a + COUNTS[k], 0);
   ORDERS = data.orders || [];
   /* Only keep open the ones still on screen. */
   OPEN = new Set([...OPEN].filter(ref => ORDERS.some(o => o.ref === ref)));
@@ -567,7 +584,7 @@ function wirePicker(){
 /* What is on screen, and what it comes to. Cancelled orders are left out of
    the money — they are not going to be paid. */
 function paintSum(){
-  const live = ORDERS.filter(o => o.status !== "cancelled");
+  const live = ORDERS.filter(o => o.status !== "cancelled" && o.status !== "deleted");
   const money = live.reduce((a, o) => a + (Number(o.total) || 0), 0);
   const pieces = live.reduce((a, o) =>
     a + (o.items || []).reduce((b, l) => b + (Number(l.qty) || 1), 0), 0);
@@ -579,9 +596,16 @@ function paintSum(){
     ? `<b>${ORDERS.length}</b> order${ORDERS.length === 1 ? "" : "s"}
        <span class="dot"></span> ${pieces} piece${pieces === 1 ? "" : "s"}
        <span class="dot"></span> <b>${rupees(money)}</b>
-       <span class="dot"></span> ${esc(label)}${
-         live.length !== ORDERS.length
-           ? ` <span class="dot"></span> ${ORDERS.length - live.length} cancelled, not counted` : ""}`
+       <span class="dot"></span> ${esc(label)}${(() => {
+         /* Cancelled and binned orders are shown but not added up, and the
+            line should name whichever of the two is actually sitting there. */
+         const off = ORDERS.length - live.length;
+         if (!off) return "";
+         const kinds = [];
+         if (ORDERS.some(o => o.status === "cancelled")) kinds.push("cancelled");
+         if (ORDERS.some(o => o.status === "deleted"))   kinds.push("deleted");
+         return ` <span class="dot"></span> ${off} ${kinds.join(" or ")}, not counted`;
+       })()}`
     : "";
 }
 
@@ -600,7 +624,8 @@ function paintList(){
 /* One line each, until you open one. */
 function row(o){
   const open = OPEN.has(o.ref);
-  return `<article class="order ${open ? "open" : ""}" data-ref="${esc(o.ref)}">
+  return `<article class="order ${open ? "open" : ""}${
+    o.status === "deleted" ? " binned" : ""}" data-ref="${esc(o.ref)}">
     <button class="row" type="button" aria-expanded="${open}">
       <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
       <span class="ref">${esc(o.ref)}</span>
@@ -689,9 +714,15 @@ function detail(o){
       </div>
     </div>
     <div class="acts">
-      ${NEXT.map(st => `<button class="act" data-set="${st}" aria-pressed="${o.status === st}">${st}</button>`).join("")}
+      ${o.status === "deleted"
+        ? `<button class="act" data-set="new">Put it back</button>
+           <button class="act gone" data-purge>Remove for good</button>`
+        : `${NEXT.map(st => `<button class="act" data-set="${st}" aria-pressed="${o.status === st}">${st}</button>`).join("")}
+           <button class="act bin" data-set="deleted" title="Out of the book, but not gone">Delete</button>`}
       <a class="act wa" href="https://wa.me/91${esc(o.phone)}" target="_blank" rel="noopener">WhatsApp</a>
-    </div>`;
+    </div>
+    ${o.status === "deleted" ? `<div class="binnote">Out of Everything, and not holding any piece.
+      It stays here until you remove it for good, which cannot be undone.</div>` : ""}`;
 }
 
 /* The two things only the shop can supply: what it costs, and the picture.
@@ -761,9 +792,9 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); }
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); }
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); }
   });
 }
 
@@ -837,8 +868,12 @@ function bindActs(el, ref){
       const from = was ? was.status : null;
       if (from === b.dataset.set) return;
 
+      /* Into the bin or out of it, the order leaves the list you are looking
+         at — so that one is read again rather than patched in place. */
+      const moves = b.dataset.set === "deleted" || from === "deleted";
+
       /* Move it on screen first, put it back if the save does not land. */
-      setStatus(ref, b.dataset.set);
+      if (!moves) setStatus(ref, b.dataset.set);
       try {
         const r = await api("/office/api", {
           method: "POST",
@@ -848,13 +883,53 @@ function bindActs(el, ref){
         const d = await r.json();
         if (r.status === 401) { gate(d.why); return; }
         if (!r.ok || !d.ok) throw new Error(d.why || "refused");
-        snack(ref + " — " + b.dataset.set);
+        snack(ref + (b.dataset.set === "deleted"
+          ? " — moved to Deleted"
+          : (from === "deleted" ? " — put back" : " — " + b.dataset.set)));
+        if (moves) await load();
       } catch (err) {
-        if (from) setStatus(ref, from);
+        if (!moves && from) setStatus(ref, from);
         snack("That did not save. " + (err.message || ""));
       }
     };
   });
+}
+
+/* The only thing in the whole book that cannot be undone, so it asks first —
+   in place, on the button itself, rather than throwing up a dialog box. */
+function bindPurge(el, ref){
+  const btn = el.querySelector("[data-purge]");
+  if (!btn) return;
+  let armed = null;
+  btn.onclick = async e => {
+    e.stopPropagation();
+    if (!armed) {
+      btn.textContent = "Sure? This cannot be undone";
+      btn.classList.add("armed");
+      armed = setTimeout(() => {
+        armed = null; btn.textContent = "Remove for good"; btn.classList.remove("armed");
+      }, 5000);
+      return;
+    }
+    clearTimeout(armed); armed = null;
+    btn.disabled = true;
+    try {
+      const r = await api("/office/api", {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, purge: true})
+      });
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      snack(ref + " — removed for good");
+      await load();
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = "Remove for good"; btn.classList.remove("armed");
+      snack("That did not work. " + (err.message || ""));
+    }
+  };
 }
 
 function setStatus(ref, status){

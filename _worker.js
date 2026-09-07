@@ -606,7 +606,11 @@ async function listOrders(env, url, who) {
   const limit  = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "200", 10) || 200, 1), 1000);
 
   let sql = "SELECT * FROM orders", where = [], bind = [];
+  /* "deleted" is a bin, not a state an order passes through. Everything means
+     everything still in the book, so the bin is left out of it — you only see
+     those by asking for them. */
   if (status && status !== "all") { where.push("status = ?"); bind.push(status); }
+  else where.push("status != 'deleted'");
   if (from) { where.push("placed_at >= ?"); bind.push(from); }
   if (upto) { where.push("placed_at <= ?"); bind.push(upto); }
   if (q) {
@@ -641,7 +645,12 @@ async function listOrders(env, url, who) {
     + " GROUP BY status"
   ).bind(...cBind).all();
 
-  return json({ok: true, you: who, orders: rows, counts: counts.results || [],
+  /* The Everything tab counts what Everything shows, so the bin is not in it.
+     The bin's own tab counts itself, from the same rows. */
+  const rows2 = counts.results || [];
+  const binned = (rows2.find(r => r.status === "deleted") || {}).n || 0;
+
+  return json({ok: true, you: who, orders: rows, counts: rows2, binned,
                 range: picked ? "picked" : range});
 }
 
@@ -655,7 +664,19 @@ async function updateOrder(request, env) {
   const was = await env.DB.prepare("SELECT * FROM orders WHERE ref = ?").bind(ref).first();
   if (!was) return json({ok: false, why: "not found"}, 404);
 
-  const allowed = ["new", "confirmed", "sent", "done", "cancelled"];
+  /* Gone for good. Deliberately only possible on an order already sitting in
+     the bin: one tap can never take a live order off the books, and the row
+     you are about to lose has been out of your way for a while first. */
+  if (b.purge === true) {
+    if (was.status !== "deleted")
+      return json({ok: false, why: "Move it to Deleted first, then it can be removed for good."}, 400);
+    try { await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run(); }
+    catch (e) { /* no photographs table on an older book, which is fine */ }
+    await env.DB.prepare("DELETE FROM orders WHERE ref = ?").bind(ref).run();
+    return json({ok: true, purged: ref});
+  }
+
+  const allowed = ["new", "confirmed", "sent", "done", "cancelled", "deleted"];
   const sets = [], bind = [];
   if (b.status != null) {
     if (!allowed.includes(b.status)) return json({ok: false, why: "status"}, 400);
