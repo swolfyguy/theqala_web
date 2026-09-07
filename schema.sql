@@ -46,6 +46,14 @@ CREATE TABLE IF NOT EXISTS order_photos (
 );
 
 
+CREATE TABLE IF NOT EXISTS here (
+  id TEXT PRIMARY KEY,
+  at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS here_by_time ON here (at);
+
+
 CREATE TABLE IF NOT EXISTS logins (
   at    TEXT NOT NULL,
   ip    TEXT NOT NULL,
@@ -84,6 +92,12 @@ CREATE INDEX IF NOT EXISTS logins_by_ip ON logins (ip, at DESC);
 --   the order itself so that listing the book never drags the pictures
 --   along. One row per order, base64, deleted with nothing else.
 --
+-- here
+--   Who is on the shop at this moment. One row per open tab, holding a
+--   random id that tab made up for itself and the last time it said hello.
+--   No address, no name, no cookie, nothing that outlives the visit --
+--   rows older than ten minutes are swept away as people come and go.
+--
 -- logins
 --   Wrong passwords, counted per address so nobody can sit and guess.
 --   Rows older than a day are cleared away on the next sign-in.
@@ -99,6 +113,9 @@ CREATE INDEX IF NOT EXISTS logins_by_ip ON logins (ip, at DESC);
 --     ALTER TABLE orders ADD COLUMN poth TEXT DEFAULT ''
 --     ALTER TABLE orders ADD COLUMN source TEXT NOT NULL DEFAULT 'site'
 --     ALTER TABLE orders ADD COLUMN photo TEXT DEFAULT ''
+--
+-- The order_photos and here tables are both IF NOT EXISTS above, so pasting
+-- this whole file again is all they need.
 --
 -- "duplicate column name" back means it was already there, and nothing
 -- was harmed by asking. Every order already in the book becomes a "site"

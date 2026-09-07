@@ -504,6 +504,28 @@ select.sort{background:var(--panel);border:1px solid var(--line-2);border-radius
 .fab:hover{transform:scale(1.07)}
 .fab svg{width:26px;height:26px}
 
+/* how many people are on the shop at this moment. Sits above the WhatsApp
+   bubble, and is simply not there when the number is only the person
+   reading it — one is not worth saying. */
+.here{position:fixed;right:18px;bottom:84px;z-index:44;display:none;align-items:center;gap:8px;
+  background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--line);
+  color:var(--ink-2);padding:7px 13px 7px 11px;border-radius:999px;font-size:.76rem;
+  letter-spacing:.02em;box-shadow:0 10px 26px -14px var(--shadow-2);
+  animation:hereIn .4s cubic-bezier(.2,.9,.3,1)}
+.here.on{display:flex}
+.here b{color:var(--ink);font-weight:700}
+.here .live{width:7px;height:7px;border-radius:50%;background:#2F9E5B;flex:none;
+  box-shadow:0 0 0 0 rgba(47,158,91,.55);animation:hereBeat 2.4s infinite}
+@keyframes hereIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes hereBeat{
+  0%{box-shadow:0 0 0 0 rgba(47,158,91,.5)}
+  70%{box-shadow:0 0 0 7px rgba(47,158,91,0)}
+  100%{box-shadow:0 0 0 0 rgba(47,158,91,0)}}
+@media (prefers-reduced-motion:reduce){
+  .here{animation:none} .here .live{animation:none}}
+body.on-piece .here{bottom:76px}
+@media (max-width:520px){ .here{font-size:.72rem;padding:6px 11px 6px 9px} }
+
 /* ---------- bag ---------- */
 .pagehead{padding:38px 0 8px}
 .pagehead h1{font-size:clamp(1.9rem,3.6vw,2.7rem)}
@@ -703,6 +725,8 @@ footer a:hover{color:var(--accent)}
     </div>
   </div>
 </footer>
+
+<div class="here" id="here" role="status" aria-live="polite"></div>
 
 <a class="fab" id="fab" target="_blank" rel="noopener" href="#" aria-label="Message us on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
@@ -2311,5 +2335,67 @@ function paintNav(){
     + `<li><a href="#/shop">Everything</a></li>`;
 }
 
-loadCatalogue().then(() => { paintNav(); render(); });
+/* ---------------------------------------------------------
+   How many people are on the shop right now
+
+   This tab makes up a random id for itself, says hello every so often, and is
+   told how many other tabs have said hello recently. The id lives in this tab
+   only — close it and the id is gone — and the row on our side is swept up
+   ten minutes later. Nothing about who anybody is, ever.
+
+   The badge shows the real number and nothing else. It stays hidden at one,
+   because one is the person reading it, and a shop claiming an audience it
+   does not have is worse than a shop saying nothing.
+--------------------------------------------------------- */
+const HERE_EVERY = 45e3;
+
+function hereId(){
+  try {
+    let v = sessionStorage.getItem("qala.tab");
+    if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); 
+              sessionStorage.setItem("qala.tab", v); }
+    return v;
+  } catch (e) {
+    /* A browser refusing storage still gets to be counted, just once per load. */
+    return hereId.once || (hereId.once = Math.random().toString(36).slice(2) + Date.now().toString(36));
+  }
+}
+
+async function sayHello(){
+  const box = document.getElementById("here");
+  if (!box || document.visibilityState !== "visible") return;
+  try {
+    const r = await fetch("/api/here", {
+      method: "POST",
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify({id: hereId()})
+    });
+    const d = await r.json();
+    const n = Number(d && d.here) || 0;
+    if (d && d.ok && n >= 2){
+      box.innerHTML = `<span class="live"></span><span><b>${n}</b> people looking right now</span>`;
+      box.classList.add("on");
+    } else {
+      box.classList.remove("on");
+    }
+  } catch (e) {
+    box.classList.remove("on");        // never a broken badge, just no badge
+  }
+}
+
+let hereTimer = null;
+function watchHere(){
+  clearInterval(hereTimer);
+  if (document.visibilityState === "visible"){
+    sayHello();
+    hereTimer = setInterval(sayHello, HERE_EVERY);
+  } else {
+    /* A tab left open in the background is not somebody looking at the shop. */
+    const box = document.getElementById("here");
+    if (box) box.classList.remove("on");
+  }
+}
+document.addEventListener("visibilitychange", watchHere);
+
+loadCatalogue().then(() => { paintNav(); render(); watchHere(); });
 </script>

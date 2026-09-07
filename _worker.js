@@ -57,6 +57,13 @@ const SOURCENAME = {whatsapp: "WhatsApp", instagram: "Instagram",
    one megabyte, well inside what a single D1 row will hold. */
 const MAX_PHOTO_CHARS = 1400000;
 
+/* How long a tab counts as "here" after it last said hello. The shop says
+   hello every 45 seconds while it is the tab you are looking at, so two
+   minutes leaves room for a slow phone without holding on to people who
+   have gone. */
+const HERE_MINUTES = 2;
+const HERE_SWEEP_AFTER = 10;      // minutes, before a row is thrown away
+
 /* Who may open the order book. The password is NOT here — it lives on the
    project as STUDIO_PASSWORD, so it never reaches anybody's browser. */
 const STAFF = ["9011240352", "7558209163", "9579628754"];
@@ -73,6 +80,7 @@ export default {
 
       if (path === "/api/order"     && request.method === "POST") return takeOrder(request, env);
       if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
+      if (path === "/api/here"      && request.method === "POST") return whoIsHere(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
@@ -291,6 +299,51 @@ async function stockNow(request, env) {
     /* Half a minute: quick enough that a sold-out piece greys out promptly,
        long enough that a busy evening does not hammer the database. */
     {"cache-control": "public, max-age=30"});
+}
+
+/* ===========================================================================
+   How many people are on the shop right now
+   ===========================================================================
+   Each open tab makes up a random id for itself and says hello every so often.
+   We keep the id and the time, count how many said hello recently, and give
+   that number back. That is the whole thing.
+
+   What is deliberately NOT here: no address, no name, no cookie, nothing that
+   identifies anybody and nothing that outlives the visit. The id is made by
+   the browser, thrown away when the tab closes, and the row is swept up ten
+   minutes later. It cannot be joined to an order or to anything else.
+
+   The number is the real one. If two people are on the shop it says two.
+*/
+async function whoIsHere(request, env) {
+  if (!env.DB) return json({ok: true, here: 0}, 200, {"cache-control": "no-store"});
+
+  let id = "";
+  try { id = String((await request.json()).id || ""); } catch (e) { /* no id, no count */ }
+  if (!/^[a-z0-9]{8,40}$/i.test(id)) return json({ok: false, here: 0}, 400);
+
+  const now = new Date();
+  const since = new Date(now.getTime() - HERE_MINUTES * 60e3).toISOString();
+
+  try {
+    await env.DB.prepare("INSERT OR REPLACE INTO here (id, at) VALUES (?, ?)")
+      .bind(id, now.toISOString()).run();
+
+    /* Sweeping on every hello would double the writes for nothing, so it
+       happens now and then instead. Nobody is waiting on it. */
+    if (Math.random() < 0.05) {
+      const old = new Date(now.getTime() - HERE_SWEEP_AFTER * 60e3).toISOString();
+      await env.DB.prepare("DELETE FROM here WHERE at < ?").bind(old).run();
+    }
+
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM here WHERE at > ?")
+      .bind(since).first();
+    return json({ok: true, here: (row && row.n) || 1}, 200, {"cache-control": "no-store"});
+  } catch (err) {
+    /* No table yet, or the database is having a moment. The shop simply does
+       not show the badge, and nothing else notices. */
+    return json({ok: false, here: 0}, 200, {"cache-control": "no-store"});
+  }
 }
 
 /* Anything on this order that somebody else has already taken. */
