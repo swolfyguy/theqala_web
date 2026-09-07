@@ -1297,7 +1297,6 @@ function home(){
   </section>
 
   ${welcomeSection()}
-  ${reviewsSection()}
 
   ${cats.length ? `
   ${saajRule()}
@@ -1898,7 +1897,8 @@ const PAGES = {
         <p class="muted" style="margin:0">Bring the reference code from the piece you liked and we
           will have it out on the counter for you.</p>
       </div>
-    </div>`;
+    </div>
+    ${reviewsSection()}`;
   },
   story: () => page("आमची गोष्ट","Our story",`
     <p>The Qala began in a two-room flat in Dighi, Pune, with a spool of triple thread and a box of hollow gold beads. We wanted the Rajwadi pieces our grandmothers wore, made properly, at a price a young bride could actually pay.</p>
@@ -2068,7 +2068,9 @@ const ICON_PAUSE = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="tr
 const ICON_PLAY  = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>`;
 
 function wire(route){
-  if (route === "") {
+  /* The reviews live on the contact page now, so this is not tied to the home
+     page any more — it wires whichever page happens to be showing them. */
+  {
     /* Reviews slide left and right. The arrows move one card at a time and grey
        out at each end; the row still swipes and takes arrow keys on its own. */
     const row = $("#revRow"), nav = $("#revNav");
@@ -2090,7 +2092,9 @@ function wire(route){
       addEventListener("resize", sync, {passive:true});
       requestAnimationFrame(sync);
     }
+  }
 
+  if (route === "") {
     const wv = $("#welcomeVid");
     if (wv){
       const fit = () => {
