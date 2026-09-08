@@ -1006,12 +1006,17 @@ const byCode = code => ITEMS.find(i => i.code === code);
    available — better to take an order and sort it out in the chat than to
    hide a piece that is sitting on the shelf. */
 let LEFT = null;
+/* Whether the shop can take a payment at all. Until the gateway keys exist on
+   Cloudflare this stays false, and every order behaves exactly as it does
+   today — straight into the WhatsApp conversation. */
+let PAY_ON = false;
+
 async function loadLeft(){
   try {
     const r = await fetch("/api/stock", {cache: "no-store"});
     if (!r.ok) return;
     const d = await r.json();
-    if (d && d.ok) LEFT = d.left || {};
+    if (d && d.ok) { LEFT = d.left || {}; PAY_ON = !!d.pay; }
   } catch (e) {}
 }
 /* null while we do not know, which reads as "available". */
@@ -1094,9 +1099,27 @@ window.qalaMiss = function(img){
     const row = slot.parentElement;
     slot.remove();
     if (row && row.classList.contains("thumbs") && row.children.length < 2) row.hidden = true;
-  } else {
-    img.remove();
+    return;
   }
+
+  /* A piece deleted in the studio stays in the catalogue until the catalogue
+     is rebuilt, so the shop still lays out a card for it — and the photograph
+     it asks for is already gone. An empty card in a shop looks broken and is
+     worse than one fewer piece, so the card takes itself away.
+
+     A piece with no photographs at all never reaches here: it has no <img> to
+     fail, and its lotus placeholder is deliberate. */
+  const card = img.closest(".card");
+  if (card){
+    const grid = card.parentElement;
+    card.remove();
+    if (grid && grid.classList.contains("grid") && !grid.children.length)
+      grid.innerHTML = `<p class="muted" style="grid-column:1/-1;padding:20px 0">
+        Nothing here just now — message us on WhatsApp and we will show you what is ready.</p>`;
+    return;
+  }
+
+  img.remove();
 };
 
 /* the opening video: photos/hero.mp4, silent and looping, with a pause button */
@@ -1847,9 +1870,17 @@ function placedView(){
          find you something close.</p>
     </div>` : ""}
 
-    <p class="muted">WhatsApp has opened with your order already written out.
-      <b>Tap send in there</b> and we will confirm the price, the sizing and when it ships.
-      If it did not open, or you closed it, use the button below.</p>
+    ${o.payFailed ? `<div class="gonebox" style="text-align:left;margin:18px auto 0;max-width:520px">
+      <b>The payment page would not open</b>
+      <p>Nothing has been charged. Your order is written down under that code —
+         send the message below and we will take the payment in the chat.</p>
+    </div>` : ""}
+    <p class="muted">${o.payFailed
+      ? `The message below has your whole order already written out. <b>Tap send</b>
+         and we will take it from there.`
+      : `WhatsApp has opened with your order already written out.
+         <b>Tap send in there</b> and we will confirm the price, the sizing and when it ships.
+         If it did not open, or you closed it, use the button below.`}</p>
     <a class="btn wa wide" style="margin-top:20px;max-width:24rem" href="${waLink(o.text)}"
        target="_blank" rel="noopener">Send the order on WhatsApp</a>
     <div class="box">
@@ -1989,8 +2020,16 @@ function render(){
   else if (r === "piece") { html = piece(parts[1]); freshenStock(); }
   else if (r === "cart" || r === "bag") html = bagView();
   else if (r === "saved") html = savedView();
-  else if (r === "order") { html = orderView(params); freshenStock(); }
+  else if (r === "order") {
+    html = orderView(params);
+    freshenStock();
+    /* freshenStock only asks once every fifteen seconds, which is right for
+       the piece counts and wrong here: this is the one page where whether the
+       gateway is on decides what the button does. So ask outright. */
+    loadLeft();
+  }
   else if (r === "placed") html = placedView();
+  else if (r === "paid")   html = paidView();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
 
@@ -2259,18 +2298,39 @@ function wire(route){
          gives back null — so the thank-you page offers the same message on a
          button either way, for a browser that blocked it or a tab she closed. */
       const waiting = saveOrder(o);
-      window.open(waLink(o.text), "_blank", "noopener");
+
+      /* Paying online sends her to the gateway instead of to WhatsApp — one
+         or the other, never both, or she is looking at two things at once.
+         Everything else is unchanged, and so is every order when the gateway
+         is not switched on. */
+      const payOnline = o.pay === "online" && PAY_ON;
+      if (!payOnline) window.open(waLink(o.text), "_blank", "noopener");
 
       if (!parseHash().params.get("p")) { BAG = []; saveBag(); syncCount(); }
-      location.hash = "#/placed";
+      if (!payOnline) location.hash = "#/placed";
 
       /* She is already reading the thank-you page by the time we hear back.
          When we do, it says whether the order is safely in the book — and if
          somebody took the last one, it says that too. */
-      waiting.then(res => {
+      waiting.then(async res => {
         o.saved = !!res.saved;
         o.slow  = !!res.slow;
         o.gone  = res.gone || [];
+
+        if (payOnline) {
+          /* The order has to be in our book before it can be paid for — the
+             amount is read from that row, never from this page. */
+          if (res.saved && !(res.gone || []).length) {
+            const went = await goPay(o.ref);
+            if (went) return;                    // she is on the gateway now
+            o.payFailed = true;
+          } else {
+            o.payFailed = true;
+          }
+          location.hash = "#/placed";
+          return;
+        }
+
         if (LAST_ORDER === o && (parseHash().parts[0] || "") === "placed") render();
       });
     };
@@ -2340,6 +2400,111 @@ function paintNav(){
 }
 
 /* ---------------------------------------------------------
+   Paying online
+
+   The page is given one thing by our own server: a session id for this order.
+   Not a key, not an amount, not a way to change either. The amount is read on
+   Cloudflare's side out of the order row that was written a moment ago.
+
+   Coming back from the gateway proves nothing — the address bar is not
+   evidence. Whether an order is paid is decided by Cashfree telling our server
+   so, signed, or by our server asking Cashfree. Never by this page.
+--------------------------------------------------------- */
+const CF_SDK = "https://sdk.cashfree.com/js/v3/cashfree.js";
+let cfLoading = null;
+
+function loadCashfree(){
+  if (window.Cashfree) return Promise.resolve(true);
+  if (cfLoading) return cfLoading;
+  cfLoading = new Promise(resolve => {
+    const t = document.createElement("script");
+    t.src = CF_SDK;
+    t.onload = () => resolve(!!window.Cashfree);
+    t.onerror = () => resolve(false);
+    document.head.appendChild(t);
+    /* A gateway that will not load must not leave her staring at a spinner. */
+    setTimeout(() => resolve(!!window.Cashfree), 8000);
+  });
+  return cfLoading;
+}
+
+/* Returns true only if she is actually on her way to the gateway. */
+async function goPay(ref){
+  try {
+    const r = await fetch("/api/pay", {
+      method: "POST",
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify({ref})
+    });
+    const d = await r.json();
+    if (!d || !d.ok || !d.sessionId) return false;
+
+    if (!(await loadCashfree())) return false;
+    const cashfree = Cashfree({mode: d.mode === "production" ? "production" : "sandbox"});
+    cashfree.checkout({paymentSessionId: d.sessionId, redirectTarget: "_self"});
+    return true;
+  } catch (e) {
+    return false;                 // and the thank-you page offers WhatsApp
+  }
+}
+
+/* She has come back from the gateway. The shop asks its own server what
+   actually happened, and says only what the answer was. */
+let PAID = null;                  // {ref, state}
+
+async function checkPaid(ref){
+  PAID = {ref, state: "checking"};
+  if ((parseHash().parts[0] || "") === "paid") render();
+  try {
+    const r = await fetch("/api/pay/status?ref=" + encodeURIComponent(ref), {cache: "no-store"});
+    const d = await r.json();
+    PAID = {ref, state: (d && d.ok) ? (d.state || "") : "unknown", total: d && d.total};
+  } catch (e) {
+    PAID = {ref, state: "unknown"};
+  }
+  if ((parseHash().parts[0] || "") === "paid") render();
+}
+
+function paidView(){
+  const p = PAID || {ref: "", state: "unknown"};
+  const wa = waLink(`Namaskar The Qala 🙏\n\nOrder ${p.ref}`);
+
+  if (p.state === "checking") return `
+    <div class="wrap placed"><div class="emptymark">${mark()}</div>
+      <h1 style="font-size:1.9rem">Checking with the bank…</h1>
+      <p class="muted">One moment. Do not close this page.</p></div>`;
+
+  if (p.state === "paid") return `
+    <div class="wrap placed">
+      <div class="emptymark">${mark()}</div>
+      <p class="eyebrow">Paid</p>
+      <h1 style="font-size:2.1rem">Thank you.</h1>
+      <div class="oid">${esc(p.ref)}</div>
+      <p class="muted">Your payment has reached us${p.total ? " — " + rupees(p.total) : ""}.
+        We will message you on WhatsApp with the packing and tracking.</p>
+      <a class="btn wa" style="margin-top:20px" href="${wa}" target="_blank" rel="noopener">
+        Message us on WhatsApp</a>
+      <div style="margin-top:26px"><a class="linkbtn" href="#/shop">Continue shopping</a></div>
+    </div>`;
+
+  return `
+    <div class="wrap placed">
+      <div class="emptymark">${mark()}</div>
+      <p class="eyebrow">${p.state === "dropped" ? "Payment not finished" : "Payment not completed"}</p>
+      <h1 style="font-size:1.9rem">Your order is safe with us.</h1>
+      <div class="oid">${esc(p.ref)}</div>
+      <p class="muted">${p.state === "dropped"
+        ? "You came away before the payment finished."
+        : "The payment did not go through."} Nothing has been charged. Your order is
+        written down under that code — message us and we will finish it in the chat,
+        or pay cash on delivery instead.</p>
+      <a class="btn wa" style="margin-top:20px" href="${wa}" target="_blank" rel="noopener">
+        Message us on WhatsApp</a>
+      <div style="margin-top:26px"><a class="linkbtn" href="#/shop">Back to the shop</a></div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------
    How many people are on the shop right now
 
    This tab makes up a random id for itself, says hello every so often, and is
@@ -2400,6 +2565,15 @@ function watchHere(){
   }
 }
 document.addEventListener("visibilitychange", watchHere);
+
+/* Cashfree sends her back to  /?paid=QALA-...  — turn that into a real page
+   and take it out of the address bar, so a refresh does not re-run anything. */
+(function backFromGateway(){
+  const ref = new URLSearchParams(location.search).get("paid") || "";
+  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return;
+  history.replaceState(null, "", location.pathname + "#/paid");
+  checkPaid(ref);
+})();
 
 loadCatalogue().then(() => { paintNav(); render(); watchHere(); });
 </script>
