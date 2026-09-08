@@ -152,6 +152,20 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
 .piece code{font-size:.78rem;font-weight:700;display:block;margin-bottom:2px}
 .piece .band{font-size:.74rem;color:var(--ink-2)}
 .piece .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.piece .stk{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:.74rem;color:var(--ink-2)}
+.piece .stk .lbl{white-space:nowrap}
+.step{display:inline-flex;align-items:center;flex:0 0 auto;border:1px solid var(--line-2);border-radius:999px;overflow:hidden;background:var(--panel-2)}
+.step button{background:none;border:0;padding:3px 11px;font-size:1rem;line-height:1.15;cursor:pointer;color:inherit}
+.step button:hover:not(:disabled){background:var(--line)}
+.step button:disabled{opacity:.35;cursor:default}
+.step b{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--ink)}
+.piece .stk .st{font-size:.8rem;flex:0 0 auto;width:12px}
+.piece .ordn{margin-top:4px;font-size:.7rem;color:var(--ink-2)}
+.piece .ordn:empty{display:none}
+.piece .ordn b{font-weight:600;color:var(--confirmed,var(--gold))}
+.piece .stk .st.ok{color:var(--ok,#2e7d32)}
+.piece .stk .st.er{color:var(--er,#b3261e)}
+.piece.out .stk b{color:var(--warn,#a15c00)}
 .groupname{display:flex;align-items:baseline;gap:12px;margin:30px 0 14px;flex-wrap:wrap}
 .groupname h3{font-size:1.1rem}
 .groupname span{font-size:.78rem;color:var(--ink-2)}
@@ -1022,7 +1036,7 @@ async function renderManage(){
     return;
   }
   box.innerHTML = `<div class="card"><h2>Everything in the shop</h2>
-    <p class="sub">Change a price or a name, add more views, or delete a product. ${isLocal() ? "Changes are written into the folder straight away." : "Each action is one commit."}</p>
+    <p class="sub">Change how many you have, a price or a name, add more views, or delete a product. ${isLocal() ? "Changes are written into the folder straight away." : "Each action is one commit."}</p>
     <div class="log" id="m-log"></div></div>
     <div class="mlayout">
       <aside class="mfilters" id="m-filters" hidden></aside>
@@ -1031,7 +1045,7 @@ async function renderManage(){
   logBox = $("#m-log");
 
   try {
-    await loadTree();
+    await Promise.all([loadTree(), loadLeft()]);
     if (!isLocal()){
       const res = await fetch(`${API}${repoPath()}/contents/photos/catalogue.json?ref=${encodeURIComponent(CFG.branch)}`,
         {headers: {"Authorization": "Bearer " + CFG.token, "Accept": "application/vnd.github.raw"}});
@@ -1151,6 +1165,14 @@ function paintManage(){
           <code>${esc(p.code)}</code>
           <div class="ttl">${esc(p.title || titleish(cat) + " " + String(p.n).padStart(2, "0"))}</div>
           <div class="band">₹${Number(p.price).toLocaleString("en-IN")} · ${bandLabelFor(p.price)}</div>
+          <div class="stk">
+            <span class="lbl" data-lbl>In stock</span>
+            <span class="step">
+              <button data-less type="button" aria-label="One fewer">−</button><b data-n>${countOf(p)}</b><button data-plus type="button" aria-label="One more">+</button>
+            </span>
+            <span class="st" data-st></span>
+          </div>
+          <div class="ordn" data-ordn></div>
           <div class="acts">
             <button class="btn ghost sm" data-edit>Price / name</button>
             <button class="btn ghost sm" data-more>Add views</button>
@@ -1225,6 +1247,8 @@ function paintManage(){
         } catch (e) { say(e.message, "er"); }
       };
 
+      bindCount(card, p);
+
       card.querySelector("[data-more]").onclick = () => {
         const input = document.createElement("input");
         input.type = "file"; input.accept = "image/*,.heic,.heif"; input.multiple = true;
@@ -1256,6 +1280,134 @@ function paintManage(){
     });
     body.appendChild(grid);
   });
+}
+
+/* ---------- how many of a piece the shop has ----------
+
+   The number lives in the piece's own stock.json, beside its photographs, so
+   changing it is a small write and nothing is renamed. The buttons move the
+   number straight away and the save follows a moment later, so tapping + four
+   times is one save, not four — which matters on GitHub, where every save is
+   a commit. */
+/* How many of each piece are spoken for. The shop's own endpoint knows, because
+   it is the thing that holds a piece while an order is open. It only answers
+   where the order book is — the live site, or dev.bat. The studio server on its
+   own says plainly that it has no order book, and then the cards say nothing
+   about orders rather than guessing. */
+let LEFT = null;
+async function loadLeft(){
+  try {
+    const res = await fetch("/api/stock", {cache: "no-store"});
+    const d = res.ok ? await res.json() : null;
+    LEFT = (d && d.ok && d.left) ? d.left : null;
+  } catch (e) { LEFT = null; }
+}
+
+const countOf = p => {
+  const n = p && p.sizes && p.sizes.qty;
+  return Number.isFinite(n) && n > 0 ? n : 1;
+};
+
+function bindCount(card, p){
+  const box   = card.querySelector(".stk");
+  const shown = box.querySelector("[data-n]");
+  const label = box.querySelector("[data-lbl]");
+  const state = box.querySelector("[data-st]");
+  const less  = box.querySelector("[data-less]");
+  const plus  = box.querySelector("[data-plus]");
+
+  let now = countOf(p), saved = now, timer = null, busy = false;
+
+  /* A card is narrow, so the state is one character with the words in its
+     tooltip — and anything that went wrong is said out loud in the snack bar
+     as well, where there is room to read it. */
+  const mark = (glyph, why, cls) => {
+    state.textContent = glyph; state.className = "st" + (cls ? " " + cls : "");
+    state.title = why || "";
+  };
+
+  /* What the order book is already holding. Worked out once, from how many
+     the shop says are still free against how many there are — because that
+     number does not change when you correct the count, only when an order
+     does. */
+  const note = card.querySelector("[data-ordn]");
+  const held = (LEFT && p.code in LEFT)
+    ? Math.max(0, countOf(p) - (Number(LEFT[p.code]) || 0)) : 0;
+
+  const paint = () => {
+    shown.textContent = now;
+    label.textContent = now === 0 ? "Sold out" : "In stock";
+    card.classList.toggle("out", now === 0);
+    less.disabled = busy || now <= 0;
+    plus.disabled = busy || now >= 999;
+    if (note){
+      const free = Math.max(0, now - held);
+      note.innerHTML = held
+        ? `<b>${held}</b> in an open order \u00b7 ${free ? `${free} still free` : "none left"}`
+        : "";
+      note.title = held
+        ? `${held} of these ${held === 1 ? "is" : "are"} held by an order that is still open, `
+          + `so the website is offering ${free || "none"}.`
+        : "";
+    }
+  };
+
+  const nudge = by => {
+    const next = Math.max(0, Math.min(999, now + by));
+    if (next === now) return;
+    now = next;
+    mark("", "");
+    paint();
+    clearTimeout(timer);
+    timer = setTimeout(save, 900);
+  };
+
+  async function save(){
+    if (busy || now === saved) return;
+    const want = now;
+    busy = true; paint();
+    mark("\u00b7", "saving\u2026");
+    try {
+      /* Whatever poth lengths the piece already has are carried over — this
+         changes the count and only the count. */
+      const sizes = {};
+      if (p.sizes && p.sizes.min) sizes.min = p.sizes.min;
+      if (p.sizes && p.sizes.max) sizes.max = p.sizes.max;
+
+      if (isLocal()){
+        await localPost("/api/product/stock", {folder: p.folder, qty: want, sizes});
+      } else {
+        await commitChanges(`${p.code}: ${want} in stock`,
+                            [{path: `${p.folder}/stock.json`, blob: stockBlob(sizes, want)}], []);
+      }
+      saved = want;
+      p.sizes = Object.assign({}, p.sizes, sizes, {qty: want});
+      mark("\u2713", isLocal()
+        ? `${p.code}: ${want} in stock, written into the folder`
+        : `${p.code}: ${want} in stock, committed`, "ok");
+      setTimeout(() => { if (state.textContent === "\u2713") mark("", ""); }, 3000);
+    } catch (e) {
+      now = saved;                       /* put the number back where it was */
+      mark("!", e.message, "er");
+      snack(`${p.code}: ${e.message}`);
+    }
+    busy = false; paint();
+    if (now !== saved) save();           /* a tap arrived while we were saving */
+  }
+
+  less.onclick = () => nudge(-1);
+  plus.onclick = () => nudge(+1);
+  shown.onclick = () => {
+    const asked = prompt(`How many of ${p.code} does the shop have?`, String(now));
+    if (asked === null) return;
+    const n = parseInt(String(asked).replace(/\D/g, ""), 10);
+    if (!Number.isFinite(n) || n > 999){ alert("Give a plain number, 0 to 999."); return; }
+    if (n === now) return;
+    now = n; paint(); clearTimeout(timer); save();
+  };
+  shown.style.cursor = "pointer";
+  shown.title = "Tap to type a number";
+  paint();
 }
 
 function dataToBlob(b64){

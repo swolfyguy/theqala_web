@@ -437,6 +437,11 @@ body.on-contact .fab{display:none}
 .payopt>span{display:flex;flex-direction:column;gap:1px;min-width:0}
 .payopt b{font-family:Marcellus,serif;font-weight:400;font-size:1.02rem}
 .payopt>span>span{font-size:.84rem;color:var(--ink-2)}
+/* A way of paying that is switched off: still listed, so nobody wonders where
+   it went, but plainly not on offer. */
+.payopt.off{cursor:not-allowed;opacity:.5}
+.payopt.off b{text-decoration:line-through;text-decoration-thickness:1px}
+.payopt.off input{pointer-events:none}
 
 /* ---------- story strip ---------- */
 .story{background:var(--velvet);color:var(--on-velvet);position:relative;overflow:hidden}
@@ -698,7 +703,7 @@ footer a:hover{color:var(--accent)}
           <li><a href="#/contact">Contact us</a></li>
           <li><a href="#/story">Our story</a></li>
           <li><a href="#/care">Care &amp; polish</a></li>
-          <li><a href="#/shipping">Shipping &amp; COD</a></li>
+          <li><a href="#/shipping">Shipping &amp; returns</a></li>
           <li><a href="#/returns">Returns &amp; damage</a></li>
         </ul>
       </div>
@@ -775,14 +780,20 @@ const INSTA = [
   {handle:"@qala_shree",  url:"https://www.instagram.com/qala_shree/"}
 ];
 
-/* How people can pay. COD costs extra because the courier charges us for it. */
+/* How people can pay. COD costs extra because the courier charges us for it.
+
+   Cash on delivery is switched off for now. Flip COD_ON back to true and it
+   returns everywhere on the site at once — the choice at checkout, the line
+   on the shipping page, the strip under the hero. Nothing else to change. */
+const COD_ON = false;
 const COD_EXTRA = 200;
 /* Poth lengths the shop makes, in inches. Even sizes only. */
 const POTH = [24,26,28,30,32,34,36,38,40];
 const PAY = [
   {id:"online", t:"Online",           d:"UPI, bank transfer or a payment link, sent on WhatsApp"},
   {id:"shop",   t:"Cash at the shop", d:"Pay and collect at Dighi \u2014 no shipping to pay"},
-  {id:"cod",    t:"Cash on delivery", d:"\u20b9" + 200 + " extra, paid to the courier at your door"}
+  {id:"cod",    t:"Cash on delivery", d:"\u20b9" + 200 + " extra, paid to the courier at your door",
+                off: !COD_ON, offd:"Not available just now \u2014 please pay online or at the shop"}
 ];
 
 /* The live address, used to build the links inside every WhatsApp order.
@@ -1221,6 +1232,12 @@ function orderTotals(goods, pay){
   return {goods, ship, cod, pickup, total: goods + ship + cod};
 }
 const payName = id => (PAY.find(x => x.id === id) || PAY[0]).t;
+/* Whatever she chose last time, unless that way of paying has since been
+   switched off — then the first one that is still open. */
+const payPick = () => {
+  const want = PAY.find(x => x.id === (BUYER.pay || "online") && !x.off);
+  return (want || PAY.find(x => !x.off) || PAY[0]).id;
+};
 
 function orderWaText(o){
   const lines = o.items.map((l, i) =>
@@ -1313,7 +1330,8 @@ function home(){
     </div>
     <div class="wrap"><div class="trustrow">
       <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
-      <div><b>Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra</div>
+      <div><b>${COD_ON ? `Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra`
+                        : `Pay online or at the shop</b> UPI, bank transfer or a link`}</div>
       <div><b>See it on a video call</b> before you decide</div>
       <div><b>Order on WhatsApp</b> · we reply within the hour</div>
     </div></div>
@@ -1596,7 +1614,9 @@ function piece(code){
         <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}, inclusive of GST</dd></div>
         <div><dt>Photographs</dt><dd style="margin:0">${it.images.length} view${it.images.length === 1 ? "" : "s"}${it.video ? " and a video" : ""}</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
-        <div><dt>Payment</dt><dd style="margin:0">Online, cash at the shop, or cash on delivery (${rupees(COD_EXTRA)} extra)</dd></div>
+        <div><dt>Payment</dt><dd style="margin:0">${COD_ON
+          ? `Online, cash at the shop, or cash on delivery (${rupees(COD_EXTRA)} extra)`
+          : "Online, or cash at the shop"}</dd></div>
         <div><dt>Returns</dt><dd style="margin:0">Only if it reaches you damaged, with your opening video</dd></div>
       </dl>
     </div>
@@ -1828,9 +1848,9 @@ function orderView(params){
       ${sizeFields(lines)}
       <fieldset class="paypick">
         <legend>How would you like to pay?</legend>
-        ${PAY.map((x,i) => `<label class="payopt">
-          <input type="radio" name="pay" value="${x.id}" ${(BUYER.pay||"online")===x.id?"checked":""}>
-          <span><b>${esc(x.t)}</b><span>${esc(x.d)}</span></span>
+        ${PAY.map(x => `<label class="payopt${x.off ? " off" : ""}">
+          <input type="radio" name="pay" value="${x.id}" ${x.off ? "disabled" : ""} ${payPick()===x.id?"checked":""}>
+          <span><b>${esc(x.t)}</b><span>${esc(x.off ? x.offd : x.d)}</span></span>
         </label>`).join("")}
       </fieldset>
 
@@ -1952,11 +1972,12 @@ const PAGES = {
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
-    <p><b>How you pay</b> — three ways, and you choose in the chat:</p>
+    <p><b>How you pay</b> — ${COD_ON ? "three ways" : "two ways"}, and you choose in the chat:</p>
     <ul style="padding-left:20px;display:grid;gap:9px">
       <li><b>Online</b> — UPI, bank transfer or a payment link. Nothing extra.</li>
       <li><b>Cash at the shop</b> — pay and collect at Dighi. Nothing extra, and no shipping either.</li>
-      <li><b>Cash on delivery</b> — ${rupees(COD_EXTRA)} extra on the order. The courier charges us for carrying cash, and that is what it costs.</li>
+      ${COD_ON ? `<li><b>Cash on delivery</b> — ${rupees(COD_EXTRA)} extra on the order. The courier charges us for carrying cash, and that is what it costs.</li>`
+                : `<li><b>Cash on delivery</b> — not available just now. We will say here when it is back.</li>`}
     </ul>
     <p style="margin-top:20px">There is no card form on this site. Send us the reference, we confirm the exact price, and the rest happens in the chat.</p>
     <p><b>The shop:</b> Dighi, Pune. Open ${HOURS}. ${CLOSED}.</p>`),

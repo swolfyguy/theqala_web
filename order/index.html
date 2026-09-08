@@ -131,9 +131,10 @@ footer a{color:var(--ink-2)}
 
     <label class="f"><span>How you would like to pay</span>
       <select name="pay" id="i-pay">
-        <option value="cod">Cash on delivery</option>
-        <option value="online">Pay online</option>
+        <option value="online" selected>Pay online</option>
         <option value="shop">Collect at the shop</option>
+        <!-- Cash on delivery is paused. Drop the disabled and it is back. -->
+        <option value="cod" disabled>Cash on delivery — not available just now</option>
       </select></label>
 
     <label class="f"><span>Anything to tell us <em>optional</em></span>

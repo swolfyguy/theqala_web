@@ -120,7 +120,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .head{display:none}
 @media (min-width:760px){
   .head{display:grid;gap:14px;padding:10px 16px 8px;
-    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 6.4rem 16px;
+    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 6.4rem 16px;
     font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);
     font-weight:600;border-bottom:1px solid var(--line)}
   .head .r{text-align:right}
@@ -134,8 +134,8 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 
 .row{display:grid;gap:6px 12px;align-items:center;padding:12px 14px;cursor:pointer;
   width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;
-  grid-template-columns:12px 1fr auto;
-  grid-template-areas:"s ref money" "s who meta"}
+  grid-template-columns:12px 1fr auto auto;
+  grid-template-areas:"s ref pay money" "s who who meta"}
 .row:focus-visible{outline:2px solid var(--gold-2);outline-offset:-2px}
 .row .dotst{grid-area:s;width:9px;height:9px;border-radius:50%;background:currentColor}
 .row .ref{grid-area:ref;font-family:Marcellus,Georgia,serif;font-size:1rem;letter-spacing:.03em}
@@ -145,10 +145,20 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .row .meta{grid-area:meta;text-align:right;color:var(--ink-2);font-size:.76rem;white-space:nowrap}
 .row .chev{display:none}
 .row .stword{display:none}
+/* How they are paying, sitting just before the money it refers to. Paid
+   online is the one worth spotting from across the room, so it is the only
+   one that carries any colour. */
+.row .pay{grid-area:pay;justify-self:end;font-size:.66rem;letter-spacing:.09em;
+  text-transform:uppercase;font-weight:600;white-space:nowrap;
+  border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;color:var(--ink-2)}
+.row .pay.paid{border-color:var(--sent);color:var(--sent);background:color-mix(in srgb,var(--sent) 12%,transparent)}
+.row .pay.cod{border-color:var(--confirmed);color:var(--confirmed)}
+.row .pay.none{border-style:dashed;opacity:.7}
+@media (min-width:760px){ .row .pay{justify-self:start} }
 
 @media (min-width:760px){
-  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 6.4rem 16px;
-    grid-template-areas:"s ref who meta word money chev";padding:13px 16px}
+  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 6.4rem 16px;
+    grid-template-areas:"s ref who meta word pay money chev";padding:13px 16px}
   .row .who{font-size:.9rem;color:var(--ink)}
   .row .meta{text-align:left;font-size:.8rem}
   .row .money{font-size:.95rem}
@@ -265,7 +275,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
   <div id="msg"></div>
   <div class="head" id="head2" hidden>
     <span></span><span>Order</span><span>Customer</span><span>Placed</span>
-    <span>Status</span><span class="r">Total</span><span></span>
+    <span>Status</span><span>Paying</span><span class="r">Total</span><span></span>
   </div>
   <div class="list" id="list"><div class="spin">Opening the book…</div></div>
 </div>
@@ -359,6 +369,16 @@ function when(iso){
 }
 
 const PAYNAME = {online:"Paying online", shop:"Cash at the shop", cod:"Cash on delivery"};
+
+/* The short word for the list. Once the money is actually in, that is the
+   thing to say — how she meant to pay stops mattering. */
+const PAYSHORT = {online:"Online", shop:"Shop", cod:"COD"};
+function payTag(o){
+  if (o.pay_state === "paid")
+    return {t:"Paid", cls:"paid", why:"Paid online" + (o.pay_id ? " \u00b7 " + o.pay_id : "")};
+  if (!o.pay) return {t:"\u2014", cls:"none", why:"Not settled yet"};
+  return {t: PAYSHORT[o.pay] || o.pay, cls: o.pay, why: PAYNAME[o.pay] || o.pay};
+}
 /* "site" is the website itself and is not worth saying twice. */
 const SRCNAME = {whatsapp:"WhatsApp", instagram:"Instagram",
                  phone:"Phone call", shop:"At the shop"};
@@ -633,6 +653,7 @@ function row(o){
         }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span></span>
       <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}</span>
       <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
+      <span class="pay ${payTag(o).cls}" title="${esc(payTag(o).why)}">${esc(payTag(o).t)}</span>
       <span class="money">${cameFrom(o) && !o.total
         ? `<i class="unset" title="No price on this one yet">—</i>` : rupees(o.total)}</span>
       <span class="chev">›</span>

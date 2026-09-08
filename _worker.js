@@ -978,7 +978,7 @@ function cleanChat(b) {
   const poth = s(b.poth, 4);
   if (poth && !POTH.includes(poth)) return {error: "That is not a length we make."};
 
-  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "cod";
+  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "online";
 
   /* Which chat she came from, carried in the link the shop sent her. Anything
      else, and we simply do not know. */
@@ -1017,7 +1017,7 @@ function cleanOffline(b) {
   const source = SOURCES.includes(b.source) ? b.source : "";
   if (!source) return {error: "Say where the order came from."};
 
-  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "cod";
+  const pay = ["online", "shop", "cod"].includes(b.pay) ? b.pay : "online";
 
   const poth = s(b.poth, 4);
   if (poth && !POTH.includes(poth)) return {error: "That is not a length the shop offers."};
