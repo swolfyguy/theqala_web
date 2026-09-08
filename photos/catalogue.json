@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-07T16:06:28Z",
+ "generated": "2026-09-08T10:41:17Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -160,7 +160,7 @@
   {
    "slug": "hand-made-rajwadi",
    "cover": null,
-   "next": 25,
+   "next": 28,
    "products": [
     {
      "n": 2,
@@ -406,6 +406,69 @@
      }
     },
     {
+     "n": 25,
+     "code": "HAND-MADE-RAJWADI-25",
+     "folder": "photos/hand-made-rajwadi/1400",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 26,
+     "code": "HAND-MADE-RAJWADI-26",
+     "folder": "photos/hand-made-rajwadi/1400 (2)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 27,
+     "code": "HAND-MADE-RAJWADI-27",
+     "folder": "photos/hand-made-rajwadi/1400 (3)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
      "n": 12,
      "code": "HAND-MADE-RAJWADI-12",
      "folder": "photos/hand-made-rajwadi/1500",
@@ -490,8 +553,65 @@
   {
    "slug": "necklace",
    "cover": null,
-   "next": 3,
+   "next": 6,
    "products": [
+    {
+     "n": 3,
+     "code": "NECKLACE-03",
+     "folder": "photos/necklace/800",
+     "title": "",
+     "price": 800,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/necklace/800/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     }
+    },
+    {
+     "n": 4,
+     "code": "NECKLACE-04",
+     "folder": "photos/necklace/800 (2)",
+     "title": "",
+     "price": 800,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/necklace/800 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     }
+    },
+    {
+     "n": 5,
+     "code": "NECKLACE-05",
+     "folder": "photos/necklace/850",
+     "title": "",
+     "price": 850,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/necklace/850/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     }
+    },
     {
      "n": 1,
      "code": "NECKLACE-01",
@@ -948,26 +1068,6 @@
       "photos/victorian/999/1.jpg",
       "photos/victorian/999/2.jpg",
       "photos/victorian/999/3.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
-    {
-     "n": 2,
-     "code": "VICTORIAN-02",
-     "folder": "photos/victorian/1050",
-     "title": "",
-     "price": 1050,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/victorian/1050/1.jpg",
-      "photos/victorian/1050/2.jpg"
      ],
      "video": null,
      "videoPoster": null,
