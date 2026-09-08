@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-08T11:06:24Z",
+ "generated": "2026-09-08T11:11:52Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -160,7 +160,7 @@
   {
    "slug": "hand-made-rajwadi",
    "cover": null,
-   "next": 28,
+   "next": 36,
    "products": [
     {
      "n": 2,
@@ -406,6 +406,48 @@
      }
     },
     {
+     "n": 30,
+     "code": "HAND-MADE-RAJWADI-30",
+     "folder": "photos/hand-made-rajwadi/1100 (8)",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1100 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 31,
+     "code": "HAND-MADE-RAJWADI-31",
+     "folder": "photos/hand-made-rajwadi/1100 (9)",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1100 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
      "n": 25,
      "code": "HAND-MADE-RAJWADI-25",
      "folder": "photos/hand-made-rajwadi/1400",
@@ -469,6 +511,90 @@
      }
     },
     {
+     "n": 32,
+     "code": "HAND-MADE-RAJWADI-32",
+     "folder": "photos/hand-made-rajwadi/1400 (4)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 33,
+     "code": "HAND-MADE-RAJWADI-33",
+     "folder": "photos/hand-made-rajwadi/1400 (5)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 34,
+     "code": "HAND-MADE-RAJWADI-34",
+     "folder": "photos/hand-made-rajwadi/1400 (6)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 35,
+     "code": "HAND-MADE-RAJWADI-35",
+     "folder": "photos/hand-made-rajwadi/1400 (7)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1400 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
      "n": 12,
      "code": "HAND-MADE-RAJWADI-12",
      "folder": "photos/hand-made-rajwadi/1500",
@@ -506,6 +632,48 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 28,
+     "code": "HAND-MADE-RAJWADI-28",
+     "folder": "photos/hand-made-rajwadi/1500 (3)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1500 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 29,
+     "code": "HAND-MADE-RAJWADI-29",
+     "folder": "photos/hand-made-rajwadi/1500 (4)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/hand-made-rajwadi/1500 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
       "max": 36,
       "qty": 1
      }
@@ -976,27 +1144,6 @@
    "cover": null,
    "next": 6,
    "products": [
-    {
-     "n": 1,
-     "code": "VICTORIAN-01",
-     "folder": "photos/victorian/999",
-     "title": "",
-     "price": 999,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/victorian/999/1.jpg",
-      "photos/victorian/999/2.jpg",
-      "photos/victorian/999/3.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
     {
      "n": 5,
      "code": "VICTORIAN-05",
