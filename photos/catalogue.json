@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-08T10:41:17Z",
+ "generated": "2026-09-08T10:43:18Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -555,44 +555,6 @@
    "cover": null,
    "next": 6,
    "products": [
-    {
-     "n": 3,
-     "code": "NECKLACE-03",
-     "folder": "photos/necklace/800",
-     "title": "",
-     "price": 800,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/necklace/800/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
-    {
-     "n": 4,
-     "code": "NECKLACE-04",
-     "folder": "photos/necklace/800 (2)",
-     "title": "",
-     "price": 800,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/necklace/800 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
     {
      "n": 5,
      "code": "NECKLACE-05",
