@@ -131,6 +131,15 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
   box-shadow:0 1px 2px var(--shadow);overflow:hidden;transition:border-color .15s}
 .order:hover{border-color:var(--line-2)}
 .order.open{border-color:var(--gold-2);box-shadow:0 4px 16px -8px var(--shadow)}
+/* Confirmed means we have promised it and it is not out of the door yet, so
+   those are the ones to keep an eye on. A gold edge and a wash, so they can be
+   picked out of a long list without reading a word of it. */
+.order.st-confirmed{background:var(--wash-gold);border-color:var(--gold-2);
+  box-shadow:inset 3px 0 0 var(--confirmed),0 1px 2px var(--shadow)}
+.order.st-confirmed:hover{border-color:var(--confirmed)}
+.order.st-confirmed.open{box-shadow:inset 3px 0 0 var(--confirmed),0 4px 16px -8px var(--shadow)}
+.order.st-confirmed .ref{font-weight:600}
+.order.st-confirmed .stword{font-weight:700}
 
 .row{display:grid;gap:6px 12px;align-items:center;padding:12px 14px;cursor:pointer;
   width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;
@@ -644,7 +653,7 @@ function paintList(){
 /* One line each, until you open one. */
 function row(o){
   const open = OPEN.has(o.ref);
-  return `<article class="order ${open ? "open" : ""}${
+  return `<article class="order st-${esc(o.status)} ${open ? "open" : ""}${
     o.status === "deleted" ? " binned" : ""}" data-ref="${esc(o.ref)}">
     <button class="row" type="button" aria-expanded="${open}">
       <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
@@ -961,6 +970,11 @@ function setStatus(ref, status){
   const dot = el.querySelector(".dotst"), word = el.querySelector(".stword");
   if (dot)  { dot.className = "dotst st " + status; dot.title = status; }
   if (word) { word.className = "stword st " + status; word.textContent = status; }
+  /* The card is coloured by its status, so that has to move with it — the
+     list is not painted again when you press one of these buttons. */
+  [...el.classList].forEach(c => { if (c.startsWith("st-")) el.classList.remove(c); });
+  el.classList.add("st-" + status);
+  el.classList.toggle("binned", status === "deleted");
   el.querySelectorAll("[data-set]").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.set === status)));
 }
