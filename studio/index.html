@@ -1041,7 +1041,16 @@ async function renderManage(){
     $("#m-body").innerHTML = `<div class="card"><p>${esc(e.message)}</p></div>`; return;
   }
 
-  MPRODUCTS = allProducts();
+  /* The catalogue is rebuilt by the GitHub Action a minute or so after a
+     commit, so for that minute it still lists a piece you have just deleted —
+     and its card comes up blank, because the photographs really are gone.
+     TREE is the repository's actual file list, read fresh a moment ago, so it
+     is the honest answer. Anything with no files left is not shown. */
+  const all = allProducts();
+  MPRODUCTS = TREE.length
+    ? all.filter(p => !p.folder || TREE.some(n => n.path.startsWith(p.folder + "/")))
+    : all;
+  MGONE = all.length - MPRODUCTS.length;
   paintManage();
 }
 
@@ -1049,6 +1058,7 @@ async function renderManage(){
    here so that deleting a piece — which paints the tab again — does not throw
    away what you had narrowed it down to. */
 let MPRODUCTS = [];
+let MGONE = 0;                  // deleted, but the catalogue has not caught up
 const MFILTER = new Set();      // empty means everything
 let MSEARCH = "";
 
@@ -1113,7 +1123,9 @@ function paintManage(){
 
   body.innerHTML = `<p class="mcount">${shown.length} of ${products.length} piece${
     products.length === 1 ? "" : "s"}${
-    MFILTER.size || needle ? "" : " · everything"}</p>`;
+    MFILTER.size || needle ? "" : " · everything"}${MGONE ? `
+    <span style="color:var(--warn)">· ${MGONE} just deleted, waiting for the
+    catalogue to rebuild</span>` : ""}</p>`;
 
   if (!shown.length){
     body.insertAdjacentHTML("beforeend",

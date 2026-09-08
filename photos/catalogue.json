@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-08T10:43:18Z",
+ "generated": "2026-09-08T10:59:04Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -989,26 +989,6 @@
      "images": [
       "photos/victorian/800/1.jpg",
       "photos/victorian/800/2.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
-    {
-     "n": 3,
-     "code": "VICTORIAN-03",
-     "folder": "photos/victorian/900",
-     "title": "",
-     "price": 900,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/victorian/900/1.jpg",
-      "photos/victorian/900/2.jpg"
      ],
      "video": null,
      "videoPoster": null,
