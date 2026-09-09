@@ -230,6 +230,17 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .fillin .btn{padding:8px 13px;font-size:.8rem}
 .fi-say{color:var(--ink-2);font-size:.8rem;align-self:center}
 
+.payset{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.payset select{padding:7px 10px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--panel);color:inherit;font:inherit;font-size:.88rem;max-width:100%}
+.payset select:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.payset select:disabled{opacity:.6}
+.p-say{color:var(--ink-2);font-size:.78rem}
+.p-say.ok{color:var(--sent)}
+.p-say.er{color:var(--accent)}
+.paywhy{margin-top:5px;font-size:.75rem;color:var(--ink-2)}
+b.paid{color:var(--sent);font-weight:600}
+
 .acts{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 14px;border-top:1px solid var(--line);padding-top:12px}
 .act{border:1px solid var(--line);background:transparent;color:var(--ink-2);
   padding:6px 12px;border-radius:999px;font:inherit;font-size:.8rem;cursor:pointer}
@@ -694,7 +705,7 @@ function detail(o){
       : esc(l.title || l.code);
     const box = `<span class="thumb ${src ? "" : "none"}">${src
       ? `<img src="${src}" alt="" loading="lazy"
-              onerror="this.remove();this.parentNode.classList.add('none')">` : ""}</span>`;
+              onerror="const b=this.parentNode;this.remove();b&&b.classList.add('none')">` : ""}</span>`;
     return `<li>
       ${href ? `<a class="thumbwrap" href="${href}" target="_blank" rel="noopener"
                    title="${piece ? "Open this piece on the shop" : "See the whole picture"}"
@@ -724,7 +735,17 @@ function detail(o){
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
         <h3>How they are paying</h3>
-        <div>${esc(PAYNAME[o.pay] || o.pay)}</div>
+        ${o.pay_state === "paid"
+          ? `<div>${esc(PAYNAME.online)} <b class="paid">already paid</b></div>`
+          : `<div class="payset">
+          <select class="p-pay" aria-label="How they are paying">
+            ${["online", "shop", "cod"].map(id => `<option value="${id}"${
+              (o.pay || "online") === id ? " selected" : ""}>${esc(PAYNAME[id])}</option>`).join("")}
+          </select>
+          <span class="p-say"></span>
+        </div>
+        ${cameFrom(o) ? "" : `<div class="paywhy">Changing this works the shipping
+          and any cash-on-delivery charge out again.</div>`}`}
         ${o.note ? `<h3>To remember</h3>
         <div class="who-lines">${esc(o.note)}</div>` : ""}
         ${perItem ? "" : `<h3>Poth length</h3>
@@ -822,10 +843,45 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); }
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); }
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); }
   });
+}
+
+/* Changing how an order is being paid for. The shipping and the cash-on-delivery
+   charge are worked out again on the server, from the price already on the row,
+   so the book is read back rather than patched from here. */
+function bindPay(el, ref){
+  const pick = el.querySelector(".p-pay");
+  const say  = el.querySelector(".p-say");
+  if (!pick || pick.dataset.wired) return;
+  pick.dataset.wired = "1";
+
+  let before = pick.value;
+  pick.onchange = async () => {
+    const want = pick.value;
+    pick.disabled = true;
+    say.textContent = "changing\u2026"; say.className = "p-say";
+    try {
+      const r = await api("/office/api", {
+        method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, pay: want})
+      });
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      before = want;
+      snack(ref + " \u2014 " + (PAYNAME[want] || want).toLowerCase());
+      /* The total may well have moved, so take the whole book afresh. */
+      await load();
+    } catch (err) {
+      pick.value = before;                 /* leave it saying what is true */
+      pick.disabled = false;
+      say.textContent = err.message || "that did not work";
+      say.className = "p-say er";
+    }
+  };
 }
 
 /* Filling in a price, or putting a picture on afterwards. */

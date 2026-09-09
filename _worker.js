@@ -736,6 +736,20 @@ async function updateOrder(request, env) {
     sets.push("status = ?"); bind.push(b.status);
   }
   if (b.note != null) { sets.push("note = ?"); bind.push(String(b.note).slice(0, 500)); }
+
+  /* How she is paying, put right afterwards: she rang and said she would
+     rather come and collect it, or pay online instead of cash at the door.
+     Money already taken online cannot be talked out of — that one is settled. */
+  let newPay = null;
+  if (b.pay != null) {
+    const pay = String(b.pay);
+    if (!["online", "shop", "cod"].includes(pay))
+      return json({ok: false, why: "That is not a way of paying."}, 400);
+    if (was.pay_state === "paid" && pay !== "online")
+      return json({ok: false, why: "This one is already paid online."}, 400);
+    newPay = pay;
+    sets.push("pay = ?"); bind.push(pay);
+  }
   if (b.poth != null) {
     const p = String(b.poth).trim();
     if (p && !POTH.includes(p)) return json({ok: false, why: "poth"}, 400);
@@ -758,6 +772,19 @@ async function updateOrder(request, env) {
       items[0].price = price;
       sets.push("items = ?"); bind.push(JSON.stringify(items));
     }
+  }
+
+  /* On a website order the money follows the way of paying: collecting at the
+     shop pays no shipping, cash on delivery costs extra. It is worked out here
+     from the goods already on the row, never from anything the browser sent.
+     An order taken on WhatsApp has one agreed price with nothing added to it,
+     so there changing how she pays changes only the word. */
+  if (newPay && (was.source || "site") === "site") {
+    const goods    = Number(was.goods) || 0;
+    const shipping = newPay === "shop" ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+    const cod_fee  = newPay === "cod" ? COD_EXTRA : 0;
+    sets.push("shipping = ?", "cod_fee = ?", "total = ?");
+    bind.push(shipping, cod_fee, goods + shipping + cod_fee);
   }
 
   /* The photograph, added or replaced or taken away afterwards. An empty
