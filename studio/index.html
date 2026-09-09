@@ -160,6 +160,14 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
 .step button:disabled{opacity:.35;cursor:default}
 .step b{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--ink)}
 .piece .stk .st{font-size:.8rem;flex:0 0 auto;width:12px}
+.piece .codrow{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:.74rem;color:var(--ink-2)}
+.piece .codrow input{accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer}
+.piece .codrow label{cursor:pointer;user-select:none}
+.piece .codrow.on label{color:var(--ink);font-weight:600}
+.f.tick{flex-direction:row;align-items:flex-start;gap:9px;text-transform:none;letter-spacing:0}
+.f.tick input{accent-color:var(--accent);width:16px;height:16px;margin-top:2px;flex:none}
+.f.tick>span{display:block;font-weight:600}
+.f.tick .hint{display:block;font-weight:400}
 .piece .ordn{margin-top:4px;font-size:.7rem;color:var(--ink-2)}
 .piece .ordn:empty{display:none}
 .piece .ordn b{font-weight:600;color:var(--confirmed,var(--gold))}
@@ -473,8 +481,9 @@ async function commitChanges(message, adds, removes){
   return commit.sha;
 }
 
-const stockBlob = (sizes, qty) =>
-  new Blob([JSON.stringify(Object.assign({qty: Number(qty) || 1}, sizes), null, 2) + "\n"],
+const stockBlob = (sizes, qty, cod) =>
+  new Blob([JSON.stringify(Object.assign({qty: Number(qty) || 1}, sizes,
+                                         cod ? {cod: true} : {}), null, 2) + "\n"],
            {type: "application/json"});
 
 function toBase64(blob){
@@ -766,6 +775,11 @@ function renderUpload(){
         <input id="u-qty" inputmode="numeric" placeholder="1">
         <span class="hint">leave blank if you have just the one</span>
       </label>
+      <label class="f tick">
+        <input type="checkbox" id="u-cod">
+        <span>Cash on delivery allowed
+          <span class="hint">off unless you tick it \u2014 the courier charges us for carrying cash</span></span>
+      </label>
       <label class="f">Name <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
         <input id="u-title" placeholder="Kolhapuri Thushi" maxlength="70">
         <span class="hint" id="u-titlehint">leave it blank and we number it for you</span>
@@ -953,6 +967,7 @@ function renderUpload(){
     const many = separate();
     const sizes = readSizes();
     const qty = $("#u-qty").value.replace(/\D/g, "");
+    const cod = $("#u-cod").checked;
     logBox.innerHTML = "";
     if (!cat) { say("Which category?", "wa"); return; }
     if (!Number.isFinite(price) || price < 1) { say("Give the price as a plain number, e.g. 2300.", "wa"); return; }
@@ -964,7 +979,7 @@ function renderUpload(){
         const files = [];
         for (const q of QUEUE) files.push({kind: q.kind, ext: q.ext, b64: await toBase64(q.blob)});
         const data = await localPost("/api/product", {category: cat, price, title, files,
-                                                     separate: many, sizes, qty});
+                                                     separate: many, sizes, qty, cod});
         const made = data.createdAll || [data.created];
         if (made.length > 1) {
           say(`saved ${made.length} products`, "ok");
@@ -990,14 +1005,14 @@ function renderUpload(){
             const folder = safe ? base : freeFolder(base);
             made.push(folder);
             adds.push({path: `${folder}/1${q.ext}`, blob: q.blob});
-            adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty)});
+            adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty, cod)});
           });
         } else {
           const folder = `photos/${cat}/${price}${safe ? " " + safe : ""}`;
           made.push(folder);
           let n = 1;
           for (const q of QUEUE) adds.push({path: q.kind === "video" ? `${folder}/video${q.ext}` : `${folder}/${n++}${q.ext}`, blob: q.blob});
-          adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty)});
+          adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty, cod)});
         }
         const sha = await commitChanges(
           many ? `Add ${made.length} ${cat} pieces at ₹${price}` : `Add ${title || cat} at ₹${price}`, adds, []);
@@ -1007,6 +1022,7 @@ function renderUpload(){
       }
       QUEUE = []; paint();
       $("#u-price").value = ""; $("#u-title").value = ""; $("#u-qty").value = "";
+      $("#u-cod").checked = false;
       $("#u-min").value = ""; $("#u-max").value = "";
       sizeSummary();
       $("#u-band").textContent = "the band is worked out from this";
@@ -1173,6 +1189,11 @@ function paintManage(){
             <span class="st" data-st></span>
           </div>
           <div class="ordn" data-ordn></div>
+          <div class="codrow${codOf(p) ? " on" : ""}">
+            <input type="checkbox" id="cod-${esc(p.code)}" data-cod${codOf(p) ? " checked" : ""}>
+            <label for="cod-${esc(p.code)}">Cash on delivery</label>
+            <span class="st" data-codst></span>
+          </div>
           <div class="acts">
             <button class="btn ghost sm" data-edit>Price / name</button>
             <button class="btn ghost sm" data-more>Add views</button>
@@ -1302,6 +1323,9 @@ async function loadLeft(){
     LEFT = (d && d.ok && d.left) ? d.left : null;
   } catch (e) { LEFT = null; }
 }
+
+/* Cash on delivery, piece by piece. Off unless the shop has said otherwise. */
+const codOf = p => !!(p && p.sizes && p.sizes.cod);
 
 const countOf = p => {
   const n = p && p.sizes && p.sizes.qty;

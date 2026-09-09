@@ -228,6 +228,25 @@ SIZES = [str(n) for n in range(24, 41, 2)]
 
 
 def read_stock(folder):
+    """Everything stock.json says about a piece: how many, what lengths, and
+       whether it may be sent cash on delivery.
+
+       Cash on delivery is off unless the file says {"cod": true}. The shop
+       decides it piece by piece, because a courier carrying cash costs money
+       and is not worth it on everything."""
+    out = _read_sizes(folder)
+    f = folder / STOCK_FILE
+    if f.is_file():
+        try:
+            raw = json.loads(f.read_text(encoding="utf-8"))
+            if isinstance(raw, dict) and raw.get("cod") is True:
+                out["cod"] = True
+        except Exception:
+            pass                       # _read_sizes has already said so
+    return out
+
+
+def _read_sizes(folder):
     """The poth lengths this piece comes in, as a range.
 
        photos/<cat>/<price> <name>/stock.json holds

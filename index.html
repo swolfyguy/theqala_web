@@ -484,7 +484,9 @@ select.sort{background:var(--panel);border:1px solid var(--line-2);border-radius
 .qtyrow{display:flex;align-items:center;gap:14px;margin:26px 0 14px;flex-wrap:wrap}
 .qty{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:999px;overflow:hidden}
 .qty button{background:none;border:0;padding:10px 16px;cursor:pointer;font-size:1.05rem;transition:background .15s}
-.qty button:hover{background:var(--panel-2)}
+.qty button:hover:not(:disabled){background:var(--panel-2)}
+/* At the ceiling there is nothing more to ask for, and the button says so. */
+.qty button:disabled{opacity:.35;cursor:default}
 .qty span{min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
 .buyrow{display:flex;gap:12px;flex-wrap:wrap}
 .buyrow .btn{flex:1 1 190px}
@@ -1034,6 +1036,14 @@ async function loadLeft(){
 const leftOf   = it => (LEFT && it.code in LEFT) ? LEFT[it.code] : null;
 const soldOut  = it => leftOf(it) === 0;
 const fewLeft  = it => { const n = leftOf(it); return n !== null && n > 0 && n <= 3 ? n : 0; };
+/* The most of a piece anyone can ask for: what is really left when the shop
+   has told us, and never more than twenty. A piece we know nothing about is
+   left alone — the order is checked again by the shop when it arrives. */
+const maxFor = it => {
+  const n = leftOf(it);
+  return n === null ? 20 : Math.max(0, Math.min(20, n));
+};
+const maxForCode = code => { const it = byCode(code); return it ? maxFor(it) : 20; };
 
 /* The even lengths this piece is made in, shortest first. */
 function lengthsOf(it){
@@ -1164,13 +1174,19 @@ function bagTotal(){
   return sum;
 }
 function addToBag(code, qty){
+  const cap  = maxForCode(code);
   const line = BAG.find(l => l.code === code);
-  if (line) line.qty += (qty || 1); else BAG.push({code, qty: qty || 1});
-  saveBag(); syncCount(); toast(code + " added to your bag");
+  const want = (line ? line.qty : 0) + (qty || 1);
+  const set  = Math.max(1, Math.min(cap, want));
+  if (line) line.qty = set; else BAG.push({code, qty: set});
+  saveBag(); syncCount();
+  toast(want > cap
+    ? `${code} added — ${cap} ${cap === 1 ? "is" : "are"} all we have`
+    : code + " added to your bag");
 }
 function setQty(code, q){
   const line = BAG.find(l => l.code === code); if (!line) return;
-  line.qty = Math.max(1, Math.min(20, q)); saveBag(); syncCount(); render();
+  line.qty = Math.max(1, Math.min(maxForCode(code), q)); saveBag(); syncCount(); render();
 }
 function dropFromBag(code){ BAG = BAG.filter(l => l.code !== code); saveBag(); syncCount(); render(); }
 function syncCount(){
@@ -1726,7 +1742,7 @@ function orderLines(params){
   if (code){
     const it = byCode(code);
     if (!it) return [];
-    const qty = Math.max(1, Math.min(20, Number(params.get("q")) || 1));
+    const qty = Math.max(1, Math.min(maxFor(it), Number(params.get("q")) || 1));
     return [{it, qty}];
   }
   return BAG.map(l => ({it: byCode(l.code), qty: l.qty})).filter(l => l.it);
@@ -2207,10 +2223,20 @@ function wire(route){
   if (route === "piece") {
     const it = byCode(parseHash().parts[1]);
     if (!it) return;
-    let q = 1;
+    const cap = maxFor(it);
+    let q = Math.min(1, cap) || 1;
     const qv = $("#qVal");
     const sync = () => {
       qv.textContent = q;
+      /* Nothing offers more than the shop has. The + goes dead at the ceiling
+         rather than letting her ask for two of something there is one of. */
+      const plus = $("#qPlus"), minus = $("#qMinus");
+      if (plus){
+        plus.disabled = q >= cap;
+        plus.title = q >= cap
+          ? (cap === 1 ? "Only one of this piece" : `Only ${cap} of this piece`) : "";
+      }
+      if (minus) minus.disabled = q <= 1;
       const wa = waLink(pieceWaText(it, q));
       const order = `#/order?p=${encodeURIComponent(it.code)}&q=${q}`;
       ["#waBtn", "#waBar"].forEach(sel => { const el = $(sel); if (el) el.href = wa; });
@@ -2219,7 +2245,7 @@ function wire(route){
     sync();
     /* Gone when the piece is sold out — there is nothing to count or add. */
     if ($("#qMinus")) $("#qMinus").onclick = () => { q = Math.max(1, q - 1); sync(); };
-    if ($("#qPlus"))  $("#qPlus").onclick  = () => { q = Math.min(20, q + 1); sync(); };
+    if ($("#qPlus"))  $("#qPlus").onclick  = () => { q = Math.min(cap, q + 1); sync(); };
     if ($("#addBtn")) $("#addBtn").onclick = () => addToBag(it.code, q);
 
     const main = $("#mainArt");
