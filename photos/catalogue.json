@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T12:17:12Z",
+ "generated": "2026-09-09T12:18:41Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -813,8 +813,27 @@
   {
    "slug": "necklace",
    "cover": null,
-   "next": 30,
+   "next": 31,
    "products": [
+    {
+     "n": 30,
+     "code": "NECKLACE-30",
+     "folder": "photos/necklace/900",
+     "title": "",
+     "price": 900,
+     "band": {
+      "min": 0,
+      "max": 1000
+     },
+     "images": [
+      "photos/necklace/900/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     }
+    },
     {
      "n": 1,
      "code": "NECKLACE-01",
