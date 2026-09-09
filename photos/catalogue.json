@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T12:16:39Z",
+ "generated": "2026-09-09T12:17:12Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1306,7 +1306,7 @@
   {
    "slug": "victorian",
    "cover": null,
-   "next": 6,
+   "next": 30,
    "products": [
     {
      "n": 5,
@@ -1325,6 +1325,510 @@
      "videoPoster": null,
      "sizes": {
       "min": 26,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 6,
+     "code": "VICTORIAN-06",
+     "folder": "photos/victorian/1300",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 7,
+     "code": "VICTORIAN-07",
+     "folder": "photos/victorian/1300 (2)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 8,
+     "code": "VICTORIAN-08",
+     "folder": "photos/victorian/1300 (3)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 9,
+     "code": "VICTORIAN-09",
+     "folder": "photos/victorian/1300 (4)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 10,
+     "code": "VICTORIAN-10",
+     "folder": "photos/victorian/1300 (5)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 11,
+     "code": "VICTORIAN-11",
+     "folder": "photos/victorian/1300 (6)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 12,
+     "code": "VICTORIAN-12",
+     "folder": "photos/victorian/1300 (7)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 13,
+     "code": "VICTORIAN-13",
+     "folder": "photos/victorian/1300 (8)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 14,
+     "code": "VICTORIAN-14",
+     "folder": "photos/victorian/1300 (9)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 15,
+     "code": "VICTORIAN-15",
+     "folder": "photos/victorian/1300 (10)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (10)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 16,
+     "code": "VICTORIAN-16",
+     "folder": "photos/victorian/1300 (11)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (11)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 17,
+     "code": "VICTORIAN-17",
+     "folder": "photos/victorian/1300 (12)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (12)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 18,
+     "code": "VICTORIAN-18",
+     "folder": "photos/victorian/1300 (13)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (13)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 19,
+     "code": "VICTORIAN-19",
+     "folder": "photos/victorian/1300 (14)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (14)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 20,
+     "code": "VICTORIAN-20",
+     "folder": "photos/victorian/1300 (15)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (15)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 21,
+     "code": "VICTORIAN-21",
+     "folder": "photos/victorian/1300 (16)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (16)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 22,
+     "code": "VICTORIAN-22",
+     "folder": "photos/victorian/1300 (17)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (17)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 23,
+     "code": "VICTORIAN-23",
+     "folder": "photos/victorian/1300 (18)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (18)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 24,
+     "code": "VICTORIAN-24",
+     "folder": "photos/victorian/1300 (19)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (19)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 25,
+     "code": "VICTORIAN-25",
+     "folder": "photos/victorian/1300 (20)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (20)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 26,
+     "code": "VICTORIAN-26",
+     "folder": "photos/victorian/1300 (21)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (21)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 27,
+     "code": "VICTORIAN-27",
+     "folder": "photos/victorian/1300 (22)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (22)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 28,
+     "code": "VICTORIAN-28",
+     "folder": "photos/victorian/1300 (23)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (23)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     }
+    },
+    {
+     "n": 29,
+     "code": "VICTORIAN-29",
+     "folder": "photos/victorian/1300 (24)",
+     "title": "",
+     "price": 1300,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/victorian/1300 (24)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
       "max": 36,
       "qty": 1
      }
