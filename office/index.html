@@ -127,6 +127,13 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 }
 
 .list{display:grid;gap:8px;padding:8px 0 60px}
+/* The day an order was taken, written across the list like a rule in a ledger. */
+.daysep{display:flex;align-items:center;gap:12px;margin:16px 2px 4px}
+.daysep:first-child{margin-top:4px}
+.daysep::before,.daysep::after{content:"";flex:1;height:1px;background:var(--line)}
+.daysep span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-2);white-space:nowrap}
+.daysep i{font-style:normal;opacity:.45;margin:0 2px}
 .order{background:var(--panel);border:1px solid var(--line);border-radius:12px;
   box-shadow:0 1px 2px var(--shadow);overflow:hidden;transition:border-color .15s}
 .order:hover{border-color:var(--line-2)}
@@ -318,21 +325,23 @@ const STATUSES = [
    its own button, and its own way back. */
 const NEXT  = ["new","confirmed","sent","done","cancelled"];
 const RANGES = [
-  {id:"today",  t:"Today"},
-  {id:"7d",     t:"7 days"},
-  {id:"30d",    t:"30 days"},
-  {id:"all",    t:"Everything"},
-  {id:"picked", t:"Pick dates"}
+  {id:"today",     t:"Today"},
+  {id:"yesterday", t:"Yesterday"},
+  {id:"3d",        t:"Last 3 days"},
+  {id:"7d",        t:"Last 7 days"},
+  {id:"picked",    t:"Pick dates"},
+  {id:"all",       t:"Everything"}
 ];
 const STAFF = ["9011240352","7558209163","9579628754"];
 
-let VIEW = "all", RANGE = "30d", FROM = "", TO = "", ORDERS = [], COUNTS = {}, TIMER = null;
+let VIEW = "all", RANGE = "7d", FROM = "", TO = "", ORDERS = [], COUNTS = {}, TIMER = null;
 let OPEN = new Set();          // which orders are expanded
 
 /* Remember how you last left it, so the book opens the way you use it. */
 try {
   const kept = JSON.parse(localStorage.getItem("qala.book") || "{}");
   if (RANGES.some(r => r.id === kept.range)) RANGE = kept.range;
+  else if (kept.range) RANGE = "7d";      /* an old choice with no button now */
   if (STATUSES.some(s => s.id === kept.view)) VIEW = kept.view;
   FROM = kept.from || ""; TO = kept.to || "";
 } catch (e) {}
@@ -367,6 +376,21 @@ function ago(iso){
            day:"numeric", month:"short"}).format(d);
 }
 /* The whole thing, for the tooltip and the opened view. */
+/* Which day an order belongs to, counted the way the shop counts days —
+   Indian time, so an order taken at half past midnight is that day's. */
+const IST_DAY = new Intl.DateTimeFormat("en-CA", {timeZone: "Asia/Kolkata"});
+const dayKey = iso => { const d = new Date(iso); return isNaN(d) ? "" : IST_DAY.format(d); };
+
+function dayName(key){
+  const today = IST_DAY.format(new Date());
+  const back  = n => IST_DAY.format(new Date(Date.now() - n * 86400e3));
+  if (key === today)  return "Today";
+  if (key === back(1)) return "Yesterday";
+  /* Noon UTC is the middle of the day everywhere, so the date cannot slip. */
+  return new Intl.DateTimeFormat("en-GB", {timeZone: "Asia/Kolkata",
+    day: "numeric", month: "short", year: "numeric"}).format(new Date(key + "T12:00:00Z"));
+}
+
 function fullWhen(iso){
   const d = new Date(iso);
   if (isNaN(d)) return "";
@@ -616,7 +640,7 @@ function wirePicker(){
   t.onchange = changed;
   clear.onclick = () => {
     FROM = ""; TO = ""; f.value = ""; t.value = "";
-    RANGE = "30d"; $("#pick").hidden = true;
+    RANGE = "7d"; $("#pick").hidden = true;
     remember(); load();
   };
 }
@@ -657,7 +681,24 @@ function paintList(){
         VIEW === "all" && RANGE === "all" ? " Orders appear the moment someone places one." : ""}</p></div>`;
     return;
   }
-  $("#list").innerHTML = ORDERS.map(row).join("");
+  /* The orders arrive newest first, so a line goes in wherever the day
+     changes. Each one carries that day's own count and takings, which is the
+     question anyone opening the book actually has. */
+  let seen = "";
+  $("#list").innerHTML = ORDERS.map(o => {
+    const key = dayKey(o.placed_at);
+    let head = "";
+    if (key !== seen){
+      seen = key;
+      const mine  = ORDERS.filter(x => dayKey(x.placed_at) === key);
+      const live  = mine.filter(x => x.status !== "cancelled" && x.status !== "deleted");
+      const money = live.reduce((a, x) => a + (Number(x.total) || 0), 0);
+      head = `<div class="daysep"><span>${esc(dayName(key))} <i>\u00b7</i> ${
+        mine.length} order${mine.length === 1 ? "" : "s"}${
+        money ? ` <i>\u00b7</i> ${rupees(money)}` : ""}</span></div>`;
+    }
+    return head + row(o);
+  }).join("");
   wire();
 }
 

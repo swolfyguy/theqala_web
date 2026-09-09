@@ -629,19 +629,27 @@ function dayEnd(text) {
   return start ? new Date(Date.parse(start) + 24 * 3600e3 - 1).toISOString() : null;
 }
 
-/* "7d" means the last seven days. Worked out here so the list, the counts and
-   the CSV all agree with what the order book is showing. */
-function since(range) {
-  const days = {today: 1, "7d": 7, "30d": 30, "90d": 90}[range];
-  if (!days) return null;
-  if (range === "today") {
-    /* Midnight in Indian time, not UTC — "today" means today in the shop. */
-    const now = new Date();
-    const ist = new Date(now.getTime() + 5.5 * 3600e3);
-    ist.setUTCHours(0, 0, 0, 0);
-    return new Date(ist.getTime() - 5.5 * 3600e3).toISOString();
+/* Midnight in Indian time, this many days back — because a day in the book is
+   the shop's day, not a UTC one, and "yesterday" has to mean what she means. */
+function istMidnight(daysBack) {
+  const ist = new Date(Date.now() + 5.5 * 3600e3);
+  ist.setUTCHours(0, 0, 0, 0);
+  return new Date(ist.getTime() - daysBack * 24 * 3600e3 - 5.5 * 3600e3).toISOString();
+}
+const justBefore = iso => new Date(Date.parse(iso) - 1).toISOString();
+
+/* The stretches of time the book offers, counted in whole days: "last 3 days"
+   is today and the two before it, not seventy-two hours. Worked out here so
+   the list, the counts and the CSV all agree with what is on screen. */
+function span(range) {
+  switch (range) {
+    case "today":     return {from: istMidnight(0),  upto: null};
+    case "yesterday": return {from: istMidnight(1),  upto: justBefore(istMidnight(0))};
+    case "3d":        return {from: istMidnight(2),  upto: null};
+    case "7d":        return {from: istMidnight(6),  upto: null};
+    case "30d":       return {from: istMidnight(29), upto: null};
+    default:          return {from: null, upto: null};   /* everything */
   }
-  return new Date(Date.now() - days * 24 * 3600e3).toISOString();
 }
 
 async function listOrders(env, url, who) {
@@ -654,8 +662,9 @@ async function listOrders(env, url, who) {
   const pickedFrom = dayStart(url.searchParams.get("from"));
   const pickedTo   = dayEnd(url.searchParams.get("to"));
   const picked     = !!(pickedFrom || pickedTo);
-  const from = picked ? pickedFrom : since(range);
-  const upto = picked ? pickedTo : null;
+  const preset = span(range);
+  const from = picked ? pickedFrom : preset.from;
+  const upto = picked ? pickedTo   : preset.upto;
   const limit  = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "200", 10) || 200, 1), 1000);
 
   let sql = "SELECT * FROM orders", where = [], bind = [];
