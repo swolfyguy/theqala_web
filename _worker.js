@@ -161,6 +161,13 @@ async function takeOrder(request, env) {
     ).bind(o.phone, o.total, items, new Date(Date.now() - 5 * 60e3).toISOString()).first();
     if (twin) return json({ok: true, stored: true, ref: twin.ref});
 
+    /* The page only offers cash on delivery on pieces that allow it. This is
+       the check that decides, because a page can be worked around and the
+       courier's charge is real either way. */
+    if (o.pay === "cod" && !(await codAllowed(env, o.items)))
+      return json({ok: false, stored: false,
+                   why: "That piece cannot be sent cash on delivery."}, 400);
+
     /* Two people can reach the last one in the same moment. The shop greys out
        what it knew about; this is the check that actually decides. */
     const gone = await soldOut(env, o.items);
@@ -306,6 +313,7 @@ let MADE = null, MADE_AT = 0;
 async function howManyMade(env) {
   if (MADE && Date.now() - MADE_AT < 300e3) return MADE;
   const out = {};
+  const cod = {};
   try {
     const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
     if (res.ok) {
@@ -314,11 +322,20 @@ async function howManyMade(env) {
         for (const p of c.products || []) {
           const n = p.sizes && p.sizes.qty;
           out[p.code] = Number.isFinite(n) ? n : 1;      // nothing said means one
+          if (p.sizes && p.sizes.cod === true) cod[p.code] = true;
         }
     }
   } catch { /* no catalogue is the same as knowing nothing */ }
-  MADE = out; MADE_AT = Date.now();
+  MADE = out; COD_OK = cod; MADE_AT = Date.now();
   return out;
+}
+
+/* Which pieces the shop is willing to send cash on delivery. Filled in beside
+   the counts above, from the same catalogue, and off for anything not named. */
+let COD_OK = {};
+async function codAllowed(env, items) {
+  await howManyMade(env);
+  return (items || []).every(l => COD_OK[l.code] === true);
 }
 
 /* What the next order code will most likely be. The checkout page asks for

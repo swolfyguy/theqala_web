@@ -750,12 +750,55 @@ footer a:hover{color:var(--accent)}
    ========================================================= */
 const WA = "919579628754";
 
+/* ---------------------------------------------------------------------------
+   Counting what the shop wants counting
+   ---------------------------------------------------------------------------
+   Leave these empty and nothing loads at all: no Google script, no cookie,
+   nothing sent anywhere. Fill them in and the shop starts telling Google
+   which pieces were looked at and which orders were placed, which is the only
+   way an advertisement can be judged.
+
+     GA4_ID     from Google Analytics, Admin > Data streams   e.g. "G-XXXXXXX"
+     ADS_ID     from Google Ads, Tools > Conversions          e.g. "AW-000000000"
+     ADS_ORDER  the conversion label on that page             e.g. "abcDEF_gh12"
+
+   The privacy page has to say this is here before it is switched on. */
+const GA4_ID    = "";
+const ADS_ID    = "";
+const ADS_ORDER = "";
+
 /* Every number you answer on. The first one is where orders land (WA above). */
 const PHONES = [
   {label:"90112 40352", wa:"919011240352"},
   {label:"75582 09163", wa:"917558209163"},
   {label:"95796 28754", wa:"919579628754"}
 ];
+
+/* Loaded once, and only if there is something to load. */
+function startTags(){
+  if (!GA4_ID && !ADS_ID) return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ window.dataLayer.push(arguments); };
+  gtag("js", new Date());
+  /* The page is one document with a changing hash, so page views are sent by
+     hand as she moves about rather than once at the start. */
+  if (GA4_ID) gtag("config", GA4_ID, {send_page_view: false});
+  if (ADS_ID) gtag("config", ADS_ID);
+  const t = document.createElement("script");
+  t.async = true;
+  t.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA4_ID || ADS_ID);
+  document.head.appendChild(t);
+}
+/* Every call goes through here, so with nothing configured the whole thing is
+   a function that returns. */
+let SEEN = "";                 // the page last counted, so none is counted twice
+function track(name, params){
+  if (typeof gtag !== "function") return;
+  try { gtag("event", name, params || {}); } catch (e) {}
+}
+/* Started here, before anything paints: the first page she lands on is the one
+   the advertisement paid for, and it would be the one page not counted. */
+startTags();
 
 /* Shop timings and the two Instagram pages. */
 /* The shop itself. Change the address here and it changes in the hero line,
@@ -784,10 +827,12 @@ const INSTA = [
 
 /* How people can pay. COD costs extra because the courier charges us for it.
 
-   Cash on delivery is switched off for now. Flip COD_ON back to true and it
-   returns everywhere on the site at once — the choice at checkout, the line
-   on the shipping page, the strip under the hero. Nothing else to change. */
-const COD_ON = false;
+   Cash on delivery is decided piece by piece now, in the studio: a piece is
+   sent cash on delivery only when its box is ticked there, and no piece is
+   ticked unless you tick it. COD_ON is the master switch above that — set it
+   to false and cash on delivery disappears from the whole site whatever the
+   pieces say. */
+const COD_ON = true;
 const COD_EXTRA = 200;
 /* Poth lengths the shop makes, in inches. Even sizes only. */
 const POTH = [24,26,28,30,32,34,36,38,40];
@@ -795,7 +840,7 @@ const PAY = [
   {id:"online", t:"Online",           d:"UPI, bank transfer or a payment link, sent on WhatsApp"},
   {id:"shop",   t:"Cash at the shop", d:"Pay and collect at Dighi \u2014 no shipping to pay"},
   {id:"cod",    t:"Cash on delivery", d:"\u20b9" + 200 + " extra, paid to the courier at your door",
-                off: !COD_ON, offd:"Not available just now \u2014 please pay online or at the shop"}
+                offd:"Not on this piece \u2014 please pay online or at the shop"}
 ];
 
 /* The live address, used to build the links inside every WhatsApp order.
@@ -1045,6 +1090,12 @@ const maxFor = it => {
 };
 const maxForCode = code => { const it = byCode(code); return it ? maxFor(it) : 20; };
 
+/* Cash on delivery, piece by piece, as the studio set it. An order can only go
+   that way when every piece in it may — one piece that cannot is enough to
+   take the choice away, because they travel in one parcel. */
+const codOk   = it => !!(COD_ON && it && it.sizes && it.sizes.cod);
+const codOkAll = lines => COD_ON && lines.length > 0 && lines.every(l => codOk(l.it));
+
 /* The even lengths this piece is made in, shortest first. */
 function lengthsOf(it){
   const r = it.sizes || {};
@@ -1180,6 +1231,9 @@ function addToBag(code, qty){
   const set  = Math.max(1, Math.min(cap, want));
   if (line) line.qty = set; else BAG.push({code, qty: set});
   saveBag(); syncCount();
+  const bit = byCode(code);
+  if (bit) track("add_to_cart", {currency: "INR", value: bit.price * set,
+    items: [{item_id: code, item_name: titleOf(bit), price: bit.price, quantity: set}]});
   toast(want > cap
     ? `${code} added — ${cap} ${cap === 1 ? "is" : "are"} all we have`
     : code + " added to your bag");
@@ -1275,9 +1329,10 @@ function orderTotals(goods, pay){
 const payName = id => (PAY.find(x => x.id === id) || PAY[0]).t;
 /* Whatever she chose last time, unless that way of paying has since been
    switched off — then the first one that is still open. */
-const payPick = () => {
-  const want = PAY.find(x => x.id === (BUYER.pay || "online") && !x.off);
-  return (want || PAY.find(x => !x.off) || PAY[0]).id;
+const payPick = off => {
+  const open = x => !off(x);
+  const want = PAY.find(x => x.id === (BUYER.pay || "online") && open(x));
+  return (want || PAY.find(open) || PAY[0]).id;
 };
 
 function orderWaText(o){
@@ -1371,8 +1426,8 @@ function home(){
     </div>
     <div class="wrap"><div class="trustrow">
       <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
-      <div><b>${COD_ON ? `Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra`
-                        : `Pay online or at the shop</b> UPI, bank transfer or a link`}</div>
+      <div><b>${ITEMS.some(codOk) ? `Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra on selected pieces`
+                                  : `Pay online or at the shop</b> UPI, bank transfer or a link`}</div>
       <div><b>See it on a video call</b> before you decide</div>
       <div><b>Order on WhatsApp</b> · we reply within the hour</div>
     </div></div>
@@ -1655,7 +1710,7 @@ function piece(code){
         <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}, inclusive of GST</dd></div>
         <div><dt>Photographs</dt><dd style="margin:0">${it.images.length} view${it.images.length === 1 ? "" : "s"}${it.video ? " and a video" : ""}</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
-        <div><dt>Payment</dt><dd style="margin:0">${COD_ON
+        <div><dt>Payment</dt><dd style="margin:0">${codOk(it)
           ? `Online, cash at the shop, or cash on delivery (${rupees(COD_EXTRA)} extra)`
           : "Online, or cash at the shop"}</dd></div>
         <div><dt>Returns</dt><dd style="margin:0">Only if it reaches you damaged, with your opening video</dd></div>
@@ -1890,10 +1945,15 @@ function orderView(params){
       ${sizeFields(lines)}
       <fieldset class="paypick">
         <legend>How would you like to pay?</legend>
-        ${PAY.map(x => `<label class="payopt${x.off ? " off" : ""}">
-          <input type="radio" name="pay" value="${x.id}" ${x.off ? "disabled" : ""} ${payPick()===x.id?"checked":""}>
-          <span><b>${esc(x.t)}</b><span>${esc(x.off ? x.offd : x.d)}</span></span>
-        </label>`).join("")}
+        ${(() => {
+          /* Cash on delivery only where every piece in the order allows it. */
+          const off  = x => x.id === "cod" && !codOkAll(lines);
+          const pick = payPick(off);
+          return PAY.map(x => `<label class="payopt${off(x) ? " off" : ""}">
+          <input type="radio" name="pay" value="${x.id}" ${off(x) ? "disabled" : ""} ${pick === x.id ? "checked" : ""}>
+          <span><b>${esc(x.t)}</b><span>${esc(off(x) ? x.offd : x.d)}</span></span>
+        </label>`).join("");
+        })()}
       </fieldset>
 
       <button class="btn wide" type="submit" style="margin-top:4px">Place the order</button>
@@ -2014,12 +2074,13 @@ const PAGES = {
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
-    <p><b>How you pay</b> — ${COD_ON ? "three ways" : "two ways"}, and you choose in the chat:</p>
+    <p><b>How you pay</b> — ${ITEMS.some(codOk) ? "three ways" : "two ways"}, and you choose in the chat:</p>
     <ul style="padding-left:20px;display:grid;gap:9px">
       <li><b>Online</b> — UPI, bank transfer or a payment link. Nothing extra.</li>
       <li><b>Cash at the shop</b> — pay and collect at Dighi. Nothing extra, and no shipping either.</li>
-      ${COD_ON ? `<li><b>Cash on delivery</b> — ${rupees(COD_EXTRA)} extra on the order. The courier charges us for carrying cash, and that is what it costs.</li>`
-                : `<li><b>Cash on delivery</b> — not available just now. We will say here when it is back.</li>`}
+      ${ITEMS.some(codOk)
+        ? `<li><b>Cash on delivery</b> — on selected pieces, ${rupees(COD_EXTRA)} extra on the order. The courier charges us for carrying cash, and that is what it costs. Each piece says on its own page whether it can go this way.</li>`
+        : `<li><b>Cash on delivery</b> — not available at the moment. We will say here when it is back.</li>`}
     </ul>
     <p style="margin-top:20px">There is no card form on this site. Send us the reference, we confirm the exact price, and the rest happens in the chat.</p>
     <p><b>The shop:</b> Dighi, Pune. Open ${HOURS}. ${CLOSED}.</p>`),
@@ -2097,6 +2158,26 @@ function render(){
   else html = notFound();
 
   view.innerHTML = html;
+
+  /* One document, many pages: each one is announced by hand as she arrives.
+     A page is painted again whenever the counts change, and that is not a
+     second visit, so only a page she has actually moved to is counted. */
+  if (location.href !== SEEN){
+  SEEN = location.href;
+  track("page_view", {page_location: location.href, page_title: document.title});
+  if (r === "piece"){
+    const it = byCode(parts[1]);
+    if (it) track("view_item", {currency: "INR", value: it.price,
+      items: [{item_id: it.code, item_name: titleOf(it), item_category: it.catEn, price: it.price}]});
+  }
+  if (r === "order"){
+    const lines = orderLines(params);
+    track("begin_checkout", {currency: "INR",
+      value: lines.reduce((a, l) => a + l.it.price * l.qty, 0),
+      items: lines.map(l => ({item_id: l.it.code, item_name: titleOf(l.it), price: l.it.price, quantity: l.qty}))});
+  }
+  }
+
   document.body.classList.toggle("on-piece", r === "piece");
   document.body.classList.toggle("on-contact", r === "contact");
   document.querySelectorAll("nav.main a").forEach(a => {
@@ -2378,7 +2459,10 @@ function wire(route){
          Everything else is unchanged, and so is every order when the gateway
          is not switched on. */
       const payOnline = o.pay === "online" && PAY_ON;
-      if (!payOnline) window.open(waLink(o.text), "_blank", "noopener");
+      if (!payOnline){
+        track("whatsapp_order", {currency: "INR", value: o.totals.total});
+        window.open(waLink(o.text), "_blank", "noopener");
+      }
 
       if (!parseHash().params.get("p")) { BAG = []; saveBag(); syncCount(); }
       if (!payOnline) location.hash = "#/placed";
@@ -2397,6 +2481,19 @@ function wire(route){
            that sending it again sends the right code. */
         if (res.ref && res.ref !== o.ref) { o.ref = res.ref; o.text = orderWaText(o); }
         NEXT_REF = "";
+
+        /* Counted only once the order is really in the book, and under the
+           code the book gave it, so a repeat of the same order is not counted
+           twice and every figure can be traced back to a row. */
+        if (o.saved && !o.gone.length){
+          track("purchase", {transaction_id: o.ref, currency: "INR",
+            value: o.totals.total, shipping: o.totals.ship,
+            items: o.items.map(l => ({item_id: l.code, item_name: l.title,
+                                      price: l.price, quantity: l.qty}))});
+          if (ADS_ID && ADS_ORDER)
+            track("conversion", {send_to: `${ADS_ID}/${ADS_ORDER}`,
+              value: o.totals.total, currency: "INR", transaction_id: o.ref});
+        }
 
         if (payOnline) {
           /* The order has to be in our book before it can be paid for — the

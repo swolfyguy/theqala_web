@@ -1399,13 +1399,13 @@ function bindCount(card, p){
       if (p.sizes && p.sizes.max) sizes.max = p.sizes.max;
 
       if (isLocal()){
-        await localPost("/api/product/stock", {folder: p.folder, qty: want, sizes});
+        await localPost("/api/product/stock", {folder: p.folder, qty: want, sizes, cod: codOf(p)});
       } else {
         await commitChanges(`${p.code}: ${want} in stock`,
-                            [{path: `${p.folder}/stock.json`, blob: stockBlob(sizes, want)}], []);
+          [{path: `${p.folder}/stock.json`, blob: stockBlob(sizes, want, codOf(p))}], []);
       }
       saved = want;
-      p.sizes = Object.assign({}, p.sizes, sizes, {qty: want});
+      p.sizes = Object.assign({}, p.sizes, sizes, {qty: want}, codOf(p) ? {cod: true} : {});
       mark("\u2713", isLocal()
         ? `${p.code}: ${want} in stock, written into the folder`
         : `${p.code}: ${want} in stock, committed`, "ok");
@@ -1417,6 +1417,42 @@ function bindCount(card, p){
     }
     busy = false; paint();
     if (now !== saved) save();           /* a tap arrived while we were saving */
+  }
+
+  /* One stock.json carries both the count and the tick, so either control
+     writes both — whatever the other is showing at the time goes with it. */
+  const tick = card.querySelector("[data-cod]");
+  const tickSt = card.querySelector("[data-codst]");
+  if (tick && !tick.dataset.wired){
+    tick.dataset.wired = "1";
+    tick.onchange = async () => {
+      const want = tick.checked;
+      tick.disabled = true;
+      tickSt.textContent = "\u00b7"; tickSt.className = "st";
+      const sizes = {};
+      if (p.sizes && p.sizes.min) sizes.min = p.sizes.min;
+      if (p.sizes && p.sizes.max) sizes.max = p.sizes.max;
+      try {
+        if (isLocal()){
+          await localPost("/api/product/stock", {folder: p.folder, qty: now, sizes, cod: want});
+        } else {
+          await commitChanges(`${p.code}: cash on delivery ${want ? "on" : "off"}`,
+            [{path: `${p.folder}/stock.json`, blob: stockBlob(sizes, now, want)}], []);
+        }
+        p.sizes = Object.assign({}, p.sizes, sizes, {qty: now});
+        if (want) p.sizes.cod = true; else delete p.sizes.cod;
+        card.querySelector(".codrow").classList.toggle("on", want);
+        tickSt.textContent = "\u2713"; tickSt.className = "st ok";
+        tickSt.title = want ? "Cash on delivery is on for this piece" : "";
+        setTimeout(() => { if (tickSt.textContent === "\u2713"){
+          tickSt.textContent = ""; tickSt.className = "st"; } }, 3000);
+      } catch (e) {
+        tick.checked = !want;
+        tickSt.textContent = "!"; tickSt.className = "st er"; tickSt.title = e.message;
+        snack(`${p.code}: ${e.message}`);
+      }
+      tick.disabled = false;
+    };
   }
 
   less.onclick = () => nudge(-1);
