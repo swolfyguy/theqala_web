@@ -260,21 +260,30 @@ async function takenNow(env) {
 
   const cutoff = new Date(Date.now() - HOLD_HOURS * 3600e3).toISOString();
   const marks = HOLDS_FOREVER.map(() => "?").join(",");
-  const held = `(status IN (${marks}) OR (status = 'new' AND placed_at > ?))`;
 
-  /* Only the website's own orders. An order taken on WhatsApp was agreed with
-     a piece already in somebody's hand, so counting it here would take the
-     same piece off the shop twice. */
+  /* A website order left on 'new' lets its piece go after a day — somebody
+     opened the form and wandered off, and the piece should not be locked away
+     for that. An order the shop booked itself is not abandoned: it was agreed
+     with a customer, so it holds until it is confirmed, sent, or cancelled. */
+  const held = `(status IN (${marks})
+                 OR (status = 'new' AND (source != 'site' OR placed_at > ?)))`;
+  const heldOld = `(status IN (${marks}) OR (status = 'new' AND placed_at > ?))`;
+
+  /* Every order in the book, wherever it came from. A piece promised to
+     somebody on WhatsApp is just as spoken for as one ordered on the site, and
+     the shop only has the one. An order taken by hand with no piece code
+     against it is written down as OFFLINE, which matches nothing on the shop
+     and so takes nothing off it. */
   let results;
   try {
     ({results} = await env.DB.prepare(
-      `SELECT items FROM orders WHERE source = 'site' AND ${held}`
+      `SELECT items FROM orders WHERE ${held}`
     ).bind(...HOLDS_FOREVER, cutoff).all());
   } catch {
-    /* An order book from before the source column. Everything in it is a
-       website order, so there is nothing to leave out. */
+    /* An order book from before the source column: everything in it came from
+       the website, so the plainer rule is the right one for it. */
     ({results} = await env.DB.prepare(
-      `SELECT items FROM orders WHERE ${held}`
+      `SELECT items FROM orders WHERE ${heldOld}`
     ).bind(...HOLDS_FOREVER, cutoff).all());
   }
 

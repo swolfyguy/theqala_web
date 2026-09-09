@@ -771,8 +771,10 @@ function detail(o){
         <div>${esc(fullWhen(o.placed_at))}</div>
         ${cameFrom(o) ? `<h3>Came from</h3>
         <div><b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b>
-          <span style="color:var(--ink-2);font-size:.85rem"> — not a website order, so it
-          does not change how many are left on the website</span></div>` : ""}
+          <span style="color:var(--ink-2);font-size:.85rem"> — ${
+            (o.items || []).some(l => l.code && l.code !== "OFFLINE")
+              ? "the piece on it is held, the same as a website order"
+              : "no piece code on it, so nothing is held on the website"}</span></div>` : ""}
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
         <h3>How they are paying</h3>
