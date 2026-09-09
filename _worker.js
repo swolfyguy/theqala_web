@@ -80,6 +80,7 @@ export default {
 
       if (path === "/api/order"     && request.method === "POST") return takeOrder(request, env);
       if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
+      if (path === "/api/ref"       && request.method === "GET")  return peekRef(env);
       if (path === "/api/here"      && request.method === "POST") return whoIsHere(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
@@ -149,24 +150,43 @@ async function takeOrder(request, env) {
     if (all && all.n >= MAX_PER_MINUTE)
       return json({ok: false, stored: false, why: "busy"}, 429);
 
+    /* The same order can reach us twice: the page sends it as she leaves, and
+       the copy the browser kept can arrive after. Two rows for one tap would
+       hold two pieces and take two numbers, so an order that matches one taken
+       in the last few minutes is answered with that one instead of written again. */
+    const items = JSON.stringify(o.items);
+    const twin = await env.DB.prepare(
+      `SELECT ref FROM orders WHERE phone = ? AND total = ? AND items = ? AND placed_at > ?
+       ORDER BY placed_at DESC LIMIT 1`
+    ).bind(o.phone, o.total, items, new Date(Date.now() - 5 * 60e3).toISOString()).first();
+    if (twin) return json({ok: true, stored: true, ref: twin.ref});
+
     /* Two people can reach the last one in the same moment. The shop greys out
        what it knew about; this is the check that actually decides. */
     const gone = await soldOut(env, o.items);
     if (gone.length)
       return json({ok: false, stored: false, why: "sold out", gone}, 409);
 
-    /* OR IGNORE, so a customer who taps twice does not make two rows. */
-    await env.DB.prepare(
-      `INSERT OR IGNORE INTO orders
-       (ref, placed_at, name, phone, pincode, address, pay, poth, items,
-        goods, shipping, cod_fee, total, status, note, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'new','',?)`
-    ).bind(
-      o.ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
-      JSON.stringify(o.items), o.goods, o.shipping, o.cod_fee, o.total, o.placed_at
-    ).run();
+    /* The number is the shop's to give, not the browser's — whatever code the
+       page guessed while she was filling the form is ignored. OR IGNORE means
+       a number taken in the meantime writes nothing, and we go round again. */
+    let ref = "";
+    for (let i = 0; i < 6 && !ref; i++) {
+      const t = await nextRef(env);
+      const res = await env.DB.prepare(
+        `INSERT OR IGNORE INTO orders
+         (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+          goods, shipping, cod_fee, total, status, note, updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'new','',?)`
+      ).bind(
+        t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+        items, o.goods, o.shipping, o.cod_fee, o.total, o.placed_at
+      ).run();
+      if (didWrite(res)) ref = t;
+    }
+    if (!ref) return json({ok: false, stored: false, why: "write failed"}, 200);
 
-    return json({ok: true, stored: true, ref: o.ref});
+    return json({ok: true, stored: true, ref});
   } catch (err) {
     /* Database trouble is our problem, not the customer's. */
     return json({ok: false, stored: false, why: "write failed"}, 200);
@@ -177,8 +197,9 @@ async function takeOrder(request, env) {
 function clean(b) {
   const s = (v, max) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, max);
 
-  const ref = s(b.ref, 32);
-  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return {error: "ref"};
+  /* The page still sends the code it guessed, so that an older cached copy of
+     the shop keeps working, but nothing is done with it: the number an order
+     ends up with is the one the book hands out. */
 
   const name = s(b.name, 80);
   if (name.length < 2) return {error: "name"};
@@ -221,7 +242,7 @@ function clean(b) {
   const cod_fee  = pay === "cod" ? COD_EXTRA : 0;
 
   return {
-    ref, placed_at: new Date().toISOString(), name, phone, pincode, address,
+    placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };
 }
@@ -289,6 +310,19 @@ async function howManyMade(env) {
   } catch { /* no catalogue is the same as knowing nothing */ }
   MADE = out; MADE_AT = Date.now();
   return out;
+}
+
+/* What the next order code will most likely be. The checkout page asks for
+   this while she is still filling the form, so the code is already in hand
+   when she taps — the WhatsApp message has to be written there and then.
+   It is a look, not a claim: the number an order really gets is settled when
+   it is written down. */
+async function peekRef(env) {
+  try {
+    return json({ok: true, ref: await nextRef(env)}, 200, {"cache-control": "no-store"});
+  } catch {
+    return json({ok: false}, 200, {"cache-control": "no-store"});
+  }
 }
 
 async function stockNow(request, env) {
@@ -619,6 +653,44 @@ async function officeApi(request, env, url) {
    UTC — otherwise a day would start at half past five in the morning.
    "2026-09-12" becomes the moment that day began in Indian time. */
 const IST = 5.5 * 3600e3;
+
+/* ---------------------------------------------------------------------------
+   The order code
+   ---------------------------------------------------------------------------
+   Q-2609-01 — Q, the year and the month, then this order's place in that
+   month, counted from one and starting again each month. Short enough to read
+   down a telephone.
+
+   Codes made before this change, QALA-2609-4471 and the like, are still real
+   orders sitting in the book, so everything that takes a code accepts both. */
+const REF_NEW = /^Q-\d{4}-\d{2,4}$/;
+const REF_OLD = /^QALA-\d{4}-\d{4}$/;
+const isRef = r => REF_NEW.test(r) || REF_OLD.test(r);
+
+/* Dated by the shop's day, so an order taken at half past midnight belongs to
+   the month the shop thinks it does. */
+const monthStamp = () => {
+  const d = new Date(Date.now() + IST);
+  return String(d.getUTCFullYear()).slice(2) + String(d.getUTCMonth() + 1).padStart(2, "0");
+};
+
+/* The next number for this month. Read, not held: two orders arriving in the
+   same moment are both told the same number, and the insert settles which one
+   actually gets it — the caller tries again with what is free by then.
+   Ordered by length first so that Q-2609-100 comes after Q-2609-99. */
+async function nextRef(env) {
+  const stamp = monthStamp();
+  const row = await env.DB.prepare(
+    "SELECT ref FROM orders WHERE ref LIKE ? ORDER BY LENGTH(ref) DESC, ref DESC LIMIT 1"
+  ).bind(`Q-${stamp}-%`).first();
+  const last = row ? parseInt(String(row.ref).split("-")[2], 10) : 0;
+  return `Q-${stamp}-${String((Number.isFinite(last) ? last : 0) + 1).padStart(2, "0")}`;
+}
+
+/* Did that write actually put a row in? INSERT OR IGNORE says nothing out
+   loud when the code was taken, so the count of changed rows is the answer. */
+const didWrite = res => !(res && res.meta && typeof res.meta.changes === "number")
+                        || res.meta.changes > 0;
 function dayStart(text) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(text || ""))) return null;
   const t = Date.parse(text + "T00:00:00Z");
@@ -721,7 +793,7 @@ async function updateOrder(request, env) {
   try { b = await request.json(); } catch { return json({ok: false, why: "bad body"}, 400); }
 
   const ref = String(b.ref || "");
-  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return json({ok: false, why: "ref"}, 400);
+  if (!isRef(ref)) return json({ok: false, why: "ref"}, 400);
 
   const was = await env.DB.prepare("SELECT * FROM orders WHERE ref = ?").bind(ref).first();
   if (!was) return json({ok: false, why: "not found"}, 404);
@@ -888,26 +960,23 @@ async function newOrder(request, env) {
   /* A code nobody else has, in the website's own shape, so that everything
      which reads the book afterwards — the status buttons, the CSV — treats
      an office order exactly like any other. */
-  let ref = "";
+  let ref = "", failed = null;
   for (let i = 0; i < 6 && !ref; i++) {
-    const t = officeRef();
-    const seen = await env.DB.prepare("SELECT 1 AS n FROM orders WHERE ref = ?").bind(t).first();
-    if (!seen) ref = t;
+    const t = await nextRef(env);
+    try {
+      const res = await env.DB.prepare(
+        `INSERT OR IGNORE INTO orders
+         (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+          goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,0,0,?,'new',?,?,?,?)`
+      ).bind(t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+             JSON.stringify(o.items), o.goods, o.total, o.note, o.source, o.mime, o.placed_at).run();
+      if (didWrite(res)) ref = t;
+    } catch (err) { failed = err; break; }
   }
+  if (failed) return json({ok: false, why: "The order book has not been given its newer columns yet. "
+    + "Run the three ALTER TABLE lines at the bottom of schema.sql, then try again."}, 500);
   if (!ref) return json({ok: false, why: "Could not make an order code. Try once more."}, 503);
-
-  try {
-    await env.DB.prepare(
-      `INSERT INTO orders
-       (ref, placed_at, name, phone, pincode, address, pay, poth, items,
-        goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,0,0,?,'new',?,?,?,?)`
-    ).bind(ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
-           JSON.stringify(o.items), o.goods, o.total, o.note, o.source, o.mime, o.placed_at).run();
-  } catch (err) {
-    return json({ok: false, why: "The order book has not been given its newer columns yet. "
-      + "Run the three ALTER TABLE lines at the bottom of schema.sql, then try again."}, 500);
-  }
 
   /* The picture is kept in a table of its own, so listing the book never drags
      photographs along, and a picture that will not save never costs the order. */
@@ -969,26 +1038,23 @@ async function chatOrder(request, env) {
       return json({ok: false, why: "We are a little busy. Try again in a minute."}, 429);
   } catch { /* a count that will not run is no reason to lose her address */ }
 
-  let ref = "";
+  let ref = "", failed = null;
   for (let i = 0; i < 6 && !ref; i++) {
-    const t = officeRef();
-    const seen = await env.DB.prepare("SELECT 1 AS n FROM orders WHERE ref = ?").bind(t).first();
-    if (!seen) ref = t;
+    const t = await nextRef(env);
+    try {
+      const res = await env.DB.prepare(
+        `INSERT OR IGNORE INTO orders
+         (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+          goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,'',?)`
+      ).bind(t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+             JSON.stringify(o.items), o.note, o.source, o.placed_at).run();
+      if (didWrite(res)) ref = t;
+    } catch (err) { failed = err; break; }
   }
+  if (failed) return json({ok: false, why: "We could not save that just now. "
+    + "Please send us your address on WhatsApp instead."}, 500);
   if (!ref) return json({ok: false, why: "Something went wrong here. Please message us."}, 503);
-
-  try {
-    await env.DB.prepare(
-      `INSERT INTO orders
-       (ref, placed_at, name, phone, pincode, address, pay, poth, items,
-        goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,'',?)`
-    ).bind(ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
-           JSON.stringify(o.items), o.note, o.source, o.placed_at).run();
-  } catch (err) {
-    return json({ok: false, why: "We could not save that just now. "
-      + "Please send us your address on WhatsApp instead."}, 500);
-  }
 
   return json({ok: true, ref});
 }
@@ -1027,15 +1093,6 @@ function cleanChat(b) {
           items: [Object.assign({code: "OFFLINE", title: want || "To be filled in by the shop",
                                  qty: 1, price: 0}, poth ? {size: poth} : {})],
           note, source};
-}
-
-/* The website makes its own order code in the browser. This one is made here,
-   because here is the only place that can check nobody has it already. */
-function officeRef() {
-  const d = new Date(Date.now() + IST);              // dated by the shop's day
-  return "QALA-" + String(d.getUTCFullYear()).slice(2)
-       + String(d.getUTCMonth() + 1).padStart(2, "0")
-       + "-" + String(Math.floor(Math.random() * 9000) + 1000);
 }
 
 /* Everything the office form can send, checked and rebuilt from scratch —
@@ -1107,7 +1164,7 @@ async function photoOut(request, env, path) {
   if (!env.DB)  return new Response("No database.", {status: 503});
 
   const ref = decodeURIComponent(path.slice("/office/img/".length));
-  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return new Response("Not found", {status: 404});
+  if (!isRef(ref)) return new Response("Not found", {status: 404});
 
   let row;
   try {

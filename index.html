@@ -1219,10 +1219,35 @@ function bagWaText(){
     + `Total: ${rupees(bagTotal())}\n\n`
     + `Please confirm availability and sizing.`;
 }
+/* The order code — Q-2609-01, counted from one each month.
+
+   The book gives out the number, because only the book knows what has been
+   used. But the WhatsApp message has to be written the instant she taps, and
+   nothing can be waited for inside a tap, so the checkout page asks ahead of
+   time what the next one will be and keeps it here. If two orders land in the
+   same moment the book still numbers them properly — it simply hands back the
+   real code, and the thank-you page shows that one. */
+let NEXT_REF = "", ASKING = null;
+function loadRef(){
+  /* The checkout is painted more than once on its way in, and one question is
+     enough — the second caller waits on the first. */
+  if (ASKING) return ASKING;
+  ASKING = (async () => {
+    try {
+      const r = await fetch("/api/ref", {cache:"no-store"});
+      const d = r.ok ? await r.json() : null;
+      if (d && d.ok && d.ref) NEXT_REF = d.ref;
+    } catch (e) {}
+    ASKING = null;
+  })();
+  return ASKING;
+}
 function orderRef(){
+  if (NEXT_REF) return NEXT_REF;
+  /* Nothing came back — a guess that is the right shape, so the message she
+     sends still carries something to say. The book will correct it. */
   const d = new Date();
-  return "QALA-" + String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0")
-       + "-" + String(Math.floor(Math.random()*9000)+1000);
+  return "Q-" + String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0") + "-01";
 }
 /* goods + shipping + COD handling, for whichever way they chose to pay */
 function orderTotals(goods, pay){
@@ -1765,7 +1790,8 @@ function saveOrder(o){
        us, than after sending a message about a piece that has gone. */
     if (r.status === 409)
       return {saved: false, gone: (d.gone || []).map(g => g.title || g.code).filter(Boolean)};
-    return {saved: !!(d && d.stored)};
+    /* The code the book actually gave it comes back with the answer. */
+    return {saved: !!(d && d.stored), ref: (d && d.ref) || ""};
   }).catch(() => ({saved: false}));
 
   /* Nobody should stand there watching a spinner. If the network is having a
@@ -2222,6 +2248,7 @@ function wire(route){
   if (route === "order") {
     const form = $("#orderForm");
     if (!form) return;
+    loadRef();                 /* so the code is in hand by the time she taps */
     const lines = orderLines(parseHash().params);
 
     const rules = [
@@ -2337,6 +2364,13 @@ function wire(route){
         o.saved = !!res.saved;
         o.slow  = !!res.slow;
         o.gone  = res.gone || [];
+
+        /* The book has the last word on the number. If it differs from the one
+           the page had — two orders in the same moment — the thank-you page
+           shows the real one, and the WhatsApp message on it is rewritten so
+           that sending it again sends the right code. */
+        if (res.ref && res.ref !== o.ref) { o.ref = res.ref; o.text = orderWaText(o); }
+        NEXT_REF = "";
 
         if (payOnline) {
           /* The order has to be in our book before it can be paid for — the
@@ -2591,7 +2625,7 @@ document.addEventListener("visibilitychange", watchHere);
    and take it out of the address bar, so a refresh does not re-run anything. */
 (function backFromGateway(){
   const ref = new URLSearchParams(location.search).get("paid") || "";
-  if (!/^QALA-\d{4}-\d{4}$/.test(ref)) return;
+  if (!/^Q-\d{4}-\d{2,4}$/.test(ref) && !/^QALA-\d{4}-\d{4}$/.test(ref)) return;
   history.replaceState(null, "", location.pathname + "#/paid");
   checkPaid(ref);
 })();

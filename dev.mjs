@@ -65,7 +65,8 @@ const DB = {
       bind: (...a) => make(a),
       async first() { const r = sqlite.prepare(sql).get(...args); return r ? {...r} : null; },
       async all()   { return {results: sqlite.prepare(sql).all(...args).map(r => ({...r}))}; },
-      async run()   { sqlite.prepare(sql).run(...args); return {success: true}; }
+      async run()   { const r = sqlite.prepare(sql).run(...args);
+                      return {success: true, meta: {changes: Number(r.changes || 0)}}; }
     });
     return make([]);
   }

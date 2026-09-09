@@ -68,7 +68,7 @@ CREATE INDEX IF NOT EXISTS logins_by_ip ON logins (ip, at DESC);
 -- WHAT THE COLUMNS HOLD
 --
 -- orders
---   ref         QALA-2609-4471, made by the website or by the office
+--   ref         Q-2609-01 -- the month, then this order's place in it
 --   placed_at   ISO timestamp, in UTC
 --   phone       10 digits, no country code
 --   pincode     empty when they are collecting at the shop
