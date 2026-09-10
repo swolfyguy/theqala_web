@@ -424,7 +424,7 @@ body.on-contact .fab{display:none}
   transition:width .42s cubic-bezier(.2,.9,.3,1.25), height .42s cubic-bezier(.2,.9,.3,1.25),
              box-shadow .3s}
 .howto video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;
-  background:#1b0f0c}
+  background:#1b0f0c;object-position:50% 34%}
 .howto video.on{display:block}
 .howto .tri{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;
   transform:translate(-38%,-50%);
@@ -452,6 +452,7 @@ body.on-contact .fab{display:none}
 .howto.big{--howsize:min(64vw,250px)}
 .howto.big .cap{display:none}
 .howto.big .tri{opacity:0}
+.howto.big.held .tri{opacity:1}
 .howto.big .prog{opacity:1}
 .howto.big .shrink{display:block}
 .howto.big .face{box-shadow:0 22px 50px -18px rgba(74,42,14,.75)}
@@ -972,7 +973,7 @@ const HOWTO = {
   teaser: "photos/how-to-teaser.mp4",
   mr:     "कसे मागवायचे",
   en:     "How to order",
-  secs:   15
+  secs:   52
 };
 
 const LEGAL = {
@@ -2883,7 +2884,7 @@ function startHowTo(){
      a voice is refused until she has tapped something, in every browser. */
   const rest = () => {
     box.classList.remove("big");
-    vid.loop = true; vid.muted = true; vid.controls = false;
+    vid.loop = true; vid.muted = true;
     vid.setAttribute("src", HOWTO.teaser || HOWTO.src);
     if (!HOWTO.teaser) vid.poster = HOWTO.poster || "";
     ring.style.strokeDashoffset = LOOP;
@@ -2931,14 +2932,19 @@ function startHowTo(){
     vid.loop = false;
     vid.setAttribute("src", HOWTO.src);      /* only fetched now */
     vid.muted = false;                       /* her tap bought this */
-    vid.controls = true;
     vid.classList.add("on");
     vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); });
     track("howto_open", {});
   };
-  const small = () => { playing = false; rest(); };
+  const small = () => { playing = false; box.classList.remove("held"); rest(); };
 
-  tap.onclick = () => { if (!playing) big(); };
+  /* Tapped once it starts; tapped again it stops and starts, which is all a
+     circle this size needs. The ring around the rim is the progress bar. */
+  tap.onclick = () => {
+    if (!playing) return big();
+    if (vid.paused){ vid.play().catch(() => {}); box.classList.remove("held"); }
+    else { vid.pause(); box.classList.add("held"); }
+  };
   $("#howtoShut").onclick = e => { e.stopPropagation(); small(); };
   vid.addEventListener("ended", () => { track("howto_finished", {}); small(); });
   vid.addEventListener("timeupdate", () => {
