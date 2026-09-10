@@ -38,6 +38,10 @@ const POTH = ["24", "26", "28", "30", "32", "34", "36", "38", "40"];
    times, and every abandoned order would lock a piece up for ever. */
 const HOLD_HOURS = 24;
 const HOLDS_FOREVER = ["confirmed", "sent", "done"];   // cancelled frees it at once
+/* Left out of Everything, and seen only by asking for them by name. A piece
+   sent is still held — this is about which orders want work, not which hold
+   stock. */
+const RESTING = ["deleted", "sent", "cancelled"];
 
 /* Flood guards. Generous for a real shop, tight enough to stop a script. */
 const MAX_PER_PHONE_PER_DAY = 8;
@@ -798,11 +802,17 @@ async function listOrders(env, url, who) {
   const limit  = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "200", 10) || 200, 1), 1000);
 
   let sql = "SELECT * FROM orders", where = [], bind = [];
-  /* "deleted" is a bin, not a state an order passes through. Everything means
-     everything still in the book, so the bin is left out of it — you only see
-     those by asking for them. */
-  if (status && status !== "all") { where.push("status = ?"); bind.push(status); }
-  else where.push("status != 'deleted'");
+  /* Everything means everything still wanting something done to it, so three
+     states are left out of it and seen only by asking for them by name:
+     "deleted" is a bin rather than a state an order passes through, "sent" is
+     out of the door, and "cancelled" is not going to happen. What is left is
+     the work. */
+  if (status && status !== "all") {
+    where.push("status = ?"); bind.push(status);
+  } else {
+    where.push(`status NOT IN (${RESTING.map(() => "?").join(",")})`);
+    bind.push(...RESTING);
+  }
   if (from) { where.push("placed_at >= ?"); bind.push(from); }
   if (upto) { where.push("placed_at <= ?"); bind.push(upto); }
   if (q) {

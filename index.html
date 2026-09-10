@@ -247,6 +247,12 @@ video.photo{background:#000;object-fit:contain}
 .trustrow{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
 .trustrow div{flex:1 1 200px;padding:17px 20px;font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);border-right:1px solid var(--line);text-align:center}
 .trustrow div:last-child{border-right:0}
+/* The same row, standing inside the order form: boxed rather than spanning the
+   page, and above the button she is about to press. */
+.trustform{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0 6px;
+  background:var(--panel-2)}
+.trustform div{flex:1 1 46%;padding:13px 14px;font-size:.7rem;border-bottom:1px solid var(--line)}
+.trustform div:nth-last-child(-n+2){border-bottom:0}
 .trustrow b{color:var(--ink);font-weight:600}
 
 /* ---------- sections ---------- */
@@ -404,6 +410,88 @@ a.cnt svg{display:inline-block;vertical-align:-1px;margin-left:1px}
 }
 .cbox .shut{font-size:.88rem;color:var(--ink-2)}
 body.on-contact .fab{display:none}
+
+/* ---------- the how-to-order film, in the corner ----------
+   The circle is the player. It sits under the header on the right showing a
+   few silent seconds on a loop; tapped, it grows where it stands, turns the
+   sound on and plays the whole thing — she watches it with the shop still in
+   front of her, which is the point of a film about how to use the shop. */
+.howto{position:fixed;right:16px;top:var(--howtop,96px);z-index:41;display:flex;align-items:center;
+  gap:10px;flex-direction:row-reverse;color:var(--ink);transition:top .25s ease}
+.howto .face{width:var(--howsize,56px);height:var(--howsize,56px);border-radius:50%;flex:none;
+  position:relative;padding:0;border:2px solid var(--gold-2);background:var(--panel-2);
+  overflow:hidden;cursor:pointer;box-shadow:0 12px 26px -12px rgba(74,42,14,.55);
+  transition:width .42s cubic-bezier(.2,.9,.3,1.25), height .42s cubic-bezier(.2,.9,.3,1.25),
+             box-shadow .3s}
+.howto video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;
+  background:#1b0f0c}
+.howto video.on{display:block}
+.howto .tri{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;
+  transform:translate(-38%,-50%);
+  border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.6));transition:opacity .2s}
+.howto .prog{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);
+  transform:rotate(-90deg);pointer-events:none;opacity:0;transition:opacity .3s}
+.howto .prog circle{fill:none;stroke:var(--gold-2);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:295;stroke-dashoffset:295}
+.howto .cap{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;
+  background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px;box-shadow:0 8px 20px -12px rgba(74,42,14,.5)}
+.howto .cap b{font-family:'Tiro Devanagari Marathi',Marcellus,serif;font-weight:400;font-size:.86rem}
+.howto .cap i{font-style:normal;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2)}
+.howto .shrink{display:none;position:absolute;top:-6px;left:-6px;width:28px;height:28px;
+  border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  font-size:1.1rem;line-height:1;cursor:pointer;z-index:2;
+  box-shadow:0 6px 14px -6px rgba(74,42,14,.6)}
+
+/* Playing: it takes the room it needs to be watched, and says nothing else.
+   Still a circle — the shop wants a circle. A circle shows the middle of a
+   tall frame and nothing else, so the film has to be framed for it: whatever
+   matters belongs in the centre of the picture. */
+.howto.big{--howsize:min(64vw,250px)}
+.howto.big .cap{display:none}
+.howto.big .tri{opacity:0}
+.howto.big .prog{opacity:1}
+.howto.big .shrink{display:block}
+.howto.big .face{box-shadow:0 22px 50px -18px rgba(74,42,14,.75)}
+@media (max-width:900px){ .howto .cap{display:none} }
+
+/* Said once, to somebody who has never been here, and never again. */
+.nudge{position:fixed;right:16px;top:calc(var(--howtop,96px) + 66px);z-index:45;max-width:min(232px,64vw);
+  background:var(--velvet);color:var(--on-velvet);border-radius:14px;padding:11px 30px 12px 13px;
+  box-shadow:0 18px 40px -18px rgba(74,42,14,.75);animation:nudgeIn .5s cubic-bezier(.2,.9,.3,1.3) both}
+.nudge b{display:block;font-family:'Tiro Devanagari Marathi',Marcellus,serif;font-weight:400;
+  font-size:.94rem;margin-bottom:2px}
+.nudge span{display:block;font-size:.73rem;line-height:1.4;opacity:.85}
+.nudge::after{content:"";position:absolute;right:22px;top:-7px;width:14px;height:14px;
+  background:var(--velvet);transform:rotate(45deg)}
+.nudge button{position:absolute;top:6px;right:8px;width:24px;height:24px;border:0;background:none;
+  color:var(--on-velvet);opacity:.6;font-size:1.1rem;line-height:1;cursor:pointer}
+@keyframes nudgeIn{from{opacity:0;transform:translateY(10px) scale(.94)}}
+
+@media (prefers-reduced-motion:reduce){ .nudge{animation:none} }
+.howto .ring{position:absolute;right:0;top:50%;transform:translateY(-50%);width:56px;height:56px;
+  border-radius:50%;border:2px solid var(--gold-2);opacity:.55;pointer-events:none;
+  animation:howtoring 2.6s ease-out infinite}
+@keyframes howtoring{0%{transform:translateY(-50%) scale(1);opacity:.5}
+  70%,100%{transform:translateY(-50%) scale(1.5);opacity:0}}
+.howto .tri{position:absolute;right:28px;top:50%;width:0;height:0;pointer-events:none;
+  transform:translate(42%,-50%);
+  border-left:11px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.55))}
+.howto .cap{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;
+  background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px 7px 12px;box-shadow:0 8px 20px -12px rgba(74,42,14,.5)}
+.howto .cap b{font-family:'Tiro Devanagari Marathi',Marcellus,serif;font-weight:400;font-size:.86rem}
+.howto .cap i{font-style:normal;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2)}
+.howto:hover .face{transform:scale(1.05)}
+.howto .face{transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+@media (max-width:900px){
+  .howto .cap{display:none}          /* on a phone the circle says it by itself */
+}
+@media (prefers-reduced-motion:reduce){ .howto .ring{animation:none;opacity:.35} }
 
 /* ---------- client videos ---------- */
 .clipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
@@ -740,6 +828,23 @@ footer a:hover{color:var(--accent)}
 
 <div class="here" id="here" role="status" aria-live="polite"></div>
 
+<div class="howto" id="howto" hidden>
+  <button class="face" id="howtoTap" aria-label="Watch: how to order">
+    <video id="howtoVid" muted playsinline loop preload="none"></video>
+    <span class="tri" aria-hidden="true"></span>
+    <svg class="prog" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="47"></circle>
+    </svg>
+  </button>
+  <span class="cap"><b id="howtoMr"></b><i id="howtoLen"></i></span>
+  <button class="shrink" id="howtoShut" aria-label="Stop and make it small">&times;</button>
+</div>
+<div class="nudge" id="nudge" hidden>
+  <b>पहिल्यांदा आलात?</b>
+  <span id="nudgeWords"></span>
+  <button id="nudgeShut" aria-label="Close">&times;</button>
+</div>
+
 <a class="fab" id="fab" target="_blank" rel="noopener" href="#" aria-label="Message us on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.7-1.3 1.3-1.8 1.3-.5.1-1 .1-1.7-.1a13 13 0 0 1-6.3-5.6c-.5-.9-.8-1.8-.8-2.6 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .6.4l.8 2c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6.5.9 1.1 1.6 2 2.2.3.2.5.2.7 0l.6-.7c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.4.4s0 .8-.3 1.3Z"/></svg>
 </a>
@@ -834,6 +939,42 @@ const ADDRESS = {
               person to write to, and Cashfree asks for one too
      refund   how long money takes to come back once a refund is agreed
    --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   The little film in the corner: how to order, shown rather than written.
+
+   Leave src empty and nothing appears at all — no circle, no video loaded, no
+   weight on the page. Put a file in photos/ and fill this in:
+
+     src      the film itself, e.g. "photos/how-to-order.mp4". Keep it under
+              about 8 MB — it is only fetched when somebody taps, but a phone
+              on a village connection still has to pull it down
+     poster   a still from it, e.g. "photos/how-to-order.jpg". This is the only
+              thing loaded up front, so it should be small
+     secs     how long it runs, so the circle can say
+
+   It sits bottom left, clear of the WhatsApp bubble on the right and clear of
+   the order bar. It stays out of the way on the order form and the thank-you
+   page, where she is doing something and does not want a film. */
+const HOWTO = {
+  src:    "photos/how-to-order.mp4",
+  poster: "photos/how-to-order.jpg",
+  /* A few seconds of the film, silent, that loops inside the circle on its own.
+     No browser will start a voice by itself — a visitor who has tapped nothing
+     is refused, every time, and that is the rule everywhere. Silent moving
+     pictures are the one thing allowed, so this is what catches her eye, and
+     her tap on it is what buys the right to speak.
+
+     Keep it small: 3 to 5 seconds, no sound, a few hundred kilobytes. It loads
+     on every visit, which the full film never does.
+       ffmpeg -i how-to-order.mp4 -t 4 -an -vf "scale=-2:320" -crf 34 teaser.mp4
+     Leave it empty and the circle shows the still instead, which is quieter and
+     costs nothing. */
+  teaser: "photos/how-to-teaser.mp4",
+  mr:     "कसे मागवायचे",
+  en:     "How to order",
+  secs:   15
+};
+
 const LEGAL = {
   legal:  "",
   gst:    "",
@@ -1450,13 +1591,6 @@ function home(){
         <div class="arch heroshot">${mark()}${shot(hero.image, {alt:"The Qala jewellery", eager:true})}${heroVideo()}</div>
       </div>
     </div>
-    <div class="wrap"><div class="trustrow">
-      <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
-      <div><b>${ITEMS.some(codOk) ? `Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra on selected pieces`
-                                  : `Pay online or at the shop</b> UPI, bank transfer or a link`}</div>
-      <div><b>See it on a video call</b> before you decide</div>
-      <div><b>Order on WhatsApp</b> · we reply within the hour</div>
-    </div></div>
   </section>
 
   ${welcomeSection()}
@@ -1979,6 +2113,14 @@ function orderView(params){
         })()}
       </fieldset>
 
+      <div class="trustrow trustform">
+        <div><b>Free insured shipping</b> over ${rupees(SHIP_FREE_OVER)}</div>
+        <div><b>${codOkAll(lines) ? `Online, cash at the shop or COD</b> COD ${rupees(COD_EXTRA)} extra`
+                                  : `Pay online or at the shop</b> UPI, bank transfer or a link`}</div>
+        <div><b>See it on a video call</b> before it is sent</div>
+        <div><b>We confirm on WhatsApp</b> · usually within the hour</div>
+      </div>
+
       <button class="btn wide" type="submit" style="margin-top:4px">Place the order</button>
       <p class="hint" style="margin:0;text-align:center">Your order is written down with us, and WhatsApp opens with it already filled in. Tap send and it reaches us.</p>
     </form>
@@ -2374,6 +2516,7 @@ function render(){
   }
   }
 
+  paintHowTo(r);
   document.body.classList.toggle("on-piece", r === "piece");
   document.body.classList.toggle("on-contact", r === "contact");
   document.querySelectorAll("nav.main a").forEach(a => {
@@ -2722,6 +2865,106 @@ function wire(route){
   }
 }
 
+/* ---------------------------------------------------------------------------
+   The film in the corner. Nothing here runs at all when no film is set, and
+   even when one is, only the still is fetched — the film itself waits until
+   she asks for it. */
+function startHowTo(){
+  if (!HOWTO.src) return;
+  const box = $("#howto"), tap = $("#howtoTap"), vid = $("#howtoVid");
+  const ring = box.querySelector(".prog circle");
+  const LOOP = 295;                        /* the ring's whole way round */
+
+  $("#howtoMr").textContent  = HOWTO.mr;
+  $("#howtoLen").textContent = HOWTO.secs ? `${HOWTO.en} · ${HOWTO.secs}s` : HOWTO.en;
+  box.hidden = false;
+
+  /* Small and silent to begin with. Muted is what lets it start on its own —
+     a voice is refused until she has tapped something, in every browser. */
+  const rest = () => {
+    box.classList.remove("big");
+    vid.loop = true; vid.muted = true; vid.controls = false;
+    vid.setAttribute("src", HOWTO.teaser || HOWTO.src);
+    if (!HOWTO.teaser) vid.poster = HOWTO.poster || "";
+    ring.style.strokeDashoffset = LOOP;
+    const go = vid.play();
+    if (go && go.then) go.then(() => vid.classList.add("on")).catch(() => {});
+    else vid.classList.add("on");
+  };
+  rest();
+
+  /* It sits just under the header, which is a different height on a phone and
+     on a laptop and changes as the ribbon scrolls away — so it is measured
+     rather than guessed at. */
+  const sit = () => {
+    const bar = document.querySelector("header.site");
+    const y = bar ? Math.max(8, bar.getBoundingClientRect().bottom + 12) : 96;
+    document.documentElement.style.setProperty("--howtop", Math.round(y) + "px");
+  };
+  sit();
+  addEventListener("scroll", sit, {passive: true});
+  addEventListener("resize", sit);
+
+  /* Somebody who has been here before does not need telling twice. */
+  let told = true;
+  try { told = localStorage.getItem("qala.told") === "1"; } catch (e) {}
+  const nudge = $("#nudge");
+  $("#nudgeWords").textContent = HOWTO.secs
+    ? `Tap for sound — ${HOWTO.secs} seconds and you will know how to order`
+    : "Tap for sound — this is how to order";
+  const hush = () => {
+    nudge.hidden = true;
+    try { localStorage.setItem("qala.told", "1"); } catch (e) {}
+  };
+  $("#nudgeShut").onclick = hush;
+  if (!told) setTimeout(() => {
+    if (!box.hidden) { nudge.hidden = false; setTimeout(hush, 9000); }
+  }, 2600);
+
+  /* The whole film, where the circle already is. Nothing opens over the shop:
+     she watches it with the page she is being shown how to use behind it. */
+  let playing = false;
+  const big = () => {
+    hush();
+    playing = true;
+    box.classList.add("big");
+    vid.loop = false;
+    vid.setAttribute("src", HOWTO.src);      /* only fetched now */
+    vid.muted = false;                       /* her tap bought this */
+    vid.controls = true;
+    vid.classList.add("on");
+    vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); });
+    track("howto_open", {});
+  };
+  const small = () => { playing = false; rest(); };
+
+  tap.onclick = () => { if (!playing) big(); };
+  $("#howtoShut").onclick = e => { e.stopPropagation(); small(); };
+  vid.addEventListener("ended", () => { track("howto_finished", {}); small(); });
+  vid.addEventListener("timeupdate", () => {
+    if (!playing || !vid.duration) return;
+    const k = vid.currentTime / vid.duration;
+    ring.style.strokeDashoffset = LOOP * (1 - k);
+  });
+  addEventListener("keydown", e => { if (e.key === "Escape" && playing) small(); });
+}
+
+/* Out of the way where she is busy: filling the form, or reading what she has
+   just ordered. */
+function paintHowTo(route){
+  const btn = $("#howto");
+  if (!btn || !HOWTO.src) return;
+  const away = ["order", "placed", "paid"].includes(route);
+  btn.hidden = away;
+  if (away){
+    $("#nudge").hidden = true;
+    /* Nothing should still be talking while she fills in her address. */
+    const v = $("#howtoVid");
+    if (v) { try { v.pause(); } catch (e) {} }
+    btn.classList.remove("big");
+  }
+}
+
 /* ============ boot ============ */
 $("#cartBtn").onclick = () => { location.hash = "#/bag"; };
 $("#menuToggle").onclick = () => {
@@ -2948,5 +3191,6 @@ document.addEventListener("visibilitychange", watchHere);
   checkPaid(ref);
 })();
 
+startHowTo();
 loadCatalogue().then(() => { paintNav(); render(); watchHere(); });
 </script>

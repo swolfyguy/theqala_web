@@ -552,9 +552,12 @@ async function load(){
   $("#who").textContent = data.you ? "signed in as " + data.you : "";
   COUNTS = {};
   (data.counts || []).forEach(c => { COUNTS[c.status] = c.n; });
-  /* Everything counts what Everything shows, so the bin is left out of it. */
+  /* Everything counts what Everything shows, and Everything is the work still
+     to be done — so the bin, what has gone out and what was called off are all
+     left out of the number, exactly as they are left out of the list. */
+  const RESTING = ["deleted", "sent", "cancelled"];
   COUNTS.all = Object.keys(COUNTS)
-    .filter(k => k !== "deleted")
+    .filter(k => !RESTING.includes(k))
     .reduce((a, k) => a + COUNTS[k], 0);
   ORDERS = data.orders || [];
   /* Only keep open the ones still on screen. */

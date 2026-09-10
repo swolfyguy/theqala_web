@@ -113,8 +113,17 @@ const ASSETS = {
       file = path.join(file, "index.html");
     if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory())
       return new Response("Not found", {status: 404});
-    return new Response(fs.readFileSync(file), {
-      headers: {"content-type": TYPES[path.extname(file).toLowerCase()] || "application/octet-stream"}
+    /* Content-Length and a word that ranges are understood. Cloudflare sends
+       both; without them a browser will not play a video at all — it asks for
+       a byte range, gets a chunked reply with no length, and gives up with
+       "no supported sources", which looks exactly like a broken file. */
+    const body = fs.readFileSync(file);
+    return new Response(body, {
+      headers: {
+        "content-type": TYPES[path.extname(file).toLowerCase()] || "application/octet-stream",
+        "content-length": String(body.length),
+        "accept-ranges": "bytes"
+      }
     });
   }
 };
