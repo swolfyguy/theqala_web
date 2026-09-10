@@ -123,6 +123,23 @@ const json = (data, status = 200, extra = {}) =>
    A row here means "somebody filled in the form", not "an order is confirmed".
    The WhatsApp message is still what makes an order real.
 */
+/* Is the row already in the book the very same order, sent a second time?
+   Same telephone and the same pieces is enough: nobody orders the identical
+   basket twice in one minute by hand. */
+const sameOrder = (row, o, items) => !!row && row.phone === o.phone && row.items === items;
+
+async function putOrder(env, ref, o, items) {
+  return env.DB.prepare(
+    `INSERT OR IGNORE INTO orders
+     (ref, placed_at, name, phone, pincode, address, pay, poth, items,
+      goods, shipping, cod_fee, total, status, note, updated_at)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'new','',?)`
+  ).bind(ref, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
+         items, o.goods, o.shipping, o.cod_fee, o.total, o.placed_at).run();
+}
+const rowFor = (env, ref) =>
+  env.DB.prepare("SELECT ref, phone, items FROM orders WHERE ref = ?").bind(ref).first();
+
 async function takeOrder(request, env) {
   if (!env.DB) return json({ok: false, stored: false, why: "no database"}, 200);
 
@@ -150,16 +167,24 @@ async function takeOrder(request, env) {
     if (all && all.n >= MAX_PER_MINUTE)
       return json({ok: false, stored: false, why: "busy"}, 429);
 
-    /* The same order can reach us twice: the page sends it as she leaves, and
-       the copy the browser kept can arrive after. Two rows for one tap would
-       hold two pieces and take two numbers, so an order that matches one taken
-       in the last few minutes is answered with that one instead of written again. */
+    /* The same order reaches us twice on purpose: the page sends it as she
+       taps, and the copy the browser kept is sent again as the page goes away.
+       Both carry the same code, so the code is what tells them apart from two
+       real orders — and it is asked about here, before the stock check, or her
+       own first copy would be the thing that told her it was sold out. */
     const items = JSON.stringify(o.items);
-    const twin = await env.DB.prepare(
-      `SELECT ref FROM orders WHERE phone = ? AND total = ? AND items = ? AND placed_at > ?
-       ORDER BY placed_at DESC LIMIT 1`
-    ).bind(o.phone, o.total, items, new Date(Date.now() - 5 * 60e3).toISOString()).first();
-    if (twin) return json({ok: true, stored: true, ref: twin.ref});
+    if (o.wanted && sameOrder(await rowFor(env, o.wanted), o, items))
+      return json({ok: true, stored: true, ref: o.wanted});
+
+    /* A page too old to carry a code still gets some protection, though only
+       this: the same telephone, the same pieces, the same money, minutes apart. */
+    if (!o.wanted) {
+      const twin = await env.DB.prepare(
+        `SELECT ref FROM orders WHERE phone = ? AND total = ? AND items = ? AND placed_at > ?
+         ORDER BY placed_at DESC LIMIT 1`
+      ).bind(o.phone, o.total, items, new Date(Date.now() - 5 * 60e3).toISOString()).first();
+      if (twin) return json({ok: true, stored: true, ref: twin.ref});
+    }
 
     /* The page only offers cash on delivery on pieces that allow it. This is
        the check that decides, because a page can be worked around and the
@@ -174,22 +199,23 @@ async function takeOrder(request, env) {
     if (gone.length)
       return json({ok: false, stored: false, why: "sold out", gone}, 409);
 
-    /* The number is the shop's to give, not the browser's — whatever code the
-       page guessed while she was filling the form is ignored. OR IGNORE means
-       a number taken in the meantime writes nothing, and we go round again. */
+    /* The code the page holds is tried first. That one write is the whole
+       defence against a repeat: two copies of one order carry the same code,
+       the code is the row's key, and a database refuses the second by itself —
+       where a check in front of the write can be walked through by both copies
+       at once, which is exactly what was happening.
+
+       If the code is taken, it is either her own first copy — answer with it —
+       or somebody else got there, and the book hands out the next free one. */
     let ref = "";
+    if (o.wanted) {
+      if (didWrite(await putOrder(env, o.wanted, o, items))) ref = o.wanted;
+      else if (sameOrder(await rowFor(env, o.wanted), o, items))
+        return json({ok: true, stored: true, ref: o.wanted});
+    }
     for (let i = 0; i < 6 && !ref; i++) {
       const t = await nextRef(env);
-      const res = await env.DB.prepare(
-        `INSERT OR IGNORE INTO orders
-         (ref, placed_at, name, phone, pincode, address, pay, poth, items,
-          goods, shipping, cod_fee, total, status, note, updated_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'new','',?)`
-      ).bind(
-        t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
-        items, o.goods, o.shipping, o.cod_fee, o.total, o.placed_at
-      ).run();
-      if (didWrite(res)) ref = t;
+      if (didWrite(await putOrder(env, t, o, items))) ref = t;
     }
     if (!ref) return json({ok: false, stored: false, why: "write failed"}, 200);
 
@@ -248,7 +274,13 @@ function clean(b) {
   const shipping = pickup ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
   const cod_fee  = pay === "cod" ? COD_EXTRA : 0;
 
+  /* The code the page was given while she filled the form. It is not trusted
+     as the order's number — the book still decides that — but it is what makes
+     a repeated send harmless, so it is carried through. */
+  const wanted = REF_NEW.test(String(b.ref || "")) ? String(b.ref) : "";
+
   return {
+    wanted,
     placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };

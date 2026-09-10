@@ -1859,9 +1859,11 @@ function saveOrder(o){
 
   /* If she closes the tab, or the phone takes her elsewhere while this is in
      flight, send it the one way a browser promises to deliver even as it puts
-     a page away. Two of the same order make one line in the book, not two —
-     the order code is the row's key and the worker inserts OR IGNORE — so
-     sending it twice costs nothing. */
+     a page away. Both copies carry the same order code, and that code is the
+     row's key in the book, so the second one is refused by the database itself
+     rather than by a check that both copies could pass at the same moment.
+     Sending it twice costs nothing. Opening WhatsApp hides this page within a
+     few milliseconds, so in practice both copies really are sent, every time. */
   let done = false;
   const onWayOut = () => {
     if (done) return;
@@ -2682,7 +2684,9 @@ function wire(route){
            shows the real one, and the WhatsApp message on it is rewritten so
            that sending it again sends the right code. */
         if (res.ref && res.ref !== o.ref) { o.ref = res.ref; o.text = orderWaText(o); }
-        NEXT_REF = "";
+        /* That code has been used. A second order from the same open page has
+           to ask for a fresh one, or it would fall back to a guess. */
+        NEXT_REF = ""; loadRef();
 
         /* Counted only once the order is really in the book, and under the
            code the book gave it, so a repeat of the same order is not counted
