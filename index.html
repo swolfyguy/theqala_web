@@ -516,6 +516,27 @@ body.on-contact .fab{display:none}
 .paybox li span{font-size:.86rem;color:var(--ink-2)}
 .paybox p{margin:14px 0 0;font-size:.86rem;color:var(--ink-2)}
 
+.vrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vrec,.vstop{display:flex;align-items:center;gap:9px;padding:13px 17px;cursor:pointer;
+  border-radius:12px;background:transparent;color:inherit;font:inherit;font-size:.94rem}
+.vrec{border:1px dashed var(--line-2,#CDB79B)}
+.vrec:hover:not(:disabled){border-color:var(--accent,#7E1226)}
+.vrec:disabled{opacity:.5;cursor:default}
+.vrec .mic{color:var(--accent,#7E1226);font-size:.8rem}
+.vstop{border:1px solid var(--accent,#7E1226);color:var(--accent,#7E1226)}
+.vstop .sq{width:11px;height:11px;background:currentColor;border-radius:2px;
+  animation:vpulse 1.1s ease-in-out infinite}
+@keyframes vpulse{50%{opacity:.35}}
+.vtime{font-variant-numeric:tabular-nums;font-size:.86rem;color:var(--ink-2,#7A6152)}
+.vdrop{border:1px solid var(--line,#E7D6C2);background:transparent;color:inherit;font:inherit;
+  font-size:.82rem;padding:8px 14px;border-radius:999px;cursor:pointer}
+#v-play{width:100%;margin-top:10px}
+.f#v-box{margin:6px 0 2px}
+.f#v-box>span{display:block;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:8px}
+.f#v-box>span em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--ink-2);
+  font-weight:400}
+@media (prefers-reduced-motion:reduce){ .vstop .sq{animation:none} }
 .paypick{border:1px solid var(--line);border-radius:16px;padding:16px 18px 6px;margin:6px 0 4px;min-width:0}
 .paypick legend{padding:0 8px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
   color:var(--gold);font-weight:700}
@@ -1462,6 +1483,116 @@ function bagWaText(){
     + `Total: ${rupees(bagTotal())}\n\n`
     + `Please confirm availability and sizing.`;
 }
+/* ---------------------------------------------------------------------------
+   A voice note.
+
+   Some things are easier said than typed — which piece she means, where the
+   lane turns off, how long she wants the poth. She holds the button and talks.
+
+   Recording needs her permission, and she may well say no. Everything here is
+   built so that a refusal, an old browser or a phone with no microphone simply
+   means the button is not there: the form works exactly as it did before.
+
+   Phones do not agree on a format. Android records webm, an iPhone records
+   mp4, and both are accepted on the way in. */
+let VOICE = "";
+let MEDIA = null, CHUNKS = [], TICK = null, STARTED = 0;
+const VOICE_MAX = 60;                 /* seconds — a sentence or two, not a speech */
+
+const canRecord = () => !!(navigator.mediaDevices && window.MediaRecorder);
+
+function bestType(){
+  const want = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"];
+  for (const t of want) if (MediaRecorder.isTypeSupported(t)) return t;
+  return "";                          /* let the browser pick its own */
+}
+
+const mmss = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+function voiceSay(msg){ const el = document.querySelector("#v-say"); if (el) el.textContent = msg; }
+
+function voiceRest(){
+  clearInterval(TICK);
+  document.querySelector("#v-rec").hidden = false;
+  document.querySelector("#v-stop").hidden = true;
+  document.querySelector("#v-time").hidden = true;
+}
+
+async function voiceStart(){
+  if (!canRecord()) return;
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({audio: true});
+  } catch (e) {
+    /* She said no, or there is no microphone. Neither is a problem. */
+    voiceSay(e && e.name === "NotAllowedError"
+      ? "No microphone, no matter — type it below instead."
+      : "That phone will not record. Type it below instead.");
+    document.querySelector("#v-rec").disabled = true;
+    return;
+  }
+  const type = bestType();
+  try { MEDIA = type ? new MediaRecorder(stream, {mimeType: type}) : new MediaRecorder(stream); }
+  catch (e) { MEDIA = new MediaRecorder(stream); }
+
+  CHUNKS = [];
+  MEDIA.ondataavailable = e => { if (e.data && e.data.size) CHUNKS.push(e.data); };
+  MEDIA.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());          /* let the light go out */
+    const blob = new Blob(CHUNKS, {type: MEDIA.mimeType || "audio/webm"});
+    const fr = new FileReader();
+    fr.onload = () => {
+      VOICE = String(fr.result);
+      const el = document.querySelector("#v-play");
+      el.src = VOICE; el.hidden = false;
+      document.querySelector("#v-drop").hidden = false;
+      document.querySelector("#v-rec").hidden = true;
+      voiceSay("ready · " + Math.round(blob.size / 1024) + " KB");
+    };
+    fr.onerror = () => voiceSay("That did not record. Try once more.");
+    fr.readAsDataURL(blob);
+  };
+
+  MEDIA.start();
+  STARTED = Date.now();
+  document.querySelector("#v-rec").hidden = true;
+  document.querySelector("#v-stop").hidden = false;
+  const time = document.querySelector("#v-time");
+  time.hidden = false;
+  voiceSay("listening…");
+  TICK = setInterval(() => {
+    const n = (Date.now() - STARTED) / 1000;
+    time.textContent = mmss(n) + " / " + mmss(VOICE_MAX);
+    if (n >= VOICE_MAX) voiceStop();                    /* it stops itself */
+  }, 200);
+}
+
+function voiceStop(){
+  voiceRest();
+  try { if (MEDIA && MEDIA.state !== "inactive") MEDIA.stop(); } catch (e) {}
+}
+
+function voiceDrop(){
+  VOICE = "";
+  const el = document.querySelector("#v-play");
+  el.pause(); el.removeAttribute("src"); el.hidden = true;
+  document.querySelector("#v-drop").hidden = true;
+  document.querySelector("#v-rec").hidden = false;
+  document.querySelector("#v-rec").disabled = false;
+  voiceSay("");
+}
+
+function voiceWire(){
+  const box = document.querySelector("#v-box");
+  if (!box) return;
+  /* No microphone in this browser: the whole thing simply is not offered. */
+  if (!canRecord()) { box.hidden = true; return; }
+  box.hidden = false;
+  document.querySelector("#v-rec").onclick  = voiceStart;
+  document.querySelector("#v-stop").onclick = voiceStop;
+  document.querySelector("#v-drop").onclick = voiceDrop;
+}
+
 /* The order code — Q-2609-01, counted from one each month.
 
    The book gives out the number, because only the book knows what has been
@@ -1978,7 +2109,7 @@ function saveOrder(o){
   try {
     body = JSON.stringify({
       ref: o.ref, name: o.name, phone: o.phone, pin: o.pin, addr: o.addr,
-      pay: o.pay, poth: o.poth,
+      pay: o.pay, poth: o.poth, voice: (typeof VOICE === "string" ? VOICE : ""),
       items: o.items.map(l => ({code: l.code, title: l.title, qty: l.qty,
                                 price: l.price, size: l.size || ""}))
     });
@@ -2101,6 +2232,20 @@ function orderView(params){
         <span class="err"></span>
       </div>
       ${sizeFields(lines)}
+    <div class="f" id="v-box" hidden><span>A voice note <em>optional — easier than typing</em></span>
+      <div class="vrow">
+        <button type="button" class="vrec" id="v-rec">
+          <span class="mic" aria-hidden="true">&#9679;</span> Hold a moment and speak
+        </button>
+        <button type="button" class="vstop" id="v-stop" hidden>
+          <span class="sq" aria-hidden="true"></span> Stop
+        </button>
+        <span class="vtime" id="v-time" hidden>0:00</span>
+        <button type="button" class="vdrop" id="v-drop" hidden>Remove</button>
+      </div>
+      <audio id="v-play" controls hidden></audio>
+      <p class="tiny" id="v-say"></p>
+    </div>
       <fieldset class="paypick">
         <legend>How would you like to pay?</legend>
         ${(() => {
@@ -2517,7 +2662,6 @@ function render(){
   }
   }
 
-  paintHowTo(r);
   document.body.classList.toggle("on-piece", r === "piece");
   document.body.classList.toggle("on-contact", r === "contact");
   document.querySelectorAll("nav.main a").forEach(a => {
@@ -2693,6 +2837,7 @@ function wire(route){
     const form = $("#orderForm");
     if (!form) return;
     loadRef();                 /* so the code is in hand by the time she taps */
+    voiceWire();
     const lines = orderLines(parseHash().params);
 
     const rules = [
@@ -2955,21 +3100,10 @@ function startHowTo(){
   addEventListener("keydown", e => { if (e.key === "Escape" && playing) small(); });
 }
 
-/* Out of the way where she is busy: filling the form, or reading what she has
-   just ordered. */
-function paintHowTo(route){
-  const btn = $("#howto");
-  if (!btn || !HOWTO.src) return;
-  const away = ["order", "placed", "paid"].includes(route);
-  btn.hidden = away;
-  if (away){
-    $("#nudge").hidden = true;
-    /* Nothing should still be talking while she fills in her address. */
-    const v = $("#howtoVid");
-    if (v) { try { v.pause(); } catch (e) {} }
-    btn.classList.remove("big");
-  }
-}
+/* It stays put. The page under it changes — the shop, a piece, the order form
+   — and the circle carries on where it is, still playing, because it is the
+   same element throughout and nothing takes it away. A film about how to order
+   that stops the moment she reaches the order form would be no use at all. */
 
 /* ============ boot ============ */
 $("#cartBtn").onclick = () => { location.hash = "#/bag"; };

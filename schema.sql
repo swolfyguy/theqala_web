@@ -46,6 +46,15 @@ CREATE TABLE IF NOT EXISTS order_photos (
 );
 
 
+-- Voice notes left on an order, one per order, kept out of the orders table
+-- so that listing the book never drags recordings along with it
+CREATE TABLE IF NOT EXISTS order_notes (
+  ref  TEXT PRIMARY KEY,
+  mime TEXT NOT NULL,
+  data TEXT NOT NULL
+);
+
+
 CREATE TABLE IF NOT EXISTS here (
   id TEXT PRIMARY KEY,
   at TEXT NOT NULL

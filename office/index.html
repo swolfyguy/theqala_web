@@ -221,6 +221,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb.none::after{content:"॥";position:absolute;inset:0;display:grid;place-items:center;
   color:var(--gold-2);font-size:1rem}
+.hervoice{width:100%;max-width:340px;margin:2px 0 4px}
 .money{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
 .money.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:6px;font-weight:700}
 .unset{font-style:normal;font-weight:400;color:var(--accent);font-size:.88rem}
@@ -792,6 +793,9 @@ function detail(o){
         </div>
         ${cameFrom(o) ? "" : `<div class="paywhy">Changing this works the shipping
           and any cash-on-delivery charge out again.</div>`}`}
+        ${o.voice ? `<h3>In her own words</h3>
+        <audio class="hervoice" controls preload="none"
+               src="/office/note/${encodeURIComponent(o.ref)}"></audio>` : ""}
         ${o.note ? `<h3>To remember</h3>
         <div class="who-lines">${esc(o.note)}</div>` : ""}
         ${perItem ? "" : `<h3>Poth length</h3>

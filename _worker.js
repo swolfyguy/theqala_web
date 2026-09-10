@@ -60,6 +60,36 @@ const SOURCENAME = {whatsapp: "WhatsApp", instagram: "Instagram",
    Base64 characters, so about three quarters of this in real bytes — roughly
    one megabyte, well inside what a single D1 row will hold. */
 const MAX_PHOTO_CHARS = 1400000;
+/* A minute of speech is about 180 kB, which is 240 thousand characters once it
+   is written down as text. This leaves room for two minutes and refuses more —
+   a voice note is a sentence or two, not a recording of the wedding. */
+const MAX_VOICE_CHARS = 700000;
+/* Whatever her phone can record: Android gives webm, an iPhone gives mp4. */
+const VOICE_EXT = {"audio/webm": "webm", "audio/mp4": "m4a", "audio/ogg": "ogg",
+                   "audio/mpeg": "mp3", "audio/aac": "aac"};
+
+/* The same shape as a picture, and refused the same way. */
+function cleanVoice(raw) {
+  const v = String(raw == null ? "" : raw).trim();
+  if (!v) return null;
+  const m = /^data:(audio\/[a-z0-9.+-]+)(?:;codecs=[^;,]+)?;base64,([A-Za-z0-9+/]+={0,2})$/.exec(v);
+  if (!m) return {error: "That recording is not a kind we can keep."};
+  if (!VOICE_EXT[m[1]]) return {error: "That recording is not a kind we can keep."};
+  if (m[2].length > MAX_VOICE_CHARS) return {error: "That recording is too long. Keep it under a minute."};
+  return {mime: m[1], data: m[2]};
+}
+
+/* Kept in a table of its own, so listing the book never drags recordings along
+   with it. A recording that will not save never costs the order. */
+async function keepVoice(env, ref, voice) {
+  if (!voice) return false;
+  try {
+    await env.DB.prepare(
+      "INSERT OR REPLACE INTO order_notes (ref, mime, data) VALUES (?,?,?)"
+    ).bind(ref, voice.mime, voice.data).run();
+    return true;
+  } catch (e) { return false; }
+}
 
 /* How long a tab counts as "here" after it last said hello. The shop says
    hello every 45 seconds while it is the tab you are looking at, so two
@@ -94,6 +124,8 @@ export default {
       if (path === "/office/order"  && request.method === "POST") return newOrder(request, env);
       if (path.startsWith("/office/img/") && request.method === "GET")
                                                                   return photoOut(request, env, path);
+      if (path.startsWith("/office/note/") && request.method === "GET")
+                                                                  return voiceOut(request, env, path);
 
       /* The studio and the office's order form are never handed out
          unsigned-in. Everything they can do is checked again on the way in
@@ -223,7 +255,9 @@ async function takeOrder(request, env) {
     }
     if (!ref) return json({ok: false, stored: false, why: "write failed"}, 200);
 
-    return json({ok: true, stored: true, ref});
+    const heard = await keepVoice(env, ref, o.voice);
+
+    return json({ok: true, stored: true, ref, voice: heard});
   } catch (err) {
     /* Database trouble is our problem, not the customer's. */
     return json({ok: false, stored: false, why: "write failed"}, 200);
@@ -233,6 +267,10 @@ async function takeOrder(request, env) {
 /* Everything the form can send, checked and rebuilt from scratch. */
 function clean(b) {
   const s = (v, max) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, max);
+
+  /* Her own voice, if she left one. */
+  const voice = cleanVoice(b.voice);
+  if (voice && voice.error) return {error: voice.error};
 
   /* The page still sends the code it guessed, so that an older cached copy of
      the shop keeps working, but nothing is done with it: the number an order
@@ -284,7 +322,7 @@ function clean(b) {
   const wanted = REF_NEW.test(String(b.ref || "")) ? String(b.ref) : "";
 
   return {
-    wanted,
+    wanted, voice,
     placed_at: new Date().toISOString(), name, phone, pincode, address,
     pay, poth, items, goods, shipping, cod_fee, total: goods + shipping + cod_fee
   };
@@ -852,6 +890,16 @@ async function listOrders(env, url, who) {
   const rows2 = counts.results || [];
   const binned = (rows2.find(r => r.status === "deleted") || {}).n || 0;
 
+  /* Which of these carry a recording. One small query rather than dragging the
+     recordings themselves into a list that only needs to know they exist. */
+  try {
+    const {results} = await env.DB.prepare(
+      `SELECT ref FROM order_notes WHERE ref IN (${rows.map(() => "?").join(",") || "''"})`
+    ).bind(...rows.map(r => r.ref)).all();
+    const heard = new Set((results || []).map(r => r.ref));
+    rows.forEach(r => { r.voice = heard.has(r.ref); });
+  } catch (e) { /* no recordings table yet, so none of them have one */ }
+
   return json({ok: true, you: who, orders: rows, counts: rows2, binned,
                 range: picked ? "picked" : range});
 }
@@ -874,6 +922,8 @@ async function updateOrder(request, env) {
       return json({ok: false, why: "Move it to Deleted first, then it can be removed for good."}, 400);
     try { await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run(); }
     catch (e) { /* no photographs table on an older book, which is fine */ }
+    try { await env.DB.prepare("DELETE FROM order_notes WHERE ref = ?").bind(ref).run(); }
+    catch (e) { /* likewise for recordings */ }
     await env.DB.prepare("DELETE FROM orders WHERE ref = ?").bind(ref).run();
     return json({ok: true, purged: ref});
   }
@@ -1114,9 +1164,10 @@ async function chatOrder(request, env) {
         `INSERT OR IGNORE INTO orders
          (ref, placed_at, name, phone, pincode, address, pay, poth, items,
           goods, shipping, cod_fee, total, status, note, source, photo, updated_at)
-         VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,'',?)`
+         VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,?,?)`
       ).bind(t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
-             JSON.stringify(o.items), o.note, o.source, o.placed_at).run();
+             JSON.stringify(o.items), o.note, o.source,
+             o.shot ? o.shot.mime : "", o.placed_at).run();
       if (didWrite(res)) ref = t;
     } catch (err) { failed = err; break; }
   }
@@ -1124,7 +1175,25 @@ async function chatOrder(request, env) {
     + "Please send us your address on WhatsApp instead."}, 500);
   if (!ref) return json({ok: false, why: "Something went wrong here. Please message us."}, 503);
 
-  return json({ok: true, ref});
+  /* The picture goes in a table of its own, so listing the book never drags
+     photographs along with it. If it will not save, the order still stands —
+     her address is the part that matters, and the shop can ask for the picture
+     again in the chat. */
+  let kept = false;
+  if (o.shot) {
+    try {
+      await env.DB.prepare(
+        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
+      ).bind(ref, o.shot.mime, o.shot.data).run();
+      kept = true;
+    } catch (e) {
+      try { await env.DB.prepare("UPDATE orders SET photo = '' WHERE ref = ?").bind(ref).run(); }
+      catch (e2) { /* then the book simply shows no picture, which is honest */ }
+    }
+  }
+  const heard = await keepVoice(env, ref, o.voice);
+
+  return json({ok: true, ref, photo: kept, voice: heard});
 }
 
 /* What she is allowed to tell us, and nothing else. There is no price here on
@@ -1157,10 +1226,28 @@ function cleanChat(b) {
   const want = s(b.want, 120);
   const note = s(b.note, 500);
 
+  /* The picture she is holding: a screenshot from Instagram, or a photograph
+     of something she was shown in a chat. It is the surest way of saying which
+     piece she means — surer than any words she can find for it. Optional, and
+     an unreadable one is refused rather than losing the whole order. */
+  let shot = null;
+  const raw = String(b.photo == null ? "" : b.photo).trim();
+  if (raw) {
+    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(raw);
+    if (!m) return {error: "That picture is not a kind we can keep. A photo or a screenshot works."};
+    if (m[2].length > MAX_PHOTO_CHARS) return {error: "That picture is too big. Try a screenshot instead."};
+    shot = {mime: m[1], data: m[2]};
+  }
+
+  /* Her own voice, for what a form cannot hold: which piece she means, how
+     long she wants the poth, where the lane turns off. Optional. */
+  const voice = cleanVoice(b.voice);
+  if (voice && voice.error) return {error: voice.error};
+
   return {placed_at: new Date().toISOString(), name, phone, pincode, address, pay, poth,
           items: [Object.assign({code: "OFFLINE", title: want || "To be filled in by the shop",
                                  qty: 1, price: 0}, poth ? {size: poth} : {})],
-          note, source};
+          note, source, shot, voice};
 }
 
 /* Everything the office form can send, checked and rebuilt from scratch —
@@ -1249,6 +1336,35 @@ async function photoOut(request, env, path) {
     /* Signed in only, and a picture never changes once it is in. */
     "cache-control": "private, max-age=86400",
     "content-disposition": `inline; filename="${ref}.${EXT[row.mime]}"`,
+    "x-content-type-options": "nosniff"
+  }});
+}
+
+async function voiceOut(request, env, path) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return new Response("Sign in first.", {status: 401});
+  if (!env.DB)  return new Response("No database.", {status: 503});
+
+  const ref = decodeURIComponent(path.slice("/office/note/".length));
+  if (!isRef(ref)) return new Response("Not found", {status: 404});
+
+  let row;
+  try {
+    row = await env.DB.prepare("SELECT mime, data FROM order_notes WHERE ref = ?").bind(ref).first();
+  } catch { return new Response("Not found", {status: 404}); }
+  if (!row || !VOICE_EXT[row.mime]) return new Response("Not found", {status: 404});
+
+  const bin = atob(row.data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+  return new Response(bytes, {headers: {
+    "content-type": row.mime,
+    "content-length": String(bytes.length),
+    "accept-ranges": "bytes",
+    /* Signed in only, and a recording never changes once it is in. */
+    "cache-control": "private, max-age=86400",
+    "content-disposition": `inline; filename="${ref}.${VOICE_EXT[row.mime]}"`,
     "x-content-type-options": "nosniff"
   }});
 }

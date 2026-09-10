@@ -48,9 +48,37 @@ a{color:var(--accent)}
 
 form{display:grid;gap:16px;padding:22px 0 40px}
 label.f{display:block}
-label.f>span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+.f>.pick{display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;cursor:pointer;
+  border:1px dashed var(--line-2,#CDB79B);border-radius:12px;background:transparent;
+  color:inherit;font:inherit;font-size:.94rem;text-align:left}
+.f>.pick:hover{border-color:var(--accent,#7E1226)}
+.f>.pick .plus{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;
+  background:var(--panel-2,#F1E5D6);font-size:1.1rem;line-height:1}
+.f>.shot{display:flex;align-items:center;gap:12px;margin-top:10px}
+.f>.shot img{width:74px;height:74px;object-fit:cover;border-radius:12px;flex:none;
+  border:1px solid var(--line,#E7D6C2)}
+.f>.shot .drop{border:1px solid var(--line,#E7D6C2);background:transparent;color:inherit;
+  font:inherit;font-size:.82rem;padding:8px 14px;border-radius:999px;cursor:pointer}
+.vrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vrec,.vstop{display:flex;align-items:center;gap:9px;padding:13px 17px;cursor:pointer;
+  border-radius:12px;background:transparent;color:inherit;font:inherit;font-size:.94rem}
+.vrec{border:1px dashed var(--line-2,#CDB79B)}
+.vrec:hover:not(:disabled){border-color:var(--accent,#7E1226)}
+.vrec:disabled{opacity:.5;cursor:default}
+.vrec .mic{color:var(--accent,#7E1226);font-size:.8rem}
+.vstop{border:1px solid var(--accent,#7E1226);color:var(--accent,#7E1226)}
+.vstop .sq{width:11px;height:11px;background:currentColor;border-radius:2px;
+  animation:vpulse 1.1s ease-in-out infinite}
+@keyframes vpulse{50%{opacity:.35}}
+.vtime{font-variant-numeric:tabular-nums;font-size:.86rem;color:var(--ink-2,#7A6152)}
+.vdrop{border:1px solid var(--line,#E7D6C2);background:transparent;color:inherit;font:inherit;
+  font-size:.82rem;padding:8px 14px;border-radius:999px;cursor:pointer}
+#v-play{width:100%;margin-top:10px}
+@media (prefers-reduced-motion:reduce){ .vstop .sq{animation:none} }
+.tiny{font-size:.72rem;color:var(--ink-2,#7A6152);margin:7px 0 0;min-height:1em}
+label.f>span,.f>span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-2);font-weight:700;display:block;margin-bottom:7px}
-label.f>span em{font-style:normal;text-transform:none;letter-spacing:0;
+label.f>span em,.f>span em{font-style:normal;text-transform:none;letter-spacing:0;
   font-weight:400;opacity:.75}
 input,select,textarea{width:100%;background:var(--panel);border:1px solid var(--line-2);
   border-radius:12px;padding:14px 15px;color:inherit;font:inherit}
@@ -137,6 +165,34 @@ footer a{color:var(--ink-2)}
         <option value="cod" disabled>Cash on delivery — not available just now</option>
       </select></label>
 
+    <div class="f"><span>A picture of the piece <em>optional — a screenshot works</em></span>
+      <button type="button" class="pick" id="i-pick">
+        <span class="plus" aria-hidden="true">+</span>
+        <span class="pickword" id="i-pickword">Add a picture</span>
+      </button>
+      <input type="file" id="i-file" accept="image/*" hidden>
+      <div class="shot" id="i-shot" hidden>
+        <img id="i-thumb" alt="">
+        <button type="button" class="drop" id="i-drop">Remove</button>
+      </div>
+      <p class="tiny" id="i-shotsay"></p>
+    </div>
+
+    <div class="f" id="v-box" hidden><span>A voice note <em>optional — easier than typing</em></span>
+      <div class="vrow">
+        <button type="button" class="vrec" id="v-rec">
+          <span class="mic" aria-hidden="true">&#9679;</span> Hold a moment and speak
+        </button>
+        <button type="button" class="vstop" id="v-stop" hidden>
+          <span class="sq" aria-hidden="true"></span> Stop
+        </button>
+        <span class="vtime" id="v-time" hidden>0:00</span>
+        <button type="button" class="vdrop" id="v-drop" hidden>Remove</button>
+      </div>
+      <audio id="v-play" controls hidden></audio>
+      <p class="tiny" id="v-say"></p>
+    </div>
+
     <label class="f"><span>Anything to tell us <em>optional</em></span>
       <textarea name="note" id="i-note" maxlength="500" placeholder=" "></textarea></label>
 
@@ -157,6 +213,179 @@ footer a{color:var(--ink-2)}
 const WA = "919579628754";
 const POTH = ["24","26","28","30","32","34","36","38","40"];
 const $ = s => document.querySelector(s);
+
+/* ---------------------------------------------------------------------------
+   The picture she is holding.
+
+   A photograph off a phone is four thousand pixels wide and several megabytes;
+   nothing here needs more than a thumbnail, so it is brought down on her own
+   phone before it travels. On a village connection that is the difference
+   between an order arriving and an order timing out. */
+/* ---------------------------------------------------------------------------
+   A voice note.
+
+   Some things are easier said than typed — which piece she means, where the
+   lane turns off, how long she wants the poth. She holds the button and talks.
+
+   Recording needs her permission, and she may well say no. Everything here is
+   built so that a refusal, an old browser or a phone with no microphone simply
+   means the button is not there: the form works exactly as it did before.
+
+   Phones do not agree on a format. Android records webm, an iPhone records
+   mp4, and both are accepted on the way in. */
+let VOICE = "";
+let MEDIA = null, CHUNKS = [], TICK = null, STARTED = 0;
+const VOICE_MAX = 60;                 /* seconds — a sentence or two, not a speech */
+
+const canRecord = () => !!(navigator.mediaDevices && window.MediaRecorder);
+
+function bestType(){
+  const want = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"];
+  for (const t of want) if (MediaRecorder.isTypeSupported(t)) return t;
+  return "";                          /* let the browser pick its own */
+}
+
+const mmss = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+function voiceSay(msg){ const el = document.querySelector("#v-say"); if (el) el.textContent = msg; }
+
+function voiceRest(){
+  clearInterval(TICK);
+  document.querySelector("#v-rec").hidden = false;
+  document.querySelector("#v-stop").hidden = true;
+  document.querySelector("#v-time").hidden = true;
+}
+
+async function voiceStart(){
+  if (!canRecord()) return;
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({audio: true});
+  } catch (e) {
+    /* She said no, or there is no microphone. Neither is a problem. */
+    voiceSay(e && e.name === "NotAllowedError"
+      ? "No microphone, no matter — type it below instead."
+      : "That phone will not record. Type it below instead.");
+    document.querySelector("#v-rec").disabled = true;
+    return;
+  }
+  const type = bestType();
+  try { MEDIA = type ? new MediaRecorder(stream, {mimeType: type}) : new MediaRecorder(stream); }
+  catch (e) { MEDIA = new MediaRecorder(stream); }
+
+  CHUNKS = [];
+  MEDIA.ondataavailable = e => { if (e.data && e.data.size) CHUNKS.push(e.data); };
+  MEDIA.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());          /* let the light go out */
+    const blob = new Blob(CHUNKS, {type: MEDIA.mimeType || "audio/webm"});
+    const fr = new FileReader();
+    fr.onload = () => {
+      VOICE = String(fr.result);
+      const el = document.querySelector("#v-play");
+      el.src = VOICE; el.hidden = false;
+      document.querySelector("#v-drop").hidden = false;
+      document.querySelector("#v-rec").hidden = true;
+      voiceSay("ready · " + Math.round(blob.size / 1024) + " KB");
+    };
+    fr.onerror = () => voiceSay("That did not record. Try once more.");
+    fr.readAsDataURL(blob);
+  };
+
+  MEDIA.start();
+  STARTED = Date.now();
+  document.querySelector("#v-rec").hidden = true;
+  document.querySelector("#v-stop").hidden = false;
+  const time = document.querySelector("#v-time");
+  time.hidden = false;
+  voiceSay("listening…");
+  TICK = setInterval(() => {
+    const n = (Date.now() - STARTED) / 1000;
+    time.textContent = mmss(n) + " / " + mmss(VOICE_MAX);
+    if (n >= VOICE_MAX) voiceStop();                    /* it stops itself */
+  }, 200);
+}
+
+function voiceStop(){
+  voiceRest();
+  try { if (MEDIA && MEDIA.state !== "inactive") MEDIA.stop(); } catch (e) {}
+}
+
+function voiceDrop(){
+  VOICE = "";
+  const el = document.querySelector("#v-play");
+  el.pause(); el.removeAttribute("src"); el.hidden = true;
+  document.querySelector("#v-drop").hidden = true;
+  document.querySelector("#v-rec").hidden = false;
+  document.querySelector("#v-rec").disabled = false;
+  voiceSay("");
+}
+
+function voiceWire(){
+  const box = document.querySelector("#v-box");
+  if (!box) return;
+  /* No microphone in this browser: the whole thing simply is not offered. */
+  if (!canRecord()) { box.hidden = true; return; }
+  box.hidden = false;
+  document.querySelector("#v-rec").onclick  = voiceStart;
+  document.querySelector("#v-stop").onclick = voiceStop;
+  document.querySelector("#v-drop").onclick = voiceDrop;
+}
+
+let SHOT = "";
+const MAXSIDE = 1200;
+
+function shrink(file){
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type)) return reject(new Error("That is not a picture."));
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, MAXSIDE / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width  = Math.max(1, Math.round(img.width  * k));
+      c.height = Math.max(1, Math.round(img.height * k));
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      /* Down in steps until it is a sensible size, rather than one guess. */
+      let q = 0.82, out = c.toDataURL("image/jpeg", q);
+      while (out.length > 900000 && q > 0.4) { q -= 0.12; out = c.toDataURL("image/jpeg", q); }
+      resolve(out);
+    };
+    img.onerror = () => reject(new Error("That picture could not be opened."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+const kb = n => Math.round(n / 1024) + " KB";
+voiceWire();
+$("#i-pick").onclick = () => $("#i-file").click();
+$("#i-file").onchange = async () => {
+  const f = $("#i-file").files[0];
+  if (!f) return;
+  const say = $("#i-shotsay");
+  say.textContent = "getting it ready…";
+  try {
+    const before = f.size;
+    SHOT = await shrink(f);
+    $("#i-thumb").src = SHOT;
+    $("#i-shot").hidden = false;
+    $("#i-pick").hidden = true;
+    const after = SHOT.length * 0.75;
+    say.textContent = after < before * 0.92
+      ? `ready · ${kb(before)} → ${kb(after)}`
+      : `ready · ${kb(after)}`;
+  } catch (e) {
+    SHOT = "";
+    say.textContent = e.message || "That picture could not be used.";
+  }
+  $("#i-file").value = "";
+};
+$("#i-drop").onclick = () => {
+  SHOT = "";
+  $("#i-shot").hidden = true;
+  $("#i-pick").hidden = false;
+  $("#i-shotsay").textContent = "";
+};
+
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
   c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -187,7 +416,9 @@ $("#f").addEventListener("submit", async e => {
     poth:  $("#i-poth").value,
     want:  $("#i-want").value,
     pay:   $("#i-pay").value,
-    note:  $("#i-note").value
+    note:  $("#i-note").value,
+    photo: SHOT,
+    voice: VOICE
   };
 
   const stop = (why, focus) => { err.textContent = why; if (focus) $(focus).focus(); };
@@ -198,6 +429,7 @@ $("#f").addEventListener("submit", async e => {
     return stop("Please put in the whole address, so the parcel arrives.", "#i-addr");
   if (!/^\d{6}$/.test(String(body.pin).replace(/\D/g, "")))
     return stop("A pincode is six digits.", "#i-pin");
+
 
   go.disabled = true; go.textContent = "Sending…";
   try {
