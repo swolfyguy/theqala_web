@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T16:34:29Z",
+ "generated": "2026-09-10T03:32:49Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1057,7 +1057,7 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 2
      }
     }
    ]
@@ -1577,7 +1577,7 @@
   {
    "slug": "single-wati-rajwadi",
    "cover": null,
-   "next": 9,
+   "next": 15,
    "products": [
     {
      "n": 1,
@@ -1745,6 +1745,138 @@
       "min": 24,
       "max": 36,
       "qty": 5
+     }
+    },
+    {
+     "n": 9,
+     "code": "SINGLE-WATI-RAJWADI-09",
+     "folder": "photos/single-wati-rajwadi/1800",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
+     }
+    },
+    {
+     "n": 10,
+     "code": "SINGLE-WATI-RAJWADI-10",
+     "folder": "photos/single-wati-rajwadi/1800 (2)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
+     }
+    },
+    {
+     "n": 11,
+     "code": "SINGLE-WATI-RAJWADI-11",
+     "folder": "photos/single-wati-rajwadi/1800 (3)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
+     }
+    },
+    {
+     "n": 12,
+     "code": "SINGLE-WATI-RAJWADI-12",
+     "folder": "photos/single-wati-rajwadi/1800 (4)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
+     }
+    },
+    {
+     "n": 13,
+     "code": "SINGLE-WATI-RAJWADI-13",
+     "folder": "photos/single-wati-rajwadi/1800 (5)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
+     }
+    },
+    {
+     "n": 14,
+     "code": "SINGLE-WATI-RAJWADI-14",
+     "folder": "photos/single-wati-rajwadi/1800 (6)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/single-wati-rajwadi/1800 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 5,
+      "cod": true
      }
     }
    ]

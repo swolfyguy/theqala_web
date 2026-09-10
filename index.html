@@ -707,6 +707,9 @@ footer a:hover{color:var(--accent)}
           <li><a href="#/care">Care &amp; polish</a></li>
           <li><a href="#/shipping">Shipping &amp; returns</a></li>
           <li><a href="#/returns">Returns &amp; damage</a></li>
+          <li><a href="#/refunds">Refunds &amp; cancellation</a></li>
+          <li><a href="#/terms">Terms &amp; conditions</a></li>
+          <li><a href="#/privacy">Privacy policy</a></li>
         </ul>
       </div>
       <div>
@@ -810,6 +813,32 @@ const ADDRESS = {
   short: "Crystal Cube Flat 5, Lane No. 2, Vijay Nagar, Dighi 411015",
   maps:  "https://share.google/hnuQYDUO4meuP11dX"
 };
+
+/* ---------------------------------------------------------------------------
+   The four things only the shop can say, and which the legal pages need.
+
+   Cashfree's checks and Google's Merchant Center both look for these, and a
+   policy page carrying a made-up name or a made-up address is worse than no
+   page at all. Fill them in here and they appear correctly on every page at
+   once. Anything left empty is shown as a gap on the page rather than being
+   quietly invented.
+
+     legal    the name the business trades under, as it is registered — the
+              proprietor's own name is fine for a proprietorship
+     gst      the GSTIN, if the shop is registered. The site already says
+              prices are "inclusive of GST" in three places; if that is not
+              true, those lines have to change rather than this one
+     email    an address you actually read. Indian privacy rules want a named
+              person to write to, and Cashfree asks for one too
+     refund   how long money takes to come back once a refund is agreed
+   --------------------------------------------------------------------------- */
+const LEGAL = {
+  legal:  "",
+  gst:    "",
+  email:  "",
+  refund: "5 to 7 working days"
+};
+const ORNOT = v => v || `<i style="color:var(--accent);font-style:normal">[to be filled in]</i>`;
 
 /* Opening hours as numbers, so the site can say whether we are open right now.
    Days are JavaScript's: 0 is Sunday. We are shut on Monday (1). */
@@ -2020,6 +2049,13 @@ function placedView(){
   </div>`;
 }
 
+/* The date the legal pages carry, so it says when the shop last changed them. */
+const LEGAL_ON = "9 September 2026";
+/* One heading, so the legal pages read as one set rather than three. */
+const H = `<h3 style="font-family:Marcellus,serif;font-weight:400;font-size:1.25rem;margin:28px 0 8px">`;
+const WA_LINE = `<a href="https://wa.me/${WA}" target="_blank" rel="noopener"
+  style="border-bottom:1px solid var(--gold-2)">WhatsApp ${PHONES[2].label}</a>`;
+
 function page(mr, title, body){
   return `<div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">${mr}</span><h1>${esc(title)}</h1></div>
   <div class="wrap" style="padding-bottom:80px;max-width:min(720px,92vw)">${body}</div>`;
@@ -2084,6 +2120,172 @@ const PAGES = {
     </ul>
     <p style="margin-top:20px">There is no card form on this site. Send us the reference, we confirm the exact price, and the rest happens in the chat.</p>
     <p><b>The shop:</b> Dighi, Pune. Open ${HOURS}. ${CLOSED}.</p>`),
+  /* ---------------------------------------------------------------------
+     The three pages a payment gateway and Google both ask for. Written in
+     the shop's own voice and saying only what the shop actually does — the
+     policies here are the ones already followed, not boilerplate copied
+     from somewhere else. Nothing on these pages is legal advice; a lawyer
+     should read them once before the shop leans on them.
+     --------------------------------------------------------------------- */
+  terms: () => page("अटी","Terms & conditions",`
+    <p class="muted" style="font-size:.86rem">Last changed ${LEGAL_ON}.</p>
+    <p>This website is run by ${ORNOT(LEGAL.legal)}, a jewellery shop at
+       ${ADDRESS.line1}, ${ADDRESS.line2}, ${ADDRESS.area}. Ordering from us means you
+       accept what is written here. If anything below is not clear, ask us on WhatsApp
+       before you order rather than after.</p>
+
+    ${H}What we sell</h3>
+    <p>Imitation and fashion jewellery, made and finished by hand. Nothing we sell is
+       gold, silver or any precious metal, and no stone in it is a mined precious stone.
+       Where a piece is described as moissanite, AD, kundan or polki-look, that is what it
+       is — a made stone, chosen to look the part. We say this plainly because it is the
+       single thing customers most often assume otherwise.</p>
+    <p>Because every piece is finished by hand, small differences from the photograph are
+       normal: the fall of a strand, the exact shade of the plating, the placement of a
+       stone. Screens also show colour differently. What we photograph is the actual piece
+       you will receive, in daylight, and we will show it to you on a video call before you
+       order if you ask.</p>
+
+    ${H}Prices</h3>
+    <p>Prices are in Indian rupees and include GST${LEGAL.gst ? ` (GSTIN ${LEGAL.gst})` : ""}.
+       Shipping is free over ${rupees(SHIP_FREE_OVER)} and ${rupees(SHIP_FLAT)} below that.
+       Cash on delivery, where it is offered on a piece, costs ${rupees(COD_EXTRA)} extra,
+       which is what the courier charges us for carrying cash.</p>
+    <p>We may change a price at any time, but never on an order already placed. If a piece
+       is listed at a price that is obviously wrong — a typing slip on our side — we will
+       tell you before taking any money, and you may cancel.</p>
+
+    ${H}Placing an order</h3>
+    <p>An order placed on this site is a request, not a completed sale. It becomes a sale
+       when we confirm it to you — normally on WhatsApp, usually within the hour on a
+       working day. Until then we may decline it, and we will say why.</p>
+    <p>Nearly everything here is one of a kind. Two people can reach the last one at the
+       same moment, and the website holds a piece for whoever is written into the order
+       book first. If the piece has gone, we will tell you at once and refund anything
+       already paid, in full.</p>
+    <p>Poth length is settled with you before anything is made. Tell us the length in
+       inches, or tell us your height and we will advise.</p>
+
+    ${H}Paying</h3>
+    <p>You can pay online, pay at the shop in Dighi, or — on pieces marked for it — pay the
+       courier at your door. Online payments are handled by our payment gateway; we never
+       see or keep your card, UPI or bank details. If a payment fails or is left half done,
+       no order is confirmed and any amount debited comes back to you through the same
+       route, normally within ${LEGAL.refund}.</p>
+
+    ${H}Delivery</h3>
+    <p>We send insured, tracked parcels across India. We do not ship outside India. Once a
+       parcel is handed to the courier the delivery time is theirs, not ours — we will
+       chase it with you, but we cannot promise a date they have not given us.</p>
+    <p>Please give an address someone can receive at. A parcel returned to us because
+       nobody was there can be sent again at your cost.</p>
+
+    ${H}Returns</h3>
+    <p>Set out in full on the <a href="#/returns" style="border-bottom:1px solid var(--gold-2)">Returns
+       &amp; damage</a> page, which is part of these terms.</p>
+
+    ${H}Photographs and words</h3>
+    <p>The photographs, the writing and the designs on this site are ours. Please do not
+       copy them to sell the same pieces elsewhere.</p>
+
+    ${H}When something goes wrong</h3>
+    <p>Tell us first. We are a small shop and we would rather put a thing right than argue
+       about it. If it cannot be settled between us, the courts at Pune, Maharashtra will
+       decide, under Indian law.</p>
+
+    ${H}Reaching us</h3>
+    <p>${WA_LINE}<br>
+       ${ORNOT(LEGAL.email)}<br>
+       ${ADDRESS.line1}, ${ADDRESS.line2}, ${ADDRESS.area}<br>
+       ${HOURS}. ${CLOSED}.</p>`),
+
+  privacy: () => page("गोपनीयता","Privacy policy",`
+    <p class="muted" style="font-size:.86rem">Last changed ${LEGAL_ON}.</p>
+    <p>We ask for very little, and we would rather explain it in plain words than in the
+       usual page nobody reads.</p>
+
+    ${H}What we ask for, and why</h3>
+    <p>To send you a parcel we need your <b>name, phone number and full address with the
+       pincode</b>. To make a piece to fit we need your <b>poth length</b>. That is all the
+       order form asks for, and all of it is on your order in our book.</p>
+    <p>If you write to us on WhatsApp or Instagram, that conversation sits with WhatsApp or
+       Instagram under their own rules, not ours. We keep the part of it that concerns your
+       order.</p>
+
+    ${H}What we never see</h3>
+    <p>Card numbers, UPI IDs, bank details, passwords. Online payments go through a payment
+       gateway that handles them; nothing of that kind reaches us or is stored on our
+       website. We are told only whether a payment succeeded, and a reference number.</p>
+
+    ${H}Who else sees it</h3>
+    <p>Only the people who have to: the <b>courier</b>, who is given your name, address and
+       phone so the parcel arrives, and the <b>payment gateway</b>, if you pay online. We do
+       not sell your details to anybody, we do not swap them with other shops, and we do not
+       send them abroad.</p>
+
+    ${H}Counting visitors</h3>
+    <p>The site keeps a rough count of how many people are looking at it just now, and how
+       many orders were placed. Where Google Analytics is switched on, it also records which
+       pages were opened and which pieces were looked at, using cookies in your browser.
+       Google is told what happened on the site, never who you are: your name, number and
+       address never leave our own order book. You can turn cookies off in your browser and
+       the shop still works, and the site never asks for your location.</p>
+
+    ${H}How long we keep it</h3>
+    <p>Orders stay in the book while they matter to us — for the guarantee, for the accounts,
+       and because customers come back and ask what they bought last year. An order you ask
+       us to remove is taken out of the book, other than anything the tax rules make us keep.</p>
+
+    ${H}Asking us to change or remove it</h3>
+    <p>Write to us and we will tell you what we hold about you, correct anything wrong, or
+       take it out. Message ${WA_LINE} or ${ORNOT(LEGAL.email)}, and we will answer within a
+       week. If you are unhappy with how we handled it, say so to the same address — that is
+       our grievance contact under the Indian rules — and if it is still not settled you may
+       take it to the authorities.</p>
+
+    ${H}Children</h3>
+    <p>This shop is for adults. We do not knowingly take orders from anyone under eighteen.</p>
+
+    ${H}This page changing</h3>
+    <p>If we change what we do, we change this page and the date at the top of it.</p>`),
+
+  refunds: () => page("परतफेड","Refunds & cancellation",`
+    <p class="muted" style="font-size:.86rem">Last changed ${LEGAL_ON}. This is about the money.
+       What we do about a damaged or unwanted piece is on the
+       <a href="#/returns" style="border-bottom:1px solid var(--gold-2)">Returns &amp; damage</a> page.</p>
+
+    ${H}Cancelling</h3>
+    <p>Before we have dispatched it, you may cancel for any reason at all — message us and it
+       is done. Anything you have paid comes back in full.</p>
+    <p>Once it has been handed to the courier it cannot be cancelled, because it is already
+       on its way to you.</p>
+
+    ${H}When we cancel</h3>
+    <p>Rarely, and only for an honest reason: the piece turns out to have gone to somebody
+       else, or it does not pass our own check before packing. We tell you at once and refund
+       everything, including any shipping you paid.</p>
+
+    ${H}When money comes back</h3>
+    <p>We start a refund the same working day we agree to it. It reaches you within
+       ${LEGAL.refund}, through the same route you paid by — the card, the UPI app or the
+       bank account the money came from. We cannot send it anywhere else, and we never refund
+       in cash against an online payment.</p>
+    <p>A payment that failed but still shows as debited is not a refund from us: the gateway
+       or your bank releases it on its own, normally within ${LEGAL.refund}. Send us the
+       reference and we will chase it with the gateway alongside you.</p>
+
+    ${H}What is refunded</h3>
+    <p>The price of the piece, always. Shipping too, if the fault was ours or the parcel
+       arrived damaged. On a cash-on-delivery order there is nothing for us to refund unless
+       you have already paid the courier.</p>
+
+    ${H}If it has not arrived</h3>
+    <p>Message us with the order code and we will chase the courier. If the parcel is
+       genuinely lost, we replace the piece where we still have one, and refund in full where
+       we do not.</p>
+
+    ${H}Reaching us about a refund</h3>
+    <p>${WA_LINE}, with the order code — ${ORNOT(LEGAL.email)} — ${HOURS}. ${CLOSED}.</p>`),
   returns: () => page("परतावा","Returns & damage",`
     <p>We photograph every piece in daylight, in the state it will reach you, and we will happily
        show it to you on a video call before you order. So please read this once — it is short and
