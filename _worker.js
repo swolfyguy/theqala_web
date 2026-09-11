@@ -140,7 +140,28 @@ export default {
 
       return env.ASSETS.fetch(request);
     } catch (err) {
-      /* A bug in here must never take the shop down. */
+      /* A bug in here must never take the shop down — a customer looking at a
+         necklace should still see the necklace.
+
+         But this net was catching too much. An API call that went wrong was
+         being answered with the website: the browser asked to save something,
+         got a page of HTML back, and could only report that "<!DOCTYPE" is not
+         valid JSON. Worse, the request handed to ASSETS here has usually had
+         its body read already, and replaying it is what turns a small mistake
+         into a Worker exception and a Cloudflare error page.
+
+         So the net is now split. A page request still falls through to the
+         website. Anything that asked for JSON gets JSON back, saying what
+         happened, and the order book can show it in words. */
+      const said = String((err && err.message) || err);
+      /* Worked out again here rather than reached for: the ones above belong
+         to the try block and are not in scope once it has fallen over. */
+      let here = "/";
+      try { here = new URL(request.url).pathname; } catch (e) {}
+      const api = here.startsWith("/api/")
+              || here.startsWith("/office/")
+              || request.method !== "GET";
+      if (api) return json({ok: false, why: "The shop hit an error: " + said}, 500);
       try { return await env.ASSETS.fetch(request); }
       catch { return new Response("Temporarily unavailable", {status: 503}); }
     }
@@ -1095,7 +1116,28 @@ async function updateOrder(request, env, who = "") {
   sets.push("updated_at = ?"); bind.push(new Date().toISOString());
   bind.push(ref);
 
-  await env.DB.prepare(`UPDATE orders SET ${sets.join(", ")} WHERE ref = ?`).bind(...bind).run();
+  /* The write itself, with its own net under it.
+
+     Everything in this file runs inside one big try/catch that falls back to
+     serving the website, so that a bug can never take the shop down. That is
+     right for a page and wrong for an API: a database error here would come
+     back to the order book as a page of HTML, and the only thing the browser
+     could say about it was that "<!DOCTYPE" is not valid JSON — which tells
+     whoever is standing at the counter precisely nothing.
+
+     The commonest cause by far is a column this code knows about and the
+     database does not, because an ALTER TABLE has not been run yet. So it is
+     caught here and named. */
+  try {
+    await env.DB.prepare(`UPDATE orders SET ${sets.join(", ")} WHERE ref = ?`).bind(...bind).run();
+  } catch (err) {
+    const said = String((err && err.message) || err);
+    const missing = /no such column:?\s*(\w+)/i.exec(said);
+    return json({ok: false, why: missing
+      ? `The order book is asking for a column the database does not have yet — ${missing[1]}. `
+        + `Run the ALTER TABLE line for it in the D1 console, then try again.`
+      : `The order book could not write that: ${said}`}, 500);
+  }
   const row = await env.DB.prepare("SELECT * FROM orders WHERE ref = ?").bind(ref).first();
   if (!row) return json({ok: false, why: "not found"}, 404);
   return json({ok: true, order: {...row, items: safeItems(row.items)}});
