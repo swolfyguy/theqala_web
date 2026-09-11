@@ -39,7 +39,10 @@ const SCHEMA = fs.readFileSync(path.join(ROOT, "schema.sql"), "utf8")
 const LATER = [
   "ALTER TABLE orders ADD COLUMN poth TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN source TEXT NOT NULL DEFAULT 'site'",
-  "ALTER TABLE orders ADD COLUMN photo TEXT DEFAULT ''"
+  "ALTER TABLE orders ADD COLUMN photo TEXT DEFAULT ''",
+  "ALTER TABLE orders ADD COLUMN memo TEXT DEFAULT ''",
+  "ALTER TABLE orders ADD COLUMN memo_by TEXT DEFAULT ''",
+  "ALTER TABLE orders ADD COLUMN memo_at TEXT DEFAULT ''"
 ];
 
 const ready = db => {

@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS orders (
   note       TEXT DEFAULT '',
   source     TEXT NOT NULL DEFAULT 'site',
   photo      TEXT DEFAULT '',
+  memo       TEXT DEFAULT '',   -- the shop's own instruction on this order
+  memo_by    TEXT DEFAULT '',   -- who last wrote it
+  memo_at    TEXT DEFAULT '',   -- and when
   updated_at TEXT
 );
 
@@ -136,3 +139,13 @@ CREATE INDEX IF NOT EXISTS logins_by_ip ON logins (ip, at DESC);
 --     SELECT name FROM sqlite_master WHERE type = 'table'
 --     PRAGMA table_info(orders)
 -- =====================================================================
+
+-- How many people watched the how-to film. One row per day per moment, so
+-- four rows a day at most, and nothing in them that says who.
+-- `what` is one of: howto_shown, howto_open, howto_half, howto_finished
+CREATE TABLE IF NOT EXISTS tally (
+  day  TEXT NOT NULL,
+  what TEXT NOT NULL,
+  n    INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, what)
+);

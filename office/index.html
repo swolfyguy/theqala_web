@@ -193,6 +193,21 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .act.gone{border-color:var(--accent);color:var(--accent)}
 .act.gone.armed{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
 .binnote{padding:0 16px 12px;color:var(--ink-2);font-size:.84rem}
+/* The shop's own instruction on an order. Deliberately plain — a box you
+   type in, not a form you submit. */
+.memo{margin-top:4px}
+.memo textarea{width:100%;min-height:66px;resize:vertical;padding:10px 12px;
+  border:1px solid var(--line-2);border-radius:10px;background:var(--panel);
+  color:inherit;font:inherit;font-size:.9rem;line-height:1.5}
+.memo textarea::placeholder{color:var(--ink-2);opacity:.75}
+.memo textarea:focus{outline:none;border-color:var(--gold-2);
+  box-shadow:0 0 0 3px var(--wash-gold)}
+.memo .m-say{display:block;margin-top:5px;font-size:.76rem;color:var(--ink-2);
+  min-height:1.1em}
+.memo .m-say.bad{color:var(--accent)}
+/* A pencil on the closed row, so an order carrying an instruction can be
+   picked out without opening every one. */
+.pen{color:var(--gold);font-size:.85rem;margin-left:5px}
 
 .more{border-top:1px solid var(--line);background:var(--ground)}
 .more[hidden]{display:none}
@@ -336,6 +351,7 @@ const RANGES = [
 const STAFF = ["9011240352","7558209163","9579628754"];
 
 let VIEW = "all", RANGE = "7d", FROM = "", TO = "", ORDERS = [], COUNTS = {}, TIMER = null;
+let YOU = "";        /* whoever is signed in, for stamping an instruction */
 let OPEN = new Set();          // which orders are expanded
 
 /* Remember how you last left it, so the book opens the way you use it. */
@@ -550,6 +566,7 @@ async function load(){
   $("#pick").hidden = RANGE !== "picked";
   $("#csv").href = url + "&format=csv";
   $("#msg").innerHTML = "";
+  YOU = data.you || "";
   $("#who").textContent = data.you ? "signed in as " + data.you : "";
   COUNTS = {};
   (data.counts || []).forEach(c => { COUNTS[c.status] = c.n; });
@@ -716,7 +733,8 @@ function row(o){
       <span class="ref">${esc(o.ref)}</span>
       <span class="who">${cameFrom(o) ? `<b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b> ` : ""
         }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span></span>
-      <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}</span>
+      <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}${
+        o.memo ? `<span class="pen" title="${esc(o.memo)}">\u270e</span>` : ""}</span>
       <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
       <span class="pay ${payTag(o).cls}" title="${esc(payTag(o).why)}">${esc(payTag(o).t)}</span>
       <span class="money">${cameFrom(o) && !o.total
@@ -798,6 +816,15 @@ function detail(o){
                src="/office/note/${encodeURIComponent(o.ref)}"></audio>` : ""}
         ${o.note ? `<h3>To remember</h3>
         <div class="who-lines">${esc(o.note)}</div>` : ""}
+        <h3>Instruction</h3>
+        <div class="memo">
+          <textarea class="m-box" rows="2" maxlength="1000"
+            placeholder="Anything whoever packs this needs to know. Optional."
+            aria-label="Instruction for this order">${esc(o.memo || "")}</textarea>
+          <span class="m-say">${o.memo && o.memo_by
+            ? "written by " + esc(o.memo_by) + (o.memo_at ? " \u00b7 " + esc(ago(o.memo_at)) : "")
+            : ""}</span>
+        </div>
         ${perItem ? "" : `<h3>Poth length</h3>
         <div>${o.poth ? `<span class="poth">${esc(o.poth)} inches</span>`
                       : `<span style="color:var(--ink-2)">to be settled on WhatsApp</span>`}</div>`}
@@ -893,15 +920,78 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); }
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); }
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); }
   });
 }
 
 /* Changing how an order is being paid for. The shipping and the cash-on-delivery
    charge are worked out again on the server, from the price already on the row,
    so the book is read back rather than patched from here. */
+/* ---------------------------------------------------------------------------
+   The instruction box.
+
+   It saves itself. There is no button, because a button on a box like this is
+   a button somebody forgets to press — and then the instruction that was
+   supposed to travel with the parcel is sitting unsaved in a tab.
+
+   So: a second and a half after she stops typing, or the moment she clicks
+   away, whichever comes first. What it says underneath is the truth about the
+   saved copy, never about what is on screen.
+   --------------------------------------------------------------------- */
+function bindMemo(el, ref){
+  const box = el.querySelector(".m-box");
+  const say = el.querySelector(".m-say");
+  if (!box || box.dataset.wired) return;
+  box.dataset.wired = "1";
+
+  let saved = box.value;
+  let timer = null, busy = false;
+
+  const send = async () => {
+    clearTimeout(timer);
+    const want = box.value.trim();
+    if (busy || want === saved.trim()) return;
+    busy = true;
+    say.textContent = "saving…"; say.className = "m-say";
+    try {
+      const r = await api("/office/api", {
+        method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, memo: want})
+      });
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      saved = want;
+      /* Say who and when from here rather than asking the book again — one
+         box being typed in is not a reason to refetch every order. */
+      say.textContent = want
+        ? "saved · " + (YOU || "you") + " · just now"
+        : "cleared";
+      say.className = "m-say";
+      const row = el.querySelector(".meta");
+      if (row) {
+        const pen = row.querySelector(".pen");
+        if (want && !pen) row.insertAdjacentHTML("beforeend",
+          `<span class="pen" title="${esc(want)}">✎</span>`);
+        if (!want && pen) pen.remove();
+        if (want && pen) pen.title = want;
+      }
+      const o = ORDERS.find(x => x.ref === ref);
+      if (o) o.memo = want;
+    } catch (err) {
+      say.textContent = "not saved — " + err.message;
+      say.className = "m-say bad";
+    } finally { busy = false; }
+  };
+
+  box.oninput = () => { clearTimeout(timer); timer = setTimeout(send, 1500); };
+  box.onblur  = send;
+  /* Leaving the page with something half-typed should still keep it. */
+  addEventListener("pagehide", () => { if (box.value.trim() !== saved.trim()) send(); });
+}
+
 function bindPay(el, ref){
   const pick = el.querySelector(".p-pay");
   const say  = el.querySelector(".p-say");

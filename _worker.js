@@ -116,6 +116,8 @@ export default {
       if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
       if (path === "/api/ref"       && request.method === "GET")  return peekRef(env);
       if (path === "/api/here"      && request.method === "POST") return whoIsHere(request, env);
+      if (path === "/api/seen"      && request.method === "POST") return countSeen(request, env);
+      if (path === "/office/tally"  && request.method === "GET")  return tallyOut(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
@@ -480,6 +482,61 @@ async function whoIsHere(request, env) {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   A tally of the how-to film.
+
+   The shop wants one plain answer: is anybody watching it? So four moments
+   are counted — it was there, she turned the sound on, she got past halfway,
+   she watched it out — and nothing else. Four numbers a day.
+
+   What is NOT counted is as deliberate as what is. No visitor is identified,
+   nothing is stored per person, and no row can be joined to an order. The
+   browser counts each moment once a day for itself and then stops asking, so
+   a person who watches the film four times is one watch, which is the honest
+   number and also the cheap one: a handful of rows a day, not a row a tap.
+
+   A name not on this list is refused outright. The endpoint is open to the
+   world, so the world may only add to four counters and may not invent a
+   fifth. */
+const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished"];
+
+const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
+
+async function countSeen(request, env) {
+  if (!env.DB) return json({ok: true});
+
+  let what = "";
+  try { what = String((await request.json()).what || ""); } catch (e) {}
+  if (!TALLIES.includes(what)) return json({ok: false, why: "Not counted."}, 400);
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO tally (day, what, n) VALUES (?, ?, 1)
+       ON CONFLICT(day, what) DO UPDATE SET n = n + 1`)
+      .bind(dayStamp(), what).run();
+  } catch (err) {
+    /* No table yet. Counting is not worth a broken page. */
+  }
+  return json({ok: true}, 200, {"cache-control": "no-store"});
+}
+
+/* The numbers, for the order book. Days newest first, and the shop adds them
+   up however it likes at the other end. */
+async function tallyOut(request, env) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return json({ok: false, why: "Sign in first."}, 401);
+  if (!env.DB)  return json({ok: true, days: []});
+
+  try {
+    const res = await env.DB.prepare(
+      "SELECT day, what, n FROM tally ORDER BY day DESC").all();
+    return json({ok: true, rows: (res && res.results) || []},
+                200, {"cache-control": "no-store"});
+  } catch (err) {
+    return json({ok: true, rows: []}, 200, {"cache-control": "no-store"});
+  }
+}
+
 /* Anything on this order that somebody else has already taken. */
 async function soldOut(env, items) {
   const [made, taken] = await Promise.all([howManyMade(env), takenNow(env)]);
@@ -745,7 +802,7 @@ async function officeApi(request, env, url) {
   if (!env.DB)  return json({ok: false, why: "The DB binding is not attached to this project yet."}, 503);
 
   if (request.method === "GET")  return listOrders(env, url, who.who);
-  if (request.method === "POST") return updateOrder(request, env);
+  if (request.method === "POST") return updateOrder(request, env, who.who);
   return json({ok: false, why: "method"}, 405);
 }
 
@@ -904,7 +961,7 @@ async function listOrders(env, url, who) {
                 range: picked ? "picked" : range});
 }
 
-async function updateOrder(request, env) {
+async function updateOrder(request, env, who = "") {
   let b;
   try { b = await request.json(); } catch { return json({ok: false, why: "bad body"}, 400); }
 
@@ -935,6 +992,26 @@ async function updateOrder(request, env) {
     sets.push("status = ?"); bind.push(b.status);
   }
   if (b.note != null) { sets.push("note = ?"); bind.push(String(b.note).slice(0, 500)); }
+
+  /* ---------------------------------------------------------------------
+     An instruction on the order — the shop's own words, not the customer's.
+
+     "Pack the thushi separately." "Ring before the van goes." "Her sister is
+     collecting." The sort of thing that is currently said once across the
+     counter and forgotten by the time the parcel is taped.
+
+     Deliberately separate from `note`, which is what the customer wrote and
+     must never be typed over. This one is optional, overwritten rather than
+     added to, and stamped with who last touched it so that three people
+     sharing one book can tell whose instruction it is.
+
+     An empty box clears it, and clears the stamp with it — an instruction
+     that has been rubbed out should not leave a signature behind. */
+  if (b.memo != null) {
+    const memo = String(b.memo).replace(/\r\n/g, "\n").trim().slice(0, 1000);
+    sets.push("memo = ?", "memo_by = ?", "memo_at = ?");
+    bind.push(memo, memo ? who : "", memo ? new Date().toISOString() : "");
+  }
 
   /* How she is paying, put right afterwards: she rang and said she would
      rather come and collect it, or pay online instead of cash at the door.
@@ -1028,7 +1105,7 @@ const safeItems = s => { try { return JSON.parse(s) || []; } catch { return []; 
 
 function toCsv(rows) {
   const head = ["ref", "placed_at", "status", "came_from", "name", "phone", "pincode", "address",
-                "pay", "poth", "pieces", "goods", "shipping", "cod_fee", "total", "note"];
+                "pay", "poth", "pieces", "goods", "shipping", "cod_fee", "total", "note", "instruction", "instruction_by"];
   const cell = v => {
     const s = v == null ? "" : String(v);
     /* A leading =, +, - or @ is how a spreadsheet gets tricked into running
@@ -1041,7 +1118,7 @@ function toCsv(rows) {
     r.name, "'" + r.phone, r.pincode, r.address, r.pay,
     r.poth ? r.poth + " in" : "",
     r.items.map(i => `${i.code} x${i.qty}`).join(" | "),
-    r.goods, r.shipping, r.cod_fee, r.total, r.note
+    r.goods, r.shipping, r.cod_fee, r.total, r.note, r.memo, r.memo_by
   ].map(cell).join(",");
   return "﻿" + [head.join(","), ...rows.map(line)].join("\r\n");
 }
