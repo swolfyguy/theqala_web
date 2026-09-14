@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-11T07:49:00Z",
+ "generated": "2026-09-14T12:55:13Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -243,7 +243,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 4
+      "qty": 4,
+      "cod": true
      }
     },
     {
@@ -541,27 +542,6 @@
      }
     },
     {
-     "n": 19,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-19",
-     "folder": "photos/double-wati-rajwadi-handmade/1700 (3)",
-     "title": "",
-     "price": 1700,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1700 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 2
-     }
-    },
-    {
      "n": 20,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-20",
      "folder": "photos/double-wati-rajwadi-handmade/1700 (4)",
@@ -815,46 +795,6 @@
      }
     },
     {
-     "n": 8,
-     "code": "HAND-MADE-RAJWADI-08",
-     "folder": "photos/hand-made-rajwadi/1000 (8)",
-     "title": "",
-     "price": 1000,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1000 (8)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     }
-    },
-    {
-     "n": 15,
-     "code": "HAND-MADE-RAJWADI-15",
-     "folder": "photos/hand-made-rajwadi/1100",
-     "title": "",
-     "price": 1100,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1100/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
      "n": 16,
      "code": "HAND-MADE-RAJWADI-16",
      "folder": "photos/hand-made-rajwadi/1100 (2)",
@@ -871,48 +811,6 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
-     "n": 30,
-     "code": "HAND-MADE-RAJWADI-30",
-     "folder": "photos/hand-made-rajwadi/1100 (8)",
-     "title": "",
-     "price": 1100,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1100 (8)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
-     "n": 31,
-     "code": "HAND-MADE-RAJWADI-31",
-     "folder": "photos/hand-made-rajwadi/1100 (9)",
-     "title": "",
-     "price": 1100,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1100 (9)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
       "max": 36,
       "qty": 1
      }
@@ -939,27 +837,6 @@
      }
     },
     {
-     "n": 26,
-     "code": "HAND-MADE-RAJWADI-26",
-     "folder": "photos/hand-made-rajwadi/1400 (2)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
      "n": 27,
      "code": "HAND-MADE-RAJWADI-27",
      "folder": "photos/hand-made-rajwadi/1400 (3)",
@@ -971,27 +848,6 @@
      },
      "images": [
       "photos/hand-made-rajwadi/1400 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
-     "n": 32,
-     "code": "HAND-MADE-RAJWADI-32",
-     "folder": "photos/hand-made-rajwadi/1400 (4)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (4)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
@@ -1044,27 +900,6 @@
      }
     },
     {
-     "n": 35,
-     "code": "HAND-MADE-RAJWADI-35",
-     "folder": "photos/hand-made-rajwadi/1400 (7)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (7)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
      "n": 12,
      "code": "HAND-MADE-RAJWADI-12",
      "folder": "photos/hand-made-rajwadi/1500",
@@ -1076,27 +911,6 @@
      },
      "images": [
       "photos/hand-made-rajwadi/1500/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
-     "n": 13,
-     "code": "HAND-MADE-RAJWADI-13",
-     "folder": "photos/hand-made-rajwadi/1500 (2)",
-     "title": "",
-     "price": 1500,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1500 (2)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
@@ -1255,27 +1069,6 @@
       "min": 36,
       "max": 40,
       "qty": 2
-     }
-    },
-    {
-     "n": 18,
-     "code": "RAJWADI-18",
-     "folder": "photos/rajwadi/3500 (2)",
-     "title": "",
-     "price": 3500,
-     "band": {
-      "min": 3000,
-      "max": 4000
-     },
-     "images": [
-      "photos/rajwadi/3500 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 1
      }
     },
     {
@@ -1594,27 +1387,6 @@
    "next": 5,
    "products": [
     {
-     "n": 1,
-     "code": "RANI-HAAR-01",
-     "folder": "photos/rani-haar/1200",
-     "title": "",
-     "price": 1200,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/rani-haar/1200/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
      "n": 2,
      "code": "RANI-HAAR-02",
      "folder": "photos/rani-haar/1200 (2)",
@@ -1864,28 +1636,6 @@
      },
      "images": [
       "photos/single-wati-rajwadi/1800/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     }
-    },
-    {
-     "n": 10,
-     "code": "SINGLE-WATI-RAJWADI-10",
-     "folder": "photos/single-wati-rajwadi/1800 (2)",
-     "title": "",
-     "price": 1800,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/single-wati-rajwadi/1800 (2)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
@@ -2181,27 +1931,6 @@
      }
     },
     {
-     "n": 14,
-     "code": "VICTORIAN-14",
-     "folder": "photos/victorian/1300 (9)",
-     "title": "",
-     "price": 1300,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/victorian/1300 (9)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
      "n": 15,
      "code": "VICTORIAN-15",
      "folder": "photos/victorian/1300 (10)",
@@ -2213,27 +1942,6 @@
      },
      "images": [
       "photos/victorian/1300 (10)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1
-     }
-    },
-    {
-     "n": 16,
-     "code": "VICTORIAN-16",
-     "folder": "photos/victorian/1300 (11)",
-     "title": "",
-     "price": 1300,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/victorian/1300 (11)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
