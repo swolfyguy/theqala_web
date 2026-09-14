@@ -223,6 +223,8 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .rise.in{opacity:1;transform:none}
 
 /* ---------- ornament rules ---------- */
+.catcard .seeall{font-size:.82rem;color:var(--accent);letter-spacing:.02em}
+
 .saaj{height:16px;background-image:radial-gradient(circle at 10px 8px,var(--gold-2) 0 3px,transparent 3.4px),linear-gradient(var(--line-2),var(--line-2));background-size:20px 16px,100% 1px;background-repeat:repeat-x,no-repeat;background-position:center,center}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
@@ -1762,6 +1764,39 @@ function card(it){
       few ? `<span class="few">${few} left</span>` : ""}</div>
   </a>`;
 }
+/* A card that stands for a shelf rather than a piece.
+
+   The front page shows one of these per category. Tapping it opens that
+   shelf — which is what a person expects when the tile is plainly standing
+   in for a whole kind of jewellery. It used to open the single piece whose
+   photograph happened to be on it, which meant seven of the eight ways into
+   the shop led to one necklace each and the other twenty in that category
+   were never offered.
+
+   So it carries no price and no heart: it is not a piece, and promising a
+   price the shelf behind it does not all share would be a small lie. It
+   says what the kind is called, how many are in it, and what the cheapest
+   one costs. */
+function catCard(c){
+  const mine  = ITEMS.filter(i => i.cat === c.slug);
+  if (!mine.length) return "";
+  const face  = mine.find(i => i.images && i.images.length) || mine[0];
+  const name  = catName(c.slug);
+  const from  = Math.min(...mine.map(i => i.price));
+  const going = mine.filter(i => !soldOut(i)).length;
+
+  return `<a class="card rise catcard" href="#/shop?c=${encodeURIComponent(c.slug)}">
+    <div class="arch">${mark()}${shot(face.images[0], {alt: name.en + " jewellery at The Qala"})}</div>
+    <div>
+      <span class="mr">${esc(name.mr)}</span>
+      <h3>${esc(name.en)}</h3>
+      <p class="meta">${mine.length} piece${mine.length === 1 ? "" : "s"}${
+        going ? ` \u00b7 from ${rupees(from)}` : " \u00b7 all spoken for"}</p>
+    </div>
+    <div class="price"><span class="seeall">See all ${mine.length} →</span></div>
+  </a>`;
+}
+
 function saajRule(){ return `<div class="saaj" aria-hidden="true"></div>`; }
 
 function nothingYet(where){
@@ -1779,10 +1814,9 @@ function nothingYet(where){
 function home(){
   const hero = (CATALOGUE.hero || {});
   const cats = catsInUse();
-  const featured = [];
-  const pool = catsInUse().map(c => ITEMS.filter(i => i.cat === c.slug));
-  for (let round = 0; featured.length < 8 && round < 12; round++)
-    pool.forEach(list => { if (list[round] && featured.length < 8) featured.push(list[round]); });
+  /* One card per kind of jewellery, in the shop's own order. Every category
+     gets a way in, and none of them is represented twice. */
+  const shelves = catsInUse();
 
   return `
   <section class="hero">
@@ -1811,10 +1845,10 @@ function home(){
 
   <section class="band wrap">
     <div class="sechead">
-      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>New in the studio</h2></div>
+      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What we make</h2></div>
       <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
     </div>
-    <div class="grid">${featured.map(card).join("")}</div>
+    <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
 
   <section class="story">
