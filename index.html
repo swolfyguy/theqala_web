@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Qala</title>
+<title>The Qala — Rajwadi &amp; Victorian Jewellery, Dighi, Pune</title>
 <meta name="description" content="Rajwadi, Victorian and moissanite jewellery, made by hand in Dighi, Pune. Order on WhatsApp.">
 <link rel="canonical" href="https://theqalashree.com/">
 <!-- How the site looks when a link is shared on WhatsApp or Instagram.
@@ -16,6 +16,64 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="photos/apple-touch-icon.png">
 <meta name="theme-color" content="#8E1F31">
+
+<!-- ---------------------------------------------------------------------
+     What the shop is, written so a search engine can read it.
+
+     This is the one piece of search work that pays off while the addresses
+     still live behind a #: it is about the shop itself, not its pages. It
+     is what lets Google put the hours, the telephone number and the way to
+     the door beside the name, and it ties the website to the Google
+     listing for the shop in Dighi.
+
+     Every fact here is repeated somewhere a visitor can see it, which is
+     both the rule and the point.
+     --------------------------------------------------------------------- -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JewelryStore",
+  "@id": "https://theqalashree.com/#shop",
+  "name": "The Qala",
+  "alternateName": "कला",
+  "url": "https://theqalashree.com/",
+  "image": "https://theqalashree.com/photos/logo-square.jpg",
+  "description": "Rajwadi, Victorian and moissanite jewellery — thushi, saaj, mangalsutra, bangles and bridal pieces — made by hand in Dighi, Pune and sent insured across India.",
+  "telephone": "+91-90112-40352",
+  "priceRange": "₹₹",
+  "currenciesAccepted": "INR",
+  "paymentAccepted": "Cash, UPI, Cash on delivery",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Crystal Cube, Flat 5, Lane No. 2, Ambedkar Wasti, Vijay Nagar",
+    "addressLocality": "Dighi, Pune",
+    "addressRegion": "Maharashtra",
+    "postalCode": "411015",
+    "addressCountry": "IN"
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    "opens": "09:00",
+    "closes": "21:00"
+  }],
+  "sameAs": [
+    "https://www.instagram.com/theqala_com",
+    "https://www.instagram.com/qala_shree/"
+  ],
+  "areaServed": {"@type": "Country", "name": "India"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "The Qala",
+  "url": "https://theqalashree.com/",
+  "publisher": {"@id": "https://theqalashree.com/#shop"},
+  "inLanguage": ["en-IN", "mr-IN"]
+}
+</script>
 <script>
 /* If the logo artwork is missing, show the typeset name rather than a broken
    picture. Declared here because the header <img> can fail before the main
@@ -924,6 +982,27 @@ function startTags(){
 /* Every call goes through here, so with nothing configured the whole thing is
    a function that returns. */
 let SEEN = "";                 // the page last counted, so none is counted twice
+/* Our own tally of the how-to film, kept in the shop's own book rather than
+   anybody else's. Google may or may not be switched on; this works either way
+   and the number lands on the order book page where it will actually be read.
+
+   Each moment counts once per browser per day. Somebody who watches the film
+   three times is one watch — which is the number the shop wants, and it also
+   keeps the writing down to a handful of rows a day. keepalive lets the last
+   one through even if she is already tapping away to another page. */
+function seen(what){
+  const key = "qala.seen." + what + "." + new Date().toISOString().slice(0, 10);
+  try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "1"); }
+  catch (e) { /* no storage — count it anyway, once for this page */ }
+  try {
+    fetch("/api/seen", {
+      method: "POST", keepalive: true,
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify({what})
+    }).catch(() => {});
+  } catch (e) {}
+}
+
 function track(name, params){
   if (typeof gtag !== "function") return;
   try { gtag("event", name, params || {}); } catch (e) {}
@@ -2616,6 +2695,69 @@ async function freshenStock(){
   if (JSON.stringify(LEFT) !== before) render();
 }
 
+/* ---------------------------------------------------------------------------
+   What this page is called.
+
+   One document serves the whole shop, so without this every screen is called
+   "The Qala" — in the browser tab, in the bookmark, in the list of open tabs
+   on a phone, and in the history. Somebody comparing two pieces in two tabs
+   could not tell which was which.
+
+   It does not make Google index these as separate pages — what follows a #
+   is not a page to Google, and no amount of renaming changes that. This is
+   for the person, not the search engine: a tab that says what is in it, and
+   a bookmark worth keeping.
+   --------------------------------------------------------------------- */
+const PAGE_TITLES = {
+  contact:  "Contact us",
+  story:    "Our story",
+  care:     "Care & polish",
+  shipping: "Shipping & cash on delivery",
+  returns:  "Returns & damage",
+  terms:    "Terms & conditions",
+  privacy:  "Privacy policy",
+  refunds:  "Refunds & cancellation"
+};
+const SHOP_NAME = "The Qala";
+const SHOP_FULL = "The Qala — Rajwadi & Victorian Jewellery, Dighi, Pune";
+
+function nameThePage(r, parts, params){
+  let title = SHOP_FULL, desc = "";
+
+  if (r === "piece") {
+    const it = byCode(parts[1]);
+    if (it) {
+      title = `${titleOf(it)} · ${priceOf(it)} · ${SHOP_NAME}`;
+      desc  = `${titleOf(it)} — handmade ${it.catEn.toLowerCase()} at ${priceOf(it)}, `
+            + `made in Dighi, Pune and sent insured across India.`;
+    } else {
+      title = "That piece has gone · " + SHOP_NAME;
+    }
+  }
+  else if (r === "shop") {
+    const c = params && params.get("c");
+    const name = c ? (catName(c).en || c) : "";
+    title = (name ? `${name} · ` : "Shop all jewellery · ") + SHOP_NAME;
+  }
+  else if (r === "bag" || r === "cart") title = "Your bag · " + SHOP_NAME;
+  else if (r === "saved")  title = "Saved pieces · " + SHOP_NAME;
+  else if (r === "order")  title = "Your order · " + SHOP_NAME;
+  else if (r === "placed") title = "Order placed · " + SHOP_NAME;
+  else if (r === "paid")   title = "Payment · " + SHOP_NAME;
+  else if (PAGE_TITLES[r]) title = PAGE_TITLES[r] + " · " + SHOP_NAME;
+  else if (r !== "")       title = "Page not found · " + SHOP_NAME;
+
+  document.title = title;
+
+  /* The description follows the title, so that a link shared on WhatsApp
+     describes the piece rather than the shop. */
+  const tag = document.querySelector('meta[name="description"]');
+  if (tag) {
+    if (!tag.dataset.was) tag.dataset.was = tag.content;
+    tag.content = desc || tag.dataset.was;
+  }
+}
+
 function render(){
   const {parts, params} = parseHash();
   const r = parts[0] || "";
@@ -2642,6 +2784,7 @@ function render(){
   else html = notFound();
 
   view.innerHTML = html;
+  nameThePage(r, parts, params);
 
   /* One document, many pages: each one is announced by hand as she arrives.
      A page is painted again whenever the counts change, and that is not a
@@ -3024,6 +3167,7 @@ function startHowTo(){
   $("#howtoMr").textContent  = HOWTO.mr;
   $("#howtoLen").textContent = HOWTO.secs ? `${HOWTO.en} · ${HOWTO.secs}s` : HOWTO.en;
   box.hidden = false;
+  seen("howto_shown");
 
   /* Small and silent to begin with. Muted is what lets it start on its own —
      a voice is refused until she has tapped something, in every browser. */
@@ -3080,6 +3224,7 @@ function startHowTo(){
     vid.classList.add("on");
     vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); });
     track("howto_open", {});
+    seen("howto_open");
   };
   const small = () => { playing = false; box.classList.remove("held"); rest(); };
 
@@ -3091,11 +3236,16 @@ function startHowTo(){
     else { vid.pause(); box.classList.add("held"); }
   };
   $("#howtoShut").onclick = e => { e.stopPropagation(); small(); };
-  vid.addEventListener("ended", () => { track("howto_finished", {}); small(); });
+  vid.addEventListener("ended", () => {
+    track("howto_finished", {}); seen("howto_finished"); small();
+  });
+  /* Halfway is the moment worth knowing about: a film people abandon at ten
+     seconds is the wrong film, however many taps it gets. */
   vid.addEventListener("timeupdate", () => {
     if (!playing || !vid.duration) return;
     const k = vid.currentTime / vid.duration;
     ring.style.strokeDashoffset = LOOP * (1 - k);
+    if (k >= 0.5) seen("howto_half");
   });
   addEventListener("keydown", e => { if (e.key === "Escape" && playing) small(); });
 }

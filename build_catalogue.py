@@ -590,6 +590,80 @@ def read_category(catdir, nxt):
     }
 
 
+SITE = "https://theqalashree.com"
+
+def write_sitemap(categories):
+    """A sitemap, and an honest one.
+
+       It lists the addresses that actually exist. Today that is the shop
+       itself and the order link, because every piece lives behind a # and
+       Google does not treat what follows a # as a page of its own. Listing
+       112 fragment addresses here would not get one of them indexed; it
+       would only tell Google we do not know what we are doing.
+
+       What IS worth listing is the photographs. Those have real addresses,
+       and jewellery is looked for in Google Images as much as in Google. So
+       the shop's entry carries every piece's first picture, captioned with
+       what it is and what it costs, which is the one piece of free traffic
+       available while the addresses stay as they are."""
+    esc = lambda t: (str(t).replace("&", "&amp;").replace("<", "&lt;")
+                          .replace(">", "&gt;").replace('"', "&quot;"))
+    # a path may hold spaces and brackets - photos/hand-made-rajwadi/1000 (2)/1.jpg
+    from urllib.parse import quote
+    url = lambda rel: SITE + "/" + quote(str(rel).replace("\\", "/"))
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    shots = []
+    for c in categories:
+        for pr in c["products"]:
+            if not pr["images"]:
+                continue
+            name = pr["title"].strip() or f"{c['slug'].replace('-', ' ')} {pr['n']}"
+            shots.append((url(pr["images"][0]),
+                          f"{name} - handmade jewellery from The Qala, Dighi, Pune",
+                          f"{name} - Rs {pr['price']}"))
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+             '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
+    lines += [f"  <url>", f"    <loc>{SITE}/</loc>",
+              f"    <lastmod>{today}</lastmod>",
+              f"    <changefreq>daily</changefreq>",
+              f"    <priority>1.0</priority>"]
+    for src, title, caption in shots[:1000]:      # Google's cap is 1000 per page
+        lines += ["    <image:image>", f"      <image:loc>{esc(src)}</image:loc>",
+                  f"      <image:title>{esc(title)}</image:title>",
+                  f"      <image:caption>{esc(caption)}</image:caption>",
+                  "    </image:image>"]
+    lines += ["  </url>"]
+    lines += ["  <url>", f"    <loc>{SITE}/order</loc>",
+              f"    <lastmod>{today}</lastmod>",
+              "    <changefreq>monthly</changefreq>",
+              "    <priority>0.5</priority>", "  </url>"]
+    lines += ["</urlset>", ""]
+
+    (ROOT / "sitemap.xml").write_text("\n".join(lines), encoding="utf-8")
+    return len(shots)
+
+
+def write_robots():
+    """Cloudflare serves a robots.txt of its own when nothing is here. That one
+       says nothing about where the sitemap is, so we write our own."""
+    (ROOT / "robots.txt").write_text(
+        "# The Qala - theqalashree.com\n"
+        "# Everything here is meant to be found. Nothing is hidden from search\n"
+        "# except the two doors that need a password, which hold nothing a\n"
+        "# search engine could use anyway.\n"
+        "\n"
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /office/\n"
+        "Disallow: /studio/\n"
+        "Disallow: /api/\n"
+        "\n"
+        f"Sitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
+
+
 def main():
     if not PHOTOS.is_dir():
         print(f"no photos/ folder at {PHOTOS}", file=sys.stderr)
@@ -623,6 +697,10 @@ def main():
     }
     poster_note()
     OUT.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    shots = write_sitemap(categories)
+    write_robots()
+    print(f"sitemap.xml: 2 pages, {shots} photographs  ·  robots.txt written")
 
     print(f"{OUT.relative_to(ROOT)}: {total_products} product{'' if total_products == 1 else 's'}, "
           f"{total_files} files, {len(categories)} categor{'y' if len(categories) == 1 else 'ies'}")

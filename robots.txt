@@ -1,0 +1,12 @@
+# The Qala - theqalashree.com
+# Everything here is meant to be found. Nothing is hidden from search
+# except the two doors that need a password, which hold nothing a
+# search engine could use anyway.
+
+User-agent: *
+Allow: /
+Disallow: /office/
+Disallow: /studio/
+Disallow: /api/
+
+Sitemap: https://theqalashree.com/sitemap.xml

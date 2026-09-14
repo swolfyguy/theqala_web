@@ -80,6 +80,7 @@ const DB = {
 const TYPES = {
   ".html":"text/html; charset=utf-8", ".js":"text/javascript; charset=utf-8",
   ".css":"text/css; charset=utf-8",   ".json":"application/json; charset=utf-8",
+  ".xml":"application/xml; charset=utf-8", ".txt":"text/plain; charset=utf-8",
   ".svg":"image/svg+xml", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".png":"image/png",
   ".webp":"image/webp",   ".gif":"image/gif",  ".ico":"image/x-icon",
   ".mp4":"video/mp4",     ".webm":"video/webm", ".woff2":"font/woff2", ".txt":"text/plain"
