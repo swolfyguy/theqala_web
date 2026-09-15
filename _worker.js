@@ -584,7 +584,7 @@ async function tallyOut(request, env) {
 
    Fill in COURIER_API and it switches on. Leave it empty and every part of
    this is inert. */
-const COURIER_API  = "";   // "https://api-customer.example.com/public/centers-by-pincode/<PIN>"
+const COURIER_API  = "https://api-customer.shreeanjani.co.in/public/centers-by-pincode/<PIN>";
 const COURIER_NAME = "Shree Anjani";
 const COURIER_WAIT = 5000;                 // ms — checkout never waits longer
 /* Sent so that if anybody there ever reads their logs they see a named local

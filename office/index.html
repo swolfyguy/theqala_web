@@ -120,7 +120,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .head{display:none}
 @media (min-width:760px){
   .head{display:grid;gap:14px;padding:10px 16px 8px;
-    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 6.4rem 16px;
+    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.4rem 16px;
     font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);
     font-weight:600;border-bottom:1px solid var(--line)}
   .head .r{text-align:right}
@@ -173,8 +173,8 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 @media (min-width:760px){ .row .pay{justify-self:start} }
 
 @media (min-width:760px){
-  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 6.4rem 16px;
-    grid-template-areas:"s ref who meta word pay money chev";padding:13px 16px}
+  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.4rem 16px;
+    grid-template-areas:"s ref who meta word pay anj money chev";padding:13px 16px}
   .row .who{font-size:.9rem;color:var(--ink)}
   .row .meta{text-align:left;font-size:.8rem}
   .row .money{font-size:.95rem}
@@ -202,11 +202,18 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .anjani.yes{border-left-color:var(--gold-2)}
 .anjani.no{border-left-color:var(--accent);background:var(--wash-gold)}
 .anjani.ask{border-left-color:var(--gold)}
-.offnet{margin-left:7px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
-  font-weight:700;border-radius:999px;padding:2px 7px;white-space:nowrap;
-  border:1px solid currentColor}
-.offnet.no{color:var(--accent)}
-.offnet.ask{color:var(--gold)}
+.anj{grid-area:anj;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;white-space:nowrap;align-self:center;justify-self:start}
+.anj.yes{color:var(--gold)}
+.anj.no{color:var(--accent)}
+.anj.na,.anj.dunno{color:var(--ink-2);opacity:.6;font-weight:600}
+@media (max-width:759px){
+  /* On a phone the row has no columns, so this lands on its own line with
+     nothing above it to say what it is. The word comes with it there. */
+  .anj{justify-self:end;margin-left:6px}
+  .anj::before{content:"Anjani ";opacity:.55;font-weight:600}
+  .anj.dunno{display:none}
+}
 /* The shop's own instruction on an order. Deliberately plain — a box you
    type in, not a form you submit. */
 .memo{margin-top:4px}
@@ -332,7 +339,7 @@ b.paid{color:var(--sent);font-weight:600}
   <div id="msg"></div>
   <div class="head" id="head2" hidden>
     <span></span><span>Order</span><span>Customer</span><span>Placed</span>
-    <span>Status</span><span>Paying</span><span class="r">Total</span><span></span>
+    <span>Status</span><span>Paying</span><span>Anjani</span><span class="r">Total</span><span></span>
   </div>
   <div class="list" id="list"><div class="spin">Opening the book…</div></div>
 </div>
@@ -747,12 +754,12 @@ function row(o){
       <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
       <span class="ref">${esc(o.ref)}</span>
       <span class="who">${cameFrom(o) ? `<b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b> ` : ""
-        }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span>${
-        anjaniChip(o)}</span>
+        }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span></span>
       <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}${
         o.memo ? `<span class="pen" title="${esc(o.memo)}">\u270e</span>` : ""}</span>
       <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
       <span class="pay ${payTag(o).cls}" title="${esc(payTag(o).why)}">${esc(payTag(o).t)}</span>
+      ${anjaniCell(o)}
       <span class="money">${cameFrom(o) && !o.total
         ? `<i class="unset" title="No price on this one yet">—</i>` : rupees(o.total)}</span>
       <span class="chev">›</span>
@@ -986,12 +993,25 @@ async function fillPincodes(){
   if (got.some(d => d && d.ok && d.known)) load();
 }
 
-function anjaniChip(o){
+/* The Anjani column.
+
+   Only an order being paid online is going out by courier at all: one being
+   collected at the shop needs nobody, and cash on delivery is booked another
+   way. Both of those read NA rather than yes or no, because a yes there would
+   be true and useless.
+
+   A pincode nobody has looked up yet is a dash — not a no. */
+function anjaniCell(o){
+  const pay = o.pay || "online";
+  if (pay !== "online")
+    return `<span class="anj na" title="${pay === "shop"
+      ? "Collecting at the shop — no courier needed"
+      : "Cash on delivery — booked another way"}">NA</span>`;
   const a = o.anjani;
-  if (!a) return "";
-  if (a.verdict === "yes")   return "";           /* the ordinary case says nothing */
-  if (a.verdict === "no")    return `<b class="offnet no" title="${esc(a.why || "")}">no Anjani</b>`;
-  return `<b class="offnet ask" title="${esc(a.why || "")}">check lane</b>`;
+  if (!a) return `<span class="anj dunno" title="This pincode has not been looked up yet">—</span>`;
+  if (a.verdict === "yes")
+    return `<span class="anj yes" title="${esc(a.area || "")} · ${esc(a.centre || "")}">Yes</span>`;
+  return `<span class="anj no" title="${esc(a.why || "")}">No</span>`;
 }
 
 function anjaniNote(o){
