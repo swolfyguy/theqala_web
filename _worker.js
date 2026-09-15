@@ -325,7 +325,14 @@ function clean(b) {
 
   const items = [];
   for (const l of b.items) {
-    const code  = s(l && l.code, 24);
+    /* 64, not 24. A code is the category folder's name in capitals plus a
+       number, and "double-wati-rajwadi-handmade" alone is 28 characters — so
+       at 24 every one of that category's pieces was stored as the same
+       truncated string. The order then matched no piece at all: no photograph,
+       no link, and worse, nothing held against that piece's stock and cash on
+       delivery refused for it. Long enough that a category name would have to
+       be absurd to reach it. */
+    const code  = s(l && l.code, 64);
     const title = s(l && l.title, 120);
     const qty   = Math.floor(Number(l && l.qty));
     const price = Math.floor(Number(l && l.price));
@@ -1617,7 +1624,7 @@ function cleanOffline(b) {
 
   /* Optional: the code of a piece that is already on the website. When it is
      given, the order book shows that piece's photograph and links to it. */
-  const code  = s(b.code, 24).toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+  const code  = s(b.code, 64).toUpperCase().replace(/[^A-Z0-9_-]/g, "");
   const title = s(b.title, 120) || ("Piece from " + (SOURCENAME[source] || source));
   const note  = s(b.note, 500);
 

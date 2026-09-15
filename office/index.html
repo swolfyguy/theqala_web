@@ -483,10 +483,34 @@ async function loadPieces(){
     if (!r.ok) return;
     const cat = await r.json();
     const out = {};
+    /* The kind of jewellery is carried along with the piece, because the shop
+       names an unnamed piece after its kind and this page should say the same
+       thing about the same necklace. */
     (cat.categories || []).forEach(c =>
-      (c.products || []).forEach(p => { out[p.code] = p; }));
+      (c.products || []).forEach(p => { out[p.code] = {...p, cat: c.slug}; }));
     PIECES = out;
   } catch (e) { /* the order still reads fine without the picture */ }
+}
+
+/* What to call a piece that has no name.
+
+   Not one of the 109 pieces in the shop has been given a name yet, so the
+   order book was printing the bare code — HAND-MADE-RAJWADI-36 — where a
+   product ought to be. The shop itself does better: it calls that piece
+   "Hand Made Rajwadi 36", after its kind and its number.
+
+   The two pages should call the same necklace the same thing, so this is the
+   shop's rule, repeated. The day the pieces get real names, both stop needing
+   it at once. */
+const titleish = slug => String(slug || "").split("-")
+  .map(w => w ? w[0].toUpperCase() + w.slice(1) : w).join(" ");
+
+function nameOf(line, piece){
+  const given = String((line && line.title) || (piece && piece.title) || "").trim();
+  if (given) return given;
+  if (piece && piece.cat && piece.n != null)
+    return titleish(piece.cat) + " " + String(piece.n).padStart(2, "0");
+  return String((line && line.code) || "");
 }
 
 /* photos/hand-made-rajwadi/1000 (2)/1.jpg — spaces and brackets and all */
@@ -793,9 +817,10 @@ function detail(o){
        order ever has. */
     const src  = shot ? fileUrl(shot) : (i === 0 ? chat : "");
     const href = piece ? pieceUrl(l.code) : (i === 0 && chat ? chat : "");
+    const shown = nameOf(l, piece);
     const title = href
-      ? `<a href="${href}" target="_blank" rel="noopener">${esc(l.title || l.code)}</a>`
-      : esc(l.title || l.code);
+      ? `<a href="${href}" target="_blank" rel="noopener">${esc(shown)}</a>`
+      : esc(shown);
     const box = `<span class="thumb ${src ? "" : "none"}">${src
       ? `<img src="${src}" alt="" loading="lazy"
               onerror="const b=this.parentNode;this.remove();b&&b.classList.add('none')">` : ""}</span>`;
