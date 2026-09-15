@@ -202,6 +202,12 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .anjani.yes{border-left-color:var(--gold-2)}
 .anjani.no{border-left-color:var(--accent);background:var(--wash-gold)}
 .anjani.ask{border-left-color:var(--gold)}
+.setrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
+.setrow select{padding:7px 10px;border:1px solid var(--line-2);border-radius:9px;
+  background:var(--panel);color:inherit;font:inherit;font-size:.88rem}
+.setrow select:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.setrow .p-say{font-size:.78rem;color:var(--ink-2)}
+.setrow .p-say.bad{color:var(--accent)}
 .anj{grid-area:anj;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
   font-weight:700;white-space:nowrap;align-self:center;justify-self:start}
 .anj.yes{color:var(--gold)}
@@ -451,6 +457,7 @@ function when(iso){
 }
 
 const PAYNAME = {online:"Paying online", shop:"Cash at the shop", cod:"Cash on delivery"};
+const POTH = ["24","26","28","30","32","34","36","38","40"];   // inches, as the shop strings them
 
 /* The short word for the list. Once the money is actually in, that is the
    thing to say — how she meant to pay stops mattering. */
@@ -823,6 +830,17 @@ function detail(o){
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
         ${anjaniNote(o)}
+        <h3>Shree Anjani</h3>
+        <div class="setrow">
+          <select class="p-anj" aria-label="Does Shree Anjani deliver here">
+            <option value=""${!o.anjani_set ? " selected" : ""}>Whatever the check says</option>
+            <option value="yes"${o.anjani_set === "yes" ? " selected" : ""}>Yes — they deliver</option>
+            <option value="no"${o.anjani_set === "no" ? " selected" : ""}>No — they do not</option>
+          </select>
+          <span class="p-say"></span>
+        </div>
+        ${o.anjani_set ? `<div class="paywhy">Set by hand, so the lane check is
+          being overruled for this order.</div>` : ""}
         <h3>How they are paying</h3>
         ${o.pay_state === "paid"
           ? `<div>${esc(PAYNAME.online)} <b class="paid">already paid</b></div>`
@@ -850,8 +868,13 @@ function detail(o){
             : ""}</span>
         </div>
         ${perItem ? "" : `<h3>Poth length</h3>
-        <div>${o.poth ? `<span class="poth">${esc(o.poth)} inches</span>`
-                      : `<span style="color:var(--ink-2)">to be settled on WhatsApp</span>`}</div>`}
+        <div class="setrow">
+          <select class="p-poth" aria-label="Poth length">
+            <option value="">to be settled on WhatsApp</option>
+            ${POTH.map(n => `<option value="${n}"${o.poth === n ? " selected" : ""}>${n} inches</option>`).join("")}
+          </select>
+          <span class="p-say"></span>
+        </div>`}
       </div>
       <div>
         <h3>${(o.items || []).length} piece${(o.items || []).length === 1 ? "" : "s"}</h3>
@@ -944,9 +967,15 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); }
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
+      bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
+      bindPick(el, ref, ".p-anj", "anjani", v =>
+        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check"); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); }
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
+      bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
+      bindPick(el, ref, ".p-anj", "anjani", v =>
+        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check"); }
   });
 }
 
@@ -986,11 +1015,34 @@ async function fillPincodes(){
     .map(o => o.pincode))].slice(0, 8);
   if (!want.length) return;
   want.forEach(p => PIN_ASKED.add(p));
-  const got = await Promise.all(want.map(p =>
-    fetch("/api/pincode/" + encodeURIComponent(p), {headers: {accept: "application/json"}})
-      .then(r => r.json()).catch(() => null)));
+
+  /* One at a time, with an uneven gap between them.
+
+     Eight at once is the shape of a script, and it is also the shape most
+     likely to trip a rate limiter on the other side. Asking one, waiting a
+     second or so, then asking the next costs us nothing — the answers are
+     kept for good, so this happens once per pincode in the shop's life — and
+     it keeps the load on their little server down to nothing.
+
+     Being plain about what this does NOT do: it is not a disguise. Their logs
+     still show the same address asking, with the same name in the user-agent,
+     for the same kind of path. What keeps this neighbourly is that it is a
+     handful of requests a week, that every answer is kept so none is ever
+     asked twice, and that we say who we are. Jitter is good manners, not a
+     hiding place. */
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  let told = false;
+  for (let i = 0; i < want.length; i++) {
+    if (i) await wait(600 + Math.floor(Math.random() * 1600));   // 0.6s – 2.2s
+    try {
+      const r = await fetch("/api/pincode/" + encodeURIComponent(want[i]),
+                            {headers: {accept: "application/json"}});
+      const d = await r.json();
+      if (d && d.ok && d.known) told = true;
+    } catch (e) { /* one that failed is simply not known yet */ }
+  }
   /* Only worth redrawing if at least one of them actually told us something. */
-  if (got.some(d => d && d.ok && d.known)) load();
+  if (told) load();
 }
 
 /* The Anjani column.
@@ -1009,9 +1061,11 @@ function anjaniCell(o){
       : "Cash on delivery — booked another way"}">NA</span>`;
   const a = o.anjani;
   if (!a) return `<span class="anj dunno" title="This pincode has not been looked up yet">—</span>`;
-  if (a.verdict === "yes")
-    return `<span class="anj yes" title="${esc(a.area || "")} · ${esc(a.centre || "")}">Yes</span>`;
-  return `<span class="anj no" title="${esc(a.why || "")}">No</span>`;
+  const hand = a.byhand ? "*" : "";      /* a star means somebody decided it */
+  const tip = a.byhand ? "Set by hand in the order book"
+                       : (a.verdict === "yes" ? `${a.area || ""} · ${a.centre || ""}` : (a.why || ""));
+  if (a.verdict === "yes") return `<span class="anj yes" title="${esc(tip)}">Yes${hand}</span>`;
+  return `<span class="anj no" title="${esc(tip)}">No${hand}</span>`;
 }
 
 function anjaniNote(o){
@@ -1019,6 +1073,13 @@ function anjaniNote(o){
   if (!a) return "";
   /* Their own area names carry stray spacing — "NERUL , SEAWOOD". */
   const lane = t => String(t || "").replace(/\s+,/g, ",").replace(/\s+/g, " ").trim();
+  /* Set by hand, there is no lane and no branch to name — somebody rang the
+     branch and was told. Saying "delivers here — , through ." would be worse
+     than saying nothing. */
+  if (a.byhand)
+    return `<div class="anjani ${a.verdict === "yes" ? "yes" : "no"}">Set by hand:
+      Shree Anjani <b>${a.verdict === "yes" ? "does" : "does not"}</b> deliver to this
+      address. The lane check is being overruled for this order.</div>`;
   if (a.verdict === "yes")
     return `<div class="anjani yes">Shree Anjani delivers here —
       <b>${esc(lane(a.area))}</b>, through ${esc(a.centre || "")}.</div>`;
@@ -1085,6 +1146,39 @@ function bindMemo(el, ref){
   box.onblur  = send;
   /* Leaving the page with something half-typed should still keep it. */
   addEventListener("pagehide", () => { if (box.value.trim() !== saved.trim()) send(); });
+}
+
+/* The two things about an order the shop settles itself: the length she wants,
+   and whether the courier really goes there. Both are one field on the row, so
+   both are the same small routine — pick, save, say so, and put the old value
+   back if the book refuses it. */
+function bindPick(el, ref, cls, field, word){
+  const pick = el.querySelector(cls);
+  if (!pick || pick.dataset.wired) return;
+  pick.dataset.wired = "1";
+  const say = pick.parentElement.querySelector(".p-say");
+  let before = pick.value;
+
+  pick.onchange = async () => {
+    const want = pick.value;
+    pick.disabled = true;
+    if (say) { say.textContent = "saving…"; say.className = "p-say"; }
+    try {
+      const r = await api("/office/api", {
+        method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, [field]: want})
+      });
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      before = want;
+      snack(ref + " — " + word(want));
+      await load();                      /* the column and the note both move */
+    } catch (err) {
+      pick.value = before;               /* leave it saying what is true */
+      if (say) { say.textContent = err.message; say.className = "p-say bad"; }
+    } finally { pick.disabled = false; }
+  };
 }
 
 function bindPay(el, ref){

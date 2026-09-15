@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS orders (
   memo       TEXT DEFAULT '',   -- the shop's own instruction on this order
   memo_by    TEXT DEFAULT '',   -- who last wrote it
   memo_at    TEXT DEFAULT '',   -- and when
+  anjani_set TEXT DEFAULT '',   -- yes/no set by hand, overruling the courier check
   updated_at TEXT
 );
 

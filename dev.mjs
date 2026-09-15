@@ -42,7 +42,8 @@ const LATER = [
   "ALTER TABLE orders ADD COLUMN photo TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN memo TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN memo_by TEXT DEFAULT ''",
-  "ALTER TABLE orders ADD COLUMN memo_at TEXT DEFAULT ''"
+  "ALTER TABLE orders ADD COLUMN memo_at TEXT DEFAULT ''",
+  "ALTER TABLE orders ADD COLUMN anjani_set TEXT DEFAULT ''"
 ];
 
 const ready = db => {

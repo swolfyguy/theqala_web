@@ -1167,6 +1167,14 @@ async function listOrders(env, url, who) {
     }
   } catch (e) { /* no pincode table yet, so nothing is answered */ }
 
+  /* And the shop has the last word. Set by hand, it overrules the reading —
+     and says so, so nobody wonders why the lane names disagree with it. */
+  rows.forEach(r => {
+    if (r.anjani_set === "yes" || r.anjani_set === "no")
+      r.anjani = {verdict: r.anjani_set, byhand: true,
+                  why: "set by hand in the order book"};
+  });
+
   return json({ok: true, you: who, orders: rows, counts: rows2, binned,
                 range: picked ? "picked" : range});
 }
@@ -1236,6 +1244,21 @@ async function updateOrder(request, env, who = "") {
     newPay = pay;
     sets.push("pay = ?"); bind.push(pay);
   }
+  /* The shop overruling the courier check.
+
+     The lookup reads their lane list, and their lane list is shorthand. When
+     the shop rings the branch and is told "yes we go to Shiravane", that
+     answer beats anything worked out from a list of names. "" hands the order
+     back to the automatic reading. */
+  if (b.anjani != null) {
+    const a = String(b.anjani);
+    if (!["", "yes", "no"].includes(a)) return json({ok: false, why: "anjani"}, 400);
+    /* Stored as anjani_set, not anjani: SELECT * puts every column on the row,
+       and the worked-out verdict is written to r.anjani a moment later. Two
+       different things must not share a name. */
+    sets.push("anjani_set = ?"); bind.push(a);
+  }
+
   if (b.poth != null) {
     const p = String(b.poth).trim();
     if (p && !POTH.includes(p)) return json({ok: false, why: "poth"}, 400);
