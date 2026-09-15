@@ -193,6 +193,20 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .act.gone{border-color:var(--accent);color:var(--accent)}
 .act.gone.armed{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
 .binnote{padding:0 16px 12px;color:var(--ink-2);font-size:.84rem}
+/* What the usual courier says about this address. Not an error — the parcel
+   still goes out, just by another service — so it is a note, not a warning. */
+.anjani{margin:8px 0 2px;padding:9px 12px;border-radius:9px;font-size:.85rem;
+  line-height:1.5;color:var(--ink-2);border-left:2px solid var(--line-2);
+  background:var(--panel-2)}
+.anjani b{color:var(--ink);font-weight:600}
+.anjani.yes{border-left-color:var(--gold-2)}
+.anjani.no{border-left-color:var(--accent);background:var(--wash-gold)}
+.anjani.ask{border-left-color:var(--gold)}
+.offnet{margin-left:7px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;border-radius:999px;padding:2px 7px;white-space:nowrap;
+  border:1px solid currentColor}
+.offnet.no{color:var(--accent)}
+.offnet.ask{color:var(--gold)}
 /* The shop's own instruction on an order. Deliberately plain — a box you
    type in, not a form you submit. */
 .memo{margin-top:4px}
@@ -585,6 +599,7 @@ async function load(){
   wirePicker();
   paintSum();
   paintList();
+  fillPincodes();
 }
 
 /* Signed in, but something on Cloudflare's side is not finished yet. */
@@ -732,7 +747,8 @@ function row(o){
       <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
       <span class="ref">${esc(o.ref)}</span>
       <span class="who">${cameFrom(o) ? `<b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b> ` : ""
-        }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span></span>
+        }${esc(o.name)} <span style="opacity:.6">· ${esc(o.phone)}</span>${
+        anjaniChip(o)}</span>
       <span class="meta" title="${esc(fullWhen(o.placed_at))}">${esc(ago(o.placed_at))}${
         o.memo ? `<span class="pen" title="${esc(o.memo)}">\u270e</span>` : ""}</span>
       <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
@@ -799,6 +815,7 @@ function detail(o){
               : "no piece code on it, so nothing is held on the website"}</span></div>` : ""}
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
+        ${anjaniNote(o)}
         <h3>How they are paying</h3>
         ${o.pay_state === "paid"
           ? `<div>${esc(PAYNAME.online)} <b class="paid">already paid</b></div>`
@@ -940,6 +957,64 @@ function wire(){
    away, whichever comes first. What it says underneath is the truth about the
    saved copy, never about what is on screen.
    --------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   Whether the usual courier goes to this address.
+
+   Three answers, not two. "We do not know" is its own thing and is shown as
+   nothing at all, because a blank is honest and a guess is not.
+   --------------------------------------------------------------------- */
+/* Orders do not all come through the website — one taken across the counter,
+   or from a phone whose lookup failed, arrives with nothing known about its
+   pincode. So the book fills its own gaps: any pincode on screen that has
+   never been asked about is asked about once, here, and then the page is
+   painted again. Every one of those answers is kept for good, so this empties
+   itself out within a few days of use.
+
+   Capped per load so that opening Everything on a quiet morning cannot fire
+   fifty requests at somebody else's website in one go. */
+const PIN_ASKED = new Set();
+async function fillPincodes(){
+  const want = [...new Set(ORDERS
+    .filter(o => o.pincode && !o.anjani && !PIN_ASKED.has(o.pincode))
+    .map(o => o.pincode))].slice(0, 8);
+  if (!want.length) return;
+  want.forEach(p => PIN_ASKED.add(p));
+  const got = await Promise.all(want.map(p =>
+    fetch("/api/pincode/" + encodeURIComponent(p), {headers: {accept: "application/json"}})
+      .then(r => r.json()).catch(() => null)));
+  /* Only worth redrawing if at least one of them actually told us something. */
+  if (got.some(d => d && d.ok && d.known)) load();
+}
+
+function anjaniChip(o){
+  const a = o.anjani;
+  if (!a) return "";
+  if (a.verdict === "yes")   return "";           /* the ordinary case says nothing */
+  if (a.verdict === "no")    return `<b class="offnet no" title="${esc(a.why || "")}">no Anjani</b>`;
+  return `<b class="offnet ask" title="${esc(a.why || "")}">check lane</b>`;
+}
+
+function anjaniNote(o){
+  const a = o.anjani;
+  if (!a) return "";
+  /* Their own area names carry stray spacing — "NERUL , SEAWOOD". */
+  const lane = t => String(t || "").replace(/\s+,/g, ",").replace(/\s+/g, " ").trim();
+  if (a.verdict === "yes")
+    return `<div class="anjani yes">Shree Anjani delivers here —
+      <b>${esc(lane(a.area))}</b>, through ${esc(a.centre || "")}.</div>`;
+  if (a.verdict === "no" && a.nomatch)
+    return `<div class="anjani no">No Shree Anjani — <b>none of the lanes they list</b>
+      appear in this address${a.centre ? `, though they do cover ${esc(o.pincode)} through
+      ${esc(a.centre)}` : ""}. Book it with another service, or read the address again:
+      their lane names are shorthand, so an address written a different way can miss.</div>`;
+  if (a.verdict === "no")
+    return `<div class="anjani no">Shree Anjani does <b>not</b> deliver to this address${
+      a.area ? ` — <b>${esc(lane(a.area))}</b> is marked no-delivery`
+             : ` — ${esc(a.why || "")}`}.
+      Book it with another service.</div>`;
+  return "";
+}
+
 function bindMemo(el, ref){
   const box = el.querySelector(".m-box");
   const say = el.querySelector(".m-say");

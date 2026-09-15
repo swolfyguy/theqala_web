@@ -140,6 +140,17 @@ CREATE INDEX IF NOT EXISTS logins_by_ip ON logins (ip, at DESC);
 --     PRAGMA table_info(orders)
 -- =====================================================================
 
+-- What the courier told us about a pincode: which centres serve it and which
+-- lanes each one covers. One row per pincode, written the first time anybody
+-- orders to it and never asked about again. An address is matched against
+-- this afterwards, which costs nothing. Delete a row to re-check that pincode.
+CREATE TABLE IF NOT EXISTS pincodes (
+  pin        TEXT PRIMARY KEY,
+  covered    INTEGER NOT NULL DEFAULT 0,   -- any live centre at all
+  body       TEXT NOT NULL,                -- the centres and their lanes, as JSON
+  checked_at TEXT NOT NULL
+);
+
 -- How many people watched the how-to film. One row per day per moment, so
 -- four rows a day at most, and nothing in them that says who.
 -- `what` is one of: howto_shown, howto_open, howto_half, howto_finished

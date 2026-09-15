@@ -111,6 +111,9 @@ button.big:disabled{opacity:.55;cursor:default}
 
 footer{text-align:center;color:var(--ink-2);font-size:.8rem;padding:0 0 50px}
 footer a{color:var(--ink-2)}
+.pinsay{display:block;margin-top:5px;font-size:.8rem;line-height:1.45;color:var(--ink-2)}
+.pinsay.yes{color:var(--gold)}
+.pinsay.far{color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -147,6 +150,7 @@ footer a{color:var(--ink-2)}
       <label class="f"><span>Pincode</span>
         <input type="text" name="pin" id="i-pin" inputmode="numeric" maxlength="6"
                autocomplete="postal-code" placeholder=" " required></label>
+      <span class="pinsay" id="i-pinsay"></span>
 
       <label class="f"><span>Poth length <em>in inches</em></span>
         <select name="poth" id="i-poth">
@@ -467,6 +471,84 @@ function done(ref){
     </div>`;
   window.scrollTo({top: 0, behavior: "smooth"});
 }
+
+/* ---------------------------------------------------------------------------
+   Where the parcel is going.
+
+   The shop asks its own worker about the pincode; the worker answers with the
+   lanes the courier named. The address is then matched against those lanes
+   HERE, in her own browser — her address is never sent anywhere to be checked.
+
+   It is a courtesy, not a gate. It never stops her ordering, and when we do
+   not know, the line simply is not there. Silence is the right answer to "we
+   could not reach the courier", because the wrong answer would be telling a
+   customer in a lane we serve every week that we cannot reach her. */
+const flatAddr = s => String(s || "").toUpperCase()
+  .replace(/[^A-Z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+const TOO_COMMON = new Set(["ROAD","GAON","NAGAR","MARG","MARGA","EAST","WEST",
+  "NORTH","SOUTH","CITY","MAIN","NEW","OLD","MALL","SECTOR","PARK","MARKET",
+  "PUNE","MUMBAI","NAVI","THANE","AREA","VILLAGE","CHOWK","GALLI","PETH"]);
+const phrasesOf = name => String(name || "").split(",")
+  .map(flatAddr).filter(p => p.length >= 4)
+  .filter(p => !(p.split(" ").length === 1 && TOO_COMMON.has(p)));
+
+function matchArea(address, centres){
+  const addr = flatAddr(address);
+  if (!addr) return null;
+  let best = null;
+  for (const c of centres || [])
+    for (const a of c.areas || [])
+      for (const p of phrasesOf(a.name))
+        if ((" " + addr + " ").includes(" " + p + " ") && (!best || p.length > best.on.length))
+          best = {on: p, area: a.name, d: a.d, centre: c.name};
+  return best;
+}
+
+function wirePin(box, say, addrBox){
+  if (!box || !say || box.dataset.wired) return;
+  box.dataset.wired = "1";
+  let asked = "", seen = null;
+
+  const paint = () => {
+    if (!seen || !seen.covered) { say.textContent = ""; return; }
+    const m = matchArea(addrBox ? addrBox.value : "", seen.centres);
+    if (m && String(m.d) !== "1") {
+      /* A lane they skip. She is told plainly, and can still order. */
+      say.textContent = "Our usual courier does not deliver to this lane. You can still "
+                      + "order — we will send it another way and tell you on WhatsApp.";
+      say.className = "pinsay far";
+      return;
+    }
+    const where = m ? m.area.replace(/\s+,/g, ",").replace(/\s+/g, " ").trim()
+                    : (seen.centres[0] || {}).city || "";
+    say.textContent = where ? `We deliver here — ${where}.` : "We deliver here.";
+    say.className = "pinsay yes";
+  };
+
+  const look = async () => {
+    const pin = (box.value || "").replace(/[^0-9]/g, "");
+    if (pin.length !== 6) { say.textContent = ""; asked = ""; seen = null; return; }
+    if (pin === asked) { paint(); return; }
+    asked = pin; seen = null;
+    say.textContent = "checking…"; say.className = "pinsay";
+    try {
+      const r = await fetch("/api/pincode/" + pin, {headers: {accept: "application/json"}});
+      const d = await r.json();
+      if (!d || !d.ok || !d.known) { say.textContent = ""; return; }
+      seen = d; paint();
+    } catch (e) { say.textContent = ""; }
+  };
+
+  box.addEventListener("blur", look);
+  box.addEventListener("input", look);
+  /* She often types the pincode before the address, so the answer is worked
+     out again when the address itself changes. No second request is made. */
+  if (addrBox) addrBox.addEventListener("blur", paint);
+}
+
+
+wirePin(document.querySelector("#i-pin"), document.querySelector("#i-pinsay"),
+          document.querySelector("#i-addr"));
 </script>
 </body>
 </html>

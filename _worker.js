@@ -116,6 +116,8 @@ export default {
       if (path === "/api/stock"     && request.method === "GET")  return stockNow(request, env);
       if (path === "/api/ref"       && request.method === "GET")  return peekRef(env);
       if (path === "/api/here"      && request.method === "POST") return whoIsHere(request, env);
+      if (path.startsWith("/api/pincode/") && request.method === "GET")
+                                                                  return pinCheck(request, env, path);
       if (path === "/api/seen"      && request.method === "POST") return countSeen(request, env);
       if (path === "/office/tally"  && request.method === "GET")  return tallyOut(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
@@ -558,6 +560,174 @@ async function tallyOut(request, env) {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Does the courier reach this address?
+
+   Not this pincode — this address. A pincode is answered with one or more
+   centres, and each centre lists the lanes it covers. 412308 holds both
+   SASWAD ROAD, which they deliver to, and VADKI GAON, which they do not. So
+   the pincode gets us the list and the address decides the answer.
+
+   The endpoint is on their own api-customer subdomain with "public" in the
+   path, which is somebody deliberately marking it callable without a key. It
+   is still not a published API with a contract behind it, so this is written
+   to expect it to change one day:
+
+     1. Every pincode is asked about once, ever, and the whole answer is kept
+        in our own book. Matching an address against it afterwards costs
+        nothing and never touches the network.
+     2. Not knowing is a real answer and a safe one. A timeout, a refusal, a
+        shape we do not recognise — all come back as "we do not know", and
+        nothing is shown. A customer in Dighi must never read that we cannot
+        deliver to her because somebody else's server was down.
+     3. It never blocks an order. It is a note for whoever books the parcel.
+
+   Fill in COURIER_API and it switches on. Leave it empty and every part of
+   this is inert. */
+const COURIER_API  = "";   // "https://api-customer.example.com/public/centers-by-pincode/<PIN>"
+const COURIER_NAME = "Shree Anjani";
+const COURIER_WAIT = 5000;                 // ms — checkout never waits longer
+/* Sent so that if anybody there ever reads their logs they see a named local
+   shop with a telephone number, not an anonymous scraper. Being identifiable
+   is what turns a silent cut-off into a phone call. */
+const COURIER_UA   = "The Qala (theqalashree.com) pincode check - 9011240352";
+
+/* What deliveryType means.
+
+   READ FROM THEIR DATA, not from anything they publish, so it lives on one
+   line and can be corrected in one place once the courier confirms it:
+
+     deliveryType 1   DIGHI, DHANORI, NERUL, HANDEWADI, SASWAD ROAD —
+                      ordinary lanes they plainly deliver to
+     deliveryType 9   VADKI GAON, URULI DEVACHI GAON, CENTRAL MALL SEAWOOD —
+                      outlying villages and a shopping centre
+
+   zoneType is deliberately NOT used. DHANORI is zoneType 2 and is a Pune
+   suburb they certainly serve, so zoneType is not the signal. It is stored
+   anyway, in case that turns out to be wrong. */
+const DELIVERS = t => String(t) === "1";
+
+const isPin = p => /^[1-9]\d{5}$/.test(p);
+
+/* Their shape, reduced to what the shop uses. Anything unexpected throws, and
+   the caller turns that into "we do not know". */
+function readCourier(body) {
+  if (!body || body.success !== true || !Array.isArray(body.data)) throw new Error("shape");
+  const live = body.data.filter(d => d && d.isActive === true && d.isDeleted !== true);
+  return {
+    covered: live.length > 0,
+    noneZone: live.length > 0 && live.every(d => d.isNoneZone === true),
+    centres: live.slice(0, 8).map(c => ({
+      name: String(c.centerName || "").slice(0, 80),
+      city: String((c.address && c.address.city) || "").slice(0, 60),
+      areas: (Array.isArray(c.areas) ? c.areas : []).slice(0, 60).map(a => ({
+        name: String((a && a.areaName) || "").trim().slice(0, 120),
+        d: String((a && a.deliveryType) != null ? a.deliveryType : ""),
+        z: String((a && a.zoneType) != null ? a.zoneType : "")
+      })).filter(a => a.name)
+    }))
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   Matching an address to one of those lanes.
+
+   On whole words only, never fragments, and the longest match wins — an
+   address at "Central Mall Seawood" must be read as that rather than as the
+   plain "SEAWOOD" nearby, because only one of the two is a lane they skip.
+   --------------------------------------------------------------------- */
+const flatAddr = s => String(s || "").toUpperCase()
+  .replace(/[^A-Z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+
+/* An area named only one of these would match every address ever written. */
+const TOO_COMMON = new Set(["ROAD","GAON","NAGAR","MARG","MARGA","EAST","WEST",
+  "NORTH","SOUTH","CITY","MAIN","NEW","OLD","MALL","SECTOR","PARK","MARKET",
+  "PUNE","MUMBAI","NAVI","THANE","AREA","VILLAGE","CHOWK","GALLI","PETH"]);
+
+/* One area name can hold two lanes — "VISHRANTWADI , KALAS" — and either
+   matching is a match. */
+const phrasesOf = name => String(name || "").split(",")
+  .map(flatAddr).filter(p => p.length >= 4)
+  .filter(p => !(p.split(" ").length === 1 && TOO_COMMON.has(p)));
+
+function matchArea(address, centres) {
+  const addr = flatAddr(address);
+  if (!addr) return null;
+  let best = null;
+  for (const c of centres || [])
+    for (const a of c.areas || [])
+      for (const p of phrasesOf(a.name))
+        if ((" " + addr + " ").includes(" " + p + " ") && (!best || p.length > best.on.length))
+          best = {on: p, area: a.name, d: a.d, z: a.z, centre: c.name};
+  return best;
+}
+
+/* The one-line verdict the order book shows. */
+function courierSays(address, kept) {
+  if (!kept || !kept.covered) return {verdict: "no", why: "no centre for this pincode"};
+  if (kept.noneZone) return {verdict: "no", why: "marked a none-zone"};
+  const m = matchArea(address, kept.centres);
+  /* Nothing in the address matches a lane they named. The shop's rule is to
+     treat that as no service.
+
+     Worth knowing what it rests on: their lane lists are shorthand for a
+     delivery boy who knows the area, not an index of every street. 400706 is
+     three entries for a large part of Navi Mumbai. So a no-match often means
+     she wrote her lane differently, not that they will not go. It is reported
+     with nomatch set so the card can say which kind of no it is, and so this
+     rule can be softened later without hunting for where it lives. */
+  if (!m) return {verdict: "no", nomatch: true,
+                  why: "none of the lanes they list appear in this address",
+                  centre: (kept.centres[0] || {}).name || ""};
+  return DELIVERS(m.d)
+    ? {verdict: "yes", why: "", area: m.area, centre: m.centre, on: m.on}
+    : {verdict: "no", why: "that lane is marked no-delivery", area: m.area, centre: m.centre, on: m.on};
+}
+
+const keptOut = row => {
+  let kept;
+  try { kept = JSON.parse(row.body || "{}"); } catch { kept = {}; }
+  return kept;
+};
+
+async function pinCheck(request, env, path) {
+  const pin = path.slice("/api/pincode/".length).replace(/[^0-9]/g, "");
+  const dunno = why => json({ok: true, known: false, pin, why: why || ""},
+                            200, {"cache-control": "no-store"});
+  if (!isPin(pin)) return json({ok: false, why: "That is not a pincode."}, 400);
+  if (!env.DB || !COURIER_API) return dunno("not switched on");
+
+  /* Asked before? Then we never ask again. */
+  let row;
+  try {
+    row = await env.DB.prepare("SELECT * FROM pincodes WHERE pin = ?").bind(pin).first();
+  } catch (e) { return dunno("no table yet"); }
+  if (row) return json({ok: true, known: true, pin, courier: COURIER_NAME, ...keptOut(row)},
+                       200, {"cache-control": "no-store"});
+
+  let kept;
+  try {
+    const stop = new AbortController();
+    const bell = setTimeout(() => stop.abort(), COURIER_WAIT);
+    const res = await fetch(COURIER_API.replace("<PIN>", pin),
+      {headers: {accept: "application/json", "user-agent": COURIER_UA}, signal: stop.signal});
+    clearTimeout(bell);
+    if (!res.ok) return dunno("courier said " + res.status);
+    kept = readCourier(await res.json());
+  } catch (e) { return dunno("could not reach the courier"); }
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO pincodes (pin, covered, body, checked_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(pin) DO UPDATE SET covered = excluded.covered,
+         body = excluded.body, checked_at = excluded.checked_at`)
+      .bind(pin, kept.covered ? 1 : 0, JSON.stringify(kept), new Date().toISOString()).run();
+  } catch (e) { /* the answer is still good even if we could not keep it */ }
+
+  return json({ok: true, known: true, pin, courier: COURIER_NAME, ...kept},
+              200, {"cache-control": "no-store"});
+}
+
 /* Anything on this order that somebody else has already taken. */
 async function soldOut(env, items) {
   const [made, taken] = await Promise.all([howManyMade(env), takenNow(env)]);
@@ -977,6 +1147,25 @@ async function listOrders(env, url, who) {
     const heard = new Set((results || []).map(r => r.ref));
     rows.forEach(r => { r.voice = heard.has(r.ref); });
   } catch (e) { /* no recordings table yet, so none of them have one */ }
+
+  /* Whether the usual courier goes to each of these addresses. Worked out
+     from what we already know — the listing must never wait on somebody
+     else's website — and matched against the full address, not just the
+     pincode, because one pincode can hold both a lane they serve and one
+     they skip. A pincode never looked up simply carries no answer. */
+  try {
+    const pins = [...new Set(rows.map(r => r.pincode).filter(Boolean))];
+    if (pins.length) {
+      const {results} = await env.DB.prepare(
+        `SELECT pin, body FROM pincodes WHERE pin IN (${pins.map(() => "?").join(",")})`
+      ).bind(...pins).all();
+      const known = new Map((results || []).map(r => [r.pin, keptOut(r)]));
+      rows.forEach(r => {
+        const kept = known.get(r.pincode);
+        if (kept) r.anjani = courierSays(r.address || "", kept);
+      });
+    }
+  } catch (e) { /* no pincode table yet, so nothing is answered */ }
 
   return json({ok: true, you: who, orders: rows, counts: rows2, binned,
                 range: picked ? "picked" : range});
