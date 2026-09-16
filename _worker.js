@@ -814,14 +814,21 @@ async function pinCheck(request, env, path) {
    is never asked about again. Its last answer is its answer for good.
 
    Fill in ANJANI_TRACK and it switches on; empty, none of it does anything. */
-const ANJANI_TRACK = "";   // "https://api-customer.example.com/public/…/<AWB>"
+const ANJANI_TRACK = "https://api-customer.shreeanjani.co.in/public/awb/<AWB>";
 
-/* What "it has arrived" looks like in their words. We have seen IN TRANSIT and
-   OUT; the delivered wording is not yet confirmed, so anything containing
-   "deliver" counts and everything else is treated as still moving. Erring this
-   way costs a few extra questions about a delivered parcel. Erring the other
-   way would leave one stuck saying "in transit" for ever. */
-const isDelivered = t => /deliver/i.test(String(t || ""));
+/* What "it has arrived" looks like in their words. Seen so far: IN TRANSIT and
+   OUT. The delivered wording is still unconfirmed, so this matches DELIVERED
+   and DELIVERY DONE but deliberately NOT "OUT FOR DELIVERY" — a parcel that is
+   merely on the van has not arrived, and marking it arrived would freeze it
+   there for ever, because an arrived parcel is never asked about again.
+   Erring this way costs only a few extra questions. UNDELIVERED and NOT
+   DELIVERED are ruled out first, because those are precisely the parcels
+   the shop most needs to keep asking about. */
+const isDelivered = t => {
+  const said = String(t || "");
+  if (/\b(un|non|not)[-\s]?deliver/i.test(said)) return false;   /* UNDELIVERED is not arrived */
+  return /delivered|delivery\s*done/i.test(said);
+};
 
 const isAwb = a => /^[0-9]{6,20}$/.test(a);
 
@@ -840,9 +847,22 @@ const isAwb = a => /^[0-9]{6,20}$/.test(a);
    than being told about a typo. */
 function readPaste(text) {
   const rows = [], bad = [];
-  for (const piece of String(text || "").split(/[,;\r\n]+/)) {
-    const line = piece.trim();
-    if (!line) continue;                       /* a trailing comma is nothing */
+  const pieces = String(text || "").split(/[,;\r\n]+/).map(p => p.trim()).filter(Boolean);
+
+  /* "1736804425, Pallavi Jamadade" puts the comma between the number and the
+     name instead of at the end of the parcel. Rather than refuse it, a piece
+     that is nothing but a number takes the piece after it as its name — but
+     only if that piece has no number of its own, so a proper list is never
+     glued together by mistake. */
+  const joined = [];
+  for (let i = 0; i < pieces.length; i++) {
+    const one = pieces[i], next = pieces[i + 1];
+    if (/^[0-9]{6,20}$/.test(one) && next && !/[0-9]{6,20}/.test(next)) {
+      joined.push(one + " " + next); i++;
+    } else joined.push(one);
+  }
+
+  for (const line of joined) {
     const m = /^([0-9]{6,20})[\s|\t]+(.+)$/.exec(line);
     if (!m) { bad.push(line.slice(0, 60)); continue; }
     const who = m[2].replace(/\s+/g, " ").trim().slice(0, 80);
@@ -934,6 +954,17 @@ async function parcels(request, env) {
     const awb = String(b.track).replace(/\D/g, "");
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
     if (!ANJANI_TRACK) return json({ok: true, asked: false, why: "not switched on"});
+
+    /* The rule lives here, not in the browser. Two sweeps can overlap — one
+       running from when the page opened, one started by a fresh paste — and
+       both will have listed this parcel before either got an answer. Checking
+       here means the second one asks nothing. */
+    try {
+      const had = await env.DB.prepare("SELECT done, status FROM parcels WHERE awb = ?")
+        .bind(awb).first();
+      if (had && had.done) return json({ok: true, asked: false, done: true,
+                                        status: had.status, why: "already arrived"});
+    } catch (e) { /* no row yet, or no table — the ask below will say so */ }
 
     const seen = await askCourier(awb);
     if (seen.error) return json({ok: true, asked: false, why: seen.error});

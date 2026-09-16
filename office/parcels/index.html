@@ -307,16 +307,20 @@ async function load(){
 /* Ask after the ones still out — one at a time, with an uneven gap. Delivered
    parcels are skipped entirely: their last answer is their answer for good. */
 const wait = ms => new Promise(r => setTimeout(r, ms));
+let chasing = false;                 /* one round at a time, never two at once */
 async function chaseThem(){
-  if (!SWITCHED_ON) return;
+  if (!SWITCHED_ON || chasing) return;
   const out = PARCELS.filter(p => !p.done).map(p => p.awb).slice(0, 12);
   if (!out.length) return;
+  chasing = true;
   let moved = false;
-  for (let i = 0; i < out.length; i++) {
-    if (i) await wait(600 + Math.floor(Math.random() * 1600));
-    const d = await send({track: out[i]});
-    if (d && d.asked) moved = true;
-  }
+  try {
+    for (let i = 0; i < out.length; i++) {
+      if (i) await wait(600 + Math.floor(Math.random() * 1600));
+      const d = await send({track: out[i]});
+      if (d && d.asked) moved = true;
+    }
+  } finally { chasing = false; }
   if (moved) await load();
 }
 
