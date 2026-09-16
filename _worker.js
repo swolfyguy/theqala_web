@@ -827,16 +827,23 @@ const isAwb = a => /^[0-9]{6,20}$/.test(a);
 
 /* What she pasted, turned into parcels.
 
-   One per line: the number, then whoever it is for. Anything between them —
-   space, comma, tab — is a separator. A line that is not a number followed by
-   a name is handed back rather than quietly dropped, because a parcel silently
-   missing from the list is worse than being told about a typo. */
+   A parcel is a number then a name, and a comma or a new line ends it:
+
+       1736804425 Pallavi Jamadade, 1736804426 Ravita Sutar,
+
+   works, and so does one to a line, and so does a mixture. A comma at the
+   end changes nothing. Inside one parcel the number and the name are simply
+   separated by spaces, so a name may be as long as it likes.
+
+   Anything that is not a number followed by a name is handed back rather
+   than quietly dropped: a parcel silently missing from the list is worse
+   than being told about a typo. */
 function readPaste(text) {
   const rows = [], bad = [];
-  for (const raw of String(text || "").split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line) continue;
-    const m = /^([0-9]{6,20})[\s,;|\t]+(.+)$/.exec(line);
+  for (const piece of String(text || "").split(/[,;\r\n]+/)) {
+    const line = piece.trim();
+    if (!line) continue;                       /* a trailing comma is nothing */
+    const m = /^([0-9]{6,20})[\s|\t]+(.+)$/.exec(line);
     if (!m) { bad.push(line.slice(0, 60)); continue; }
     const who = m[2].replace(/\s+/g, " ").trim().slice(0, 80);
     if (!who) { bad.push(line.slice(0, 60)); continue; }

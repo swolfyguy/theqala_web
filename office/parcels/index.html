@@ -51,6 +51,8 @@ main{padding:22px 0 70px}
   padding:20px;margin-bottom:20px;box-shadow:0 1px 2px var(--shadow)}
 .card h2{font-size:1.15rem;margin-bottom:5px}
 .card p.sub{color:var(--ink-2);font-size:.9rem;margin:0 0 14px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;
+  background:var(--panel-2);border-radius:4px;padding:1px 5px}
 textarea{width:100%;min-height:110px;resize:vertical;padding:11px 13px;
   border:1px solid var(--line-2);border-radius:10px;background:var(--ground);
   color:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;line-height:1.6}
@@ -122,10 +124,12 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 <main class="wrap">
   <div class="card">
     <h2>Write down what went out</h2>
-    <p class="sub">One a line: the number from the sticker, then who it is for.
-      Nothing else — the courier tells us the date and where it is going.</p>
+    <p class="sub">The number from the sticker, then who it is for. A comma or a
+      new line ends each one — <code>1736804425 Pallavi, 1736804426 Ravita,</code>
+      or one to a line, or a mixture. Nothing else is needed: the courier tells
+      us the date and where it is going.</p>
     <textarea id="paste" spellcheck="false"
-      placeholder="1736804425  Pallavi Jamadade&#10;1736804426  Ravita Sutar"></textarea>
+      placeholder="1736804425 Pallavi Jamadade, 1736804426 Ravita Sutar,&#10;&#10;or one to a line:&#10;1736804427 Sneha Kulkarni"></textarea>
     <div class="row">
       <button class="btn" id="add">Add these</button>
       <span class="say" id="addsay"></span>
