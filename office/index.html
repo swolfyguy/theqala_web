@@ -202,6 +202,14 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .anjani.yes{border-left-color:var(--gold-2)}
 .anjani.no{border-left-color:var(--accent);background:var(--wash-gold)}
 .anjani.ask{border-left-color:var(--gold)}
+.sentshots{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.sentshots img{width:74px;height:74px;object-fit:cover;border-radius:9px;
+  border:1px solid var(--line-2);display:block}
+.sentshots a:hover img{border-color:var(--gold-2)}
+.i-size{margin-left:7px;padding:2px 6px;border:1px solid var(--line-2);border-radius:7px;
+  background:var(--panel);color:var(--gold);font:inherit;font-size:.78rem;
+  font-weight:700;vertical-align:baseline}
+.i-size:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
 .setrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
 .setrow select{padding:7px 10px;border:1px solid var(--line-2);border-radius:9px;
   background:var(--panel);color:inherit;font:inherit;font-size:.88rem}
@@ -805,9 +813,13 @@ function detail(o){
      from the website. It is behind the same sign-in as this page. */
   /* The moment it last changed rides along, so replacing a picture is seen
      straight away rather than the browser showing yesterday's from its cache. */
-  const chat = o.photo
-    ? "/office/img/" + encodeURIComponent(o.ref) + "?v=" + encodeURIComponent(o.updated_at || "")
-    : "";
+  /* Every picture on this order. `shots` is how many the book counted; an
+     order from before several were allowed reports one, and its single
+     photograph still answers on the plain address. */
+  const howMany = Number(o.shots || (o.photo ? 1 : 0)) || 0;
+  const shotUrl = i => "/office/img/" + encodeURIComponent(o.ref)
+    + (i ? "/" + i : "") + "?v=" + encodeURIComponent(o.updated_at || "");
+  const chat = howMany ? shotUrl(0) : "";
 
   const items = (o.items || []).map((l, i) => {
     const piece = PIECES[l.code];
@@ -829,7 +841,11 @@ function detail(o){
                    title="${piece ? "Open this piece on the shop" : "See the whole picture"}"
                 >${box}</a>` : box}
       <span class="what">
-        ${title}${l.size ? ` <b class="len">${esc(l.size)}&Prime;</b>` : ""}
+        ${title}
+        <select class="i-size" data-i="${i}" aria-label="Poth length for this piece">
+          <option value="">length not settled</option>
+          ${POTH.map(n => `<option value="${n}"${l.size === n ? " selected" : ""}>${n}&Prime;</option>`).join("")}
+        </select>
         <span class="code">${l.code === "OFFLINE" ? "" : esc(l.code) + " "}× ${l.qty}${
           piece && piece.price !== l.price ? ` · now ${rupees(piece.price)}` : ""}</span>
       </span>
@@ -854,6 +870,11 @@ function detail(o){
               : "no piece code on it, so nothing is held on the website"}</span></div>` : ""}
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
+        ${howMany > 1 ? `<h3>What they sent</h3>
+        <div class="sentshots">${Array.from({length: howMany}, (_, i) =>
+          `<a href="${shotUrl(i)}" target="_blank" rel="noopener" title="Picture ${i + 1} of ${howMany}">
+             <img src="${shotUrl(i)}" alt="Picture ${i + 1}" loading="lazy"
+                  onerror="this.parentNode.remove()"></a>`).join("")}</div>` : ""}
         ${anjaniNote(o)}
         <h3>Shree Anjani</h3>
         <div class="setrow">
@@ -995,12 +1016,14 @@ function wire(){
       if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
-        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check"); }
+        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
+      bindSizes(el, ref); }
     };
     if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
-        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check"); }
+        v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
+      bindSizes(el, ref); }
   });
 }
 
@@ -1177,6 +1200,41 @@ function bindMemo(el, ref){
    and whether the courier really goes there. Both are one field on the row, so
    both are the same small routine — pick, save, say so, and put the old value
    back if the book refuses it. */
+/* The lengths, where the pieces carry their own.
+
+   A website order gives every piece its own length and leaves the order-level
+   one empty, so this is the only place most orders can have a length changed.
+   The whole list is sent, not just the one that moved, so that the book is
+   never left guessing which piece was meant. */
+function bindSizes(el, ref){
+  const picks = [...el.querySelectorAll(".i-size")];
+  if (!picks.length || picks[0].dataset.wired) return;
+  picks.forEach(p => { p.dataset.wired = "1"; });
+
+  picks.forEach(pick => {
+    let before = pick.value;
+    pick.onchange = async () => {
+      const sizes = picks.map(p => p.value);
+      picks.forEach(p => { p.disabled = true; });
+      try {
+        const r = await api("/office/api", {
+          method: "POST", headers: {"content-type": "application/json"},
+          body: JSON.stringify({ref, sizes})
+        });
+        const d = await r.json();
+        if (r.status === 401) { gate(d.why); return; }
+        if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+        before = pick.value;
+        snack(ref + " — " + (pick.value ? pick.value + " inches" : "length cleared"));
+        await load();
+      } catch (err) {
+        pick.value = before;
+        snack(err.message);
+      } finally { picks.forEach(p => { p.disabled = false; }); }
+    };
+  });
+}
+
 function bindPick(el, ref, cls, field, word){
   const pick = el.querySelector(cls);
   if (!pick || pick.dataset.wired) return;

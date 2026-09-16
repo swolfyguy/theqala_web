@@ -114,6 +114,14 @@ footer a{color:var(--ink-2)}
 .pinsay{display:block;margin-top:5px;font-size:.8rem;line-height:1.45;color:var(--ink-2)}
 .pinsay.yes{color:var(--gold)}
 .pinsay.far{color:var(--ink-2)}
+.shots{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.shots .shot{position:relative;display:inline-block}
+.shots img{width:72px;height:72px;object-fit:cover;border-radius:10px;
+  border:1px solid var(--line-2);display:block}
+.shots .drop{position:absolute;top:-6px;right:-6px;width:22px;height:22px;
+  border-radius:50%;border:1px solid var(--line-2);background:var(--panel);
+  color:var(--ink);font-size:14px;line-height:1;cursor:pointer;padding:0}
+.shots .drop:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -169,16 +177,13 @@ footer a{color:var(--ink-2)}
         <option value="cod" disabled>Cash on delivery — not available just now</option>
       </select></label>
 
-    <div class="f"><span>A picture of the piece <em>optional — a screenshot works</em></span>
+    <div class="f"><span>Pictures of the piece <em>optional — up to 8, a screenshot works</em></span>
       <button type="button" class="pick" id="i-pick">
         <span class="plus" aria-hidden="true">+</span>
-        <span class="pickword" id="i-pickword">Add a picture</span>
+        <span class="pickword" id="i-pickword">Add pictures</span>
       </button>
-      <input type="file" id="i-file" accept="image/*" hidden>
-      <div class="shot" id="i-shot" hidden>
-        <img id="i-thumb" alt="">
-        <button type="button" class="drop" id="i-drop">Remove</button>
-      </div>
+      <input type="file" id="i-file" accept="image/*" multiple hidden>
+      <div class="shots" id="i-shots"></div>
       <p class="tiny" id="i-shotsay"></p>
     </div>
 
@@ -335,7 +340,6 @@ function voiceWire(){
   document.querySelector("#v-drop").onclick = voiceDrop;
 }
 
-let SHOT = "";
 const MAXSIDE = 1200;
 
 function shrink(file){
@@ -361,34 +365,55 @@ function shrink(file){
 
 const kb = n => Math.round(n / 1024) + " KB";
 voiceWire();
+
+/* ---------------------------------------------------------------------------
+   The pictures.
+
+   A piece made to order is agreed over several — the shape she wants, the
+   clasp, a screenshot of the one her sister had. One was never enough, so up
+   to eight are taken, each shrunk in her own phone before it goes anywhere.
+
+   They are kept in the order she chose them and each can be taken back out,
+   because the wrong one in the middle is the usual mistake. */
+const MAX_SHOTS = 8;
+let SHOTS = [];                        /* data: URLs, in her order */
+
+function drawShots(){
+  const box = $("#i-shots");
+  box.innerHTML = SHOTS.map((src, i) => `
+    <span class="shot">
+      <img src="${src}" alt="Picture ${i + 1}">
+      <button type="button" class="drop" data-i="${i}" aria-label="Remove picture ${i + 1}">×</button>
+    </span>`).join("");
+  box.querySelectorAll(".drop").forEach(b => {
+    b.onclick = () => { SHOTS.splice(Number(b.dataset.i), 1); drawShots(); };
+  });
+  $("#i-pick").hidden = SHOTS.length >= MAX_SHOTS;
+  $("#i-pickword").textContent = SHOTS.length ? "Add another" : "Add pictures";
+  const total = SHOTS.reduce((a, s) => a + s.length * 0.75, 0);
+  $("#i-shotsay").textContent = SHOTS.length
+    ? `${SHOTS.length} picture${SHOTS.length === 1 ? "" : "s"} · ${kb(total)}`
+    : "";
+}
+
 $("#i-pick").onclick = () => $("#i-file").click();
 $("#i-file").onchange = async () => {
-  const f = $("#i-file").files[0];
-  if (!f) return;
-  const say = $("#i-shotsay");
-  say.textContent = "getting it ready…";
-  try {
-    const before = f.size;
-    SHOT = await shrink(f);
-    $("#i-thumb").src = SHOT;
-    $("#i-shot").hidden = false;
-    $("#i-pick").hidden = true;
-    const after = SHOT.length * 0.75;
-    say.textContent = after < before * 0.92
-      ? `ready · ${kb(before)} → ${kb(after)}`
-      : `ready · ${kb(after)}`;
-  } catch (e) {
-    SHOT = "";
-    say.textContent = e.message || "That picture could not be used.";
-  }
+  const picked = [...$("#i-file").files];
   $("#i-file").value = "";
+  if (!picked.length) return;
+  const room = MAX_SHOTS - SHOTS.length;
+  const take = picked.slice(0, room);
+  const say = $("#i-shotsay");
+  say.textContent = take.length > 1 ? `getting ${take.length} ready…` : "getting it ready…";
+  for (const f of take) {
+    try { SHOTS.push(await shrink(f)); }
+    catch (e) { say.textContent = e.message || "One of those could not be used."; }
+  }
+  drawShots();
+  if (picked.length > room)
+    say.textContent += ` · only ${MAX_SHOTS} can be sent, the rest were left out`;
 };
-$("#i-drop").onclick = () => {
-  SHOT = "";
-  $("#i-shot").hidden = true;
-  $("#i-pick").hidden = false;
-  $("#i-shotsay").textContent = "";
-};
+drawShots();
 
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
   c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -421,7 +446,7 @@ $("#f").addEventListener("submit", async e => {
     want:  $("#i-want").value,
     pay:   $("#i-pay").value,
     note:  $("#i-note").value,
-    photo: SHOT,
+    photos: SHOTS,
     voice: VOICE
   };
 

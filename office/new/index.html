@@ -130,6 +130,15 @@ button.big:disabled{opacity:.55;cursor:default}
   max-width:92vw;text-align:center}
 #snack.up{transform:translate(-50%,0)}
 #snack:empty{display:none}
+.shots{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.shots .one{position:relative;display:inline-block}
+.shots img{width:68px;height:68px;object-fit:cover;border-radius:9px;
+  border:1px solid var(--line-2);display:block}
+.shots .x{position:absolute;top:-6px;right:-6px;width:21px;height:21px;border-radius:50%;
+  border:1px solid var(--line-2);background:var(--panel);color:var(--ink);
+  font-size:13px;line-height:1;cursor:pointer;padding:0}
+.shots .x:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.drop.full{opacity:.45;pointer-events:none}
 </style>
 </head>
 <body>
@@ -211,17 +220,18 @@ button.big:disabled{opacity:.55;cursor:default}
     <legend>The piece</legend>
     <div class="shot">
       <label class="drop" id="drop" for="i-file">
-        <input type="file" id="i-file" accept="image/*">
-        <span id="dropsay"><span class="mark">॥</span>Add the photograph<br>they sent<br><i>optional</i></span>
-        <img id="prev" alt="" hidden>
+        <input type="file" id="i-file" accept="image/*" multiple>
+        <span id="dropsay"><span class="mark">॥</span>Add the photographs<br>they sent<br><i>optional</i></span>
       </label>
       <div class="say">
-        <b>The photograph from the chat <i>optional</i></b>
-        Save the picture they sent you and add it here, or leave it — you can put
-        it on later from the order book, when you have it to hand. It is shrunk on
-        this phone before it goes anywhere.
+        <b>The photographs from the chat <i>optional, up to 8</i></b>
+        Save the pictures they sent you and add them here, or leave it — you can
+        put them on later from the order book, when you have them to hand. A
+        piece made to order usually takes more than one: the shape, the clasp,
+        and whatever she was shown that started it. They are shrunk on this
+        phone before they go anywhere.
         <div id="shotsize"></div>
-        <button class="btn" type="button" id="drop-clear" hidden>Remove the picture</button>
+        <div class="shots" id="shots"></div>
       </div>
     </div>
 
@@ -314,31 +324,49 @@ $("#i-price").addEventListener("input", total);
 
 /* ---------- the photograph, shrunk here before it goes anywhere ---------- */
 
-let SHOT = "";                                   // a data: URL, or nothing
+/* ---------------------------------------------------------------------------
+   The photographs.
+
+   A piece made to order is agreed over several pictures, not one, so up to
+   eight are taken and each can be pulled back out — the wrong one in the
+   middle is the usual mistake. Each is shrunk on this phone first, because a
+   full camera photograph carried up a shop's mobile connection is slow and
+   pointless. */
+const MAX_SHOTS = 8;
+let SHOTS = [];                                  // data: URLs, in the order chosen
+
+function drawShots(){
+  $("#shots").innerHTML = SHOTS.map((src, i) => `
+    <span class="one">
+      <img src="${src}" alt="Picture ${i + 1}">
+      <button type="button" class="x" data-i="${i}" aria-label="Remove picture ${i + 1}">×</button>
+    </span>`).join("");
+  $("#shots").querySelectorAll(".x").forEach(b => {
+    b.onclick = () => { SHOTS.splice(Number(b.dataset.i), 1); drawShots(); };
+  });
+  $("#dropsay").hidden = false;
+  $("#drop").classList.toggle("full", SHOTS.length >= MAX_SHOTS);
+  const kb = Math.round(SHOTS.reduce((a, x) => a + x.length * 0.75, 0) / 1024);
+  $("#shotsize").textContent = SHOTS.length
+    ? `${SHOTS.length} picture${SHOTS.length === 1 ? "" : "s"} — about ${kb} KB.` : "";
+}
 
 $("#i-file").addEventListener("change", async e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  $("#shotsize").textContent = "Shrinking…";
-  try {
-    SHOT = await shrink(file);
-    $("#prev").src = SHOT; $("#prev").hidden = false;
-    $("#dropsay").hidden = true;
-    $("#drop-clear").hidden = false;
-    const kb = Math.round(SHOT.length * 0.75 / 1024);
-    $("#shotsize").textContent = `Ready — about ${kb} KB.`;
-  } catch (err) {
-    SHOT = "";
-    $("#shotsize").innerHTML = `<span class="warn">${esc(err.message)}</span>`;
-  }
+  const picked = [...(e.target.files || [])];
   e.target.value = "";
+  if (!picked.length) return;
+  const room = MAX_SHOTS - SHOTS.length;
+  if (room <= 0) { $("#shotsize").innerHTML = `<span class="warn">Eight is the most an order can carry.</span>`; return; }
+  $("#shotsize").textContent = "Shrinking…";
+  for (const file of picked.slice(0, room)) {
+    try { SHOTS.push(await shrink(file)); }
+    catch (err) { $("#shotsize").innerHTML = `<span class="warn">${esc(err.message)}</span>`; }
+  }
+  drawShots();
+  if (picked.length > room)
+    $("#shotsize").innerHTML += ` <span class="warn">Only ${MAX_SHOTS} fit; the rest were left out.</span>`;
 });
-
-$("#drop-clear").addEventListener("click", () => {
-  SHOT = ""; $("#prev").hidden = true; $("#prev").removeAttribute("src");
-  $("#dropsay").hidden = false; $("#drop-clear").hidden = true;
-  $("#shotsize").textContent = "";
-});
+drawShots();
 
 /* A chat photograph is often four thousand pixels wide and several megabytes.
    Nothing in the order book is bigger than a thumbnail, so it is brought down
@@ -397,7 +425,7 @@ $("#f").addEventListener("submit", async e => {
     code:   $("#i-code").value,
     price:  $("#i-price").value,
     note:   $("#i-note").value,
-    photo:  SHOT
+    photos: SHOTS
   };
 
   /* Said here as well as on the server, so a mistake is caught before a

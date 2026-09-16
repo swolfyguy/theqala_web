@@ -69,6 +69,65 @@ const VOICE_EXT = {"audio/webm": "webm", "audio/mp4": "m4a", "audio/ogg": "ogg",
                    "audio/mpeg": "mp3", "audio/aac": "aac"};
 
 /* The same shape as a picture, and refused the same way. */
+/* ---------------------------------------------------------------------------
+   The photographs on an order.
+
+   A customer ordering a piece to be made sends more than one: the front, the
+   clasp, a screenshot of something she saw. One was never enough.
+
+   They live in order_shots, keyed by the order and a number, so an order can
+   carry several and each can be fetched on its own. The older order_photos
+   table held exactly one per order; it is still read, so nothing sent before
+   this was built is lost.
+   --------------------------------------------------------------------- */
+const MAX_SHOTS = 8;
+const SHOT_RE = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
+
+/* A list in, a list out — or an error naming which one was wrong, because
+   "that picture is too big" is no help when she sent five. */
+function cleanShots(raw) {
+  if (raw == null) return null;                       /* not mentioned, leave alone */
+  const many = Array.isArray(raw) ? raw : [raw];
+  const list = many.map(x => String(x == null ? "" : x).trim()).filter(Boolean);
+  if (!list.length) return [];                        /* sent empty: take them away */
+  if (list.length > MAX_SHOTS)
+    return {error: `That is more than ${MAX_SHOTS} pictures. Send the clearest ones.`};
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const m = SHOT_RE.exec(list[i]);
+    if (!m) return {error: `Picture ${i + 1} is not a kind we can keep.`};
+    if (m[2].length > MAX_PHOTO_CHARS)
+      return {error: `Picture ${i + 1} is too big. A screenshot is usually smaller.`};
+    out.push({mime: m[1], data: m[2]});
+  }
+  return out;
+}
+
+/* Written as a set: everything for this order goes, then what she sent now
+   goes in. Half a set is worse than none. */
+async function keepShots(env, ref, shots) {
+  await env.DB.prepare("DELETE FROM order_shots WHERE ref = ?").bind(ref).run();
+  for (let i = 0; i < shots.length; i++)
+    await env.DB.prepare(
+      "INSERT INTO order_shots (ref, n, mime, data) VALUES (?,?,?,?)"
+    ).bind(ref, i, shots[i].mime, shots[i].data).run();
+}
+
+/* How many an order has. The old single-photo table counts as one, so an
+   order from before this still shows its picture. */
+async function shotsOn(env, ref) {
+  try {
+    const r = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM order_shots WHERE ref = ?").bind(ref).first();
+    if (r && r.n) return r.n;
+  } catch (e) { /* no table yet */ }
+  try {
+    const r = await env.DB.prepare(
+      "SELECT 1 AS n FROM order_photos WHERE ref = ?").bind(ref).first();
+    return r ? 1 : 0;
+  } catch (e) { return 0; }
+}
+
 function cleanVoice(raw) {
   const v = String(raw == null ? "" : raw).trim();
   if (!v) return null;
@@ -1155,6 +1214,20 @@ async function listOrders(env, url, who) {
     rows.forEach(r => { r.voice = heard.has(r.ref); });
   } catch (e) { /* no recordings table yet, so none of them have one */ }
 
+  /* And how many photographs each one carries, so the card can show them all
+     without the listing dragging the pictures themselves along. */
+  try {
+    const marks = rows.map(() => "?").join(",") || "''";
+    const {results} = await env.DB.prepare(
+      `SELECT ref, COUNT(*) AS n FROM order_shots WHERE ref IN (${marks}) GROUP BY ref`
+    ).bind(...rows.map(r => r.ref)).all();
+    const many = new Map((results || []).map(r => [r.ref, r.n]));
+    rows.forEach(r => { r.shots = many.get(r.ref) || (r.photo ? 1 : 0); });
+  } catch (e) {
+    /* no order_shots table yet: fall back on the one the row remembers */
+    rows.forEach(r => { r.shots = r.photo ? 1 : 0; });
+  }
+
   /* Whether the usual courier goes to each of these addresses. Worked out
      from what we already know — the listing must never wait on somebody
      else's website — and matched against the full address, not just the
@@ -1202,6 +1275,8 @@ async function updateOrder(request, env, who = "") {
   if (b.purge === true) {
     if (was.status !== "deleted")
       return json({ok: false, why: "Move it to Deleted first, then it can be removed for good."}, 400);
+    try { await env.DB.prepare("DELETE FROM order_shots WHERE ref = ?").bind(ref).run(); }
+    catch (e) { /* no photographs table on an older book, which is fine */ }
     try { await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run(); }
     catch (e) { /* no photographs table on an older book, which is fine */ }
     try { await env.DB.prepare("DELETE FROM order_notes WHERE ref = ?").bind(ref).run(); }
@@ -1272,6 +1347,31 @@ async function updateOrder(request, env, who = "") {
     sets.push("poth = ?"); bind.push(p);
   }
 
+  /* The length of each piece on the order, when the pieces carry their own.
+
+     An order placed on the website gives every piece its own length, and the
+     order-level poth above is then left empty — so without this there was no
+     way to change a length at all on exactly the orders that have one. She
+     rings and says 34 not 36; this is where that gets recorded.
+
+     Sent as a list the same length as the order's own, so there is no
+     argument about which piece is which. An empty string means "not settled
+     yet", which is a real answer and allowed. */
+  if (b.sizes != null) {
+    const was2 = safeItems(was.items);
+    if (!Array.isArray(b.sizes) || b.sizes.length !== was2.length)
+      return json({ok: false, why: "That is not a length for every piece on this order."}, 400);
+    const sizes = b.sizes.map(x => String(x == null ? "" : x).trim());
+    if (sizes.some(x => x && !POTH.includes(x)))
+      return json({ok: false, why: "That is not a poth length we make."}, 400);
+    const now2 = was2.map((l, i) => {
+      const line = {...l};
+      if (sizes[i]) line.size = sizes[i]; else delete line.size;
+      return line;
+    });
+    sets.push("items = ?"); bind.push(JSON.stringify(now2));
+  }
+
   /* Filling in the price the shop agreed in the chat.
      Only ever on an order that did not come through the website — a customer
      who saw a price on the shop must not have it changed underneath her. */
@@ -1303,33 +1403,25 @@ async function updateOrder(request, env, who = "") {
     bind.push(shipping, cod_fee, goods + shipping + cod_fee);
   }
 
-  /* The photograph, added or replaced or taken away afterwards. An empty
-     string means remove it. */
-  let shot = null;
-  if (b.photo != null) {
-    const raw = String(b.photo).trim();
-    if (!raw) shot = {mime: "", data: ""};
-    else {
-      const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(raw);
-      if (!m) return json({ok: false, why: "That picture is not a kind we can keep."}, 400);
-      if (m[2].length > MAX_PHOTO_CHARS) return json({ok: false, why: "That picture is too big."}, 400);
-      shot = {mime: m[1], data: m[2]};
-    }
-  }
+  /* The photographs, added or replaced or taken away afterwards. An empty
+     list means remove them. `photo` on its own is still understood, so an
+     older page sending one picture goes on working. */
+  const shots = cleanShots(b.photos != null ? b.photos : b.photo);
+  if (shots && shots.error) return json({ok: false, why: shots.error}, 400);
 
-  if (!sets.length && !shot) return json({ok: false, why: "nothing to change"}, 400);
+  if (!sets.length && !shots) return json({ok: false, why: "nothing to change"}, 400);
 
-  if (shot) {
+  if (shots) {
     try {
-      if (shot.mime) await env.DB.prepare(
-        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
-      ).bind(ref, shot.mime, shot.data).run();
-      else await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run();
+      await keepShots(env, ref, shots);
+      /* The old single-photo row would otherwise still be found and shown. */
+      try { await env.DB.prepare("DELETE FROM order_photos WHERE ref = ?").bind(ref).run(); }
+      catch (e) { /* that table may not exist at all, which is fine */ }
     } catch {
-      return json({ok: false, why: "The order book has no order_photos table yet. "
+      return json({ok: false, why: "The order book has no order_shots table yet. "
         + "Paste schema.sql into the D1 console again."}, 500);
     }
-    sets.push("photo = ?"); bind.push(shot.mime);
+    sets.push("photo = ?"); bind.push(shots.length ? shots[0].mime : "");
   }
 
   sets.push("updated_at = ?"); bind.push(new Date().toISOString());
@@ -1437,13 +1529,9 @@ async function newOrder(request, env) {
   /* The picture is kept in a table of its own, so listing the book never drags
      photographs along, and a picture that will not save never costs the order. */
   let kept = false;
-  if (o.mime) {
-    try {
-      await env.DB.prepare(
-        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
-      ).bind(ref, o.mime, o.data).run();
-      kept = true;
-    } catch { kept = false; }
+  if (o.shots && o.shots.length) {
+    try { await keepShots(env, ref, o.shots); kept = true; }
+    catch { kept = false; }
     if (!kept) {
       try { await env.DB.prepare("UPDATE orders SET photo = '' WHERE ref = ?").bind(ref).run(); }
       catch { /* the order is saved either way, which is the part that matters */ }
@@ -1505,7 +1593,7 @@ async function chatOrder(request, env) {
          VALUES (?,?,?,?,?,?,?,?,?,0,0,0,0,'new',?,?,?,?)`
       ).bind(t, o.placed_at, o.name, o.phone, o.pincode, o.address, o.pay, o.poth,
              JSON.stringify(o.items), o.note, o.source,
-             o.shot ? o.shot.mime : "", o.placed_at).run();
+             o.shot && o.shot.length ? o.shot[0].mime : "", o.placed_at).run();
       if (didWrite(res)) ref = t;
     } catch (err) { failed = err; break; }
   }
@@ -1518,11 +1606,9 @@ async function chatOrder(request, env) {
      her address is the part that matters, and the shop can ask for the picture
      again in the chat. */
   let kept = false;
-  if (o.shot) {
+  if (o.shot && o.shot.length) {
     try {
-      await env.DB.prepare(
-        "INSERT OR REPLACE INTO order_photos (ref, mime, data) VALUES (?,?,?)"
-      ).bind(ref, o.shot.mime, o.shot.data).run();
+      await keepShots(env, ref, o.shot);
       kept = true;
     } catch (e) {
       try { await env.DB.prepare("UPDATE orders SET photo = '' WHERE ref = ?").bind(ref).run(); }
@@ -1569,13 +1655,9 @@ function cleanChat(b) {
      piece she means — surer than any words she can find for it. Optional, and
      an unreadable one is refused rather than losing the whole order. */
   let shot = null;
-  const raw = String(b.photo == null ? "" : b.photo).trim();
-  if (raw) {
-    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(raw);
-    if (!m) return {error: "That picture is not a kind we can keep. A photo or a screenshot works."};
-    if (m[2].length > MAX_PHOTO_CHARS) return {error: "That picture is too big. Try a screenshot instead."};
-    shot = {mime: m[1], data: m[2]};
-  }
+  const many = cleanShots(b.photos != null ? b.photos : b.photo);
+  if (many && many.error) return {error: many.error};
+  shot = many && many.length ? many : null;
 
   /* Her own voice, for what a form cannot hold: which piece she means, how
      long she wants the poth, where the lane turns off. Optional. */
@@ -1631,19 +1713,16 @@ function cleanOffline(b) {
   const item = {code: code || "OFFLINE", title, qty: 1, price};
   if (poth) item.size = poth;
 
-  /* The photograph, already shrunk in the browser to something a chat-sized
-     picture becomes anyway. Only the three kinds a phone camera produces. */
-  let mime = "", data = "";
-  const shot = typeof b.photo === "string" ? b.photo.trim() : "";
-  if (shot) {
-    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(shot);
-    if (!m) return {error: "That picture is not a kind we can keep. Use a photo from the chat."};
-    if (m[2].length > MAX_PHOTO_CHARS) return {error: "That picture is too big, even shrunk."};
-    mime = m[1]; data = m[2];
-  }
+  /* The photographs, already shrunk in the browser to what a chat-sized
+     picture becomes anyway. Only the three kinds a phone camera produces, and
+     never more than a handful. A custom piece is agreed over several: the
+     shape, the clasp, and whatever she was shown that started it. */
+  const shots = cleanShots(b.photos != null ? b.photos : b.photo);
+  if (shots && shots.error) return {error: shots.error};
 
   return {placed_at: new Date().toISOString(), name, phone, pincode, address, pay, poth,
-          items: [item], goods: price, total: price, note, source, mime, data};
+          items: [item], goods: price, total: price, note, source,
+          shots: shots || [], mime: shots && shots.length ? shots[0].mime : ""};
 }
 
 /* Handing a picture back. Never straight from the database to the internet —
@@ -1656,13 +1735,29 @@ async function photoOut(request, env, path) {
   if (!who.ok) return new Response("Sign in first.", {status: 401});
   if (!env.DB)  return new Response("No database.", {status: 503});
 
-  const ref = decodeURIComponent(path.slice("/office/img/".length));
-  if (!isRef(ref)) return new Response("Not found", {status: 404});
+  /* /office/img/Q-2609-01     the first one
+     /office/img/Q-2609-01/2   the third one, counting from nought
+     The plain form is what pages written before this ask for, and it still
+     answers, so nothing has to change at once. */
+  const tail = decodeURIComponent(path.slice("/office/img/".length));
+  const cut  = tail.lastIndexOf("/");
+  const ref  = cut > 0 ? tail.slice(0, cut) : tail;
+  const n    = cut > 0 ? parseInt(tail.slice(cut + 1), 10) : 0;
+  if (!isRef(ref) || !Number.isInteger(n) || n < 0 || n >= MAX_SHOTS)
+    return new Response("Not found", {status: 404});
 
   let row;
   try {
-    row = await env.DB.prepare("SELECT mime, data FROM order_photos WHERE ref = ?").bind(ref).first();
-  } catch { return new Response("Not found", {status: 404}); }
+    row = await env.DB.prepare(
+      "SELECT mime, data FROM order_shots WHERE ref = ? AND n = ?").bind(ref, n).first();
+  } catch { row = null; }
+  /* Nothing there: an order from before several were allowed keeps its one. */
+  if (!row && n === 0) {
+    try {
+      row = await env.DB.prepare(
+        "SELECT mime, data FROM order_photos WHERE ref = ?").bind(ref).first();
+    } catch { row = null; }
+  }
   if (!row || !EXT[row.mime]) return new Response("Not found", {status: 404});
 
   const bin = atob(row.data);
@@ -1673,7 +1768,7 @@ async function photoOut(request, env, path) {
     "content-type": row.mime,
     /* Signed in only, and a picture never changes once it is in. */
     "cache-control": "private, max-age=86400",
-    "content-disposition": `inline; filename="${ref}.${EXT[row.mime]}"`,
+    "content-disposition": `inline; filename="${ref}-${n + 1}.${EXT[row.mime]}"`,
     "x-content-type-options": "nosniff"
   }});
 }

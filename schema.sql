@@ -50,6 +50,21 @@ CREATE TABLE IF NOT EXISTS order_photos (
 );
 
 
+-- The photographs on an order: several, numbered from nought. A custom piece
+-- is agreed over more than one picture -- the shape, the clasp, and whatever
+-- she was shown that started it.
+--
+-- The older order_photos table above held exactly one per order. It is still
+-- read, so nothing sent before this was built is lost, and it can be dropped
+-- once you are sure there is nothing in it you want.
+CREATE TABLE IF NOT EXISTS order_shots (
+  ref  TEXT NOT NULL,
+  n    INTEGER NOT NULL,          -- 0, 1, 2 ... in the order she sent them
+  mime TEXT NOT NULL,
+  data TEXT NOT NULL,
+  PRIMARY KEY (ref, n)
+);
+
 -- Voice notes left on an order, one per order, kept out of the orders table
 -- so that listing the book never drags recordings along with it
 CREATE TABLE IF NOT EXISTS order_notes (
