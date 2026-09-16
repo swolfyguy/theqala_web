@@ -65,6 +65,19 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 .say{font-size:.86rem;color:var(--ink-2)}
 .say.bad{color:var(--accent)}
 
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 4px}
+.filters button{background:var(--panel);border:1px solid var(--line-2);border-radius:999px;
+  padding:6px 15px;font:inherit;font-size:.85rem;color:var(--ink-2);cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px}
+.filters button:hover{border-color:var(--gold-2);color:var(--ink)}
+.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);
+  color:var(--ground);font-weight:600}
+.filters .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;opacity:.75;
+  font-variant-numeric:tabular-nums}
+.filters .dot{width:7px;height:7px;border-radius:50%;flex:none}
+.filters .dot.moving{background:var(--moving)}
+.filters .dot.arrived{background:var(--arrived)}
+
 .daysep{display:flex;align-items:center;gap:12px;margin:26px 0 12px;
   font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
 .daysep::before,.daysep::after{content:"";height:1px;background:var(--line);flex:1}
@@ -136,6 +149,7 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
     </div>
   </div>
 
+  <div class="filters" id="filters" hidden></div>
   <div id="list"><div class="empty">Opening…</div></div>
 </main>
 
@@ -202,14 +216,49 @@ function stateOf(p){
   return {cls: "unknown", word: "not asked yet"};
 }
 
+/* Which ones she is looking at. "out" is everything not yet arrived — both the
+   ones moving and the ones not asked about yet — because to her they are the
+   same thing: still not with the customer. Kept in a variable rather than
+   remembered between visits, so the list never opens hiding parcels. */
+let SHOW = "all";
+const SHOWS = {
+  all:     {word: "All",        keep: () => true},
+  out:     {word: "Still out",  keep: p => !p.done},
+  arrived: {word: "Delivered",  keep: p => !!p.done}
+};
+
+function paintFilters(){
+  const bar = $("#filters");
+  if (!PARCELS.length) { bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.innerHTML = Object.entries(SHOWS).map(([key, f]) => {
+    const n = PARCELS.filter(f.keep).length;
+    const dot = key === "out" ? `<span class="dot moving"></span>`
+              : key === "arrived" ? `<span class="dot arrived"></span>` : "";
+    return `<button type="button" data-show="${key}" aria-pressed="${key === SHOW}">${
+      dot}${f.word}<span class="n">${n}</span></button>`;
+  }).join("");
+  bar.querySelectorAll("[data-show]").forEach(b => {
+    b.onclick = () => { SHOW = b.dataset.show; paint(); };  /* paint redraws this row too */
+  });
+}
+
 function paint(){
   const box = $("#list");
+  paintFilters();
   if (!PARCELS.length) {
     box.innerHTML = `<div class="empty">No parcels written down yet.</div>`;
     return;
   }
+  const shown = PARCELS.filter(SHOWS[SHOW].keep);
+  if (!shown.length) {
+    box.innerHTML = `<div class="empty">${SHOW === "arrived"
+      ? "Nothing has arrived yet."
+      : "Nothing is still out — every parcel has arrived."}</div>`;
+    return;
+  }
   const days = new Map();
-  for (const p of PARCELS) {
+  for (const p of shown) {
     const key = dayOf(p.booked_at || p.added_at);
     if (!days.has(key)) days.set(key, []);
     days.get(key).push(p);
