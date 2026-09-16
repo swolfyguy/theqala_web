@@ -182,6 +182,10 @@ export default {
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
       if (path === "/office/api")                                 return officeApi(request, env, url);
+      /* The API is /office/track, not /office/parcels: trailing slashes are
+         stripped above, so /office/parcels/ would otherwise reach this
+         instead of the page of that name. */
+      if (path === "/office/track")                                return parcels(request, env);
       if (path.startsWith("/office/gh/"))                         return toGitHub(request, env, path);
       if (path === "/api/chat-order" && request.method === "POST") return chatOrder(request, env);
       if (path === "/office/order"  && request.method === "POST") return newOrder(request, env);
@@ -193,7 +197,8 @@ export default {
       /* The studio and the office's order form are never handed out
          unsigned-in. Everything they can do is checked again on the way in
          below — this only saves showing a page to somebody who cannot use it. */
-      if (path === "/studio" || path.startsWith("/studio/") || path === "/office/new") {
+      if (path === "/studio" || path.startsWith("/studio/")
+          || path === "/office/new" || path === "/office/parcels") {
         const who = await whoGoes(request, env);
         if (!who.ok) return Response.redirect(
           url.origin + "/office/?next=" + encodeURIComponent(url.pathname + url.search), 302);
@@ -792,6 +797,160 @@ async function pinCheck(request, env, path) {
 
   return json({ok: true, known: true, pin, courier: COURIER_NAME, ...kept},
               200, {"cache-control": "no-store"});
+}
+
+/* ---------------------------------------------------------------------------
+   Where the parcels have got to.
+
+   The courier gives every parcel a number — the AWB on the sticker — and will
+   say where it is. The shop writes the numbers down as it dispatches, and this
+   asks after the ones that have not arrived yet.
+
+   Deliberately kept apart from the order book: parcels go out for things that
+   were never orders on this website, and an order can be split across two
+   parcels. Tying the two together would make both worse.
+
+   The rule that keeps this cheap and polite: a parcel that has been delivered
+   is never asked about again. Its last answer is its answer for good.
+
+   Fill in ANJANI_TRACK and it switches on; empty, none of it does anything. */
+const ANJANI_TRACK = "";   // "https://api-customer.example.com/public/…/<AWB>"
+
+/* What "it has arrived" looks like in their words. We have seen IN TRANSIT and
+   OUT; the delivered wording is not yet confirmed, so anything containing
+   "deliver" counts and everything else is treated as still moving. Erring this
+   way costs a few extra questions about a delivered parcel. Erring the other
+   way would leave one stuck saying "in transit" for ever. */
+const isDelivered = t => /deliver/i.test(String(t || ""));
+
+const isAwb = a => /^[0-9]{6,20}$/.test(a);
+
+/* What she pasted, turned into parcels.
+
+   One per line: the number, then whoever it is for. Anything between them —
+   space, comma, tab — is a separator. A line that is not a number followed by
+   a name is handed back rather than quietly dropped, because a parcel silently
+   missing from the list is worse than being told about a typo. */
+function readPaste(text) {
+  const rows = [], bad = [];
+  for (const raw of String(text || "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = /^([0-9]{6,20})[\s,;|\t]+(.+)$/.exec(line);
+    if (!m) { bad.push(line.slice(0, 60)); continue; }
+    const who = m[2].replace(/\s+/g, " ").trim().slice(0, 80);
+    if (!who) { bad.push(line.slice(0, 60)); continue; }
+    rows.push({awb: m[1], who});
+  }
+  return {rows, bad};
+}
+
+/* Their answer, reduced to what the shop reads. Anything unexpected throws,
+   and the caller turns that into "we could not ask just now". */
+function readTracking(body) {
+  if (!body || body.success !== true || !body.data) throw new Error("shape");
+  const bk = body.data.booking || {};
+  const moves = Array.isArray(body.data.booking_tracking) ? body.data.booking_tracking : [];
+  return {
+    status: String(bk.status_name || "").trim().slice(0, 60),
+    booked_at: String(bk.booking_date || "").slice(0, 40),
+    from_c: String(bk.from_center_name || "").slice(0, 60),
+    to_c: String(bk.to_center_name || "").slice(0, 60),
+    moves: JSON.stringify(moves.slice(0, 30).map(m => ({
+      what:  String((m && m.status_name) || "").slice(0, 40),
+      where: String((m && m.scanned_center_name) || "").slice(0, 60),
+      to:    String((m && m.to_center_name) || "").slice(0, 60),
+      at:    String((m && m.created_at) || "").slice(0, 40)
+    })))
+  };
+}
+
+async function askCourier(awb) {
+  const stop = new AbortController();
+  const bell = setTimeout(() => stop.abort(), COURIER_WAIT);
+  try {
+    const res = await fetch(ANJANI_TRACK.replace("<AWB>", encodeURIComponent(awb)),
+      {headers: {accept: "application/json", "user-agent": COURIER_UA}, signal: stop.signal});
+    clearTimeout(bell);
+    if (!res.ok) return {error: "the courier said " + res.status};
+    return readTracking(await res.json());
+  } catch (e) {
+    clearTimeout(bell);
+    return {error: "could not reach the courier"};
+  }
+}
+
+async function parcels(request, env) {
+  const who = await whoGoes(request, env);
+  if (!who.ok) return json({ok: false, login: true, why: who.why}, 401);
+  if (!env.DB)  return json({ok: false, why: "No database."}, 503);
+
+  /* ---- the list, newest dispatch first ---- */
+  if (request.method === "GET") {
+    try {
+      const {results} = await env.DB.prepare(
+        `SELECT * FROM parcels
+         ORDER BY CASE WHEN booked_at = '' THEN added_at ELSE booked_at END DESC`).all();
+      return json({ok: true, on: !!ANJANI_TRACK, parcels: (results || []).map(r => ({
+        ...r, moves: (() => { try { return JSON.parse(r.moves || "[]"); } catch { return []; } })()
+      }))}, 200, {"cache-control": "no-store"});
+    } catch (e) {
+      return json({ok: false, why: "The order book has no parcels table yet. "
+        + "Paste schema.sql into the D1 console again."}, 500);
+    }
+  }
+  if (request.method !== "POST") return json({ok: false, why: "method"}, 405);
+
+  let b;
+  try { b = await request.json(); } catch { return json({ok: false, why: "bad body"}, 400); }
+
+  /* ---- a day's dispatch, pasted in ---- */
+  if (b.add != null) {
+    const {rows, bad} = readPaste(b.add);
+    if (!rows.length) return json({ok: false, why: "Nothing in that looked like a parcel.", bad}, 400);
+    let put = 0, already = 0;
+    for (const r of rows) {
+      try {
+        const res = await env.DB.prepare(
+          `INSERT OR IGNORE INTO parcels (awb, who, added_at) VALUES (?,?,?)`)
+          .bind(r.awb, r.who, new Date().toISOString()).run();
+        if (didWrite(res)) put++; else already++;
+      } catch (e) {
+        return json({ok: false, why: "The order book has no parcels table yet."}, 500);
+      }
+    }
+    return json({ok: true, put, already, bad});
+  }
+
+  /* ---- ask after one parcel ---- */
+  if (b.track != null) {
+    const awb = String(b.track).replace(/\D/g, "");
+    if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
+    if (!ANJANI_TRACK) return json({ok: true, asked: false, why: "not switched on"});
+
+    const seen = await askCourier(awb);
+    if (seen.error) return json({ok: true, asked: false, why: seen.error});
+    try {
+      await env.DB.prepare(
+        `UPDATE parcels SET status = ?, booked_at = ?, from_c = ?, to_c = ?, moves = ?,
+                            done = ?, asked_at = ? WHERE awb = ?`)
+        .bind(seen.status, seen.booked_at, seen.from_c, seen.to_c, seen.moves,
+              isDelivered(seen.status) ? 1 : 0, new Date().toISOString(), awb).run();
+    } catch (e) { return json({ok: true, asked: false, why: "could not write it down"}); }
+    return json({ok: true, asked: true, awb, status: seen.status,
+                 done: isDelivered(seen.status)});
+  }
+
+  /* ---- take one off the list ---- */
+  if (b.drop != null) {
+    const awb = String(b.drop).replace(/\D/g, "");
+    if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
+    try { await env.DB.prepare("DELETE FROM parcels WHERE awb = ?").bind(awb).run(); }
+    catch (e) { return json({ok: false, why: "could not remove it"}, 500); }
+    return json({ok: true, dropped: awb});
+  }
+
+  return json({ok: false, why: "nothing to do"}, 400);
 }
 
 /* Anything on this order that somebody else has already taken. */

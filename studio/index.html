@@ -73,6 +73,18 @@ main{padding:34px 0 90px}
 .card h2{font-size:1.3rem;margin-bottom:4px}
 .card p.sub{color:var(--ink-2);font-size:.92rem;margin:0 0 18px}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.watch{width:100%;border-collapse:collapse;font-size:.92rem;
+  font-variant-numeric:tabular-nums;margin-top:6px}
+.watch th,.watch td{padding:9px 8px;text-align:right;border-top:1px solid var(--line)}
+.watch th:first-child,.watch td:first-child{text-align:left}
+.watch thead th{border-top:none;font-size:.66rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-2);font-weight:700}
+.watch td:first-child{color:var(--ink-2)}
+.watch tbody tr:first-child td{font-size:1rem}
+.watch .big{font-family:Marcellus,Georgia,serif;color:var(--ink)}
+.said{margin:16px 0 0;font-size:.9rem;color:var(--ink-2);line-height:1.6}
+.said b{color:var(--ink);font-weight:400;font-family:Marcellus,Georgia,serif;
+  font-size:1.08rem}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
 label.f input,label.f select{background:var(--ground);border:1px solid var(--line-2);border-radius:10px;padding:11px 13px;width:100%}
 label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)}
@@ -227,12 +239,14 @@ label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2p
     <div class="crossnav" id="crossnav" hidden>
       <a href="/office/">Orders</a>
       <a href="/office/new/">New order</a>
+      <a href="/office/parcels/">Parcels</a>
       <span aria-current="page">Studio</span>
       <button type="button" id="signOut">Sign out</button>
     </div>
     <nav class="tabs">
       <button class="tab on" data-tab="upload">Add a product</button>
       <button class="tab" data-tab="manage">Manage</button>
+      <button class="tab" data-tab="film">The film</button>
       <button class="tab" data-tab="settings">Settings</button>
     </nav>
   </div>
@@ -260,6 +274,7 @@ label.pick small{display:block;font-size:.82rem;color:var(--ink-2);margin-top:2p
 <main class="wrap">
   <section id="tab-upload"></section>
   <section id="tab-manage" hidden></section>
+  <section id="tab-film" hidden></section>
   <section id="tab-settings" hidden></section>
 </main>
 
@@ -564,6 +579,116 @@ const bandLabel = b => { const m = BAND_RE.exec(b); return m ? rupees(m[1]) + " 
 
 <script>
 /* ---------- settings ---------- */
+/* ---------------------------------------------------------------------------
+   Did anybody watch the how-to film?
+
+   Four moments are counted on the shop: the circle was there, she turned the
+   sound on, she got past halfway, she watched it out. Each is counted once
+   per browser per day, so these are people, near enough — not taps.
+
+   The one number worth reading is the second as a share of the first. Almost
+   everybody "sees" the circle, because it plays silently on every page, so
+   that column on its own says very little. What matters is how many cared
+   enough to tap it. If that stays tiny the film is in the wrong place or the
+   words on it are not tempting, and it makes no difference how faithfully
+   the few who do open it watch to the end.
+
+   Nothing here identifies anybody. There is no row per person, and no row
+   that can be joined to an order.
+   --------------------------------------------------------------------- */
+const WATCH_COLS = [
+  ["howto_shown",    "Saw the circle"],
+  ["howto_open",     "Turned sound on"],
+  ["howto_half",     "Past halfway"],
+  ["howto_finished", "Watched it out"]
+];
+
+async function renderFilm(){
+  const box = $("#tab-film");
+  box.innerHTML = `<div class="card"><h2>The how-to film</h2>
+    <p class="sub">Counting…</p></div>`;
+
+  let rows = null;
+  try {
+    const r = await fetch("/office/tally", {credentials: "same-origin"});
+    if (r.ok) { const d = await r.json(); rows = (d && d.rows) || []; }
+  } catch (e) { /* offline, or the studio is running on this computer */ }
+
+  if (!rows) {
+    box.innerHTML = `<div class="card"><h2>The how-to film</h2>
+      <p class="sub">The count lives on the website, so this is only filled in
+      when you open the studio at theqalashree.com/studio/ — not when it is
+      running on this computer.</p></div>`;
+    return;
+  }
+  if (!rows.length) {
+    box.innerHTML = `<div class="card"><h2>The how-to film</h2>
+      <p class="sub">Nothing counted yet. Either nobody has been on the shop
+      since this was switched on, or the <code>tally</code> table has not been
+      made in the database.</p></div>`;
+    return;
+  }
+
+  /* Whole days on the shop's own clock. A tally stamped in Pune should be
+     read in Pune, whatever time the phone looking at it thinks it is. */
+  const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+  const ago = n => new Date(Date.now() + 5.5 * 3600e3 - n * 864e5).toISOString().slice(0, 10);
+  const add = since => {
+    const out = {};
+    rows.forEach(r => {
+      if (since && r.day < since) return;
+      out[r.what] = (out[r.what] || 0) + (Number(r.n) || 0);
+    });
+    return out;
+  };
+  const bands = [
+    ["Today",        add(today)],
+    ["Last 7 days",  add(ago(6))],
+    ["Last 30 days", add(ago(29))],
+    ["All time",     add("")]
+  ];
+
+  const week  = bands[1][1];
+  const saw   = week.howto_shown || 0;
+  const sound = week.howto_open  || 0;
+  const out   = week.howto_finished || 0;
+  const share = saw ? Math.round((sound / saw) * 100) : 0;
+
+  /* Said plainly, because a table of four numbers is easy to read and hard
+     to draw a conclusion from. */
+  const verdict = !saw
+    ? "Nothing counted this week yet."
+    : share < 5
+      ? `Only <b>${share} in a hundred</b> of the people who saw the circle tapped it.
+         That is low. The film is either sitting somewhere nobody looks, or the
+         words on the circle are not tempting enough to be worth a tap — the film
+         itself is not the problem yet, because hardly anybody has seen it.`
+      : share < 15
+        ? `<b>${share} in a hundred</b> who saw the circle tapped it. That is a
+           fair rate for something nobody asked for. Whether it is worth keeping
+           depends on the last column: of the ${sound} who turned the sound on,
+           ${out} watched it out.`
+        : `<b>${share} in a hundred</b> who saw the circle tapped it, which is
+           high — people want this. Of the ${sound} who turned the sound on,
+           ${out} watched it to the end.`;
+
+  box.innerHTML = `
+  <div class="card">
+    <h2>The how-to film</h2>
+    <p class="sub">Each person is counted once a day, so watching it twice is
+       still one watch. Nobody is identified and none of this can be joined to
+       an order.</p>
+    <table class="watch">
+      <thead><tr><th></th>${WATCH_COLS.map(c => `<th>${c[1]}</th>`).join("")}</tr></thead>
+      <tbody>${bands.map(([name, n], i) => `
+        <tr><td>${name}</td>${WATCH_COLS.map(c =>
+          `<td${i === 0 ? ' class="big"' : ''}>${n[c[0]] || 0}</td>`).join("")}</tr>`).join("")}
+      </tbody>
+    </table>
+    <p class="said">${verdict}</p>
+  </div>`;
+}
+
 function renderSettings(){
   const box = $("#tab-settings");
   const trashCard = (isLocal() && LOCAL.trash) ? `
@@ -1552,10 +1677,11 @@ function stamp(){
 }
 function go(name){
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
-  ["upload","manage","settings"].forEach(n => { $("#tab-" + n).hidden = n !== name; });
+  ["upload","manage","film","settings"].forEach(n => { $("#tab-" + n).hidden = n !== name; });
   logBox = null;
   if (name === "upload") renderUpload();
   if (name === "manage") renderManage();
+  if (name === "film") renderFilm();
   if (name === "settings") renderSettings();
   refreshGit();
   location.hash = name;

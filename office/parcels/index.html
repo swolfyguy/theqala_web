@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Parcels — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
+  --moving:#9A7325; --arrived:#2F6E5B; --unknown:#8A8A8A;
+  --on-accent:#FFF6E9;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4); --wash-gold:rgba(207,168,79,.12);
+    --moving:#CFA84F; --arrived:#7FC0A8; --unknown:#8A8A8A;
+    --on-accent:#131011;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.hrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+h1{font-size:1.35rem;margin-right:auto}
+.crossnav{display:flex;gap:12px;align-items:center;font-size:.86rem;color:var(--ink-2)}
+.crossnav a{text-decoration:none;opacity:.8}
+.crossnav a:hover{opacity:1}
+.crossnav [aria-current]{color:var(--ink);font-weight:600}
+.out{background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 13px;
+  font:inherit;font-size:.82rem;color:inherit;cursor:pointer}
+
+main{padding:22px 0 70px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:20px;margin-bottom:20px;box-shadow:0 1px 2px var(--shadow)}
+.card h2{font-size:1.15rem;margin-bottom:5px}
+.card p.sub{color:var(--ink-2);font-size:.9rem;margin:0 0 14px}
+textarea{width:100%;min-height:110px;resize:vertical;padding:11px 13px;
+  border:1px solid var(--line-2);border-radius:10px;background:var(--ground);
+  color:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.btn{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);
+  border-radius:999px;padding:9px 20px;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.btn.ghost{background:none;color:inherit;border-color:var(--line-2);font-weight:400}
+.btn[disabled]{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.say{font-size:.86rem;color:var(--ink-2)}
+.say.bad{color:var(--accent)}
+
+.daysep{display:flex;align-items:center;gap:12px;margin:26px 0 12px;
+  font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
+.daysep::before,.daysep::after{content:"";height:1px;background:var(--line);flex:1}
+
+.parcel{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  margin-bottom:9px;box-shadow:0 1px 2px var(--shadow);overflow:hidden}
+.phead{display:grid;gap:12px;align-items:center;padding:13px 15px;width:100%;
+  background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;
+  grid-template-columns:1fr auto}
+@media (min-width:720px){
+  .phead{grid-template-columns:9.5rem minmax(0,1fr) 9rem 7.5rem 1.2rem}
+}
+.awb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;color:var(--ink-2)}
+.who{font-weight:600}
+.where{font-size:.84rem;color:var(--ink-2)}
+.state{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  white-space:nowrap}
+.state.moving{color:var(--moving)}
+.state.arrived{color:var(--arrived)}
+.state.unknown{color:var(--unknown)}
+.chev{color:var(--line-2);justify-self:end}
+.more{border-top:1px solid var(--line);padding:13px 15px;background:var(--panel-2)}
+.moves{list-style:none;margin:0;padding:0}
+.moves li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:7px 0;
+  border-top:1px dashed var(--line);font-size:.87rem}
+.moves li:first-child{border-top:none}
+.moves time{color:var(--ink-2);font-size:.8rem;white-space:nowrap}
+.moves b{font-weight:600}
+.acts{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.acts button{background:none;border:1px solid var(--line-2);border-radius:999px;
+  padding:5px 13px;font:inherit;font-size:.8rem;color:inherit;cursor:pointer}
+.acts button:hover{border-color:var(--accent);color:var(--accent)}
+.empty{color:var(--ink-2);padding:26px 0;text-align:center}
+.note{border-left:3px solid var(--gold);background:var(--wash-gold);
+  border-radius:0 10px 10px 0;padding:12px 15px;margin:14px 0;font-size:.88rem;color:var(--ink-2)}
+#snack{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9;
+  background:var(--ink);color:var(--ground);border-radius:999px;padding:10px 20px;
+  font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .2s}
+#snack.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <h1>Parcels</h1>
+    <div class="crossnav">
+      <a href="/office/">Orders</a>
+      <a href="/office/new/">New order</a>
+      <span aria-current="page">Parcels</span>
+      <a href="/studio/">Studio</a>
+    </div>
+    <button class="out" id="out">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="card">
+    <h2>Write down what went out</h2>
+    <p class="sub">One a line: the number from the sticker, then who it is for.
+      Nothing else — the courier tells us the date and where it is going.</p>
+    <textarea id="paste" spellcheck="false"
+      placeholder="1736804425  Pallavi Jamadade&#10;1736804426  Ravita Sutar"></textarea>
+    <div class="row">
+      <button class="btn" id="add">Add these</button>
+      <span class="say" id="addsay"></span>
+    </div>
+  </div>
+
+  <div id="list"><div class="empty">Opening…</div></div>
+</main>
+
+<div id="snack"></div>
+
+<script>
+/* =====================================================================
+   The Qala — parcels
+
+   The numbers on the courier's stickers, and where each parcel has got
+   to. Kept apart from the order book on purpose: parcels go out for
+   things that were never orders here, and one order can become two
+   parcels.
+
+   Opening this page asks the courier about everything that has not
+   arrived yet — one at a time, with an uneven gap, because eight at
+   once is both the shape of a script and the shape most likely to trip
+   a rate limiter. A parcel that has been delivered is never asked about
+   again.
+   ===================================================================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s)
+  .replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+
+let PARCELS = [], SWITCHED_ON = false;
+
+function snack(msg){
+  const el = $("#snack");
+  el.textContent = msg; el.classList.add("on");
+  clearTimeout(snack.t); snack.t = setTimeout(() => el.classList.remove("on"), 2600);
+}
+
+/* The shop's own day, not the reader's: a parcel booked in Pune at half past
+   eleven at night belongs to that day. */
+const IST = 5.5 * 3600e3;
+const dayOf = iso => {
+  const t = Date.parse(iso || "");
+  return Number.isFinite(t) ? new Date(t + IST).toISOString().slice(0, 10) : "";
+};
+const DAY = {weekday:"long", day:"numeric", month:"long", year:"numeric"};
+function dayName(key){
+  if (!key) return "Date unknown";
+  const today = new Date(Date.now() + IST).toISOString().slice(0, 10);
+  const y = new Date(Date.now() + IST - 864e5).toISOString().slice(0, 10);
+  if (key === today) return "Today";
+  if (key === y) return "Yesterday";
+  const [Y, M, D] = key.split("-").map(Number);
+  return new Date(Date.UTC(Y, M - 1, D)).toLocaleDateString("en-IN", DAY);
+}
+function when(iso){
+  const t = Date.parse(iso || "");
+  if (!Number.isFinite(t)) return "";
+  return new Date(t + IST).toISOString().slice(11, 16)
+       + " · " + new Date(t + IST).toISOString().slice(8, 10)
+       + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+new Date(t + IST).toISOString().slice(5,7) - 1];
+}
+
+/* Three states, and "we have not asked yet" is one of them — shown as itself
+   rather than guessed at. */
+function stateOf(p){
+  if (p.done) return {cls: "arrived", word: p.status || "Delivered"};
+  if (p.status) return {cls: "moving", word: p.status};
+  return {cls: "unknown", word: "not asked yet"};
+}
+
+function paint(){
+  const box = $("#list");
+  if (!PARCELS.length) {
+    box.innerHTML = `<div class="empty">No parcels written down yet.</div>`;
+    return;
+  }
+  const days = new Map();
+  for (const p of PARCELS) {
+    const key = dayOf(p.booked_at || p.added_at);
+    if (!days.has(key)) days.set(key, []);
+    days.get(key).push(p);
+  }
+  box.innerHTML = [...days.entries()].map(([key, list]) => {
+    const out = list.filter(p => !p.done).length;
+    return `<div class="daysep">${esc(dayName(key))} · ${list.length} parcel${
+      list.length === 1 ? "" : "s"}${out ? ` · ${out} still out` : " · all arrived"}</div>`
+      + list.map(card).join("");
+  }).join("");
+  box.querySelectorAll(".phead").forEach(h => {
+    h.onclick = () => {
+      const more = h.nextElementSibling;
+      if (more) more.hidden = !more.hidden;
+    };
+  });
+  box.querySelectorAll("[data-drop]").forEach(b => {
+    b.onclick = async () => {
+      if (!confirm("Take this parcel off the list? The courier is not told anything.")) return;
+      await send({drop: b.dataset.drop});
+      await load();
+      snack("taken off the list");
+    };
+  });
+  box.querySelectorAll("[data-again]").forEach(b => {
+    b.onclick = async () => {
+      b.disabled = true;
+      const d = await send({track: b.dataset.again});
+      await load();
+      snack(d && d.asked ? "asked — " + (d.status || "no answer")
+                         : "could not ask — " + ((d && d.why) || "no answer"));
+    };
+  });
+}
+
+function card(p){
+  const st = stateOf(p);
+  const moves = Array.isArray(p.moves) ? p.moves : [];
+  return `<article class="parcel">
+    <button class="phead" type="button">
+      <span class="awb">${esc(p.awb)}</span>
+      <span class="who">${esc(p.who)}</span>
+      <span class="where">${esc(p.to_c || "—")}</span>
+      <span class="state ${st.cls}">${esc(st.word)}</span>
+      <span class="chev">›</span>
+    </button>
+    <div class="more" hidden>
+      ${p.from_c || p.to_c ? `<div class="where">${esc(p.from_c || "?")} → ${esc(p.to_c || "?")}</div>` : ""}
+      ${moves.length ? `<ul class="moves">${moves.map(m => `
+        <li><time>${esc(when(m.at))}</time>
+            <span><b>${esc(m.what)}</b>${m.where ? ` at ${esc(m.where)}` : ""}${
+              m.to ? ` — on to ${esc(m.to)}` : ""}</span></li>`).join("")}</ul>`
+        : `<div class="say">No movements recorded yet.</div>`}
+      <div class="acts">
+        <button type="button" data-again="${esc(p.awb)}">Ask again</button>
+        <a class="acts-link" href="https://shreeanjani.co.in/tracking?awb=${encodeURIComponent(p.awb)}"
+           target="_blank" rel="noopener"><button type="button">Open on their site</button></a>
+        <button type="button" data-drop="${esc(p.awb)}">Remove</button>
+      </div>
+      ${p.asked_at ? `<div class="say" style="margin-top:8px">last asked ${esc(when(p.asked_at))}</div>` : ""}
+    </div>
+  </article>`;
+}
+
+async function send(body){
+  try {
+    const r = await fetch("/office/track", {
+      method: "POST", headers: {"content-type": "application/json"},
+      body: JSON.stringify(body)
+    });
+    if (r.status === 401) { location.href = "/office/?next=" + encodeURIComponent("/office/parcels/"); return null; }
+    return await r.json();
+  } catch (e) { return null; }
+}
+
+async function load(){
+  try {
+    const r = await fetch("/office/track", {headers: {accept: "application/json"}});
+    if (r.status === 401) { location.href = "/office/?next=" + encodeURIComponent("/office/parcels/"); return; }
+    const d = await r.json();
+    if (!d.ok) { $("#list").innerHTML = `<div class="note">${esc(d.why || "Could not open the list.")}</div>`; return; }
+    PARCELS = d.parcels || [];
+    SWITCHED_ON = !!d.on;
+    paint();
+    if (!SWITCHED_ON)
+      $("#list").insertAdjacentHTML("afterbegin",
+        `<div class="note">Tracking is not switched on yet — the courier's address has
+         still to be filled in, so statuses will stay blank. Parcels can be written
+         down in the meantime and will be asked after once it is on.</div>`);
+  } catch (e) {
+    $("#list").innerHTML = `<div class="note">Could not reach the order book. Check you are online.</div>`;
+  }
+}
+
+/* Ask after the ones still out — one at a time, with an uneven gap. Delivered
+   parcels are skipped entirely: their last answer is their answer for good. */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function chaseThem(){
+  if (!SWITCHED_ON) return;
+  const out = PARCELS.filter(p => !p.done).map(p => p.awb).slice(0, 12);
+  if (!out.length) return;
+  let moved = false;
+  for (let i = 0; i < out.length; i++) {
+    if (i) await wait(600 + Math.floor(Math.random() * 1600));
+    const d = await send({track: out[i]});
+    if (d && d.asked) moved = true;
+  }
+  if (moved) await load();
+}
+
+$("#add").onclick = async () => {
+  const text = $("#paste").value.trim();
+  const say = $("#addsay");
+  if (!text) { say.textContent = "Nothing to add."; say.className = "say bad"; return; }
+  $("#add").disabled = true;
+  say.textContent = "adding…"; say.className = "say";
+  const d = await send({add: text});
+  $("#add").disabled = false;
+  if (!d || !d.ok) {
+    say.textContent = (d && d.why) || "That did not work.";
+    say.className = "say bad";
+    if (d && d.bad && d.bad.length) say.textContent += "  Could not read: " + d.bad.join(" / ");
+    return;
+  }
+  $("#paste").value = "";
+  const bits = [`${d.put} added`];
+  if (d.already) bits.push(`${d.already} already there`);
+  if (d.bad && d.bad.length) bits.push(`could not read: ${d.bad.join(" / ")}`);
+  say.textContent = bits.join(" · ");
+  say.className = d.bad && d.bad.length ? "say bad" : "say";
+  await load();
+  chaseThem();
+};
+
+$("#out").onclick = async () => {
+  try { await fetch("/office/logout", {method: "POST"}); } catch {}
+  location.href = "/office/";
+};
+
+(async () => { await load(); chaseThem(); })();
+</script>
+</body>
+</html>

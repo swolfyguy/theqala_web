@@ -167,6 +167,27 @@ CREATE TABLE IF NOT EXISTS pincodes (
   checked_at TEXT NOT NULL
 );
 
+-- The parcels that have gone out, and where they have got to.
+--
+-- Deliberately apart from the orders: a parcel goes out for things that were
+-- never orders on this website, and one order can be split across two parcels.
+-- One row per AWB -- the number on the courier's sticker.
+--
+-- done = 1 once it has been delivered. A delivered parcel is never asked
+-- about again; its last answer is its answer for good.
+CREATE TABLE IF NOT EXISTS parcels (
+  awb       TEXT PRIMARY KEY,
+  who       TEXT NOT NULL DEFAULT '',   -- whoever it is for, as it was typed
+  added_at  TEXT NOT NULL,              -- when it was written down here
+  booked_at TEXT DEFAULT '',            -- when the courier says it was booked
+  from_c    TEXT DEFAULT '',
+  to_c      TEXT DEFAULT '',
+  status    TEXT DEFAULT '',
+  moves     TEXT DEFAULT '[]',          -- the movement history, as JSON
+  done      INTEGER NOT NULL DEFAULT 0,
+  asked_at  TEXT DEFAULT ''
+);
+
 -- How many people watched the how-to film. One row per day per moment, so
 -- four rows a day at most, and nothing in them that says who.
 -- `what` is one of: howto_shown, howto_open, howto_half, howto_finished
