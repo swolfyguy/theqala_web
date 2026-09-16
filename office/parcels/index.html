@@ -98,6 +98,8 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 .state.moving{color:var(--moving)}
 .state.arrived{color:var(--arrived)}
 .state.unknown{color:var(--unknown)}
+.state .hand{display:block;font-size:.6rem;letter-spacing:.08em;font-weight:400;
+  color:var(--ink-2);text-transform:none;margin-top:1px}
 .chev{color:var(--line-2);justify-self:end}
 .more{border-top:1px solid var(--line);padding:13px 15px;background:var(--panel-2)}
 .moves{list-style:none;margin:0;padding:0}
@@ -211,8 +213,12 @@ function when(iso){
 /* Three states, and "we have not asked yet" is one of them — shown as itself
    rather than guessed at. */
 function stateOf(p){
-  if (p.done) return {cls: "arrived", word: p.status || "Delivered"};
-  if (p.status) return {cls: "moving", word: p.status};
+  /* Marked by hand comes first: the courier's last word may still say IN
+     TRANSIT, and showing that in green as though it had arrived would be a
+     lie. The courier's word is not thrown away — it is in the panel below. */
+  if (p.by_hand) return {cls: "arrived", word: "Delivered", hand: true};
+  if (p.done)    return {cls: "arrived", word: p.status || "Delivered"};
+  if (p.status)  return {cls: "moving",  word: p.status};
   return {cls: "unknown", word: "not asked yet"};
 }
 
@@ -283,10 +289,20 @@ function paint(){
       snack("taken off the list");
     };
   });
+  box.querySelectorAll("[data-hand]").forEach(b => {
+    b.onclick = async () => {
+      b.disabled = true;
+      const on = b.dataset.on === "yes";
+      const d = await send({hand: b.dataset.hand, on});
+      await load();
+      snack(d && d.ok ? (on ? "marked delivered" : "back on the list — it will be asked about again")
+                      : "could not do that — " + ((d && d.why) || "no answer"));
+    };
+  });
   box.querySelectorAll("[data-again]").forEach(b => {
     b.onclick = async () => {
       b.disabled = true;
-      const d = await send({track: b.dataset.again});
+      const d = await send({track: b.dataset.again, force: true});
       await load();
       snack(d && d.asked ? "asked — " + (d.status || "no answer")
                          : "could not ask — " + ((d && d.why) || "no answer"));
@@ -302,7 +318,9 @@ function card(p){
       <span class="awb">${esc(p.awb)}</span>
       <span class="who">${esc(p.who)}</span>
       <span class="where">${esc(p.to_c || "—")}</span>
-      <span class="state ${st.cls}">${esc(st.word)}</span>
+      <span class="state ${st.cls}"${st.hand
+        ? ` title="Marked delivered by ${esc(p.by_hand)} — not by the courier"` : ""
+        }>${esc(st.word)}${st.hand ? `<span class="hand">by hand</span>` : ""}</span>
       <span class="chev">›</span>
     </button>
     <div class="more" hidden>
@@ -314,10 +332,17 @@ function card(p){
         : `<div class="say">No movements recorded yet.</div>`}
       <div class="acts">
         <button type="button" data-again="${esc(p.awb)}">Ask again</button>
+        ${p.by_hand
+          ? `<button type="button" data-hand="${esc(p.awb)}" data-on="no">Not delivered after all</button>`
+          : p.done ? ""
+          : `<button type="button" data-hand="${esc(p.awb)}" data-on="yes">Mark delivered</button>`}
         <a class="acts-link" href="https://shreeanjani.co.in/tracking?awb=${encodeURIComponent(p.awb)}"
            target="_blank" rel="noopener"><button type="button">Open on their site</button></a>
         <button type="button" data-drop="${esc(p.awb)}">Remove</button>
       </div>
+      ${p.by_hand ? `<div class="say" style="margin-top:8px">Marked delivered by ${
+        esc(p.by_hand)}${p.by_hand_at ? " · " + esc(when(p.by_hand_at)) : ""}${
+        p.status ? ` — the courier last said ${esc(p.status)}` : ""}. It is not asked about any more.</div>` : ""}
       ${p.asked_at ? `<div class="say" style="margin-top:8px">last asked ${esc(when(p.asked_at))}</div>` : ""}
     </div>
   </article>`;

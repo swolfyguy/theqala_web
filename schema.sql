@@ -185,7 +185,9 @@ CREATE TABLE IF NOT EXISTS parcels (
   status    TEXT DEFAULT '',
   moves     TEXT DEFAULT '[]',          -- the movement history, as JSON
   done      INTEGER NOT NULL DEFAULT 0,
-  asked_at  TEXT DEFAULT ''
+  asked_at  TEXT DEFAULT '',
+  by_hand    TEXT DEFAULT '',          -- who marked it arrived themselves, if anyone
+  by_hand_at TEXT DEFAULT ''           -- and when
 );
 
 -- How many people watched the how-to film. One row per day per moment, so

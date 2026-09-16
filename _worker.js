@@ -955,28 +955,73 @@ async function parcels(request, env) {
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
     if (!ANJANI_TRACK) return json({ok: true, asked: false, why: "not switched on"});
 
-    /* The rule lives here, not in the browser. Two sweeps can overlap — one
-       running from when the page opened, one started by a fresh paste — and
-       both will have listed this parcel before either got an answer. Checking
-       here means the second one asks nothing. */
+    /* What we already hold. Two things hang on it. */
+    let had = null;
     try {
-      const had = await env.DB.prepare("SELECT done, status FROM parcels WHERE awb = ?")
+      had = await env.DB.prepare("SELECT done, status, by_hand FROM parcels WHERE awb = ?")
         .bind(awb).first();
-      if (had && had.done) return json({ok: true, asked: false, done: true,
-                                        status: had.status, why: "already arrived"});
     } catch (e) { /* no row yet, or no table — the ask below will say so */ }
+
+    /* One: an arrived parcel is not asked about again, and that rule lives
+       here rather than in the browser. Two rounds of asking can overlap — one
+       from when the page opened, one started by a fresh paste — and both will
+       have listed this parcel before either got an answer.
+
+       A person pressing "Ask again" is the exception. That is a deliberate
+       single question, not a sweep, so it goes through. */
+    const asked_for = b.force === true;
+    if (had && had.done && !asked_for)
+      return json({ok: true, asked: false, done: true,
+                   status: had.status, why: "already arrived"});
 
     const seen = await askCourier(awb);
     if (seen.error) return json({ok: true, asked: false, why: seen.error});
+
+    /* Two: if the shop settled this one by hand, the courier's answer updates
+       what it says but must not undo her. Otherwise pressing "Ask again" on a
+       parcel she marked delivered would quietly put it back on the list the
+       moment the courier's own record is behind — which is the very reason
+       she marked it in the first place. */
+    const done = (had && had.by_hand) ? 1 : (isDelivered(seen.status) ? 1 : 0);
     try {
       await env.DB.prepare(
         `UPDATE parcels SET status = ?, booked_at = ?, from_c = ?, to_c = ?, moves = ?,
                             done = ?, asked_at = ? WHERE awb = ?`)
         .bind(seen.status, seen.booked_at, seen.from_c, seen.to_c, seen.moves,
-              isDelivered(seen.status) ? 1 : 0, new Date().toISOString(), awb).run();
+              done, new Date().toISOString(), awb).run();
     } catch (e) { return json({ok: true, asked: false, why: "could not write it down"}); }
-    return json({ok: true, asked: true, awb, status: seen.status,
-                 done: isDelivered(seen.status)});
+    return json({ok: true, asked: true, awb, status: seen.status, done: !!done});
+  }
+
+  /* ---- say it has arrived ourselves, or take that back ----
+
+     The courier does not always scan the last step, and a parcel can sit on
+     this list saying IN TRANSIT long after the customer has it in her hands.
+     So the shop can settle it by hand.
+
+     Two things make this safe. The courier's own last word is kept, not
+     written over, so nothing is lost. And it is undoable: taking the mark
+     off puts the parcel straight back into the asking round. */
+  if (b.hand != null) {
+    const awb = String(b.hand).replace(/\D/g, "");
+    if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
+    const on   = b.on !== false;                  /* leaving it out means mark it */
+    const now  = new Date().toISOString();
+    const whom = String(who.who || "").slice(0, 60);
+    try {
+      const res = await env.DB.prepare(
+        `UPDATE parcels SET done = ?, by_hand = ?, by_hand_at = ? WHERE awb = ?`)
+        .bind(on ? 1 : 0, on ? whom : "", on ? now : "", awb).run();
+      if (!didWrite(res)) return json({ok: false, why: "That parcel is not on the list."}, 404);
+    } catch (e) {
+      const said = String((e && e.message) || e);
+      const missing = /no such column:?\s*(\w+)/i.exec(said);
+      return json({ok: false, why: missing
+        ? `The parcels table has no ${missing[1]} column yet. Run the ALTER TABLE `
+          + `line for it in the D1 console, then try again.`
+        : "Could not write that down: " + said}, 500);
+    }
+    return json({ok: true, awb, done: on, by: on ? whom : "", at: on ? now : ""});
   }
 
   /* ---- take one off the list ---- */

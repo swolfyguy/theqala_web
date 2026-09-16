@@ -43,7 +43,9 @@ const LATER = [
   "ALTER TABLE orders ADD COLUMN memo TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN memo_by TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN memo_at TEXT DEFAULT ''",
-  "ALTER TABLE orders ADD COLUMN anjani_set TEXT DEFAULT ''"
+  "ALTER TABLE orders ADD COLUMN anjani_set TEXT DEFAULT ''",
+  "ALTER TABLE parcels ADD COLUMN by_hand TEXT DEFAULT ''",
+  "ALTER TABLE parcels ADD COLUMN by_hand_at TEXT DEFAULT ''"
 ];
 
 const ready = db => {
