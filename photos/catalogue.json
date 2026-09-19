@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-19T07:21:06Z",
+ "generated": "2026-09-19T08:50:16Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1026,7 +1026,7 @@
   {
    "slug": "rajwadi",
    "cover": null,
-   "next": 27,
+   "next": 28,
    "products": [
     {
      "n": 22,
@@ -1145,6 +1145,27 @@
      },
      "images": [
       "photos/rajwadi/4000/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     }
+    },
+    {
+     "n": 27,
+     "code": "RAJWADI-27",
+     "folder": "photos/rajwadi/4000 (2)",
+     "title": "",
+     "price": 4000,
+     "band": {
+      "min": 4000,
+      "max": 5000
+     },
+     "images": [
+      "photos/rajwadi/4000 (2)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
