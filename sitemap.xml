@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://theqalashree.com/</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -414,7 +414,7 @@
   </url>
   <url>
     <loc>https://theqalashree.com/order</loc>
-    <lastmod>2026-09-17</lastmod>
+    <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

@@ -824,8 +824,16 @@ const ANJANI_TRACK = "https://api-customer.shreeanjani.co.in/public/awb/<AWB>";
    Erring this way costs only a few extra questions. UNDELIVERED and NOT
    DELIVERED are ruled out first, because those are precisely the parcels
    the shop most needs to keep asking about. */
+/* A parcel coming back to us. RTO is the courier's word for it — return to
+   origin — and it can appear on its own or inside a longer phrase. */
+const isReturn = t => /\brto\b|return/i.test(String(t || ""));
+
 const isDelivered = t => {
   const said = String(t || "");
+  /* "RTO DELIVERED" means delivered back to US, not to the customer. Reading
+     it as arrived would paint a failed delivery green and stop us asking —
+     the worst possible pair of mistakes on the same parcel. */
+  if (isReturn(said)) return false;
   if (/\b(un|non|not)[-\s]?deliver/i.test(said)) return false;   /* UNDELIVERED is not arrived */
   return /delivered|delivery\s*done/i.test(said);
 };

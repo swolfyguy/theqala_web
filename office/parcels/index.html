@@ -16,6 +16,7 @@
   --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
   --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
   --moving:#9A7325; --arrived:#2F6E5B; --unknown:#8A8A8A;
+  --back:#B3121C; --back-wash:rgba(179,18,28,.14);
   --on-accent:#FFF6E9;
 }
 @media (prefers-color-scheme:dark){
@@ -25,6 +26,7 @@
     --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
     --shadow:rgba(0,0,0,.4); --wash-gold:rgba(207,168,79,.12);
     --moving:#CFA84F; --arrived:#7FC0A8; --unknown:#8A8A8A;
+    --back:#FF8A80; --back-wash:rgba(255,110,100,.16);
     --on-accent:#131011;
   }
 }
@@ -98,6 +100,13 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 .state.moving{color:var(--moving)}
 .state.arrived{color:var(--arrived)}
 .state.unknown{color:var(--unknown)}
+/* The one row that wants the eye. Colour alone would not do it — it says
+   nothing to a printout, or to anyone who does not see red as red — so the
+   row also carries a word under its status saying why it is marked. */
+.parcel.back{background:var(--back-wash);border-color:var(--back);border-left-width:5px}
+.parcel.back .state,.parcel.back .tag{color:var(--back)}
+.state .tag{display:block;font-size:.6rem;letter-spacing:.08em;font-weight:700;
+  text-transform:uppercase;margin-top:2px}
 .state .hand{display:block;font-size:.6rem;letter-spacing:.08em;font-weight:400;
   color:var(--ink-2);text-transform:none;margin-top:1px}
 .chev{color:var(--line-2);justify-self:end}
@@ -210,6 +219,16 @@ function when(iso){
        + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+new Date(t + IST).toISOString().slice(5,7) - 1];
 }
 
+/* Coming back to us. RTO is the courier's word — return to origin. */
+const isReturn = t => /\brto\b|return/i.test(String(t || ""));
+
+/* A parcel that has arrived is never marked, whatever it says. */
+function markOf(p){
+  if (p.done) return null;
+  if (isReturn(p.status)) return {cls: "back", tag: "coming back"};
+  return null;
+}
+
 /* Three states, and "we have not asked yet" is one of them — shown as itself
    rather than guessed at. */
 function stateOf(p){
@@ -312,15 +331,17 @@ function paint(){
 
 function card(p){
   const st = stateOf(p);
+  const mk = markOf(p);
   const moves = Array.isArray(p.moves) ? p.moves : [];
-  return `<article class="parcel">
+  return `<article class="parcel${mk ? " " + mk.cls : ""}">
     <button class="phead" type="button">
       <span class="awb">${esc(p.awb)}</span>
       <span class="who">${esc(p.who)}</span>
       <span class="where">${esc(p.to_c || "—")}</span>
       <span class="state ${st.cls}"${st.hand
         ? ` title="Marked delivered by ${esc(p.by_hand)} — not by the courier"` : ""
-        }>${esc(st.word)}${st.hand ? `<span class="hand">by hand</span>` : ""}</span>
+        }>${esc(st.word)}${st.hand ? `<span class="hand">by hand</span>` : ""}${
+          mk ? `<span class="tag">${esc(mk.tag)}</span>` : ""}</span>
       <span class="chev">›</span>
     </button>
     <div class="more" hidden>
