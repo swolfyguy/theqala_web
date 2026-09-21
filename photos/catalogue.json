@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-21T13:16:30Z",
+ "generated": "2026-09-21T13:18:50Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -184,7 +184,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -205,7 +206,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -226,7 +228,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -247,7 +250,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 4
+      "qty": 4,
+      "cod": true
      }
     },
     {
@@ -268,7 +272,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -289,7 +294,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -310,7 +316,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -331,7 +338,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 0
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -352,7 +360,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 3
+      "qty": 3,
+      "cod": true
      }
     },
     {
@@ -373,7 +382,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 3
+      "qty": 3,
+      "cod": true
      }
     },
     {
@@ -394,7 +404,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 0
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -415,7 +426,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -436,7 +448,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -457,7 +470,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -478,7 +492,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -499,7 +514,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -520,7 +536,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -541,7 +558,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -562,7 +580,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     }
    ]
@@ -590,7 +609,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -611,7 +631,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -632,7 +653,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -653,7 +675,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -674,7 +697,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -695,7 +719,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -716,7 +741,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     },
     {
@@ -735,7 +761,8 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -754,7 +781,8 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -773,7 +801,8 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -794,7 +823,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -815,7 +845,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -836,7 +867,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -857,7 +889,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -878,7 +911,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -899,7 +933,8 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -920,7 +955,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -939,7 +975,8 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -958,7 +995,8 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 2
+      "qty": 2,
+      "cod": true
      }
     }
    ]
@@ -1338,7 +1376,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1359,7 +1398,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1380,7 +1420,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1401,7 +1442,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1422,7 +1464,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1443,7 +1486,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1464,7 +1508,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1485,7 +1530,8 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 5
+      "qty": 5,
+      "cod": true
      }
     },
     {
@@ -1623,7 +1669,8 @@
      "sizes": {
       "min": 24,
       "max": 40,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -1644,7 +1691,8 @@
      "sizes": {
       "min": 24,
       "max": 40,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     },
     {
@@ -1665,7 +1713,8 @@
      "sizes": {
       "min": 24,
       "max": 40,
-      "qty": 1
+      "qty": 1,
+      "cod": true
      }
     }
    ]
