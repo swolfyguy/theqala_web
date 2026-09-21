@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-21T13:18:50Z",
+ "generated": "2026-09-21T13:38:19Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1004,7 +1004,7 @@
   {
    "slug": "necklace",
    "cover": null,
-   "next": 31,
+   "next": 39,
    "products": [
     {
      "n": 30,
@@ -1061,6 +1061,182 @@
      "videoPoster": null,
      "sizes": {
       "qty": 1
+     }
+    },
+    {
+     "n": 31,
+     "code": "NECKLACE-31",
+     "folder": "photos/necklace/1800",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 32,
+     "code": "NECKLACE-32",
+     "folder": "photos/necklace/1800 (2)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 33,
+     "code": "NECKLACE-33",
+     "folder": "photos/necklace/1800 (3)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 34,
+     "code": "NECKLACE-34",
+     "folder": "photos/necklace/1800 (4)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 35,
+     "code": "NECKLACE-35",
+     "folder": "photos/necklace/1800 (5)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 36,
+     "code": "NECKLACE-36",
+     "folder": "photos/necklace/1800 (6)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 37,
+     "code": "NECKLACE-37",
+     "folder": "photos/necklace/1800 (7)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
+     }
+    },
+    {
+     "n": 38,
+     "code": "NECKLACE-38",
+     "folder": "photos/necklace/1800 (8)",
+     "title": "",
+     "price": 1800,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/necklace/1800 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 24,
+      "qty": 2,
+      "cod": true
      }
     }
    ]
