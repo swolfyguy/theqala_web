@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://theqalashree.com/</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -267,6 +267,16 @@
       <image:caption>rani haar 4 - Rs 1200</image:caption>
     </image:image>
     <image:image>
+      <image:loc>https://theqalashree.com/photos/saaz/2800/1.jpg</image:loc>
+      <image:title>saaz 1 - handmade jewellery from The Qala, Dighi, Pune</image:title>
+      <image:caption>saaz 1 - Rs 2800</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://theqalashree.com/photos/saaz/2800%20%282%29/1.jpg</image:loc>
+      <image:title>saaz 2 - handmade jewellery from The Qala, Dighi, Pune</image:title>
+      <image:caption>saaz 2 - Rs 2800</image:caption>
+    </image:image>
+    <image:image>
       <image:loc>https://theqalashree.com/photos/single-wati-rajwadi/1100/1.jpg</image:loc>
       <image:title>single wati rajwadi 1 - handmade jewellery from The Qala, Dighi, Pune</image:title>
       <image:caption>single wati rajwadi 1 - Rs 1100</image:caption>
@@ -331,125 +341,10 @@
       <image:title>single wati rajwadi 14 - handmade jewellery from The Qala, Dighi, Pune</image:title>
       <image:caption>single wati rajwadi 14 - Rs 1800</image:caption>
     </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1200/1.jpg</image:loc>
-      <image:title>victorian 5 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 5 - Rs 1200</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300/1.jpg</image:loc>
-      <image:title>victorian 6 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 6 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%282%29/1.jpg</image:loc>
-      <image:title>victorian 7 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 7 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%283%29/1.jpg</image:loc>
-      <image:title>victorian 8 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 8 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%284%29/1.jpg</image:loc>
-      <image:title>victorian 9 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 9 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%285%29/1.jpg</image:loc>
-      <image:title>victorian 10 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 10 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%286%29/1.jpg</image:loc>
-      <image:title>victorian 11 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 11 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%287%29/1.jpg</image:loc>
-      <image:title>victorian 12 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 12 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%288%29/1.jpg</image:loc>
-      <image:title>victorian 13 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 13 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2810%29/1.jpg</image:loc>
-      <image:title>victorian 15 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 15 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2812%29/1.jpg</image:loc>
-      <image:title>victorian 17 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 17 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2813%29/1.jpg</image:loc>
-      <image:title>victorian 18 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 18 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2814%29/1.jpg</image:loc>
-      <image:title>victorian 19 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 19 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2815%29/1.jpg</image:loc>
-      <image:title>victorian 20 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 20 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2816%29/1.jpg</image:loc>
-      <image:title>victorian 21 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 21 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2817%29/1.jpg</image:loc>
-      <image:title>victorian 22 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 22 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2818%29/1.jpg</image:loc>
-      <image:title>victorian 23 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 23 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2819%29/1.jpg</image:loc>
-      <image:title>victorian 24 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 24 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2820%29/1.jpg</image:loc>
-      <image:title>victorian 25 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 25 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2821%29/1.jpg</image:loc>
-      <image:title>victorian 26 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 26 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2822%29/1.jpg</image:loc>
-      <image:title>victorian 27 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 27 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2823%29/1.jpg</image:loc>
-      <image:title>victorian 28 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 28 - Rs 1300</image:caption>
-    </image:image>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/victorian/1300%20%2824%29/1.jpg</image:loc>
-      <image:title>victorian 29 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>victorian 29 - Rs 1300</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://theqalashree.com/order</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
