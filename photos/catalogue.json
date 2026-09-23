@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T09:07:55Z",
+ "generated": "2026-09-23T09:22:31Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1248,7 +1248,7 @@
   {
    "slug": "rajwadi",
    "cover": null,
-   "next": 31,
+   "next": 32,
    "products": [
     {
      "n": 22,
@@ -1335,6 +1335,27 @@
      }
     },
     {
+     "n": 31,
+     "code": "RAJWADI-31",
+     "folder": "photos/rajwadi/3500 (4)",
+     "title": "",
+     "price": 3500,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3500 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 2
+     }
+    },
+    {
      "n": 23,
      "code": "RAJWADI-23",
      "folder": "photos/rajwadi/3800",
@@ -1409,27 +1430,6 @@
      },
      "images": [
       "photos/rajwadi/4000 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 3
-     }
-    },
-    {
-     "n": 29,
-     "code": "RAJWADI-29",
-     "folder": "photos/rajwadi/4000 (4)",
-     "title": "",
-     "price": 4000,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4000 (4)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
