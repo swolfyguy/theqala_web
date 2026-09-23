@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T09:07:21Z",
+ "generated": "2026-09-23T09:07:55Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -342,7 +342,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      }
     },
@@ -364,7 +364,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 3,
+      "qty": 0,
       "cod": true
      }
     },
@@ -386,7 +386,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 3,
+      "qty": 0,
       "cod": true
      }
     },
@@ -408,7 +408,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      }
     },
