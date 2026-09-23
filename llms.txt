@@ -1,0 +1,41 @@
+# The Qala
+
+> Handmade Rajwadi, Victorian and moissanite jewellery — thushi, saaj, mangalsutra, bangles and bridal pieces — made by hand in Dighi, Pune, India, and shipped insured across India. Orders are placed on WhatsApp.
+
+The shop currently lists 81 pieces across 8 categories.
+
+## Shop
+
+- [Double Wati Rajwadi Handmade](https://theqalashree.com/shop/double-wati-rajwadi-handmade/): 19 piece(s), Rs 1,400-1,700
+- [Hand Made Rajwadi](https://theqalashree.com/shop/hand-made-rajwadi/): 19 piece(s), Rs 950-1,600
+- [Necklace](https://theqalashree.com/shop/necklace/): 11 piece(s), Rs 900-1,800
+- [Rajwadi](https://theqalashree.com/shop/rajwadi/): 11 piece(s), Rs 3,300-5,200
+- [Rani Haar](https://theqalashree.com/shop/rani-haar/): 3 piece(s), Rs 1,200
+- [Saaz](https://theqalashree.com/shop/saaz/): 2 piece(s), Rs 2,800
+- [Single Wati Rajwadi](https://theqalashree.com/shop/single-wati-rajwadi/): 13 piece(s), Rs 1,100-1,800
+- [Victorian](https://theqalashree.com/shop/victorian/): 3 piece(s), Rs 1,450
+
+Each piece also has its own page at https://theqalashree.com/piece/<product-code>/ with its price, images and current availability.
+
+## Ordering
+
+- Orders are placed on WhatsApp, not through an online checkout.
+- Payment: online by UPI, bank transfer or a payment link, cash at the shop in Dighi, or cash on delivery on pieces marked for it (an extra courier charge applies).
+- Shipping: free insured shipping over the shop's free-shipping threshold, a flat fee below it. Ready pieces dispatch within two working days; made-to-order pieces take five to seven days. Delivery is two days across most of Maharashtra, three to five days elsewhere in India.
+- Returns: a damaged, wrong or defective piece is replaced or refunded, provided an unbroken unboxing video is sent on WhatsApp with the order reference within 48 hours of delivery. Pieces are not accepted back simply because a buyer changed their mind, since each is checked, polished and packed by hand before it ships.
+- Cancellations: an order can be cancelled for any reason any time before it is handed to the courier.
+
+## Policies
+
+- Shipping & cash on delivery: https://theqalashree.com/shipping/
+- Returns & damage: https://theqalashree.com/returns/
+- Refunds & cancellation: https://theqalashree.com/refunds/
+- Terms & conditions: https://theqalashree.com/terms/
+- Privacy policy: https://theqalashree.com/privacy/
+
+## Site structure
+
+- https://theqalashree.com/ — homepage
+- https://theqalashree.com/shop/<category-slug>/ — one page per category
+- https://theqalashree.com/piece/<product-code>/ — one page per product, with Product structured data (price, availability, SKU, images)
+- https://theqalashree.com/sitemap.xml — full sitemap

@@ -121,6 +121,15 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 .acts button{background:none;border:1px solid var(--line-2);border-radius:999px;
   padding:5px 13px;font:inherit;font-size:.8rem;color:inherit;cursor:pointer}
 .acts button:hover{border-color:var(--accent);color:var(--accent)}
+.linkrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:.86rem;
+  color:var(--ink-2);margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.linkrow b{color:inherit;font-weight:600}
+.linkrow .chip{background:none;border:1px solid var(--line-2);border-radius:999px;
+  padding:3px 11px;font:inherit;font-size:.8rem;color:inherit;cursor:pointer}
+.linkrow .chip:hover{border-color:var(--accent);color:var(--accent)}
+.tieinput{padding:6px 10px;border:1px solid var(--line-2);border-radius:8px;
+  background:var(--ground);color:inherit;font:inherit;font-size:.85rem;width:13rem;max-width:100%}
+.tieinput:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
 .empty{color:var(--ink-2);padding:26px 0;text-align:center}
 .note{border-left:3px solid var(--gold);background:var(--wash-gold);
   border-radius:0 10px 10px 0;padding:12px 15px;margin:14px 0;font-size:.88rem;color:var(--ink-2)}
@@ -148,12 +157,14 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 <main class="wrap">
   <div class="card">
     <h2>Write down what went out</h2>
-    <p class="sub">The number from the sticker, then who it is for. A comma or a
-      new line ends each one — <code>1736804425 Pallavi, 1736804426 Ravita,</code>
-      or one to a line, or a mixture. Nothing else is needed: the courier tells
-      us the date and where it is going.</p>
+    <p class="sub">The number from the sticker, then who it is for, then her
+      mobile number if you have it — that's what lets her find it on her own
+      page without you tying it to the order by hand. A comma or a new line
+      ends each one — <code>1736804425 Pallavi Jamadade 9876543210, 1736804426
+      Ravita Sutar,</code> or one to a line, or a mixture. The number is
+      optional; leave it off and tie the parcel to an order below instead.</p>
     <textarea id="paste" spellcheck="false"
-      placeholder="1736804425 Pallavi Jamadade, 1736804426 Ravita Sutar,&#10;&#10;or one to a line:&#10;1736804427 Sneha Kulkarni"></textarea>
+      placeholder="1736804425 Pallavi Jamadade 9876543210, 1736804426 Ravita Sutar,&#10;&#10;or one to a line:&#10;1736804427 Sneha Kulkarni"></textarea>
     <div class="row">
       <button class="btn" id="add">Add these</button>
       <span class="say" id="addsay"></span>
@@ -221,6 +232,8 @@ function when(iso){
 
 /* Coming back to us. RTO is the courier's word — return to origin. */
 const isReturn = t => /\brto\b|return/i.test(String(t || ""));
+
+const pretty = p => p ? p.slice(0, 5) + " " + p.slice(5) : "";
 
 /* A parcel that has arrived is never marked, whatever it says. */
 function markOf(p){
@@ -327,6 +340,42 @@ function paint(){
                          : "could not ask — " + ((d && d.why) || "no answer"));
     };
   });
+  box.querySelectorAll("[data-tie]").forEach(b => {
+    b.onclick = async () => {
+      const input = box.querySelector(`[data-tieinput="${CSS.escape(b.dataset.tie)}"]`);
+      const ref = input ? input.value.trim() : "";
+      if (!ref) { input && input.focus(); return; }
+      b.disabled = true;
+      const d = await send({tie: b.dataset.tie, ref});
+      await load();
+      snack(d && d.ok ? "tied to " + d.ref : "could not tie that — " + ((d && d.why) || "no answer"));
+    };
+  });
+  box.querySelectorAll("[data-untie]").forEach(b => {
+    b.onclick = async () => {
+      if (!confirm("Untie this parcel from its order? She will not see it on her own page any more.")) return;
+      b.disabled = true;
+      const d = await send({tie: b.dataset.untie, ref: ""});
+      await load();
+      snack(d && d.ok ? "untied" : "could not untie that — " + ((d && d.why) || "no answer"));
+    };
+  });
+}
+
+/* Whether she can find this parcel on her own page, and the one control that
+   changes it. Tying is always by order number, typed or already worked out
+   from her mobile number when the parcel was added — never by matching her
+   name, for the same reason the order book itself never does. */
+function link(p){
+  if (p.ref) return `<div class="linkrow">Linked to order <b>${esc(p.ref)}</b>${
+    p.phone ? ` · ${esc(pretty(p.phone))}` : ""
+    } — she can see it on her own page. <button type="button" class="chip" data-untie="${esc(p.awb)}">Untie</button></div>`;
+  return `<div class="linkrow">${p.phone
+    ? `Her number, ${esc(pretty(p.phone))}, matched no order of hers, or more than one.`
+    : "Not linked to an order — she cannot see it on her own page yet."
+    } <input class="tieinput" type="text" data-tieinput="${esc(p.awb)}"
+      placeholder="Order number, e.g. Q-2609-01" maxlength="24" autocapitalize="characters" spellcheck="false">
+    <button type="button" class="chip" data-tie="${esc(p.awb)}">Tie to that order</button></div>`;
 }
 
 function card(p){
@@ -351,6 +400,7 @@ function card(p){
             <span><b>${esc(m.what)}</b>${m.where ? ` at ${esc(m.where)}` : ""}${
               m.to ? ` — on to ${esc(m.to)}` : ""}</span></li>`).join("")}</ul>`
         : `<div class="say">No movements recorded yet.</div>`}
+      ${link(p)}
       <div class="acts">
         <button type="button" data-again="${esc(p.awb)}">Ask again</button>
         ${p.by_hand
@@ -435,6 +485,7 @@ $("#add").onclick = async () => {
   }
   $("#paste").value = "";
   const bits = [`${d.put} added`];
+  if (d.tied) bits.push(`${d.tied} tied to her order automatically`);
   if (d.already) bits.push(`${d.already} already there`);
   if (d.bad && d.bad.length) bits.push(`could not read: ${d.bad.join(" / ")}`);
   say.textContent = bits.join(" · ");

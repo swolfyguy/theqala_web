@@ -593,57 +593,73 @@ def read_category(catdir, nxt):
 SITE = "https://theqalashree.com"
 
 def write_sitemap(categories):
-    """A sitemap, and an honest one.
+    """A sitemap that lists what actually exists.
 
-       It lists the addresses that actually exist. Today that is the shop
-       itself and the order link, because every piece lives behind a # and
-       Google does not treat what follows a # as a page of its own. Listing
-       112 fragment addresses here would not get one of them indexed; it
-       would only tell Google we do not know what we are doing.
+       Until now every piece lived only behind a # (#/piece/CODE), and
+       Google does not treat what follows a # as a page of its own — so
+       the old version of this function listed just the shop and the
+       order link as real <url> entries, with every piece's cover photo
+       bundled as an <image:image> under the homepage instead. That was
+       an honest tradeoff for a hash-only site, not a design to keep.
 
-       What IS worth listing is the photographs. Those have real addresses,
-       and jewellery is looked for in Google Images as much as in Google. So
-       the shop's entry carries every piece's first picture, captioned with
-       what it is and what it costs, which is the one piece of free traffic
-       available while the addresses stay as they are."""
+       prerender.mjs now bakes every product, category and policy route
+       into a real file at a real path (piece/<code>/, shop/<slug>/,
+       terms/, privacy/, shipping/, returns/, refunds/) before this
+       script ever runs, so those addresses are real pages a crawler can
+       fetch directly. This function lists one <url> per page that
+       prerender.mjs writes, plus the homepage and /order, and keeps the
+       full <image:image> list on each product's own <url> — now that a
+       product's images sit on that product's page rather than smuggled
+       onto the homepage, there is no cap forcing us to keep to just the
+       first shot."""
     esc = lambda t: (str(t).replace("&", "&amp;").replace("<", "&lt;")
                           .replace(">", "&gt;").replace('"', "&quot;"))
     # a path may hold spaces and brackets - photos/hand-made-rajwadi/1000 (2)/1.jpg
     from urllib.parse import quote
-    url = lambda rel: SITE + "/" + quote(str(rel).replace("\\", "/"))
+    img_url = lambda rel: SITE + "/" + quote(str(rel).replace("\\", "/"))
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    shots = []
-    for c in categories:
-        for pr in c["products"]:
-            if not pr["images"]:
-                continue
-            name = pr["title"].strip() or f"{c['slug'].replace('-', ' ')} {pr['n']}"
-            shots.append((url(pr["images"][0]),
-                          f"{name} - handmade jewellery from The Qala, Dighi, Pune",
-                          f"{name} - Rs {pr['price']}"))
-
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
              '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
-    lines += [f"  <url>", f"    <loc>{SITE}/</loc>",
-              f"    <lastmod>{today}</lastmod>",
-              f"    <changefreq>daily</changefreq>",
-              f"    <priority>1.0</priority>"]
-    for src, title, caption in shots[:1000]:      # Google's cap is 1000 per page
-        lines += ["    <image:image>", f"      <image:loc>{esc(src)}</image:loc>",
-                  f"      <image:title>{esc(title)}</image:title>",
-                  f"      <image:caption>{esc(caption)}</image:caption>",
-                  "    </image:image>"]
-    lines += ["  </url>"]
-    lines += ["  <url>", f"    <loc>{SITE}/order</loc>",
-              f"    <lastmod>{today}</lastmod>",
-              "    <changefreq>monthly</changefreq>",
-              "    <priority>0.5</priority>", "  </url>"]
-    lines += ["</urlset>", ""]
 
+    def entry(loc, changefreq, priority, images=None):
+        lines.append("  <url>")
+        lines.append(f"    <loc>{esc(loc)}</loc>")
+        lines.append(f"    <lastmod>{today}</lastmod>")
+        lines.append(f"    <changefreq>{changefreq}</changefreq>")
+        lines.append(f"    <priority>{priority}</priority>")
+        for src, title, caption in images or []:
+            lines.append("    <image:image>")
+            lines.append(f"      <image:loc>{esc(src)}</image:loc>")
+            lines.append(f"      <image:title>{esc(title)}</image:title>")
+            lines.append(f"      <image:caption>{esc(caption)}</image:caption>")
+            lines.append("    </image:image>")
+        lines.append("  </url>")
+
+    entry(f"{SITE}/", "daily", "1.0")
+    entry(f"{SITE}/order", "monthly", "0.5")
+
+    url_count = 2
+    for c in categories:
+        entry(f"{SITE}/shop/{c['slug']}/", "weekly", "0.8")
+        url_count += 1
+        for pr in c["products"]:
+            name = pr["title"].strip() or f"{c['slug'].replace('-', ' ')} {pr['n']}"
+            images = [(img_url(img),
+                       f"{name} - handmade jewellery from The Qala, Dighi, Pune",
+                       f"{name} - Rs {pr['price']}")
+                      for img in pr["images"]]
+            entry(f"{SITE}/piece/{pr['code'].lower()}/", "weekly", "0.7", images)
+            url_count += 1
+
+    for r in ("terms", "privacy", "shipping", "returns", "refunds"):
+        entry(f"{SITE}/{r}/", "monthly", "0.3")
+        url_count += 1
+
+    lines += ["</urlset>", ""]
     (ROOT / "sitemap.xml").write_text("\n".join(lines), encoding="utf-8")
-    return len(shots)
+    return url_count
 
 
 def write_robots():
@@ -662,6 +678,83 @@ def write_robots():
         "Disallow: /api/\n"
         "\n"
         f"Sitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
+
+
+def write_llms_txt(categories, total_products):
+    """A plain-text summary for LLM crawlers (ChatGPT, Perplexity and the
+       like), at the repo root as /llms.txt, alongside robots.txt and
+       sitemap.xml. There's no established schema for this file the way
+       there is for a sitemap — the emerging convention is just short,
+       factual, plain-English prose an answer engine can quote from
+       directly, so that's what this writes: what the shop is, how to
+       order, what it charges for shipping and returns, and where the
+       real pages (not the # ones) live. Built from the same catalogue
+       data and the same policy wording as everything else here, so it
+       can't say something the site itself doesn't."""
+    titleish = lambda s: " ".join(w.capitalize() for w in s.replace("_", "-").split("-"))
+    lines = [
+        "# The Qala",
+        "",
+        "> Handmade Rajwadi, Victorian and moissanite jewellery — thushi, saaj, "
+        "mangalsutra, bangles and bridal pieces — made by hand in Dighi, Pune, "
+        "India, and shipped insured across India. Orders are placed on WhatsApp.",
+        "",
+        f"The shop currently lists {total_products} pieces across {len(categories)} categories.",
+        "",
+        "## Shop",
+        "",
+    ]
+    for c in categories:
+        if not c["products"]:
+            continue
+        cheapest = min(p["price"] for p in c["products"])
+        dearest = max(p["price"] for p in c["products"])
+        span = f"Rs {cheapest:,}" if cheapest == dearest else f"Rs {cheapest:,}-{dearest:,}"
+        lines.append(f"- [{titleish(c['slug'])}]({SITE}/shop/{c['slug']}/): "
+                      f"{len(c['products'])} piece(s), {span}")
+    lines += [
+        "",
+        "Each piece also has its own page at "
+        f"{SITE}/piece/<product-code>/ with its price, images and current "
+        "availability.",
+        "",
+        "## Ordering",
+        "",
+        "- Orders are placed on WhatsApp, not through an online checkout.",
+        "- Payment: online by UPI, bank transfer or a payment link, cash at "
+        "the shop in Dighi, or cash on delivery on pieces marked for it "
+        "(an extra courier charge applies).",
+        "- Shipping: free insured shipping over the shop's free-shipping "
+        "threshold, a flat fee below it. Ready pieces dispatch within two "
+        "working days; made-to-order pieces take five to seven days. "
+        "Delivery is two days across most of Maharashtra, three to five "
+        "days elsewhere in India.",
+        "- Returns: a damaged, wrong or defective piece is replaced or "
+        "refunded, provided an unbroken unboxing video is sent on WhatsApp "
+        "with the order reference within 48 hours of delivery. Pieces are "
+        "not accepted back simply because a buyer changed their mind, since "
+        "each is checked, polished and packed by hand before it ships.",
+        "- Cancellations: an order can be cancelled for any reason any time "
+        "before it is handed to the courier.",
+        "",
+        "## Policies",
+        "",
+        f"- Shipping & cash on delivery: {SITE}/shipping/",
+        f"- Returns & damage: {SITE}/returns/",
+        f"- Refunds & cancellation: {SITE}/refunds/",
+        f"- Terms & conditions: {SITE}/terms/",
+        f"- Privacy policy: {SITE}/privacy/",
+        "",
+        "## Site structure",
+        "",
+        f"- {SITE}/ — homepage",
+        f"- {SITE}/shop/<category-slug>/ — one page per category",
+        f"- {SITE}/piece/<product-code>/ — one page per product, with "
+        "Product structured data (price, availability, SKU, images)",
+        f"- {SITE}/sitemap.xml — full sitemap",
+        "",
+    ]
+    (ROOT / "llms.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
 def main():
@@ -698,12 +791,13 @@ def main():
     poster_note()
     OUT.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    shots = write_sitemap(categories)
+    url_count = write_sitemap(categories)
     write_robots()
-    print(f"sitemap.xml: 2 pages, {shots} photographs  ·  robots.txt written")
+    write_llms_txt(categories, total_products)
 
     print(f"{OUT.relative_to(ROOT)}: {total_products} product{'' if total_products == 1 else 's'}, "
           f"{total_files} files, {len(categories)} categor{'y' if len(categories) == 1 else 'ies'}")
+    print(f"sitemap.xml: {url_count} urls, robots.txt, llms.txt")
     for c in categories:
         if c["products"]:
             cheapest = min(p["price"] for p in c["products"])

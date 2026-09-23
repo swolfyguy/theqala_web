@@ -178,6 +178,7 @@ export default {
       if (path.startsWith("/api/pincode/") && request.method === "GET")
                                                                   return pinCheck(request, env, path);
       if (path === "/api/seen"      && request.method === "POST") return countSeen(request, env);
+      if (path === "/api/me" || path.startsWith("/api/me/"))      return meApi(request, env, path);
       if (path === "/office/tally"  && request.method === "GET")  return tallyOut(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
@@ -847,8 +848,17 @@ const isAwb = a => /^[0-9]{6,20}$/.test(a);
        1736804425 Pallavi Jamadade, 1736804426 Ravita Sutar,
 
    works, and so does one to a line, and so does a mixture. A comma at the
-   end changes nothing. Inside one parcel the number and the name are simply
-   separated by spaces, so a name may be as long as it likes.
+   end changes nothing. Inside one parcel the number, the name and (if
+   given) her mobile number are simply separated by spaces, so a name may
+   be as long as it likes — everything between the AWB and a trailing
+   ten-digit mobile number is read as the name:
+
+       1736804425 Pallavi Jamadade 9876543210, 1736804426 Ravita Sutar,
+
+   The phone is optional. Written down, it lets add() below tie the parcel
+   to her order on its own — see there — without anybody having to type the
+   order number in by hand. Left off, the parcel is written down exactly as
+   before and waits to be tied by hand.
 
    Anything that is not a number followed by a name is handed back rather
    than quietly dropped: a parcel silently missing from the list is worse
@@ -873,9 +883,18 @@ function readPaste(text) {
   for (const line of joined) {
     const m = /^([0-9]{6,20})[\s|\t]+(.+)$/.exec(line);
     if (!m) { bad.push(line.slice(0, 60)); continue; }
-    const who = m[2].replace(/\s+/g, " ").trim().slice(0, 80);
+    let rest = m[2].replace(/\s+/g, " ").trim();
+
+    /* A mobile number sitting on the end of the name, not inside it — real
+       names do not end in ten digits starting 6 to 9, so this is safe to
+       peel off without a separator of its own. */
+    let phone = "";
+    const pm = /^(.*\S)\s+([6-9][0-9]{9})$/.exec(rest);
+    if (pm) { rest = pm[1]; phone = pm[2]; }
+
+    const who = rest.slice(0, 80);
     if (!who) { bad.push(line.slice(0, 60)); continue; }
-    rows.push({awb: m[1], who});
+    rows.push({awb: m[1], who, phone});
   }
   return {rows, bad};
 }
@@ -943,18 +962,34 @@ async function parcels(request, env) {
   if (b.add != null) {
     const {rows, bad} = readPaste(b.add);
     if (!rows.length) return json({ok: false, why: "Nothing in that looked like a parcel.", bad}, 400);
-    let put = 0, already = 0;
+    let put = 0, already = 0, tied = 0;
     for (const r of rows) {
+      /* Her number was written down alongside the AWB. If it points at
+         exactly one order that is not in the deleted bin, tie the parcel to
+         it here, the same as typing the order number in by hand would —
+         so the same "an exact match or nothing" rule applies: two orders
+         on the same number, or none at all, and it is left untied rather
+         than guessed at. The person who wrote the parcel down can still tie
+         it by hand afterwards. */
+      let ref = "";
+      if (r.phone) {
+        try {
+          const {results} = await env.DB.prepare(
+            `SELECT ref FROM orders WHERE phone = ? AND status != 'deleted'
+             ORDER BY placed_at DESC LIMIT 2`).bind(r.phone).all();
+          if (results && results.length === 1) { ref = results[0].ref; tied++; }
+        } catch (e) { /* the parcel is still written down without the tie */ }
+      }
       try {
         const res = await env.DB.prepare(
-          `INSERT OR IGNORE INTO parcels (awb, who, added_at) VALUES (?,?,?)`)
-          .bind(r.awb, r.who, new Date().toISOString()).run();
-        if (didWrite(res)) put++; else already++;
+          `INSERT OR IGNORE INTO parcels (awb, who, added_at, ref, phone) VALUES (?,?,?,?,?)`)
+          .bind(r.awb, r.who, new Date().toISOString(), ref, r.phone).run();
+        if (didWrite(res)) put++; else { already++; if (ref) tied--; }
       } catch (e) {
         return json({ok: false, why: "The order book has no parcels table yet."}, 500);
       }
     }
-    return json({ok: true, put, already, bad});
+    return json({ok: true, put, already, tied, bad});
   }
 
   /* ---- ask after one parcel ---- */
@@ -999,6 +1034,56 @@ async function parcels(request, env) {
               done, new Date().toISOString(), awb).run();
     } catch (e) { return json({ok: true, asked: false, why: "could not write it down"}); }
     return json({ok: true, asked: true, awb, status: seen.status, done: !!done});
+  }
+
+  /* ---- tie this parcel to an order, or untie it ----
+
+     By number, typed in the order book. Never by matching the name on the
+     parcel to the name on the order: two customers can share a name, one
+     customer's name gets typed two ways, and a near-match would sooner or
+     later show a stranger's address to somebody. An exact order code or
+     nothing.
+
+     The order's phone is copied onto the parcel as it is tied. That is what
+     the customer's own page matches on, so a parcel tied to the wrong order
+     shows nobody anything rather than showing the wrong person something. */
+  if (b.tie != null) {
+    const awb = String(b.tie).replace(/\D/g, "");
+    if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
+    const ref = String(b.ref || "").toUpperCase().replace(/\s+/g, "").slice(0, 24);
+
+    let order = null;
+    if (ref) {
+      if (!isRef(ref)) return json({ok: false, why: "That does not look like an order number."}, 400);
+      try {
+        order = await env.DB.prepare(
+          "SELECT ref, name, phone FROM orders WHERE ref = ?").bind(ref).first();
+      } catch (e) { return json({ok: false, why: "Could not read the order book."}, 500); }
+      if (!order) return json({ok: false, why: "There is no order " + ref + " in the book."}, 404);
+    }
+
+    try {
+      /* A parcel written down here for the first time: keep the customer's
+         name from the order, so the list reads the same either way. */
+      if (order) {
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO parcels (awb, who, added_at) VALUES (?,?,?)")
+          .bind(awb, String(order.name || "").slice(0, 80), new Date().toISOString()).run();
+      }
+      const res = await env.DB.prepare(
+        "UPDATE parcels SET ref = ?, phone = ? WHERE awb = ?")
+        .bind(order ? order.ref : "", order ? String(order.phone || "") : "", awb).run();
+      if (!didWrite(res)) return json({ok: false, why: "That parcel is not on the list."}, 404);
+    } catch (e) {
+      const said = String((e && e.message) || e);
+      const missing = /no such column:?\s*(\w+)/i.exec(said);
+      return json({ok: false, why: missing
+        ? `The parcels table has no ${missing[1]} column yet. Run the ALTER TABLE `
+          + `line for it in the D1 console, then try again.`
+        : "Could not write that down: " + said}, 500);
+    }
+    return json({ok: true, awb, ref: order ? order.ref : "",
+                 who: order ? String(order.name || "") : ""});
   }
 
   /* ---- say it has arrived ourselves, or take that back ----
@@ -1055,6 +1140,282 @@ async function soldOut(env, items) {
       gone.push({code: it.code, title: it.title, left: Math.max(0, made[it.code] - (taken[it.code] || 0))});
   }
   return gone;
+}
+
+
+/* ===========================================================================
+   Customers, and their own view of their own parcel
+   ===========================================================================
+   A customer signs in with her mobile number and a password and sees her own
+   orders, each with the parcel carrying it and where that parcel has got to.
+
+   Two decisions hold this up, and both are about not showing one woman's
+   address to another.
+
+   FIRST: a phone number is not a password. Numbers circulate. So nobody is
+   handed an account. To make one she must name an order placed with that
+   number — which only somebody holding the order knows — and only then does
+   she choose a password. The same proof resets a forgotten one, so there is
+   no need to send anybody an SMS.
+
+   SECOND: a parcel is tied to an order by hand, in the order book, by its
+   number. Never by matching names. "Pallavi Jamadade" and "pallavi jamdade"
+   are one customer, and two different customers can share a name outright;
+   a near-match would eventually show somebody a stranger's parcel, which is
+   worse than showing her nothing.
+
+   Her session is a separate cookie from the shop's, signed with a separate
+   key, so a customer's sign-in can never be read as a member of staff — the
+   two are not the same kind of thing and cannot be swapped.
+*/
+const BUYER_COOKIE = "qala_buyer";
+const BUYER_DAYS   = 60;
+
+/* PBKDF2 rounds. 10,000 takes about six milliseconds, which fits inside the
+   ten milliseconds of processor time a Worker gets on the free plan; 100,000
+   would be better against somebody who had stolen the database, but it takes
+   forty-six and the sign-in would simply be cut off. The number each password
+   was made with is stored beside it, so raising this later re-strengthens new
+   passwords without locking anybody out of an old one. */
+const PASS_ROUNDS = 10000;
+const PASS_MIN    = 6;
+
+const hex   = b => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+const unhex = t => {
+  if (typeof t !== "string" || t.length % 2 || !/^[0-9a-f]*$/i.test(t)) throw new Error("hex");
+  return Uint8Array.from(t.match(/../g) || [], x => parseInt(x, 16));
+};
+
+async function stretch(plain, salt, rounds) {
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(plain), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits(
+    {name: "PBKDF2", salt, iterations: rounds, hash: "SHA-256"}, key, 256));
+}
+
+/* The password itself is never written down. */
+async function hashPass(plain) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return `pbkdf2$${PASS_ROUNDS}$${hex(salt)}$${hex(await stretch(plain, salt, PASS_ROUNDS))}`;
+}
+
+/* Compared end to end, so how long this takes says nothing about how much of
+   the password was right. */
+async function samePass(plain, stored) {
+  const bits = String(stored || "").split("$");
+  if (bits.length !== 4 || bits[0] !== "pbkdf2") return false;
+  const rounds = Number(bits[1]);
+  if (!Number.isFinite(rounds) || rounds < 1000 || rounds > 1e6) return false;
+  let salt, want;
+  try { salt = unhex(bits[2]); want = unhex(bits[3]); } catch { return false; }
+  const got = await stretch(plain, salt, rounds);
+  if (got.length !== want.length) return false;
+  let diff = 0;
+  for (let i = 0; i < got.length; i++) diff |= got[i] ^ want[i];
+  return diff === 0;
+}
+
+/* A different key from the shop's, from the same secret. Changing
+   STUDIO_PASSWORD signs everybody out, customers included. */
+async function buyerKey(secret) {
+  const raw = await crypto.subtle.digest("SHA-256",
+    new TextEncoder().encode(secret + "|qala-buyer-v1"));
+  return crypto.subtle.importKey("raw", raw, {name: "HMAC", hash: "SHA-256"}, false, ["sign"]);
+}
+
+async function makeBuyerTicket(phone, secret) {
+  const payload = b64(new TextEncoder().encode(JSON.stringify(
+    {b: phone, exp: Math.floor(Date.now() / 1000) + BUYER_DAYS * 86400})));
+  const sig = await crypto.subtle.sign("HMAC", await buyerKey(secret),
+    new TextEncoder().encode(payload));
+  return payload + "." + b64(new Uint8Array(sig));
+}
+
+async function readBuyerTicket(token, secret) {
+  const bits = String(token || "").split(".");
+  if (bits.length !== 2) return null;
+  const want = new Uint8Array(await crypto.subtle.sign("HMAC", await buyerKey(secret),
+    new TextEncoder().encode(bits[0])));
+  let got;
+  try { got = unb64(bits[1]); } catch { return null; }
+  if (got.length !== want.length) return null;
+  let diff = 0;
+  for (let i = 0; i < want.length; i++) diff |= want[i] ^ got[i];
+  if (diff !== 0) return null;
+
+  let body;
+  try { body = JSON.parse(new TextDecoder().decode(unb64(bits[0]))); } catch { return null; }
+  /* b, not u. A shop ticket carries u and would fail here even if the two
+     keys were ever confused. */
+  if (!body || !isMobile(body.b)) return null;
+  if (typeof body.exp !== "number" || body.exp < Math.floor(Date.now() / 1000)) return null;
+  return body.b;
+}
+
+const buyerCookie = (v, age) =>
+  `${BUYER_COOKIE}=${v}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
+
+const isMobile = p => /^[6-9]\d{9}$/.test(String(p || ""));
+
+async function whoBuys(request, env) {
+  if (!env.STUDIO_PASSWORD) return {ok: false, why: "Sign-in is not set up yet."};
+  const phone = await readBuyerTicket(cookieValue(request, BUYER_COOKIE), env.STUDIO_PASSWORD);
+  return phone ? {ok: true, phone} : {ok: false, why: "Sign in to see your orders."};
+}
+
+/* What the shop's own words mean to the person waiting. */
+const SAYS = {
+  new:       "Received",
+  confirmed: "Confirmed",
+  sent:      "On its way",
+  done:      "Delivered",
+  cancelled: "Cancelled"
+};
+
+/* Her orders, and the parcels tied to them.
+
+   Two things must both agree before a parcel is shown: it is tied to that
+   order, and the number stored on it is hers. The phone was copied onto the
+   parcel when it was tied, so a parcel tied to the wrong order shows nobody
+   anything rather than showing the wrong person something. */
+async function myOrders(env, phone) {
+  const {results} = await env.DB.prepare(
+    `SELECT ref, placed_at, status, pay, poth, items, goods, shipping, cod_fee, total
+       FROM orders WHERE phone = ? AND status != 'deleted'
+       ORDER BY placed_at DESC LIMIT 50`).bind(phone).all();
+
+  const mine = new Map();
+  try {
+    const got = await env.DB.prepare(
+      `SELECT awb, ref, status, booked_at, from_c, to_c, moves, done, by_hand
+         FROM parcels WHERE phone = ? AND ref != ''`).bind(phone).all();
+    for (const p of got.results || []) {
+      if (!mine.has(p.ref)) mine.set(p.ref, []);
+      mine.get(p.ref).push({
+        awb: p.awb,
+        /* Marked delivered by the shop reads as delivered, not as the
+           courier's stale word. Who marked it is the shop's business. */
+        status: p.by_hand ? "Delivered" : (p.status || ""),
+        arrived: !!p.done,
+        from_c: p.from_c || "", to_c: p.to_c || "",
+        moves: (() => { try { return JSON.parse(p.moves || "[]"); } catch { return []; } })()
+      });
+    }
+  } catch (e) { /* no ref column yet: no parcels to show, orders still do */ }
+
+  return (results || []).map(o => ({
+    ref: o.ref, placed_at: o.placed_at,
+    status: SAYS[o.status] || "Received",
+    pay: o.pay, poth: o.poth || "",
+    items: (() => { try { return JSON.parse(o.items) || []; } catch { return []; } })(),
+    goods: o.goods, shipping: o.shipping, cod_fee: o.cod_fee, total: o.total,
+    parcels: mine.get(o.ref) || []
+  }));
+}
+
+/* ---------------------------------------------------------------------------
+   /api/me
+   GET             her orders
+   POST /login     number and password
+   POST /set       first password, or a forgotten one, proved by an order code
+   POST /out       sign out
+--------------------------------------------------------------------------- */
+async function meApi(request, env, path) {
+  if (!env.DB) return json({ok: false, why: "No database."}, 503);
+  const tail = path.slice("/api/me".length).replace(/^\/+/, "");
+
+  if (request.method === "GET" && !tail) {
+    const me = await whoBuys(request, env);
+    if (!me.ok) return json({ok: false, login: true, why: me.why}, 401);
+    try {
+      return json({ok: true, you: pretty(me.phone), orders: await myOrders(env, me.phone)},
+        200, {"cache-control": "no-store"});
+    } catch (e) {
+      return json({ok: false, why: "We could not read your orders just now."}, 500);
+    }
+  }
+  if (request.method !== "POST") return json({ok: false, why: "nothing to do"}, 405);
+
+  if (tail === "out")
+    return json({ok: true}, 200, {"set-cookie": buyerCookie("", 0)});
+
+  if (!env.STUDIO_PASSWORD)
+    return json({ok: false, why: "Sign-in is not set up yet."}, 503);
+
+  let b;
+  try { b = await request.json(); } catch { return json({ok: false, why: "bad body"}, 400); }
+
+  /* Customers are counted apart from the shop, so a customer getting her
+     password wrong ten times cannot lock the shop out of its own order book
+     from the same shop wi-fi. */
+  const ip = "buyer:" + (request.headers.get("CF-Connecting-IP") || "unknown");
+  if (await tooManyTries(env, ip))
+    return json({ok: false, why: "Too many tries. Wait fifteen minutes and try again."}, 429);
+
+  const phone = String(b.phone || "").replace(/\D/g, "").slice(-10);
+  const given = String(b.password || "");
+
+  if (!isMobile(phone)) {
+    await noteTry(env, ip, phone, false);
+    return json({ok: false, why: "That is not a ten-digit mobile number."}, 400);
+  }
+
+  if (tail === "login") {
+    let row = null;
+    try { row = await env.DB.prepare("SELECT pass FROM customers WHERE phone = ?")
+                            .bind(phone).first(); } catch (e) {
+      return json({ok: false, why: "Sign-in is not ready yet — the customers table is missing."}, 503);
+    }
+    const good = !!row && await samePass(given, row.pass);
+    await noteTry(env, ip, phone, good);
+    /* The same answer whether the number is unknown or the password is wrong,
+       so this cannot be used to find out who shops here. */
+    if (!good) return json({ok: false, why: "That number and password do not match."}, 401);
+    try {
+      await env.DB.prepare("UPDATE customers SET last_in = ? WHERE phone = ?")
+        .bind(new Date().toISOString(), phone).run();
+    } catch (e) { /* not worth failing a sign-in over */ }
+    return json({ok: true, you: pretty(phone)}, 200,
+      {"set-cookie": buyerCookie(await makeBuyerTicket(phone, env.STUDIO_PASSWORD),
+                                 BUYER_DAYS * 86400)});
+  }
+
+  if (tail === "set") {
+    const ref = String(b.ref || "").toUpperCase().replace(/\s+/g, "").slice(0, 24);
+    if (given.length < PASS_MIN) {
+      await noteTry(env, ip, phone, false);
+      return json({ok: false, why: `A password needs at least ${PASS_MIN} characters.`}, 400);
+    }
+    if (!isRef(ref)) {
+      await noteTry(env, ip, phone, false);
+      return json({ok: false, why: "That does not look like an order number."}, 400);
+    }
+    let owns = null;
+    try { owns = await env.DB.prepare(
+      "SELECT ref FROM orders WHERE ref = ? AND phone = ? AND status != 'deleted'")
+      .bind(ref, phone).first(); } catch (e) { owns = null; }
+    await noteTry(env, ip, phone, !!owns);
+    /* One answer for a wrong number and for a wrong order code alike. */
+    if (!owns) return json({ok: false,
+      why: "We have no order with that number against that mobile. Check both, or ask the shop."}, 401);
+
+    try {
+      await env.DB.prepare(
+        `INSERT INTO customers (phone, pass, made_at) VALUES (?,?,?)
+         ON CONFLICT(phone) DO UPDATE SET pass = excluded.pass`)
+        .bind(phone, await hashPass(given), new Date().toISOString()).run();
+    } catch (e) {
+      const said = String((e && e.message) || e);
+      return json({ok: false, why: /no such table/i.test(said)
+        ? "The customers table has not been created yet. Run the CREATE TABLE line in the D1 console."
+        : "We could not save that just now."}, 500);
+    }
+    return json({ok: true, you: pretty(phone)}, 200,
+      {"set-cookie": buyerCookie(await makeBuyerTicket(phone, env.STUDIO_PASSWORD),
+                                 BUYER_DAYS * 86400)});
+  }
+
+  return json({ok: false, why: "nothing to do"}, 400);
 }
 
 /* ===========================================================================

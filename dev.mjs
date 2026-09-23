@@ -45,12 +45,29 @@ const LATER = [
   "ALTER TABLE orders ADD COLUMN memo_at TEXT DEFAULT ''",
   "ALTER TABLE orders ADD COLUMN anjani_set TEXT DEFAULT ''",
   "ALTER TABLE parcels ADD COLUMN by_hand TEXT DEFAULT ''",
-  "ALTER TABLE parcels ADD COLUMN by_hand_at TEXT DEFAULT ''"
+  "ALTER TABLE parcels ADD COLUMN by_hand_at TEXT DEFAULT ''",
+  "ALTER TABLE parcels ADD COLUMN ref TEXT DEFAULT ''",
+  "ALTER TABLE parcels ADD COLUMN phone TEXT DEFAULT ''",
+  "CREATE INDEX IF NOT EXISTS parcels_ref   ON parcels (ref)",
+  "CREATE INDEX IF NOT EXISTS parcels_phone ON parcels (phone)"
 ];
 
+/* The schema is run, then the columns added since, then the schema again.
+
+   Twice, because the two are tangled: the schema ends with indexes on columns
+   that a database made before those columns existed has not got yet, and an
+   index on a missing column throws. On a brand new database the first run does
+   everything and the second finds nothing to do. On an older file the first run
+   stops at the index, the ALTERs put the columns in, and the second run
+   finishes the job.
+
+   Nothing here is allowed to throw. It used to, and the caller read that as
+   "this folder cannot hold a database" and quietly moved the whole shop into
+   memory — so every order vanished on restart and nobody could see why. */
 const ready = db => {
-  db.exec(SCHEMA);
+  try { db.exec(SCHEMA); } catch (e) { /* needs the columns below first */ }
   for (const line of LATER) { try { db.exec(line); } catch { /* already there */ } }
+  try { db.exec(SCHEMA); } catch (e) { /* whatever is left is genuinely wrong */ }
   return db;
 };
 

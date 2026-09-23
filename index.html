@@ -845,6 +845,7 @@ footer a:hover{color:var(--accent)}
       <a href="#/shop">Shop All</a>
       <a href="#/story">Our Story</a>
       <a href="#/contact">Contact</a>
+      <a href="/my/">Track order</a>
     </nav>
     <a class="iconbtn" id="savedBtn" href="#/saved" aria-label="Saved pieces">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z"/></svg>
@@ -878,6 +879,7 @@ footer a:hover{color:var(--accent)}
       <div>
         <h4>Help</h4>
         <ul>
+          <li><a href="/my/">Track my order</a></li>
           <li><a href="#/contact">Contact us</a></li>
           <li><a href="#/story">Our story</a></li>
           <li><a href="#/care">Care &amp; polish</a></li>
@@ -3442,7 +3444,8 @@ function paintNav(){
   if (nav) nav.innerHTML =
     `<a href="#/shop">Shop All</a>`
     + cats.map(c => `<a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")
-    + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`;
+    + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`
+    + `<a href="/my/">Track order</a>`;
 
   const foot = $("#footShop");
   if (foot) foot.innerHTML =

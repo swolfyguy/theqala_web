@@ -187,7 +187,25 @@ CREATE TABLE IF NOT EXISTS parcels (
   done      INTEGER NOT NULL DEFAULT 0,
   asked_at  TEXT DEFAULT '',
   by_hand    TEXT DEFAULT '',          -- who marked it arrived themselves, if anyone
-  by_hand_at TEXT DEFAULT ''           -- and when
+  by_hand_at TEXT DEFAULT '',          -- and when
+  ref        TEXT DEFAULT '',          -- the order this parcel is for, if it is for one
+  phone      TEXT DEFAULT ''           -- that order's phone, copied when it was attached
+);
+-- ---------------------------------------------------------------------------
+-- Customers who have made themselves an account to watch their own parcel.
+--
+-- Nobody is given an account. A person proves the number is hers by naming an
+-- order that was placed with it, and only then chooses a password. Without
+-- that, anybody who knew a customer's number could read her address, what she
+-- bought and what she paid.
+--
+-- The password is never stored. What is stored is PBKDF2-SHA256 of it, with a
+-- salt of its own per person, in the shape  pbkdf2$<rounds>$<salt>$<hash>.
+CREATE TABLE IF NOT EXISTS customers (
+  phone    TEXT PRIMARY KEY,           -- last ten digits, as everywhere else
+  pass     TEXT NOT NULL,
+  made_at  TEXT NOT NULL,
+  last_in  TEXT DEFAULT ''
 );
 
 -- How many people watched the how-to film. One row per day per moment, so
@@ -199,3 +217,18 @@ CREATE TABLE IF NOT EXISTS tally (
   n    INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (day, what)
 );
+
+-- ---------------------------------------------------------------------------
+-- Indexes on columns added later.
+--
+-- These come LAST on purpose. On a database that already has a parcels table
+-- from before, the two columns above do not exist yet, and an index on a
+-- column that is not there fails and takes the whole script down with it.
+-- So on an existing database: run the two ALTER TABLE lines first, then these.
+-- On a brand new one the table above already has the columns and these are
+-- simply built.
+--
+--   ALTER TABLE parcels ADD COLUMN ref TEXT DEFAULT '';
+--   ALTER TABLE parcels ADD COLUMN phone TEXT DEFAULT '';
+CREATE INDEX IF NOT EXISTS parcels_ref   ON parcels (ref);
+CREATE INDEX IF NOT EXISTS parcels_phone ON parcels (phone);

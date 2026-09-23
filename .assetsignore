@@ -47,3 +47,11 @@ pull.bat
 # rather than serving it, and neither belongs on the web.
 _worker.js
 wrangler.toml
+
+# the pre-render build tool and its manifest. It runs once on your
+# computer after build_catalogue.py, before you commit — the pages
+# it writes (piece/, shop/, terms/, privacy/, shipping/, returns/,
+# refunds/) are the real site content and DO get published; the
+# script itself and its report are just tooling, like dev.mjs.
+prerender.mjs
+prerender-report.json

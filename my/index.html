@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>My orders — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
+  --moving:#9A7325; --arrived:#2F6E5B; --unknown:#8A8A8A;
+  --back:#B3121C; --back-wash:rgba(179,18,28,.12);
+  --on-accent:#FFF6E9;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4); --wash-gold:rgba(207,168,79,.12);
+    --moving:#CFA84F; --arrived:#7FC0A8; --unknown:#8A8A8A;
+    --back:#FF8A80; --back-wash:rgba(255,110,100,.14);
+    --on-accent:#131011;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.55;
+  -webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.2}
+a{color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+header{background:var(--panel);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:15px 0}
+h1{font-size:1.3rem;margin-right:auto}
+.shoplink{font-size:.86rem;color:var(--ink-2);text-decoration:none}
+.shoplink:hover{color:var(--ink)}
+.out{background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 14px;
+  font:inherit;font-size:.82rem;color:inherit;cursor:pointer}
+
+main{padding:24px 0 80px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:22px;margin-bottom:18px;box-shadow:0 1px 2px var(--shadow)}
+.card h2{font-size:1.2rem;margin-bottom:6px}
+.card p.sub{color:var(--ink-2);font-size:.92rem;margin:0 0 16px}
+
+label{display:block;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;margin:14px 0 5px}
+input{width:100%;padding:11px 13px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--ground);color:inherit;font:inherit;font-size:1rem}
+input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.btn{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);
+  border-radius:999px;padding:11px 26px;font:inherit;font-size:.95rem;font-weight:600;
+  cursor:pointer;margin-top:18px}
+.btn[disabled]{opacity:.5;cursor:default}
+.swap{background:none;border:0;padding:0;margin-top:16px;font:inherit;font-size:.88rem;
+  color:var(--ink-2);text-decoration:underline;cursor:pointer;display:block}
+.swap:hover{color:var(--ink)}
+.say{font-size:.88rem;color:var(--ink-2);margin-top:12px;min-height:1.3em}
+.say.bad{color:var(--accent)}
+
+.order{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  margin-bottom:16px;box-shadow:0 1px 2px var(--shadow);overflow:hidden}
+.ohead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding:16px 18px;border-bottom:1px solid var(--line)}
+.oref{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600}
+.owhen{font-size:.84rem;color:var(--ink-2);margin-right:auto}
+.pill{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  border-radius:999px;padding:3px 11px;border:1px solid currentColor;white-space:nowrap}
+.pill.moving{color:var(--moving)}
+.pill.arrived{color:var(--arrived)}
+.pill.unknown{color:var(--unknown)}
+.obody{padding:16px 18px}
+.lines{list-style:none;margin:0 0 14px;padding:0}
+.lines li{display:flex;gap:10px;padding:7px 0;border-top:1px dashed var(--line);font-size:.94rem}
+.lines li:first-child{border-top:none}
+.lines .t{flex:1}
+.lines .q{color:var(--ink-2);font-size:.86rem;white-space:nowrap}
+.lines .p{white-space:nowrap;font-variant-numeric:tabular-nums}
+.sum{display:flex;justify-content:space-between;font-weight:600;padding-top:10px;
+  border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+
+.parcel{border:1px solid var(--line);border-radius:11px;background:var(--panel-2);
+  padding:14px 16px;margin-top:14px}
+.parcel.back{background:var(--back-wash);border-color:var(--back)}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pawb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;color:var(--ink-2)}
+.proute{font-size:.85rem;color:var(--ink-2);margin-top:4px}
+.moves{list-style:none;margin:12px 0 0;padding:0}
+.moves li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:7px 0;
+  border-top:1px dashed var(--line);font-size:.88rem}
+.moves time{color:var(--ink-2);font-size:.8rem;white-space:nowrap}
+.seemore{background:none;border:0;padding:0;margin-top:10px;font:inherit;font-size:.84rem;
+  color:var(--ink-2);text-decoration:underline;cursor:pointer}
+.theirs{font-size:.84rem;color:var(--ink-2);margin-top:10px;display:inline-block}
+.none{color:var(--ink-2);font-size:.9rem;margin-top:12px}
+.empty{color:var(--ink-2);padding:30px 0;text-align:center}
+.note{border-left:3px solid var(--gold);background:var(--wash-gold);
+  border-radius:0 10px 10px 0;padding:13px 16px;margin:16px 0;font-size:.9rem;color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <h1>My orders</h1>
+    <a class="shoplink" href="/">The Qala →</a>
+    <button class="out" id="out" hidden>Sign out</button>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="empty">Opening…</div>
+</main>
+
+<script>
+/* =====================================================================
+   The Qala — a customer's own view of her own orders
+
+   She signs in with her mobile number and a password. The first password
+   is set by naming an order placed with that number: only somebody
+   holding the order knows it, so no message has to be sent to prove the
+   number is hers. The same proof sets a forgotten one again.
+
+   This page never asks the courier anything. It shows what the shop has
+   already been told. Fifty customers refreshing on a Sunday evening must
+   not become fifty questions to Anjani.
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? "" : t)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+const IST = 5.5 * 3600e3;
+function when(iso, withTime){
+  const t = Date.parse(iso || "");
+  if (!Number.isFinite(t)) return "";
+  const d = new Date(t + IST).toISOString();
+  const mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+d.slice(5,7)-1];
+  const day = d.slice(8,10) + " " + mon + " " + d.slice(0,4);
+  return withTime ? d.slice(11,16) + " · " + day : day;
+}
+const money = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+
+/* A parcel coming back to us — the courier's word is RTO. */
+const isReturn = t => /\brto\b|return/i.test(String(t || ""));
+
+function parcelState(p){
+  if (isReturn(p.status)) return {cls:"back", word: p.status || "Coming back"};
+  if (p.arrived)          return {cls:"arrived", word: p.status || "Delivered"};
+  if (p.status)           return {cls:"moving", word: p.status};
+  return {cls:"unknown", word:"not picked up yet"};
+}
+
+/* ---------------------------------------------------------------- signed out */
+let MODE = "in";                       /* "in" = sign in, "set" = first time */
+
+function paintDoor(why){
+  $("#out").hidden = true;
+  const signIn = MODE === "in";
+  $("#main").innerHTML = `
+    <div class="card">
+      <h2>${signIn ? "Sign in" : "First time here"}</h2>
+      <p class="sub">${signIn
+        ? "Your mobile number and your password."
+        : "Give us your mobile number and any one of your order numbers — you will "
+          + "find it in the message the shop sent you, like <b>Q-2609-01</b>. Then choose "
+          + "a password. Use this if you have forgotten your password too."}</p>
+
+      <label for="f-phone">Mobile number</label>
+      <input id="f-phone" type="tel" inputmode="numeric" autocomplete="username"
+             maxlength="14" placeholder="9876543210">
+
+      ${signIn ? "" : `
+      <label for="f-ref">Order number</label>
+      <input id="f-ref" type="text" autocapitalize="characters" spellcheck="false"
+             maxlength="24" placeholder="Q-2609-01">`}
+
+      <label for="f-pass">${signIn ? "Password" : "Choose a password"}</label>
+      <input id="f-pass" type="password"
+             autocomplete="${signIn ? "current-password" : "new-password"}"
+             maxlength="72" placeholder="${signIn ? "" : "at least 6 characters"}">
+
+      <button class="btn" id="go">${signIn ? "Sign in" : "Save and sign in"}</button>
+      <div class="say${why ? " bad" : ""}" id="say">${esc(why || "")}</div>
+
+      <button class="swap" id="swap">${signIn
+        ? "First time, or forgotten your password?"
+        : "I already have a password"}</button>
+    </div>`;
+
+  $("#swap").onclick = () => { MODE = signIn ? "set" : "in"; paintDoor(""); };
+  $("#go").onclick = send;
+  for (const el of document.querySelectorAll("#main input"))
+    el.onkeydown = e => { if (e.key === "Enter") send(); };
+  $("#f-phone").focus();
+}
+
+async function send(){
+  const phone = $("#f-phone").value.replace(/\D/g, "");
+  const pass  = $("#f-pass").value;
+  const ref   = $("#f-ref") ? $("#f-ref").value.trim().toUpperCase() : "";
+  const say   = $("#say");
+
+  if (phone.length < 10) { say.className = "say bad"; say.textContent = "Please give your ten-digit mobile number."; return; }
+  if (!pass)             { say.className = "say bad"; say.textContent = "Please put in your password."; return; }
+  if (MODE === "set" && !ref) { say.className = "say bad"; say.textContent = "Please give one of your order numbers."; return; }
+
+  $("#go").disabled = true;
+  say.className = "say"; say.textContent = "one moment…";
+  let d = null;
+  try {
+    const r = await fetch(MODE === "in" ? "/api/me/login" : "/api/me/set", {
+      method: "POST", headers: {"content-type": "application/json"},
+      body: JSON.stringify(MODE === "in" ? {phone, password: pass}
+                                         : {phone, ref, password: pass})});
+    d = await r.json();
+  } catch (e) { d = null; }
+  $("#go").disabled = false;
+
+  if (!d || !d.ok) {
+    say.className = "say bad";
+    say.textContent = (d && d.why) || "That did not work. Please try again.";
+    return;
+  }
+  load();
+}
+
+/* ---------------------------------------------------------------- signed in */
+function paintOrders(d){
+  $("#out").hidden = false;
+  if (!d.orders || !d.orders.length) {
+    $("#main").innerHTML = `<div class="note">There are no orders against
+      ${esc(d.you)} yet. If you ordered on WhatsApp, the shop may have written it
+      down under a different number — ask them and they will put it right.</div>`;
+    return;
+  }
+  $("#main").innerHTML = d.orders.map(card).join("");
+  document.querySelectorAll("[data-more]").forEach(b => {
+    b.onclick = () => {
+      const list = b.previousElementSibling;
+      const open = list.hidden === false;
+      list.hidden = open;
+      b.textContent = open ? "Show where it has been" : "Hide";
+    };
+  });
+}
+
+function card(o){
+  /* How she is paying, not that she has paid. Nothing in the order book records
+     a payment yet — that arrives with the gateway — and telling a customer
+     "paid" when nothing has been taken would be the wrong way round. */
+  const paid = {online:"Paying online", shop:"Paying at the shop", cod:"Cash on delivery"}[o.pay] || "";
+  return `<article class="order">
+    <div class="ohead">
+      <span class="oref">${esc(o.ref)}</span>
+      <span class="owhen">${esc(when(o.placed_at))}</span>
+      <span class="pill ${o.status === "Delivered" ? "arrived"
+                        : o.status === "Cancelled" ? "unknown" : "moving"}">${esc(o.status)}</span>
+    </div>
+    <div class="obody">
+      <ul class="lines">${(o.items || []).map(i => `
+        <li><span class="t">${esc(i.title || i.code || "A piece")}</span>
+            ${i.qty > 1 ? `<span class="q">×${esc(i.qty)}</span>` : ""}
+            <span class="p">${money((i.price || 0) * (i.qty || 1))}</span></li>`).join("")}</ul>
+      <div class="sum"><span>Total${paid ? " · " + esc(paid) : ""}</span><span>${money(o.total)}</span></div>
+      ${o.poth ? `<div class="none">Poth length: ${esc(o.poth)} inches</div>` : ""}
+      ${(o.parcels || []).length
+        ? o.parcels.map(parcel).join("")
+        : `<div class="none">Not sent out yet. The tracking number will appear here
+             the moment the shop hands it to the courier.</div>`}
+    </div>
+  </article>`;
+}
+
+function parcel(p){
+  const st = parcelState(p);
+  const moves = Array.isArray(p.moves) ? p.moves : [];
+  return `<div class="parcel${st.cls === "back" ? " back" : ""}">
+    <div class="prow">
+      <span class="pawb">${esc(p.awb)}</span>
+      <span class="pill ${st.cls}">${esc(st.word)}</span>
+    </div>
+    ${p.from_c || p.to_c ? `<div class="proute">${esc(p.from_c || "?")} → ${esc(p.to_c || "?")}</div>` : ""}
+    ${moves.length ? `
+      <ul class="moves" hidden>${moves.map(m => `
+        <li><time>${esc(when(m.at, true))}</time>
+            <span><b>${esc(m.what)}</b>${m.where ? ` at ${esc(m.where)}` : ""}${
+              m.to ? ` — on to ${esc(m.to)}` : ""}</span></li>`).join("")}</ul>
+      <button class="seemore" data-more="1">Show where it has been</button>` : ""}
+    <a class="theirs" href="https://shreeanjani.co.in/tracking?awb=${encodeURIComponent(p.awb)}"
+       target="_blank" rel="noopener">Track it on the courier's own site →</a>
+  </div>`;
+}
+
+/* ---------------------------------------------------------------- */
+$("#out").onclick = async () => {
+  try { await fetch("/api/me/out", {method: "POST"}); } catch (e) {}
+  MODE = "in"; paintDoor("");
+};
+
+async function load(){
+  try {
+    const r = await fetch("/api/me", {headers: {accept: "application/json"}});
+    const d = await r.json();
+    if (r.status === 401 || !d.ok) { paintDoor(""); return; }
+    paintOrders(d);
+  } catch (e) {
+    $("#main").innerHTML = `<div class="note">We could not reach the shop just now.
+      Check you are online and try again.</div>`;
+  }
+}
+load();
+</script>
+</body>
+</html>
