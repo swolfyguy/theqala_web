@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>My orders — The Qala</title>
+<title>Track your order — The Qala</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,9 +111,9 @@ input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--w
 
 <header>
   <div class="wrap hrow">
-    <h1>My orders</h1>
+    <h1>Track your order</h1>
     <a class="shoplink" href="/">The Qala →</a>
-    <button class="out" id="out" hidden>Sign out</button>
+    <button class="out" id="out" hidden>Track another number</button>
   </div>
 </header>
 
@@ -123,16 +123,20 @@ input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--w
 
 <script>
 /* =====================================================================
-   The Qala — a customer's own view of her own orders
+   The Qala — track an order by phone number, nothing else asked
 
-   She signs in with her mobile number and a password. The first password
-   is set by naming an order placed with that number: only somebody
-   holding the order knows it, so no message has to be sent to prove the
-   number is hers. The same proof sets a forgotten one again.
+   No account, no password: type the mobile number an order was placed
+   with and see what's against it. That's a deliberate trade the shop
+   made (Sept 2026) — a phone number is not much of a secret, so this
+   page shows whoever has it the same thing it would show the customer
+   herself. /api/track on the worker side is where that trade actually
+   lives, including the one protection kept from the old sign-in: too
+   many numbers checked from one place in a row and it is asked to wait,
+   so this cannot be swept through by a machine.
 
-   This page never asks the courier anything. It shows what the shop has
-   already been told. Fifty customers refreshing on a Sunday evening must
-   not become fifty questions to Anjani.
+   This page never asks the courier anything itself. It shows what the
+   shop has already been told. Fifty people checking on a Sunday evening
+   must not become fifty questions to Anjani.
    ===================================================================== */
 const $ = s => document.querySelector(s);
 const esc = t => String(t == null ? "" : t)
@@ -159,68 +163,40 @@ function parcelState(p){
   return {cls:"unknown", word:"not picked up yet"};
 }
 
-/* ---------------------------------------------------------------- signed out */
-let MODE = "in";                       /* "in" = sign in, "set" = first time */
-
+/* ---------------------------------------------------------------- the form */
 function paintDoor(why){
   $("#out").hidden = true;
-  const signIn = MODE === "in";
   $("#main").innerHTML = `
     <div class="card">
-      <h2>${signIn ? "Sign in" : "First time here"}</h2>
-      <p class="sub">${signIn
-        ? "Your mobile number and your password."
-        : "Give us your mobile number and any one of your order numbers — you will "
-          + "find it in the message the shop sent you, like <b>Q-2609-01</b>. Then choose "
-          + "a password. Use this if you have forgotten your password too."}</p>
+      <h2>Where's my order?</h2>
+      <p class="sub">Type the mobile number it was placed with.</p>
 
       <label for="f-phone">Mobile number</label>
-      <input id="f-phone" type="tel" inputmode="numeric" autocomplete="username"
+      <input id="f-phone" type="tel" inputmode="numeric" autocomplete="tel"
              maxlength="14" placeholder="9876543210">
 
-      ${signIn ? "" : `
-      <label for="f-ref">Order number</label>
-      <input id="f-ref" type="text" autocapitalize="characters" spellcheck="false"
-             maxlength="24" placeholder="Q-2609-01">`}
-
-      <label for="f-pass">${signIn ? "Password" : "Choose a password"}</label>
-      <input id="f-pass" type="password"
-             autocomplete="${signIn ? "current-password" : "new-password"}"
-             maxlength="72" placeholder="${signIn ? "" : "at least 6 characters"}">
-
-      <button class="btn" id="go">${signIn ? "Sign in" : "Save and sign in"}</button>
+      <button class="btn" id="go">Track</button>
       <div class="say${why ? " bad" : ""}" id="say">${esc(why || "")}</div>
-
-      <button class="swap" id="swap">${signIn
-        ? "First time, or forgotten your password?"
-        : "I already have a password"}</button>
     </div>`;
 
-  $("#swap").onclick = () => { MODE = signIn ? "set" : "in"; paintDoor(""); };
   $("#go").onclick = send;
-  for (const el of document.querySelectorAll("#main input"))
-    el.onkeydown = e => { if (e.key === "Enter") send(); };
+  $("#f-phone").onkeydown = e => { if (e.key === "Enter") send(); };
   $("#f-phone").focus();
 }
 
 async function send(){
   const phone = $("#f-phone").value.replace(/\D/g, "");
-  const pass  = $("#f-pass").value;
-  const ref   = $("#f-ref") ? $("#f-ref").value.trim().toUpperCase() : "";
   const say   = $("#say");
 
-  if (phone.length < 10) { say.className = "say bad"; say.textContent = "Please give your ten-digit mobile number."; return; }
-  if (!pass)             { say.className = "say bad"; say.textContent = "Please put in your password."; return; }
-  if (MODE === "set" && !ref) { say.className = "say bad"; say.textContent = "Please give one of your order numbers."; return; }
+  if (phone.length < 10) { say.className = "say bad"; say.textContent = "Please give the ten-digit mobile number the order was placed with."; return; }
 
   $("#go").disabled = true;
   say.className = "say"; say.textContent = "one moment…";
   let d = null;
   try {
-    const r = await fetch(MODE === "in" ? "/api/me/login" : "/api/me/set", {
+    const r = await fetch("/api/track", {
       method: "POST", headers: {"content-type": "application/json"},
-      body: JSON.stringify(MODE === "in" ? {phone, password: pass}
-                                         : {phone, ref, password: pass})});
+      body: JSON.stringify({phone})});
     d = await r.json();
   } catch (e) { d = null; }
   $("#go").disabled = false;
@@ -230,10 +206,10 @@ async function send(){
     say.textContent = (d && d.why) || "That did not work. Please try again.";
     return;
   }
-  load();
+  paintOrders(d);
 }
 
-/* ---------------------------------------------------------------- signed in */
+/* ---------------------------------------------------------------- results */
 function paintOrders(d){
   $("#out").hidden = false;
   if (!d.orders || !d.orders.length) {
@@ -301,23 +277,9 @@ function parcel(p){
 }
 
 /* ---------------------------------------------------------------- */
-$("#out").onclick = async () => {
-  try { await fetch("/api/me/out", {method: "POST"}); } catch (e) {}
-  MODE = "in"; paintDoor("");
-};
+$("#out").onclick = () => paintDoor("");
 
-async function load(){
-  try {
-    const r = await fetch("/api/me", {headers: {accept: "application/json"}});
-    const d = await r.json();
-    if (r.status === 401 || !d.ok) { paintDoor(""); return; }
-    paintOrders(d);
-  } catch (e) {
-    $("#main").innerHTML = `<div class="note">We could not reach the shop just now.
-      Check you are online and try again.</div>`;
-  }
-}
-load();
+paintDoor("");
 </script>
 </body>
 </html>

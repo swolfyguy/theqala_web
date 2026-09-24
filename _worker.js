@@ -179,6 +179,7 @@ export default {
                                                                   return pinCheck(request, env, path);
       if (path === "/api/seen"      && request.method === "POST") return countSeen(request, env);
       if (path === "/api/me" || path.startsWith("/api/me/"))      return meApi(request, env, path);
+      if (path === "/api/track"     && request.method === "POST") return trackApi(request, env);
       if (path === "/office/tally"  && request.method === "GET")  return tallyOut(request, env);
       if (path === "/office/login"  && request.method === "POST") return login(request, env);
       if (path === "/office/logout" && request.method === "POST") return logout();
@@ -1314,11 +1315,69 @@ async function myOrders(env, phone) {
 }
 
 /* ---------------------------------------------------------------------------
+   /api/track
+   POST  phone   her orders and the parcels tied to them, nothing more asked
+
+   The shop's own decision (Sept 2026): no account, no password. She types
+   her number and sees what's against it — the same information /api/me
+   below always showed once she'd signed in, just without the sign-in.
+
+   That is a real trade, made on purpose and not by accident: a mobile
+   number is not much of a secret — it is on WhatsApp, in a contacts list,
+   handed to a courier — so anybody who has hers can now see her orders,
+   their prices and her delivery address, not only whoever she meant to
+   show. /api/me and the customers table below are left exactly as they
+   were, in case that trade ever needs to be taken back; this endpoint
+   simply does not use them.
+
+   What it keeps from the old sign-in is the one protection that is not
+   about her at all: a phone number here is one guess among ten billion,
+   and something running through them by machine should not get to make
+   guesses for free. So a number that turns up nothing still counts as a
+   miss in the same `logins` table the old sign-in used, under its own
+   prefix so the two never share a count, and ten misses from one address
+   in fifteen minutes locks that address out — same rule, same table,
+   turned to a new use. */
+async function trackApi(request, env) {
+  if (!env.DB) return json({ok: false, why: "No database."}, 503);
+  if (request.method !== "POST") return json({ok: false, why: "method"}, 405);
+
+  let b;
+  try { b = await request.json(); } catch { return json({ok: false, why: "bad body"}, 400); }
+
+  const ip = "track:" + (request.headers.get("CF-Connecting-IP") || "unknown");
+  if (await tooManyTries(env, ip))
+    return json({ok: false, why: "Too many tries. Wait fifteen minutes and try again."}, 429);
+
+  const phone = String(b.phone || "").replace(/\D/g, "").slice(-10);
+  if (!isMobile(phone)) {
+    await noteTry(env, ip, phone, false);
+    return json({ok: false, why: "That is not a ten-digit mobile number."}, 400);
+  }
+
+  let orders = [];
+  try { orders = await myOrders(env, phone); }
+  catch (e) { return json({ok: false, why: "We could not read your orders just now."}, 500); }
+
+  /* Nothing found counts the same as a wrong guess, for the same reason a
+     wrong password does — otherwise the rate limit only ever bites on
+     numbers that are real customers, and never on the sweep itself. */
+  await noteTry(env, ip, phone, orders.length > 0);
+
+  return json({ok: true, you: pretty(phone), orders}, 200, {"cache-control": "no-store"});
+}
+
+/* ---------------------------------------------------------------------------
    /api/me
    GET             her orders
    POST /login     number and password
    POST /set       first password, or a forgotten one, proved by an order code
    POST /out       sign out
+
+   Superseded by /api/track above for the shop's own site (Sept 2026) — kept
+   working, untouched, in case the no-password trade is ever taken back.
+   Nothing on the site links to a sign-in any more; this is only reachable
+   by calling it directly.
 --------------------------------------------------------------------------- */
 async function meApi(request, env, path) {
   if (!env.DB) return json({ok: false, why: "No database."}, 503);
