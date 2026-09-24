@@ -990,6 +990,12 @@ function startTags(){
 /* Every call goes through here, so with nothing configured the whole thing is
    a function that returns. */
 let SEEN = "";                 // the page last counted, so none is counted twice
+/* Whether this browser has gone anywhere beyond the very first page it
+   landed on — set once, the first time the hash actually changes, and used
+   below to count "browsed" (the opposite of somebody who opened the shop
+   and closed it again without looking further). Never sent anywhere itself;
+   it only decides whether to call seen("browsed") once. */
+let FIRST_ROUTE = null, browsedMarked = false;
 /* Our own tally of the how-to film, kept in the shop's own book rather than
    anybody else's. Google may or may not be switched on; this works either way
    and the number lands on the order book page where it will actually be read.
@@ -2906,6 +2912,14 @@ function nameThePage(r, parts, params){
 function render(){
   const {parts, params} = parseHash();
   const r = parts[0] || "";
+  /* The first real page is never a browse — it is where she landed. Only the
+     first move away from it, once, counts as having looked further. Skipped
+     while the catalogue is still loading, so the skeleton is never that
+     first page. */
+  if (LOAD_STATE !== "loading") {
+    if (FIRST_ROUTE === null) FIRST_ROUTE = location.hash;
+    else if (!browsedMarked && location.hash !== FIRST_ROUTE) { browsedMarked = true; seen("browsed"); }
+  }
   let html;
   if (LOAD_STATE === "loading") html = `<div class="wrap" style="padding:46px 0 80px">
       <div class="skelgrid">${Array.from({length:8},()=>`<div class="skel"></div>`).join("")}</div>
@@ -2949,6 +2963,7 @@ function render(){
     track("begin_checkout", {currency: "INR",
       value: lines.reduce((a, l) => a + l.it.price * l.qty, 0),
       items: lines.map(l => ({item_id: l.it.code, item_name: titleOf(l.it), price: l.it.price, quantity: l.qty}))});
+    seen("order_page");   // once a day per browser — see office/tally
   }
   }
 
@@ -3630,5 +3645,6 @@ document.addEventListener("visibilitychange", watchHere);
 })();
 
 startHowTo();
+seen("visit");   // once a day per browser — see office/tally
 loadCatalogue().then(() => { paintNav(); render(); watchHere(); });
 </script>

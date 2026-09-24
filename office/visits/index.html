@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Visits — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --wash-gold:rgba(207,168,79,.16);
+  --on-accent:#FFF6E9;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4); --wash-gold:rgba(207,168,79,.12);
+    --on-accent:#131011;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.hrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+h1{font-size:1.35rem;margin-right:auto}
+.crossnav{display:flex;gap:4px;align-items:center;font-size:.82rem;flex-wrap:wrap}
+.crossnav a,.crossnav span{padding:5px 11px;border-radius:999px;text-decoration:none;
+  color:var(--ink-2);border:1px solid transparent}
+.crossnav a:hover{border-color:var(--line-2);color:var(--ink)}
+.crossnav span[aria-current]{background:var(--panel-2);color:var(--ink);font-weight:600}
+.out{background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 13px;
+  font:inherit;font-size:.82rem;color:inherit;cursor:pointer}
+
+main{padding:22px 0 70px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:20px;margin-bottom:20px;box-shadow:0 1px 2px var(--shadow)}
+.card h2{font-size:1.15rem;margin-bottom:5px}
+.card p.sub{color:var(--ink-2);font-size:.9rem;margin:0 0 14px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:12px;margin-bottom:4px}
+.stat{background:var(--panel-2);border-radius:12px;padding:14px 16px}
+.stat .n{font-family:Marcellus,Georgia,serif;font-size:1.9rem;font-variant-numeric:tabular-nums;
+  line-height:1.1}
+.stat .w{font-size:.76rem;letter-spacing:.05em;color:var(--ink-2);margin-top:3px}
+
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;padding:0 4px 8px;border-bottom:1px solid var(--line)}
+th.r,td.r{text-align:right}
+td{padding:9px 4px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td.day{color:var(--ink-2)}
+.bar{background:var(--wash-gold);border-radius:5px;height:6px;margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold-2);border-radius:5px}
+
+.empty{color:var(--ink-2);padding:26px 0;text-align:center}
+.say{font-size:.86rem;color:var(--ink-2)}
+.say.bad{color:var(--accent)}
+.howto{display:flex;gap:18px;flex-wrap:wrap;font-size:.86rem;color:var(--ink-2)}
+.howto b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <h1>Visits</h1>
+    <div class="crossnav">
+      <a href="/office/">Orders</a>
+      <a href="/office/new/">New order</a>
+      <a href="/office/parcels/">Parcels</a>
+      <span aria-current="page">Visits</span>
+      <a href="/studio/">Studio</a>
+    </div>
+    <button class="out" id="out">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="card">
+    <h2>How many people came by</h2>
+    <p class="sub">Counted once per browser per day, the moment the shop opens —
+      not the same visit twice. Nothing about who she is is kept: no address, no
+      name, nothing that could be turned back into a person.</p>
+    <div id="stats" class="stats"><div class="say">Opening…</div></div>
+    <p class="say" id="bounceLine"></p>
+  </div>
+
+  <div class="card">
+    <h2>Day by day</h2>
+    <p class="sub">Most recent first. The bar is scaled to the busiest day shown.</p>
+    <div id="list"><div class="empty">Opening…</div></div>
+  </div>
+
+  <div class="card" id="funnelCard" hidden>
+    <h2>The order page — reached it, didn't buy</h2>
+    <p class="sub">"Reached it" is once per browser per day, same as a visit.
+      "Didn't complete" is that count minus however many orders were actually
+      placed that day — a same-day estimate, not a trace of any one visitor;
+      it can run a little low or high on a quiet day, and never below zero.</p>
+    <div class="howto" id="funnelTotals"></div>
+    <div id="funnelList" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" id="howtoCard" hidden>
+    <h2>The how-to film</h2>
+    <p class="sub">The same kind of count, kept since the film was added — how far
+      people get into it, across every day it has been counted.</p>
+    <div class="howto" id="howto"></div>
+  </div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s)
+  .replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+
+const DAY = {weekday:"short", day:"numeric", month:"short"};
+function dayLabel(key){
+  const today = new Date().toISOString().slice(0, 10);
+  const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  if (key === today) return "Today";
+  if (key === y) return "Yesterday";
+  const [Y, M, D] = key.split("-").map(Number);
+  return new Date(Date.UTC(Y, M - 1, D)).toLocaleDateString("en-IN", DAY);
+}
+
+const HOWTO_LABEL = {
+  howto_shown: "shown", howto_open: "played",
+  howto_half: "past halfway", howto_finished: "watched out"
+};
+
+/* day -> n out of a list of {day, n} rows, several days at a time. */
+function byDay(list){
+  const m = new Map();
+  for (const r of list || []) m.set(r.day, (m.get(r.day) || 0) + r.n);
+  return m;
+}
+const sumSince = (map, from) => [...map.entries()]
+  .filter(([d]) => d >= from).reduce((a, [, v]) => a + v, 0);
+const sinceDay = daysBack => new Date(Date.now() - daysBack * 864e5).toISOString().slice(0, 10);
+
+function paint(rows, orderRows){
+  const box = $("#list"), stats = $("#stats");
+
+  const visits = new Map(), browsed = new Map(), orderPage = new Map();
+  const howto = {howto_shown: 0, howto_open: 0, howto_half: 0, howto_finished: 0};
+  for (const r of rows) {
+    if (r.what === "visit")      visits.set(r.day, (visits.get(r.day) || 0) + r.n);
+    else if (r.what === "browsed")    browsed.set(r.day, (browsed.get(r.day) || 0) + r.n);
+    else if (r.what === "order_page") orderPage.set(r.day, (orderPage.get(r.day) || 0) + r.n);
+    else if (r.what in howto) howto[r.what] += r.n;
+  }
+  const placed = byDay(orderRows);
+
+  const days = [...visits.entries()].sort((a, b) => b[0] < a[0] ? -1 : 1);
+
+  if (!days.length) {
+    stats.innerHTML = `<div class="say">Nothing recorded yet — the counter only
+      just started. Come back after the shop has had a visitor or two.</div>`;
+    box.innerHTML = `<div class="empty">No visits recorded yet.</div>`;
+  } else {
+    const today = new Date().toISOString().slice(0, 10);
+    const yest  = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    const tiles = [
+      ["Today", visits.get(today) || 0],
+      ["Yesterday", visits.get(yest) || 0],
+      ["Last 7 days", sumSince(visits, sinceDay(6))],
+      ["Last 30 days", sumSince(visits, sinceDay(29))],
+      ["All time", sumSince(visits, "0000-00-00")]
+    ];
+    stats.innerHTML = tiles.map(([w, n]) =>
+      `<div class="stat"><div class="n">${n}</div><div class="w">${esc(w)}</div></div>`).join("");
+
+    const max = Math.max(...days.map(([, v]) => v), 1);
+    box.innerHTML = `<table>
+      <thead><tr><th>Day</th><th class="r">Visits</th><th></th></tr></thead>
+      <tbody>${days.map(([d, n]) => `
+        <tr><td class="day">${esc(dayLabel(d))}</td><td class="r">${n}</td>
+          <td style="width:40%"><div class="bar"><i style="width:${
+            Math.round(n / max * 100)}%"></i></div></td></tr>`).join("")}
+      </tbody>
+    </table>`;
+
+    /* Left after one page: only meaningful once there is at least one day
+       where "browsed" has had a chance to be counted, so a brand-new site
+       with visits but no browsed rows yet does not falsely claim a 100%
+       bounce rate. */
+    if (browsed.size) {
+      const allVisits  = sumSince(visits, "0000-00-00");
+      const allBrowsed = sumSince(browsed, "0000-00-00");
+      const bounced = Math.max(0, allVisits - allBrowsed);
+      const pct = allVisits ? Math.round(bounced / allVisits * 100) : 0;
+      $("#bounceLine").textContent = `Of all visits recorded, ${bounced} (${pct}%) `
+        + `left after the first page — the shop never saw where she went next.`;
+    }
+  }
+
+  /* The order-page funnel: reached it (a tally, same dedup as a visit) minus
+     however many orders actually landed that day (the real orders table). */
+  const opDays = [...orderPage.entries()].sort((a, b) => b[0] < a[0] ? -1 : 1);
+  if (opDays.length) {
+    $("#funnelCard").hidden = false;
+    const totalReached = opDays.reduce((a, [, v]) => a + v, 0);
+    const totalPlaced  = opDays.reduce((a, [d]) => a + (placed.get(d) || 0), 0);
+    const totalMissed  = opDays.reduce((a, [d, v]) => a + Math.max(0, v - (placed.get(d) || 0)), 0);
+    $("#funnelTotals").innerHTML = `<span><b>${totalReached}</b> reached the order page</span>
+      <span><b>${totalPlaced}</b> placed an order</span>
+      <span><b>${totalMissed}</b> didn't complete</span>`;
+    $("#funnelList").innerHTML = `<table>
+      <thead><tr><th>Day</th><th class="r">Reached it</th><th class="r">Placed</th><th class="r">Didn't complete</th></tr></thead>
+      <tbody>${opDays.map(([d, reached]) => {
+        const got = placed.get(d) || 0, missed = Math.max(0, reached - got);
+        return `<tr><td class="day">${esc(dayLabel(d))}</td><td class="r">${reached}</td>
+          <td class="r">${got}</td><td class="r">${missed}</td></tr>`;
+      }).join("")}</tbody>
+    </table>`;
+  }
+
+  const howtoTotal = Object.values(howto).reduce((a, v) => a + v, 0);
+  if (howtoTotal) {
+    $("#howtoCard").hidden = false;
+    $("#howto").innerHTML = Object.entries(HOWTO_LABEL)
+      .map(([k, w]) => `<span><b>${howto[k]}</b> ${esc(w)}</span>`).join("");
+  }
+}
+
+async function load(){
+  try {
+    const r = await fetch("/office/tally", {headers: {accept: "application/json"}});
+    if (r.status === 401) { location.href = "/office/?next=" + encodeURIComponent("/office/visits/"); return; }
+    const d = await r.json();
+    if (!d.ok) { $("#list").innerHTML = `<div class="note say bad">Could not open this.</div>`; return; }
+    paint(d.rows || [], d.orders || []);
+  } catch (e) {
+    $("#list").innerHTML = `<div class="empty">Could not reach the order book. Check you are online.</div>`;
+  }
+}
+
+$("#out").onclick = async () => {
+  try { await fetch("/office/logout", {method: "POST"}); } catch {}
+  location.href = "/office/";
+};
+
+load();
+</script>
+</body>
+</html>

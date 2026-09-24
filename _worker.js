@@ -200,7 +200,8 @@ export default {
          unsigned-in. Everything they can do is checked again on the way in
          below — this only saves showing a page to somebody who cannot use it. */
       if (path === "/studio" || path.startsWith("/studio/")
-          || path === "/office/new" || path === "/office/parcels") {
+          || path === "/office/new" || path === "/office/parcels"
+          || path === "/office/visits") {
         const who = await whoGoes(request, env);
         if (!who.ok) return Response.redirect(
           url.origin + "/office/?next=" + encodeURIComponent(url.pathname + url.search), 302);
@@ -579,22 +580,46 @@ async function whoIsHere(request, env) {
 }
 
 /* ---------------------------------------------------------------------------
-   A tally of the how-to film.
+   A tally of the how-to film, of visits to the shop, and of how far a visit
+   gets before it stops.
 
-   The shop wants one plain answer: is anybody watching it? So four moments
-   are counted — it was there, she turned the sound on, she got past halfway,
-   she watched it out — and nothing else. Four numbers a day.
+   The shop wants a few plain answers: is anybody watching the film, how many
+   people came by each day, how many of them got as far as the order page,
+   and how many left after only the one page? So seven moments are counted —
+   the film was there, she turned the sound on and played it, she got past
+   halfway, she watched it out, she opened the shop at all, she reached the
+   order page, and she went on to a second page instead of leaving after the
+   first — and nothing else. Seven numbers a day.
 
-   What is NOT counted is as deliberate as what is. No visitor is identified,
-   nothing is stored per person, and no row can be joined to an order. The
-   browser counts each moment once a day for itself and then stops asking, so
-   a person who watches the film four times is one watch, which is the honest
-   number and also the cheap one: a handful of rows a day, not a row a tap.
+   What is NOT counted is as deliberate as what is. No visitor is identified
+   and nothing is stored per person — every row here is a day and a count,
+   never a person and a trail. `order_page` and `browsed` are the two moments
+   that come closest to "which page", and even they say only whether that
+   moment happened for somebody that day, not who, not when within the day,
+   and not what she looked at to get there or after. None of the seven can be
+   joined to an order, to each other, or to anything else — an address, a
+   name, a page she looked at beyond these two yes/no moments, nothing that
+   could ever be turned back into "who".
+
+   The browser counts each moment once a day for itself (see `seen()` in
+   index.html, which remembers in localStorage) and then stops asking, so a
+   person who opens the shop four times in a day is one visit, which is the
+   honest number and also the cheap one: a handful of rows a day, not a row a
+   tap. A person with storage turned off, or who clears it and comes back the
+   same day, is counted again — this is a rough daily count for the shop's
+   own sense of things, not an audited analytics figure. "Reached the order
+   page but did not buy" is likewise a same-day estimate, not a trace of one
+   visitor: it is `order_page` for that day minus how many orders were
+   actually placed that day (from the `orders` table, which already exists),
+   not a list of who they were — a single person who reaches the order page
+   twice without ordering is still only counted once by `order_page` (same
+   day, same browser), same as every other tally here.
 
    A name not on this list is refused outright. The endpoint is open to the
-   world, so the world may only add to four counters and may not invent a
-   fifth. */
-const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished"];
+   world, so the world may only add to seven counters and may not invent an
+   eighth. */
+const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished",
+                  "visit", "order_page", "browsed"];
 
 const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
 
@@ -617,20 +642,34 @@ async function countSeen(request, env) {
 }
 
 /* The numbers, for the order book. Days newest first, and the shop adds them
-   up however it likes at the other end. */
+   up however it likes at the other end.
+
+   Orders placed each day ride along in the same response — `placed_at` is
+   already on every order, so this is one more GROUP BY, not a new table —
+   which is what lets the order-page count turn into "reached it but did not
+   buy" without a second round trip or a second endpoint. Every status counts
+   here, cancelled and deleted included: this answers whether she got as far
+   as placing one that day, not whether the shop kept it. */
 async function tallyOut(request, env) {
   const who = await whoGoes(request, env);
   if (!who.ok) return json({ok: false, why: "Sign in first."}, 401);
-  if (!env.DB)  return json({ok: true, days: []});
+  if (!env.DB)  return json({ok: true, rows: [], orders: []});
 
+  let rows = [];
   try {
     const res = await env.DB.prepare(
       "SELECT day, what, n FROM tally ORDER BY day DESC").all();
-    return json({ok: true, rows: (res && res.results) || []},
-                200, {"cache-control": "no-store"});
-  } catch (err) {
-    return json({ok: true, rows: []}, 200, {"cache-control": "no-store"});
-  }
+    rows = (res && res.results) || [];
+  } catch (err) { /* no tally table yet: the visits page just shows nothing */ }
+
+  let orders = [];
+  try {
+    const res = await env.DB.prepare(
+      "SELECT substr(placed_at, 1, 10) AS day, COUNT(*) AS n FROM orders GROUP BY day").all();
+    orders = (res && res.results) || [];
+  } catch (err) { /* no orders table: shouldn't happen, but the tallies alone still work */ }
+
+  return json({ok: true, rows, orders}, 200, {"cache-control": "no-store"});
 }
 
 /* ---------------------------------------------------------------------------

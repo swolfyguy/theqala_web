@@ -230,24 +230,6 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 }
 /* The shop's own instruction on an order. Deliberately plain — a box you
    type in, not a form you submit. */
-.tie{margin-top:4px}
-.tied{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 0;
-  border-bottom:1px dashed var(--line)}
-.tied .t-awb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem}
-.tied .t-state{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;
-  font-weight:700;color:var(--ink-2);margin-right:auto}
-.tie .t-off{background:none;border:1px solid var(--line-2);border-radius:999px;
-  padding:3px 11px;font:inherit;font-size:.75rem;color:var(--ink-2);cursor:pointer}
-.tie .t-off:hover{border-color:var(--accent);color:var(--accent)}
-.tie .t-box{flex:0 1 11rem;padding:7px 11px;border:1px solid var(--line-2);
-  border-radius:9px;background:var(--ground);color:inherit;font:inherit;font-size:.86rem;
-  font-family:ui-monospace,Menlo,Consolas,monospace}
-.tie .t-box:focus{outline:none;border-color:var(--gold-2)}
-.tie .t-add{background:none;border:1px solid var(--line-2);border-radius:999px;
-  padding:6px 14px;font:inherit;font-size:.82rem;color:inherit;cursor:pointer}
-.tie .t-add:hover{border-color:var(--accent);color:var(--accent)}
-.tie .t-say{font-size:.78rem;color:var(--ink-2)}
-.tie .t-say.bad{color:var(--accent)}
 .memo{margin-top:4px}
 .memo textarea{width:100%;min-height:66px;resize:vertical;padding:10px 12px;
   border:1px solid var(--line-2);border-radius:10px;background:var(--panel);
@@ -346,6 +328,7 @@ b.paid{color:var(--sent);font-weight:600}
         <span aria-current="page">Orders</span>
         <a href="/office/new/">New order</a>
         <a href="/office/parcels/">Parcels</a>
+        <a href="/office/visits/">Visits</a>
         <a href="/studio/">Studio</a>
       </div>
       <span class="who" id="who"></span>
@@ -405,11 +388,6 @@ const RANGES = [
 const STAFF = ["9011240352","7558209163","9579628754"];
 
 let VIEW = "all", RANGE = "7d", FROM = "", TO = "", ORDERS = [], COUNTS = {}, TIMER = null;
-/* Which parcel is carrying which order, kept by order number. Read from the
-   parcels list rather than the order book, because a parcel belongs to the
-   courier's world and an order to ours — they are tied together by hand and
-   nowhere else. */
-let TIED = {};
 let YOU = "";        /* whoever is signed in, for stamping an instruction */
 let OPEN = new Set();          // which orders are expanded
 
@@ -623,23 +601,6 @@ async function signOut(){
 
 /* ---------- the book ---------- */
 
-/* The parcels, grouped by the order each is tied to. A quiet failure is fine:
-   without it the order book simply shows no parcel, which is what it showed
-   before there were any. */
-async function loadTied(){
-  try {
-    const r = await api("/office/track");
-    if (!r.ok) return;
-    const d = await r.json();
-    const out = {};
-    for (const p of (d && d.parcels) || []) {
-      if (!p.ref) continue;
-      (out[p.ref] = out[p.ref] || []).push(p);
-    }
-    TIED = out;
-  } catch (e) { /* no parcels list is the same as no parcels */ }
-}
-
 async function load(){
   const q = $("#q") ? $("#q").value.trim() : "";
   const picked = RANGE === "picked" && (FROM || TO);
@@ -651,7 +612,7 @@ async function load(){
 
   let r, data;
   try {
-    const both = Promise.all([api(url), Object.keys(PIECES).length ? null : loadPieces(), loadTied()]);
+    const both = Promise.all([api(url), Object.keys(PIECES).length ? null : loadPieces()]);
     r = (await both)[0];
     data = await r.json();
   }
@@ -954,22 +915,6 @@ function detail(o){
             ? "written by " + esc(o.memo_by) + (o.memo_at ? " \u00b7 " + esc(ago(o.memo_at)) : "")
             : ""}</span>
         </div>
-        <h3>Parcel</h3>
-        <div class="tie">
-          ${(TIED[o.ref] || []).map(p => `<div class="tied">
-            <span class="t-awb">${esc(p.awb)}</span>
-            <span class="t-state">${esc(p.by_hand ? "Delivered" : (p.status || "not asked yet"))}</span>
-            <button type="button" class="t-off" data-off="${esc(p.awb)}">untie</button>
-          </div>`).join("")}
-          <div class="setrow">
-            <input class="t-box" inputmode="numeric" maxlength="20" placeholder="parcel number"
-                   aria-label="Parcel number for this order">
-            <button type="button" class="t-add">Tie to this order</button>
-            <span class="t-say"></span>
-          </div>
-          <div class="paywhy">The number on the courier's sticker. Tying it here is what
-            lets the customer see where her own parcel is.</div>
-        </div>
         ${perItem ? "" : `<h3>Poth length</h3>
         <div class="setrow">
           <select class="p-poth" aria-label="Poth length">
@@ -1070,13 +1015,13 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindTie(el, ref);
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
       bindSizes(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindTie(el, ref);
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
@@ -1199,46 +1144,6 @@ function anjaniNote(o){
              : ` — ${esc(a.why || "")}`}.
       Book it with another service.</div>`;
   return "";
-}
-
-/* Tying a parcel to this order, and untying it.
-
-   Typed, not matched. The order book knows the order number for certain, so
-   the tie is exact — and the customer's own page leans on it, which is why
-   nothing here ever guesses from a name. */
-function bindTie(el, ref){
-  const box = el.querySelector(".t-box");
-  const add = el.querySelector(".t-add");
-  const say = el.querySelector(".t-say");
-  if (!box || box.dataset.wired) return;
-  box.dataset.wired = "1";
-
-  const tell = (msg, bad) => { say.textContent = msg; say.className = "t-say" + (bad ? " bad" : ""); };
-
-  const send = async (awb, to) => {
-    tell("saving…");
-    try {
-      const r = await api("/office/track", {
-        method: "POST", headers: {"content-type": "application/json"},
-        body: JSON.stringify({tie: awb, ref: to})
-      });
-      const d = await r.json();
-      if (r.status === 401) { gate(d.why); return; }
-      if (!d.ok) { tell(d.why || "That did not work.", true); return; }
-      await loadTied();
-      paintList();
-    } catch (e) { tell("Could not reach the order book.", true); }
-  };
-
-  add.onclick = () => {
-    const awb = box.value.replace(/\D/g, "");
-    if (!awb) { tell("Put the parcel number in first.", true); return; }
-    send(awb, ref);
-  };
-  box.onkeydown = e => { if (e.key === "Enter") add.onclick(); };
-  el.querySelectorAll("[data-off]").forEach(b => {
-    b.onclick = () => send(b.dataset.off, "");
-  });
 }
 
 function bindMemo(el, ref){
