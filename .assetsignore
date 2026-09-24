@@ -55,3 +55,9 @@ wrangler.toml
 # script itself and its report are just tooling, like dev.mjs.
 prerender.mjs
 prerender-report.json
+
+# prerender.mjs's own dependency, installed once with npm — a browser
+# binary has no business being downloadable from the site either.
+node_modules
+package.json
+package-lock.json

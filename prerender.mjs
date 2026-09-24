@@ -53,6 +53,15 @@
    invisibly, with nothing to redraw. Nothing about the app's own router
    changes; it is not even aware this file exists.
 
+   NEEDS PLAYWRIGHT, ONCE:
+
+       npm install playwright
+       npx playwright install chromium
+
+   That writes a node_modules folder here — .gitignore and .assetsignore
+   already keep it out of git and out of the deploy, same as everything
+   else in this list that only runs on your own computer.
+
    RUN THIS AFTER build_catalogue.py, WITH THE SHOP RUNNING:
 
        python3 build_catalogue.py
@@ -63,7 +72,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-const {chromium} = (await import("/home/claude/.npm-global/lib/node_modules/playwright/index.js")).default;
+import {chromium} from "playwright";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.PRERENDER_BASE || "http://localhost:8788";

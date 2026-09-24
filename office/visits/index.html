@@ -109,9 +109,13 @@ td.day{color:var(--ink-2)}
   <div class="card" id="funnelCard" hidden>
     <h2>The order page — reached it, didn't buy</h2>
     <p class="sub">"Reached it" is once per browser per day, same as a visit.
-      "Didn't complete" is that count minus however many orders were actually
-      placed that day — a same-day estimate, not a trace of any one visitor;
-      it can run a little low or high on a quiet day, and never below zero.</p>
+      "Left it" is a real moment: she moved on from the order page, within
+      the same visit, without an order going through — it misses anyone who
+      simply closed the tab instead. "Didn't complete" is a wider estimate
+      that catches that too: reached it, minus however many orders were
+      actually placed that day — a same-day sum, not a trace of any one
+      visitor; it can run a little low or high on a quiet day, and never
+      below zero.</p>
     <div class="howto" id="funnelTotals"></div>
     <div id="funnelList" style="margin-top:14px"></div>
   </div>
@@ -157,12 +161,13 @@ const sinceDay = daysBack => new Date(Date.now() - daysBack * 864e5).toISOString
 function paint(rows, orderRows){
   const box = $("#list"), stats = $("#stats");
 
-  const visits = new Map(), browsed = new Map(), orderPage = new Map();
+  const visits = new Map(), browsed = new Map(), orderPage = new Map(), orderLeft = new Map();
   const howto = {howto_shown: 0, howto_open: 0, howto_half: 0, howto_finished: 0};
   for (const r of rows) {
     if (r.what === "visit")      visits.set(r.day, (visits.get(r.day) || 0) + r.n);
     else if (r.what === "browsed")    browsed.set(r.day, (browsed.get(r.day) || 0) + r.n);
     else if (r.what === "order_page") orderPage.set(r.day, (orderPage.get(r.day) || 0) + r.n);
+    else if (r.what === "order_left") orderLeft.set(r.day, (orderLeft.get(r.day) || 0) + r.n);
     else if (r.what in howto) howto[r.what] += r.n;
   }
   const placed = byDay(orderRows);
@@ -210,23 +215,28 @@ function paint(rows, orderRows){
     }
   }
 
-  /* The order-page funnel: reached it (a tally, same dedup as a visit) minus
-     however many orders actually landed that day (the real orders table). */
+  /* The order-page funnel: reached it (a tally, same dedup as a visit),
+     left it (a direct moment — moved on without ordering), and the wider
+     same-day estimate of everyone who reached it minus however many orders
+     actually landed that day (the real orders table). */
   const opDays = [...orderPage.entries()].sort((a, b) => b[0] < a[0] ? -1 : 1);
   if (opDays.length) {
     $("#funnelCard").hidden = false;
     const totalReached = opDays.reduce((a, [, v]) => a + v, 0);
     const totalPlaced  = opDays.reduce((a, [d]) => a + (placed.get(d) || 0), 0);
+    const totalLeft    = opDays.reduce((a, [d]) => a + (orderLeft.get(d) || 0), 0);
     const totalMissed  = opDays.reduce((a, [d, v]) => a + Math.max(0, v - (placed.get(d) || 0)), 0);
     $("#funnelTotals").innerHTML = `<span><b>${totalReached}</b> reached the order page</span>
       <span><b>${totalPlaced}</b> placed an order</span>
-      <span><b>${totalMissed}</b> didn't complete</span>`;
+      <span><b>${totalLeft}</b> left it without ordering</span>
+      <span><b>${totalMissed}</b> didn't complete (estimate)</span>`;
     $("#funnelList").innerHTML = `<table>
-      <thead><tr><th>Day</th><th class="r">Reached it</th><th class="r">Placed</th><th class="r">Didn't complete</th></tr></thead>
+      <thead><tr><th>Day</th><th class="r">Reached it</th><th class="r">Placed</th>
+        <th class="r">Left it</th><th class="r">Didn't complete</th></tr></thead>
       <tbody>${opDays.map(([d, reached]) => {
-        const got = placed.get(d) || 0, missed = Math.max(0, reached - got);
+        const got = placed.get(d) || 0, left = orderLeft.get(d) || 0, missed = Math.max(0, reached - got);
         return `<tr><td class="day">${esc(dayLabel(d))}</td><td class="r">${reached}</td>
-          <td class="r">${got}</td><td class="r">${missed}</td></tr>`;
+          <td class="r">${got}</td><td class="r">${left}</td><td class="r">${missed}</td></tr>`;
       }).join("")}</tbody>
     </table>`;
   }

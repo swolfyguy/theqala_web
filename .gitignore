@@ -45,3 +45,9 @@ _to_delete/
 
 # sqlite writes a journal beside the database while it is open
 .qala-dev.sqlite*
+
+# prerender.mjs's own dependency (Playwright + a downloaded Chromium) —
+# `npm install playwright` writes this here. Never belongs in git.
+# package.json and package-lock.json are fine to commit; they're small
+# and let a future `npm install` reproduce the same thing.
+node_modules/

@@ -585,21 +585,23 @@ async function whoIsHere(request, env) {
 
    The shop wants a few plain answers: is anybody watching the film, how many
    people came by each day, how many of them got as far as the order page,
-   and how many left after only the one page? So seven moments are counted —
-   the film was there, she turned the sound on and played it, she got past
+   how many left after only the one page, and how many reached the order page
+   and then actually turned away from it? So eight moments are counted — the
+   film was there, she turned the sound on and played it, she got past
    halfway, she watched it out, she opened the shop at all, she reached the
-   order page, and she went on to a second page instead of leaving after the
-   first — and nothing else. Seven numbers a day.
+   order page, she went on to a second page instead of leaving after the
+   first, and she moved on from the order page itself without placing an
+   order — and nothing else. Eight numbers a day.
 
    What is NOT counted is as deliberate as what is. No visitor is identified
    and nothing is stored per person — every row here is a day and a count,
-   never a person and a trail. `order_page` and `browsed` are the two moments
-   that come closest to "which page", and even they say only whether that
-   moment happened for somebody that day, not who, not when within the day,
-   and not what she looked at to get there or after. None of the seven can be
-   joined to an order, to each other, or to anything else — an address, a
-   name, a page she looked at beyond these two yes/no moments, nothing that
-   could ever be turned back into "who".
+   never a person and a trail. `order_page`, `browsed` and `order_left` are
+   the moments that come closest to "which page", and even they say only
+   whether that moment happened for somebody that day, not who, not when
+   within the day, and not what she looked at before or after. None of the
+   eight can be joined to an order, to each other, or to anything else — an
+   address, a name, a page she looked at beyond these yes/no moments, nothing
+   that could ever be turned back into "who".
 
    The browser counts each moment once a day for itself (see `seen()` in
    index.html, which remembers in localStorage) and then stops asking, so a
@@ -607,19 +609,28 @@ async function whoIsHere(request, env) {
    honest number and also the cheap one: a handful of rows a day, not a row a
    tap. A person with storage turned off, or who clears it and comes back the
    same day, is counted again — this is a rough daily count for the shop's
-   own sense of things, not an audited analytics figure. "Reached the order
-   page but did not buy" is likewise a same-day estimate, not a trace of one
-   visitor: it is `order_page` for that day minus how many orders were
-   actually placed that day (from the `orders` table, which already exists),
-   not a list of who they were — a single person who reaches the order page
-   twice without ordering is still only counted once by `order_page` (same
-   day, same browser), same as every other tally here.
+   own sense of things, not an audited analytics figure.
+
+   `order_left` is a direct signal, not an estimate: the shop page fires it
+   the moment she moves on from the order route to anything other than the
+   "order placed" screen (see `render()` in index.html) — she was on the
+   order page and then, within that same visit, was not. It can only see
+   movement inside the page, though, so it cannot tell when she closes the
+   tab or the browser instead of clicking elsewhere; that looks the same as
+   staying put. "Reached the order page but did not buy" is a second, wider
+   estimate that catches a closed tab too, but is same-day arithmetic rather
+   than a real moment: it is `order_page` for that day minus how many orders
+   were actually placed that day (from the `orders` table, which already
+   exists), not a list of who they were. A single person who reaches the
+   order page twice without ordering is still only counted once by
+   `order_page` or `order_left` (same day, same browser), same as every other
+   tally here.
 
    A name not on this list is refused outright. The endpoint is open to the
-   world, so the world may only add to seven counters and may not invent an
-   eighth. */
+   world, so the world may only add to eight counters and may not invent a
+   ninth. */
 const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished",
-                  "visit", "order_page", "browsed"];
+                  "visit", "order_page", "browsed", "order_left"];
 
 const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
 

@@ -779,6 +779,19 @@ footer a:hover{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(160%);background:var(--velvet);color:var(--on-velvet);padding:14px 24px;border-radius:999px;font-size:.86rem;letter-spacing:.04em;z-index:80;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
+/* Only ever shown once GA4_ID or ADS_ID is actually filled in — see
+   startTagsIfAllowed() near the top of the main script. Nothing to consent
+   to, nothing shown. */
+.cookiebar{position:fixed;left:0;right:0;bottom:0;z-index:75;background:var(--panel);
+  border-top:1px solid var(--line);box-shadow:0 -14px 34px -18px var(--shadow-2);
+  padding:16px 18px;transform:translateY(110%);transition:transform .4s cubic-bezier(.2,.9,.3,1)}
+.cookiebar.show{transform:translateY(0)}
+.cookiebar .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.cookiebar p{margin:0;font-size:.86rem;color:var(--ink-2);line-height:1.5;flex:1 1 320px}
+.cookiebar p a{color:var(--accent)}
+.cookiebar .row{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.cookiebar .btn{padding:11px 22px;font-size:.72rem}
+
 @media (max-width:900px){
   .hero .inner{grid-template-columns:minmax(0,1fr);gap:28px;padding:36px 0 44px}
   .hero .stage{min-height:290px;order:-1}
@@ -888,6 +901,7 @@ footer a:hover{color:var(--accent)}
           <li><a href="#/refunds">Refunds &amp; cancellation</a></li>
           <li><a href="#/terms">Terms &amp; conditions</a></li>
           <li><a href="#/privacy">Privacy policy</a></li>
+          <li id="cookieSettingsRow" hidden><a href="#" id="cookieSettings">Cookie settings</a></li>
         </ul>
       </div>
       <div>
@@ -939,6 +953,18 @@ footer a:hover{color:var(--accent)}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<div class="cookiebar" id="cookiebar" hidden role="region" aria-label="Cookies">
+  <div class="inner">
+    <p>This site uses cookies for Google Analytics and Google Ads, to see which
+      pieces get looked at and which orders came from an advertisement.
+      Nothing that names you is ever in them. <a href="#/privacy">Read more</a></p>
+    <div class="row">
+      <button class="btn ghost" id="cookieNo">No thanks</button>
+      <button class="btn" id="cookieYes">Allow</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
 /* =========================================================
@@ -952,15 +978,19 @@ const WA = "919579628754";
    Counting what the shop wants counting
    ---------------------------------------------------------------------------
    Leave these empty and nothing loads at all: no Google script, no cookie,
-   nothing sent anywhere. Fill them in and the shop starts telling Google
-   which pieces were looked at and which orders were placed, which is the only
-   way an advertisement can be judged.
+   nothing sent anywhere, no banner shown — there is nothing to ask about.
+   Fill one in and two things start: the shop offers a cookie banner
+   (Allow / No thanks, see #cookiebar and startTagsIfAllowed() further down)
+   before either Google script loads, and once she says Allow, it starts
+   telling Google which pieces were looked at and which orders were placed,
+   which is the only way an advertisement can be judged.
 
      GA4_ID     from Google Analytics, Admin > Data streams   e.g. "G-XXXXXXX"
      ADS_ID     from Google Ads, Tools > Conversions          e.g. "AW-000000000"
      ADS_ORDER  the conversion label on that page             e.g. "abcDEF_gh12"
 
-   The privacy page has to say this is here before it is switched on. */
+   The privacy page already says this is here and asks first — see "Counting
+   visitors" in the privacy policy text further down. */
 const GA4_ID    = "";
 const ADS_ID    = "";
 const ADS_ORDER = "";
@@ -996,6 +1026,13 @@ let SEEN = "";                 // the page last counted, so none is counted twic
    and closed it again without looking further). Never sent anywhere itself;
    it only decides whether to call seen("browsed") once. */
 let FIRST_ROUTE = null, browsedMarked = false;
+/* The route this page was on last time render() ran — kept only to notice
+   the one transition that matters: away from "order" to anywhere other than
+   "placed" (an order actually going through). That transition is
+   seen("order_left") — she reached the order page and then, within the same
+   visit, was not on it any more without having ordered. Never sent, and
+   never anything but the current route's name. */
+let PREV_ROUTE = null;
 /* Our own tally of the how-to film, kept in the shop's own book rather than
    anybody else's. Google may or may not be switched on; this works either way
    and the number lands on the order book page where it will actually be read.
@@ -1021,9 +1058,48 @@ function track(name, params){
   if (typeof gtag !== "function") return;
   try { gtag("event", name, params || {}); } catch (e) {}
 }
-/* Started here, before anything paints: the first page she lands on is the one
-   the advertisement paid for, and it would be the one page not counted. */
-startTags();
+
+/* Whether she has said yes or no to the cookie banner, kept in this browser
+   only — "yes" | "no" | null (never asked, or asked before storage worked).
+   Nothing here is a cookie itself; asking about cookies with one would be
+   an odd way to start. */
+function cookieChoice(){ try { return localStorage.getItem("qala.cookies"); } catch (e) { return null; } }
+function setCookieChoice(v){ try { localStorage.setItem("qala.cookies", v); } catch (e) {} }
+
+/* Started here, before anything paints, same as before — but now gated on
+   both halves being true: something is actually configured (GA4_ID or
+   ADS_ID, above), and she has said yes. Neither set, and this whole function
+   is the one line it always was: nothing loads, no banner, no cookie,
+   nothing to ask about. Said yes already, on a return visit, and this still
+   fires as early as it always did, so the first page she lands on — the one
+   the advertisement paid for — is still the one that gets counted. Anything
+   else (no answer yet, or a "no" on file) leaves it off and, if there's no
+   answer yet, opens the banner below so she can give one. */
+function showCookiebar(){
+  const bar = document.getElementById("cookiebar");
+  if (!bar) return;
+  bar.hidden = false;
+  requestAnimationFrame(() => bar.classList.add("show"));
+  const hide = () => { bar.classList.remove("show"); setTimeout(() => { bar.hidden = true; }, 400); };
+  document.getElementById("cookieYes").onclick = () => { setCookieChoice("yes"); hide(); startTags(); };
+  document.getElementById("cookieNo").onclick  = () => { setCookieChoice("no");  hide(); };
+}
+function startTagsIfAllowed(){
+  if (!GA4_ID && !ADS_ID) return;
+  /* Something is configured, so there is now something to ask about — show
+     the "Cookie settings" link in the footer, whatever she answers, so she
+     can change her mind later without clearing her browser. */
+  const row = document.getElementById("cookieSettingsRow");
+  if (row) {
+    row.hidden = false;
+    document.getElementById("cookieSettings").onclick = (e) => { e.preventDefault(); showCookiebar(); };
+  }
+  const said = cookieChoice();
+  if (said === "yes") { startTags(); return; }
+  if (said === "no") return;
+  showCookiebar();   // never answered — ask once, now
+}
+startTagsIfAllowed();
 
 /* Shop timings and the two Instagram pages. */
 /* The shop itself. Change the address here and it changes in the hero line,
@@ -2662,11 +2738,14 @@ const PAGES = {
 
     ${H}Counting visitors</h3>
     <p>The site keeps a rough count of how many people are looking at it just now, and how
-       many orders were placed. Where Google Analytics is switched on, it also records which
-       pages were opened and which pieces were looked at, using cookies in your browser.
+       many orders were placed — no cookie, nothing that names you, nothing sent to anybody.
+       Where Google Analytics or Google Ads is switched on as well, it also records which
+       pages were opened and which pieces were looked at, using cookies in your browser, and
+       the site asks first: a banner offers <b>Allow</b> or <b>No thanks</b> before either one
+       starts, and <b>Cookie settings</b> in the footer changes your answer any time after.
        Google is told what happened on the site, never who you are: your name, number and
-       address never leave our own order book. You can turn cookies off in your browser and
-       the shop still works, and the site never asks for your location.</p>
+       address never leave our own order book. You can also turn cookies off in your browser
+       and the shop still works, and the site never asks for your location.</p>
 
     ${H}How long we keep it</h3>
     <p>Orders stay in the book while they matter to us — for the guarantee, for the accounts,
@@ -2919,6 +2998,8 @@ function render(){
   if (LOAD_STATE !== "loading") {
     if (FIRST_ROUTE === null) FIRST_ROUTE = location.hash;
     else if (!browsedMarked && location.hash !== FIRST_ROUTE) { browsedMarked = true; seen("browsed"); }
+    if (PREV_ROUTE === "order" && r !== "order" && r !== "placed") seen("order_left");
+    PREV_ROUTE = r;
   }
   let html;
   if (LOAD_STATE === "loading") html = `<div class="wrap" style="padding:46px 0 80px">

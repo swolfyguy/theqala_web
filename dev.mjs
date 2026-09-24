@@ -164,11 +164,15 @@ function seedMockData(sqlite) {
   }
 
   /* A fortnight of visit counts, rising toward today; how far those visits
-     got — past the first page, as far as the order page; and a few days of
-     the how-to film's numbers — so /office/visits/ has something to draw
-     the moment it is opened instead of an empty room. Kept roughly honest
-     relative to each other: browsed ≤ visit, order_page ≤ browsed, same
-     shape the real numbers will have. */
+     got — past the first page, as far as the order page, and how many of
+     those turned away from the order page itself without ordering; and a
+     few days of the how-to film's numbers — so /office/visits/ has
+     something to draw the moment it is opened instead of an empty room.
+     Kept roughly honest relative to each other: browsed ≤ visit,
+     order_page ≤ browsed, order_left ≤ order_page (and a bit under
+     order_page minus that day's real orders, since order_left misses a
+     closed tab that the estimate still catches) — same shape the real
+     numbers will have. */
   const insTally = sqlite.prepare(`INSERT INTO tally (day, what, n) VALUES (?,?,?)
     ON CONFLICT(day, what) DO UPDATE SET n = n + excluded.n`);
   const dayKey = daysAgo => new Date(Date.now() - daysAgo * 86400e3).toISOString().slice(0, 10);
@@ -178,6 +182,7 @@ function seedMockData(sqlite) {
   seedRow("visit",      [3, 5, 4, 7, 9, 6, 8, 11, 7, 10, 13, 9, 12, 6]);  // 13 days ago .. today
   seedRow("browsed",    [2, 3, 3, 5, 6, 4, 6,  8, 5,  7,  9, 6,  8, 4]);
   seedRow("order_page", [1, 2, 1, 3, 4, 2, 3,  5, 3,  4,  6, 4,  5, 2]);
+  seedRow("order_left", [1, 1, 1, 2, 3, 1, 1,  3, 2,  2,  4, 2,  3, 1]);
   [["howto_shown", 22], ["howto_open", 15], ["howto_half", 9], ["howto_finished", 6]]
     .forEach(([what, n]) => insTally.run(dayKey(2), what, n));
 
