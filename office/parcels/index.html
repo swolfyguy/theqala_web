@@ -67,6 +67,12 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 .say{font-size:.86rem;color:var(--ink-2)}
 .say.bad{color:var(--accent)}
 
+.quickrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.qinput{padding:10px 13px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--ground);color:inherit;font:inherit;font-size:.92rem;flex:1 1 12rem;min-width:0}
+.qinput:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+#q-awb,#q-phone{flex:1 1 9rem;font-variant-numeric:tabular-nums}
+
 .filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 4px}
 .filters button{background:var(--panel);border:1px solid var(--line-2);border-radius:999px;
   padding:6px 15px;font:inherit;font-size:.85rem;color:var(--ink-2);cursor:pointer;
@@ -90,10 +96,12 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
   background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;
   grid-template-columns:1fr auto}
 @media (min-width:720px){
-  .phead{grid-template-columns:9.5rem minmax(0,1fr) 9rem 7.5rem 1.2rem}
+  .phead{grid-template-columns:9.5rem minmax(0,1fr) 8rem 9rem 7.5rem 1.2rem}
 }
 .awb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;color:var(--ink-2)}
 .who{font-weight:600}
+.phone{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;color:var(--ink-2);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
 .where{font-size:.84rem;color:var(--ink-2)}
 .state{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
   white-space:nowrap}
@@ -157,12 +165,28 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
 <main class="wrap">
   <div class="card">
     <h2>Write down what went out</h2>
-    <p class="sub">The number from the sticker, then who it is for, then her
-      mobile number if you have it — that's what lets her find it on her own
-      page without you tying it to the order by hand. A comma or a new line
-      ends each one — <code>1736804425 Pallavi Jamadade 9876543210, 1736804426
-      Ravita Sutar,</code> or one to a line, or a mixture. The number is
-      optional; leave it off and tie the parcel to an order below instead.</p>
+    <p class="sub">Her mobile number is what lets her find the parcel on her
+      own page without anybody tying it to the order by hand — give it here
+      and it is checked against the order book straight away: if it matches
+      exactly one order of hers, the parcel is tied to it on the spot.</p>
+
+    <div class="quickrow">
+      <input class="qinput" id="q-awb" type="text" inputmode="numeric"
+        placeholder="AWB — the number on the sticker" maxlength="20" spellcheck="false">
+      <input class="qinput" id="q-who" type="text" placeholder="Her name" maxlength="80">
+      <input class="qinput" id="q-phone" type="tel" inputmode="numeric"
+        placeholder="Her mobile number (optional)" maxlength="10">
+      <button class="btn ghost" id="qadd" type="button">Add this one</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <span class="say" id="qsay"></span>
+    </div>
+
+    <p class="sub" style="margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)">
+      Got a whole day's dispatch at once? Paste it in below instead — the same
+      shape, one parcel to a line or comma-separated:
+      <code>1736804425 Pallavi Jamadade 9876543210, 1736804426 Ravita Sutar,</code>
+      Her number is still optional there too.</p>
     <textarea id="paste" spellcheck="false"
       placeholder="1736804425 Pallavi Jamadade 9876543210, 1736804426 Ravita Sutar,&#10;&#10;or one to a line:&#10;1736804427 Sneha Kulkarni"></textarea>
     <div class="row">
@@ -386,6 +410,7 @@ function card(p){
     <button class="phead" type="button">
       <span class="awb">${esc(p.awb)}</span>
       <span class="who">${esc(p.who)}</span>
+      <span class="phone">${p.phone ? esc(pretty(p.phone)) : "—"}</span>
       <span class="where">${esc(p.to_c || "—")}</span>
       <span class="state ${st.cls}"${st.hand
         ? ` title="Marked delivered by ${esc(p.by_hand)} — not by the courier"` : ""
@@ -468,6 +493,51 @@ async function chaseThem(){
   } finally { chasing = false; }
   if (moved) await load();
 }
+
+/* One parcel at a time, in its own labelled fields, rather than the paste
+   box's free text — same backend call either way (it just builds the same
+   "AWB name phone" line the paste box would have made), so a phone typed
+   here ties to her order exactly the same way: an exact match on that
+   number, or left untied rather than guessed at. */
+$("#qadd").onclick = async () => {
+  const awb   = $("#q-awb").value.replace(/\s+/g, "").trim();
+  const who   = $("#q-who").value.trim();
+  const phone = $("#q-phone").value.replace(/\D/g, "");
+  const say   = $("#qsay");
+
+  if (!/^[0-9]{6,20}$/.test(awb)) {
+    say.className = "say bad"; say.textContent = "That does not look like an AWB number.";
+    $("#q-awb").focus(); return;
+  }
+  if (!who) {
+    say.className = "say bad"; say.textContent = "Who is it for?";
+    $("#q-who").focus(); return;
+  }
+  if (phone && !/^[6-9][0-9]{9}$/.test(phone)) {
+    say.className = "say bad"; say.textContent = "That does not look like a ten-digit mobile number.";
+    $("#q-phone").focus(); return;
+  }
+
+  $("#qadd").disabled = true;
+  say.className = "say"; say.textContent = "adding…";
+  const d = await send({add: awb + " " + who + (phone ? " " + phone : "")});
+  $("#qadd").disabled = false;
+
+  if (!d || !d.ok || !d.put) {
+    say.className = "say bad";
+    say.textContent = (d && d.why) || (d && d.already ? "That AWB is already on the list." : "That did not work.");
+    return;
+  }
+  $("#q-awb").value = ""; $("#q-who").value = ""; $("#q-phone").value = "";
+  say.className = "say";
+  say.textContent = d.tied ? "Added, and tied to her order." : "Added.";
+  await load();
+  chaseThem();
+  $("#q-awb").focus();
+};
+["#q-awb", "#q-who", "#q-phone"].forEach(sel => {
+  $(sel).onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); $("#qadd").click(); } };
+});
 
 $("#add").onclick = async () => {
   const text = $("#paste").value.trim();
