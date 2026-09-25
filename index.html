@@ -1936,6 +1936,17 @@ function home(){
   const shelves = catsInUse();
 
   return `
+  ${cats.length ? `
+  <section class="band wrap">
+    <div class="sechead">
+      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What we make</h2></div>
+      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
+    </div>
+    <div class="grid">${shelves.map(catCard).join("")}</div>
+  </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
+
+  ${saajRule()}
+
   <section class="hero">
     <div class="wrap inner">
       <div>
@@ -1956,17 +1967,6 @@ function home(){
   </section>
 
   ${welcomeSection()}
-
-  ${cats.length ? `
-  ${saajRule()}
-
-  <section class="band wrap">
-    <div class="sechead">
-      <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What we make</h2></div>
-      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
-    </div>
-    <div class="grid">${shelves.map(catCard).join("")}</div>
-  </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
 
   <section class="story">
     <div class="wrap inner">
