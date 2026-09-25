@@ -98,6 +98,7 @@ td.day{color:var(--ink-2)}
       name, nothing that could be turned back into a person.</p>
     <div id="stats" class="stats"><div class="say">Opening…</div></div>
     <p class="say" id="bounceLine"></p>
+    <p class="say" id="exploredLine"></p>
   </div>
 
   <div class="card">
@@ -212,6 +213,23 @@ function paint(rows, orderRows){
       const pct = allVisits ? Math.round(bounced / allVisits * 100) : 0;
       $("#bounceLine").textContent = `Of all visits recorded, ${bounced} (${pct}%) `
         + `left after the first page — the shop never saw where she went next.`;
+
+      /* The other half of that split: of the people who DID move past the
+         first page — opened a category, looked at pieces — how many of
+         them still never made it to the order page at all. Nothing new is
+         counted for this; "browsed" and "order_page" already exist, so
+         it's the same day-bucketed arithmetic as "didn't complete" below —
+         a same-day estimate, not a trace of any one visitor, and it can
+         never go below zero. Only shown once order_page has some data too,
+         same reasoning as the browsed.size guard above. */
+      if (orderPage.size) {
+        const allOrderPage = sumSince(orderPage, "0000-00-00");
+        const browsedNoOrder = Math.max(0, allBrowsed - allOrderPage);
+        const pct2 = allBrowsed ? Math.round(browsedNoOrder / allBrowsed * 100) : 0;
+        $("#exploredLine").textContent = `Of the ${allBrowsed} who looked at more than one `
+          + `page, ${browsedNoOrder} (${pct2}%) never reached the order page at all — `
+          + `she looked around (a category, a few pieces) but didn't get as far as checkout.`;
+      }
     }
   }
 

@@ -61,6 +61,7 @@ header{border-bottom:1px solid var(--line);background:var(--panel)}
 .gitbar .dot{width:9px;height:9px;border-radius:50%;background:var(--line-2);flex:none}
 .gitbar .dot.pending{background:var(--warn)}
 .gitbar .dot.clean{background:var(--ok)}
+.gitbar .dot.branchwarn{background:var(--bad)}
 .gitbar .what{font-size:.88rem;margin-right:auto}
 .gitbar input{flex:1 1 230px;min-width:0;max-width:380px;background:var(--ground);border:1px solid var(--line-2);border-radius:999px;padding:9px 15px;font-size:.86rem}
 .gitbar input:focus{outline:none;border-color:var(--gold-2)}
@@ -1501,11 +1502,19 @@ async function refreshGit(){
   }
 
   const bits = [];
-  if (pending) bits.push(`${pending} change${pending === 1 ? "" : "s"} to commit`);
-  if (ahead)   bits.push(`${ahead} commit${ahead === 1 ? "" : "s"} to push`);
-  what.textContent = bits.length ? bits.join(" · ") : "everything is pushed";
+  // Worded so it can't be misread as already done — "to commit" alone reads
+  // like it happened; this spells out that nothing has reached GitHub yet.
+  if (pending) bits.push(`${pending} change${pending === 1 ? "" : "s"} waiting to be committed & pushed`);
+  if (ahead)   bits.push(`${ahead} commit${ahead === 1 ? "" : "s"} waiting to be pushed`);
+  what.textContent = bits.length ? bits.join(" · ") : "everything is pushed to GitHub";
   if (!GIT.remote) what.textContent += " · " + GIT.note;
-  dot.className = "dot " + (pending || ahead ? "pending" : "clean");
+  // Cloudflare deploys the branch it was connected to (almost always "main").
+  // A push from any other branch succeeds with no error but never goes live —
+  // flag it every time the bar is checked, not just right after a push.
+  const offMain = GIT.branch && GIT.branch !== "main";
+  if (offMain) what.textContent =
+    `⚠ on branch "${GIT.branch}", not main — pushes here may never go live · ` + what.textContent;
+  dot.className = "dot " + (offMain ? "branchwarn" : (pending || ahead ? "pending" : "clean"));
   btn.disabled = !(pending || ahead) || !GIT.remote;
   toggle.hidden = !pending;
   const box = $("#gitDetail");
