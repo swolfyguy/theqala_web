@@ -590,18 +590,30 @@ async function whoIsHere(request, env) {
    film was there, she turned the sound on and played it, she got past
    halfway, she watched it out, she opened the shop at all, she reached the
    order page, she went on to a second page instead of leaving after the
-   first, and she moved on from the order page itself without placing an
-   order — and nothing else. Eight numbers a day.
+   first, she opened a category or a piece, and she moved on from the order
+   page itself without placing an order — and nothing else. Nine numbers a
+   day.
 
    What is NOT counted is as deliberate as what is. No visitor is identified
    and nothing is stored per person — every row here is a day and a count,
-   never a person and a trail. `order_page`, `browsed` and `order_left` are
-   the moments that come closest to "which page", and even they say only
-   whether that moment happened for somebody that day, not who, not when
-   within the day, and not what she looked at before or after. None of the
-   eight can be joined to an order, to each other, or to anything else — an
-   address, a name, a page she looked at beyond these yes/no moments, nothing
-   that could ever be turned back into "who".
+   never a person and a trail. `order_page`, `browsed`, `shop_open` and
+   `order_left` are the moments that come closest to "which page", and even
+   they say only whether that moment happened for somebody that day, not
+   who, not when within the day, and not what she looked at before or after.
+   None of the nine can be joined to an order, to each other, or to anything
+   else — an address, a name, a page she looked at beyond these yes/no
+   moments, nothing that could ever be turned back into "who".
+
+   `shop_open` is narrower than `browsed` on purpose. `browsed` fires on the
+   first move to ANY second page — Our Story and Contact count exactly the
+   same as the shop. He asked (26 Sep) whether the shop could tell "did she
+   actually click a category" apart from "did she move past page one at
+   all" — `browsed` alone can't answer that, since someone who only ever
+   reads Our Story still trips it. `shop_open` fires only on `#/shop` (Shop
+   All or a filtered category) or `#/piece/<code>` (a single product) — see
+   `render()` in index.html. Reading `browsed` and `shop_open` together
+   answers it: `browsed` minus `shop_open`, same day, is roughly "moved on
+   but never actually looked at a piece."
 
    The browser counts each moment once a day for itself (see `seen()` in
    index.html, which remembers in localStorage) and then stops asking, so a
@@ -627,10 +639,10 @@ async function whoIsHere(request, env) {
    tally here.
 
    A name not on this list is refused outright. The endpoint is open to the
-   world, so the world may only add to eight counters and may not invent a
-   ninth. */
+   world, so the world may only add to nine counters and may not invent a
+   tenth. */
 const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished",
-                  "visit", "order_page", "browsed", "order_left"];
+                  "visit", "order_page", "browsed", "order_left", "shop_open"];
 
 const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
 

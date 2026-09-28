@@ -3046,6 +3046,9 @@ function render(){
       items: lines.map(l => ({item_id: l.it.code, item_name: titleOf(l.it), price: l.it.price, quantity: l.qty}))});
     seen("order_page");   // once a day per browser — see office/tally
   }
+  /* Did she actually open a category or a piece — narrower than "browsed",
+     which also counts a visit to Our Story or Contact. See office/tally. */
+  if (r === "shop" || r === "piece") seen("shop_open");
   }
 
   document.body.classList.toggle("on-piece", r === "piece");

@@ -181,6 +181,7 @@ function seedMockData(sqlite) {
 
   seedRow("visit",      [3, 5, 4, 7, 9, 6, 8, 11, 7, 10, 13, 9, 12, 6]);  // 13 days ago .. today
   seedRow("browsed",    [2, 3, 3, 5, 6, 4, 6,  8, 5,  7,  9, 6,  8, 4]);
+  seedRow("shop_open",  [2, 3, 2, 4, 5, 3, 5,  7, 4,  6,  8, 5,  7, 3]);
   seedRow("order_page", [1, 2, 1, 3, 4, 2, 3,  5, 3,  4,  6, 4,  5, 2]);
   seedRow("order_left", [1, 1, 1, 2, 3, 1, 1,  3, 2,  2,  4, 2,  3, 1]);
   [["howto_shown", 22], ["howto_open", 15], ["howto_half", 9], ["howto_finished", 6]]

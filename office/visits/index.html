@@ -98,6 +98,7 @@ td.day{color:var(--ink-2)}
       name, nothing that could be turned back into a person.</p>
     <div id="stats" class="stats"><div class="say">Opening…</div></div>
     <p class="say" id="bounceLine"></p>
+    <p class="say" id="categoryLine"></p>
     <p class="say" id="exploredLine"></p>
   </div>
 
@@ -162,11 +163,12 @@ const sinceDay = daysBack => new Date(Date.now() - daysBack * 864e5).toISOString
 function paint(rows, orderRows){
   const box = $("#list"), stats = $("#stats");
 
-  const visits = new Map(), browsed = new Map(), orderPage = new Map(), orderLeft = new Map();
+  const visits = new Map(), browsed = new Map(), shopOpen = new Map(), orderPage = new Map(), orderLeft = new Map();
   const howto = {howto_shown: 0, howto_open: 0, howto_half: 0, howto_finished: 0};
   for (const r of rows) {
     if (r.what === "visit")      visits.set(r.day, (visits.get(r.day) || 0) + r.n);
     else if (r.what === "browsed")    browsed.set(r.day, (browsed.get(r.day) || 0) + r.n);
+    else if (r.what === "shop_open")  shopOpen.set(r.day, (shopOpen.get(r.day) || 0) + r.n);
     else if (r.what === "order_page") orderPage.set(r.day, (orderPage.get(r.day) || 0) + r.n);
     else if (r.what === "order_left") orderLeft.set(r.day, (orderLeft.get(r.day) || 0) + r.n);
     else if (r.what in howto) howto[r.what] += r.n;
@@ -214,21 +216,34 @@ function paint(rows, orderRows){
       $("#bounceLine").textContent = `Of all visits recorded, ${bounced} (${pct}%) `
         + `left after the first page — the shop never saw where she went next.`;
 
-      /* The other half of that split: of the people who DID move past the
-         first page — opened a category, looked at pieces — how many of
-         them still never made it to the order page at all. Nothing new is
-         counted for this; "browsed" and "order_page" already exist, so
-         it's the same day-bucketed arithmetic as "didn't complete" below —
-         a same-day estimate, not a trace of any one visitor, and it can
-         never go below zero. Only shown once order_page has some data too,
-         same reasoning as the browsed.size guard above. */
-      if (orderPage.size) {
-        const allOrderPage = sumSince(orderPage, "0000-00-00");
-        const browsedNoOrder = Math.max(0, allBrowsed - allOrderPage);
-        const pct2 = allBrowsed ? Math.round(browsedNoOrder / allBrowsed * 100) : 0;
-        $("#exploredLine").textContent = `Of the ${allBrowsed} who looked at more than one `
-          + `page, ${browsedNoOrder} (${pct2}%) never reached the order page at all — `
-          + `she looked around (a category, a few pieces) but didn't get as far as checkout.`;
+      /* Of the people who moved past the first page, how many actually
+         opened a category or a piece, as opposed to only reading Our Story
+         or Contact — "browsed" fires on ANY second page, "shop_open" only on
+         #/shop or #/piece (see the doc comment on TALLIES in _worker.js).
+         Same day-bucketed arithmetic as everything else here, never a trace
+         of any one visitor. Only shown once shop_open has data of its own —
+         a site running before this counter was added would otherwise show
+         "100% never opened a category", which isn't true, just uncounted. */
+      if (shopOpen.size) {
+        const allShopOpen = sumSince(shopOpen, "0000-00-00");
+        const neverShopped = Math.max(0, allBrowsed - allShopOpen);
+        const pct2 = allBrowsed ? Math.round(neverShopped / allBrowsed * 100) : 0;
+        $("#categoryLine").textContent = `Of the ${allBrowsed} who looked at more than one `
+          + `page, ${neverShopped} (${pct2}%) never opened a category or a piece — `
+          + `Our Story, Contact or a policy page, but not the shop itself.`;
+
+        /* The other half: of the people who DID open a category or a piece,
+           how many still never made it to the order page. This replaces the
+           looser "browsed minus order_page" estimate from before shop_open
+           existed — shop_open is the more honest floor, since browsing Our
+           Story was never "exploring the shop" to begin with. */
+        if (orderPage.size) {
+          const allOrderPage = sumSince(orderPage, "0000-00-00");
+          const shoppedNoOrder = Math.max(0, allShopOpen - allOrderPage);
+          const pct3 = allShopOpen ? Math.round(shoppedNoOrder / allShopOpen * 100) : 0;
+          $("#exploredLine").textContent = `Of the ${allShopOpen} who opened a category or a `
+            + `piece, ${shoppedNoOrder} (${pct3}%) never reached the order page at all.`;
+        }
       }
     }
   }
