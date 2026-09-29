@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T05:20:41Z",
+ "generated": "2026-09-29T17:21:50Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -168,7 +168,7 @@
   {
    "slug": "double-wati-rajwadi-handmade",
    "cover": null,
-   "next": 43,
+   "next": 51,
    "products": [
     {
      "n": 22,
@@ -620,6 +620,174 @@
       "min": 24,
       "max": 30,
       "qty": 3
+     }
+    },
+    {
+     "n": 43,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-43",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (22)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (22)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 44,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-44",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (23)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (23)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 45,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-45",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (24)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (24)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 46,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-46",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (25)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (25)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 47,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-47",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (26)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (26)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 48,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-48",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (27)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (27)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 49,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-49",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (28)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (28)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
+     }
+    },
+    {
+     "n": 50,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-50",
+     "folder": "photos/double-wati-rajwadi-handmade/1400 (29)",
+     "title": "",
+     "price": 1400,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1400 (29)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 2
      }
     },
     {
