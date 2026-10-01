@@ -223,6 +223,7 @@ def to_jpeg(src):
 
 
 STOCK_FILE = "stock.json"
+COLORS_FILE = "colors.json"
 # The poth lengths the shop makes, in inches. Same list as the order form.
 SIZES = [str(n) for n in range(24, 41, 2)]
 
@@ -305,6 +306,49 @@ def _read_sizes(folder):
     return {"min": int(lo), "max": int(hi), "qty": made}
 
 
+def read_colors(folder, images):
+    """Which of a piece's own photographs are really a choice of colour.
+
+       photos/<cat>/<price> <name>/colors.json holds
+
+           {"1.jpg": "Pink", "3.jpg": "Green"}
+
+       A photo not listed is just another view of the same piece — an angle,
+       a close-up — and nothing changes about it. Only a photo named here
+       becomes something the customer picks between, so adding the file to an
+       existing piece is always safe: nothing is a colour until it is named
+       one here.
+
+       Returned in the gallery's own order ({filename: label}, in the order
+       the photos already appear), so the shop never has to say the order
+       twice. A name for a photo this piece does not have is dropped, with a
+       warning — most often a typo in the filename, or a photo since deleted."""
+    f = folder / COLORS_FILE
+    if not f.is_file():
+        return {}
+    try:
+        raw = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        warn(f"{rel(f)} is not readable as JSON ({e}) — no colours read")
+        return {}
+    if not isinstance(raw, dict):
+        warn(f'{rel(f)} should look like {{"1.jpg": "Pink", "3.jpg": "Green"}} — no colours read')
+        return {}
+
+    names = {img.name for img in images}
+    out = {}
+    for fname, label in raw.items():
+        if fname not in names:
+            warn(f"{rel(f)} names a colour for {fname!r}, which is not one of this piece's "
+                 f"photographs — ignored")
+            continue
+        label = str(label).strip()
+        if label:
+            out[fname] = label
+    # gallery order, not the order colors.json happened to list them in
+    return {img.name: out[img.name] for img in images if img.name in out}
+
+
 def media_in(folder):
     """Images (converted and optionally shrunk) and videos inside a product folder.
        A picture whose name matches a video in the same folder is that video's
@@ -318,6 +362,8 @@ def media_in(folder):
         if f.suffix.lower() in IMAGE_EXT and f.stem.lower() in video_stems:
             continue
         if f.name.lower() == STOCK_FILE:      # how many of each size — not a picture
+            continue
+        if f.name.lower() == COLORS_FILE:     # which photo is which colour — not a picture
             continue
         ext = f.suffix.lower()
         if ext in WEB_EXT:
@@ -574,6 +620,7 @@ def read_category(catdir, nxt):
             "video": rel(videos[0]) if videos else None,
             "videoPoster": poster_for(videos[0]) if videos else None,
             "sizes": read_stock(folder),
+            "colors": read_colors(folder, images),
         })
         if len(videos) > 1:
             warn(f"{rel(folder)} has more than one video — only {videos[0].name} is used")

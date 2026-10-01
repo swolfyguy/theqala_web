@@ -489,6 +489,9 @@ const stockBlob = (sizes, qty, cod) =>
                                          cod ? {cod: true} : {}), null, 2) + "\n"],
            {type: "application/json"});
 
+const colorsBlob = colors =>
+  new Blob([JSON.stringify(colors, null, 2) + "\n"], {type: "application/json"});
+
 function toBase64(blob){
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -1200,6 +1203,7 @@ function paintManage(){
           <div class="acts">
             <button class="btn ghost sm" data-edit>Price / name</button>
             <button class="btn ghost sm" data-more>Add views</button>
+            <button class="btn ghost sm" data-colors>Colours</button>
             <button class="btn danger sm" data-del>Delete</button>
           </div>
         </div>`;
@@ -1267,6 +1271,47 @@ function paintManage(){
           say(`updating ${p.code}…`);
           await localPost("/api/product/edit", {folder: p.folder, price: n, title});
           say(`${p.code} is now ₹${n.toLocaleString("en-IN")} — ${bandLabelFor(n)}. Its code did not change.`, "ok");
+          renderManage();
+        } catch (e) { say(e.message, "er"); }
+      };
+
+      card.querySelector("[data-colors]").onclick = async () => {
+        const images = (p.images || []).map(f => f.split("/").pop());
+        if (images.length < 2) {
+          alert("This piece has only one photograph — add another view first if it comes in more than one colour.");
+          return;
+        }
+        const have = p.colors || {};
+        const typed = prompt(
+          `Name a colour for each of this piece's ${images.length} photographs, in the order they `
+          + `already show on the shop. Leave one blank if it is just another view, not a colour to `
+          + `choose between. Separate with commas.`,
+          images.map(name => have[name] || "").join(", ")
+        );
+        if (typed === null) return;
+        const parts = typed.split(",").map(s => s.trim());
+        if (parts.length !== images.length) {
+          alert(`That is ${parts.length} name${parts.length === 1 ? "" : "s"} for ${images.length} `
+              + `photographs — one per photo, please, even if blank.`);
+          return;
+        }
+        const colors = {};
+        images.forEach((name, i) => { if (parts[i]) colors[name] = parts[i]; });
+        const hadAny = Object.keys(have).length > 0;
+        const hasAny = Object.keys(colors).length > 0;
+        try {
+          logBox.innerHTML = "";
+          say(`saving colours for ${p.code}…`);
+          if (isLocal()) {
+            await localPost("/api/product/colors", {folder: p.folder, colors: images.map(name => colors[name] || "")});
+          } else if (hasAny) {
+            await commitChanges(`${p.code}: colours`, [{path: `${p.folder}/colors.json`, blob: colorsBlob(colors)}], []);
+          } else if (hadAny) {
+            await commitChanges(`${p.code}: colours cleared`, [], [`${p.folder}/colors.json`]);
+          }
+          p.colors = colors;
+          const n = Object.keys(colors).length;
+          say(hasAny ? `${p.code}: ${n} colour${n === 1 ? "" : "s"} saved` : `${p.code}: no colours set`, "ok");
           renderManage();
         } catch (e) { say(e.message, "er"); }
       };

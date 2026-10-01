@@ -848,7 +848,7 @@ function detail(o){
           <option value="">length not settled</option>
           ${POTH.map(n => `<option value="${n}"${l.size === n ? " selected" : ""}>${n}&Prime;</option>`).join("")}
         </select>
-        <span class="code">${l.code === "OFFLINE" ? "" : esc(l.code) + " "}× ${l.qty}${
+        <span class="code">${l.color ? esc(l.color) + " · " : ""}${l.code === "OFFLINE" ? "" : esc(l.code) + " "}× ${l.qty}${
           piece && piece.price !== l.price ? ` · now ${rupees(piece.price)}` : ""}</span>
       </span>
       <span class="rup">${rupees(l.price * l.qty)}</span></li>`;

@@ -321,6 +321,13 @@ async function takeOrder(request, env) {
       return json({ok: false, stored: false,
                    why: "That piece cannot be sent cash on delivery."}, 400);
 
+    /* The page only offers the colours a piece actually has photographs of.
+       Checked here for the same reason as cash on delivery above: a page can
+       be worked around, and what gets written in the book must not be. */
+    if (!(await colorsAllowed(env, o.items)))
+      return json({ok: false, stored: false,
+                   why: "That colour is not one of this piece's choices."}, 400);
+
     /* Two people can reach the last one in the same moment. The shop greys out
        what it knew about; this is the check that actually decides. */
     const gone = await soldOut(env, o.items);
@@ -407,7 +414,11 @@ function clean(b) {
     if (!Number.isFinite(price) || price < 0 || price > 5000000) return {error: "item price"};
     const size = s(l && l.size, 4);
     if (size && !POTH.includes(size)) return {error: "item size"};
-    items.push(size ? {code, title, qty, price, size} : {code, title, qty, price});
+    const color = s(l && l.color, 40);
+    const line = {code, title, qty, price};
+    if (size) line.size = size;
+    if (color) line.color = color;
+    items.push(line);
   }
 
   /* Totals are recomputed here. Whatever the browser said is ignored. */
@@ -487,6 +498,7 @@ async function howManyMade(env) {
   if (MADE && Date.now() - MADE_AT < 300e3) return MADE;
   const out = {};
   const cod = {};
+  const colors = {};
   try {
     const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
     if (res.ok) {
@@ -496,10 +508,18 @@ async function howManyMade(env) {
           const n = p.sizes && p.sizes.qty;
           out[p.code] = Number.isFinite(n) ? n : 1;      // nothing said means one
           if (p.sizes && p.sizes.cod === true) cod[p.code] = true;
+          /* Which colour names this piece actually offers — one photograph
+             can be tagged as a colour, several usually are. A piece with
+             none is not a colour choice at all, and nothing sent against it
+             will ever match. */
+          if (p.colors && typeof p.colors === "object") {
+            const names = [...new Set(Object.values(p.colors))].filter(Boolean);
+            if (names.length) colors[p.code] = names;
+          }
         }
     }
   } catch { /* no catalogue is the same as knowing nothing */ }
-  MADE = out; COD_OK = cod; MADE_AT = Date.now();
+  MADE = out; COD_OK = cod; COLOR_OK = colors; MADE_AT = Date.now();
   return out;
 }
 
@@ -509,6 +529,16 @@ let COD_OK = {};
 async function codAllowed(env, items) {
   await howManyMade(env);
   return (items || []).every(l => COD_OK[l.code] === true);
+}
+
+/* The colour names each piece actually offers, same shape as COD_OK above.
+   A line with no colour on it always passes — most pieces have none to pick
+   from at all. One that names a colour must name one the piece really has;
+   a page can be worked around, so this is the check that actually decides. */
+let COLOR_OK = {};
+async function colorsAllowed(env, items) {
+  await howManyMade(env);
+  return (items || []).every(l => !l.color || (COLOR_OK[l.code] || []).includes(l.color));
 }
 
 /* What the next order code will most likely be. The checkout page asks for
