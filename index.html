@@ -243,7 +243,70 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 @media(max-width:760px){
   .topbar{letter-spacing:.1em;gap:4px 10px}
   .topbar .tag{display:none}
+  .topbar .tb-wa,.topbar .tb-more{display:none}
 }
+.topbar a.tb-offer{color:#F6E3A8;font-weight:700}
+.topbar a.tb-offer::after{content:"";display:inline-block;width:5px;height:5px;margin-left:10px;
+  border-radius:50%;background:var(--gold-2);vertical-align:middle;opacity:.6}
+
+/* ---------- the buy-2 offer ---------- */
+.offerwrap{padding-top:20px}
+.offercard{position:relative;overflow:hidden;isolation:isolate;display:grid;
+  grid-template-columns:auto 1fr auto;align-items:center;gap:8px 24px;padding:22px 28px;
+  border-radius:20px;color:#F6E6C7;text-decoration:none;
+  background:radial-gradient(130% 150% at 0% 0%,#8E1A2F 0%,#5A0F1C 52%,#360710 100%);
+  box-shadow:0 22px 44px -24px rgba(90,15,28,.75),inset 0 0 0 1px rgba(207,168,79,.6),
+    inset 0 0 0 7px rgba(54,7,16,.35),inset 0 0 0 8px rgba(207,168,79,.28);
+  transition:transform .25s ease,box-shadow .25s ease}
+.offercard:hover{transform:translateY(-2px)}
+.offercard:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px}
+.offercard::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23CFA84F' stroke-width='1' opacity='0.18'%3E%3Cpath d='M32 2C44 14 44 24 32 32 20 24 20 14 32 2Z'/%3E%3Cpath d='M32 32C44 40 44 50 32 62 20 50 20 40 32 32Z'/%3E%3Cpath d='M2 32C14 20 24 20 32 32 24 44 14 44 2 32Z'/%3E%3Cpath d='M32 32C40 20 50 20 62 32 50 44 40 44 32 32Z'/%3E%3C/g%3E%3C/svg%3E")}
+.oc-shine{position:absolute;top:-40%;bottom:-40%;width:38%;left:-60%;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent 0%,rgba(246,227,168,.20) 50%,transparent 100%);
+  transform:skewX(-18deg);animation:ocShine 5.5s ease-in-out 1.2s infinite}
+@keyframes ocShine{0%{left:-60%}38%,100%{left:130%}}
+.oc-num{display:flex;align-items:flex-start;font-family:Marcellus,serif;line-height:.78;
+  background:linear-gradient(180deg,#FBEFC6 0%,#E3C06B 48%,#B58A2E 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,.35))}
+.oc-num b{font-weight:400;font-size:5rem;letter-spacing:-.03em}
+.oc-num>span{display:flex;flex-direction:column;font-size:1.9rem;margin:4px 0 0 3px}
+.oc-num em{font-style:normal;font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;margin-top:8px}
+.oc-copy{display:grid;gap:5px;min-width:0}
+.oc-mr{font-size:.92rem;color:#E3C06B}
+.oc-h{font-family:Marcellus,serif;font-size:1.75rem;line-height:1.15;color:#FFF6E3;text-wrap:balance}
+.oc-p{font-size:.9rem;line-height:1.5;color:rgba(246,230,199,.86);max-width:44ch}
+.oc-p b{color:#FFF6E3;font-weight:600}
+.oc-cta{justify-self:end;white-space:nowrap;padding:13px 22px;border-radius:999px;
+  background:linear-gradient(180deg,#F6E3A8,#CFA84F);color:#4A0B16;font-weight:700;
+  font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
+  box-shadow:0 8px 18px -8px rgba(0,0,0,.5)}
+@media(max-width:640px){
+  .offerwrap{padding-top:14px}
+  .offercard{grid-template-columns:auto 1fr;gap:12px 16px;padding:18px 18px 18px}
+  .oc-num b{font-size:3.9rem}
+  .oc-num>span{font-size:1.5rem}
+  .oc-num em{font-size:.72rem}
+  .oc-h{font-size:1.32rem}
+  .oc-p{font-size:.84rem}
+  .oc-cta{grid-column:1 / -1;justify-self:stretch;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){.oc-shine{animation:none;display:none}.offercard{transition:none}}
+
+.offerchip{display:inline-flex;align-items:center;gap:10px;margin:14px 0 0;padding:6px 14px 6px 6px;
+  border-radius:999px;background:var(--wash-gold);border:1px solid var(--gold-2);
+  color:var(--ink);font-size:.84rem;line-height:1.35;text-decoration:none;max-width:100%}
+.offerchip .pct{flex:none;padding:5px 9px;border-radius:999px;background:var(--accent);
+  color:var(--on-accent);font-weight:700;font-size:.78rem;letter-spacing:.02em}
+a.offerchip:hover{border-color:var(--accent)}
+.srow.offerrow span{color:var(--accent);font-weight:600}
+.offernudge{display:block;margin-top:14px;padding:12px 14px;border-radius:12px;
+  background:var(--wash-gold);border:1px dashed var(--gold-2);color:var(--ink);
+  font-size:.86rem;line-height:1.45;text-decoration:none}
+a.offernudge:hover{border-style:solid}
+.offernudge.won{background:var(--wash-rose);border:1px solid var(--rose)}
+.offernudge.won b{display:block;color:var(--accent);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
 header.site{position:sticky;top:0;z-index:40;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
 .navrow{display:flex;align-items:center;gap:16px;padding:12px 0}
 .brand{display:flex;align-items:center;margin-right:auto;min-width:0}
@@ -348,6 +411,13 @@ section.band{padding:70px 0}
 .card .meta{font-size:.73rem;color:var(--ink-2);letter-spacing:.05em;margin:2px 0 0}
 .price{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums}
 .price .now{font-weight:700;font-size:.98rem}
+.price{flex-wrap:wrap;row-gap:4px}
+.price .was{color:var(--ink-2);font-size:.8rem}
+.offtag{align-self:center;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--on-accent);
+  font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.pdp .pdprice .was{font-size:1rem;color:var(--ink-2)}
+.pdp .pdprice .offtag{font-size:.72rem}
+.offsave{margin:0 0 6px;font-size:.88rem;font-weight:600;color:var(--accent)}
 
 /* wishlist heart */
 .heart{position:absolute;top:12px;right:12px;z-index:4;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(6px);cursor:pointer;padding:0;color:var(--ink-2);transition:transform .2s cubic-bezier(.3,1.5,.5,1),color .2s,border-color .2s,opacity .2s}
@@ -958,12 +1028,12 @@ footer a:hover{color:var(--accent)}
 
 <div class="cookiebar" id="cookiebar" hidden role="region" aria-label="Cookies">
   <div class="inner">
-    <p>This site uses cookies for Google Analytics and Google Ads, to see which
-      pieces get looked at and which orders came from an advertisement.
-      Nothing that names you is ever in them. <a href="#/privacy">Read more</a></p>
+    <p><b>Cookies.</b> We keep your bag on this phone, and with your OK use
+      analytics and ad cookies (Google, Meta) to see which pieces people like —
+      never your name or number. <a href="#/privacy">Read more</a></p>
     <div class="row">
-      <button class="btn ghost" id="cookieNo">No thanks</button>
-      <button class="btn" id="cookieYes">Allow</button>
+      <button class="btn ghost" id="cookieNo">Only necessary</button>
+      <button class="btn" id="cookieYes">Accept all</button>
     </div>
   </div>
 </div>
@@ -1088,10 +1158,12 @@ function showCookiebar(){
   document.getElementById("cookieNo").onclick  = () => { setCookieChoice("no");  hide(); };
 }
 function startTagsIfAllowed(){
-  if (!GA4_ID && !ADS_ID) return;
-  /* Something is configured, so there is now something to ask about — show
-     the "Cookie settings" link in the footer, whatever she answers, so she
-     can change her mind later without clearing her browser. */
+  /* Asked on every first visit now, whether or not a tag is configured yet —
+     the shop wanted the choice in front of people from the start, and it
+     means the answer is already on file the day GA4 or the Meta pixel is
+     switched on. startTags() itself still does nothing until an ID is set.
+     The "Cookie settings" link in the footer is always there, so she can
+     change her mind later without clearing her browser. */
   const row = document.getElementById("cookieSettingsRow");
   if (row) {
     row.hidden = false;
@@ -1216,6 +1288,20 @@ const PAY = [
 const SITE = "https://theqalashree.com/";
 const SHIP_FREE_OVER = 1499;
 const SHIP_FLAT = 79;
+/* The buy-2 offer: two or more pieces from the SAME category in one order get
+   10% off those pieces, and shipping is free on the whole order. The same
+   OFFER sits at the top of _worker.js, and that copy is the one that decides
+   — this one only shows her the saving. on:false hides it everywhere. */
+const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2"};
+
+/* A piece's own discount, set in the studio (offer.json → product.offer).
+   The folder's price is the real, regular price and is what gets crossed
+   out; the offer price is worked out from it, rounded to ₹10. The worker and
+   the studio do the very same sum. An offer runs through its last day, India
+   time, and simply stops showing after it — nothing has to be rebuilt. */
+function todayIST(){ return new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); }
+function offerLive(o){ return !!(o && o.pct > 0 && o.pct <= 90 && (!o.until || o.until >= todayIST())); }
+function offPrice(base, pct){ return Math.round(base * (100 - pct) / 1000) * 10; }
 
 /* ---------------------------------------------------------
    THE FOLDERS ARE THE SHOP. FILENAMES DO NOT MATTER.
@@ -1434,7 +1520,10 @@ async function loadCatalogue(){
         catMr: name.mr,
         catEn: name.en,
         title: (p.title || "").trim(),
-        price: p.price,
+        price: offerLive(p.offer) ? offPrice(p.price, p.offer.pct) : p.price,
+        mrp: p.price,                 // the regular price — crossed out when there is an offer
+        off: offerLive(p.offer) ? p.offer.pct : 0,
+        offUntil: offerLive(p.offer) ? (p.offer.until || "") : "",
         band: p.band || {min:0, max:1000},
         images: p.images || [],
         video: p.video || null,
@@ -1477,6 +1566,12 @@ async function loadLeft(){
 const leftOf   = it => (LEFT && it.code in LEFT) ? LEFT[it.code] : null;
 const soldOut  = it => leftOf(it) === 0;
 const fewLeft  = it => { const n = leftOf(it); return n !== null && n > 0 && n <= 3 ? n : 0; };
+/* What is on the shelf. A sold-out piece is left out of every list — the
+   shop, the category cards and their counts, "More …" on a piece page — but
+   its own page still opens from a link (an Instagram post, a WhatsApp share,
+   a saved piece) and says plainly that it has gone. While the stock count is
+   not known yet, everything counts as on the shelf. */
+const onShelf  = it => !soldOut(it);
 /* The most of a piece anyone can ask for: what is really left when the shop
    has told us, and never more than twenty. A piece we know nothing about is
    left alone — the order is checked again by the shop when it arrives. */
@@ -1501,13 +1596,18 @@ function lengthsOf(it){
 }
 const hasSizes = it => lengthsOf(it).length > 0;
 const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
-  .filter(c => (c.products || []).length)
+  .filter(c => (c.products || []).some(onShelf))   // a category with nothing left drops out of the menu
   .sort((a,b) => {
     const order = Object.keys(CAT_NAMES);
     const ia = order.indexOf(a.slug), ib = order.indexOf(b.slug);
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.slug.localeCompare(b.slug);
   });
 
+/* ~~₹1,500~~ 10% OFF, beside the price, only when the piece has an offer. */
+const wasTag = it => it && it.off
+  ? `<s class="was rupee">${rupees(it.mrp)}</s><span class="offtag">${it.off}% off</span>` : "";
+const offEnds = it => it && it.off && it.offUntil
+  ? new Date(it.offUntil + "T00:00:00").toLocaleDateString("en-IN", {day: "numeric", month: "short"}) : "";
 const titleOf = it => it.title || it.catEn + " " + String(it.n).padStart(2, "0");
 const priceOf = it => rupees(it.price);
 const mediaCount = it => it.images.length + (it.video ? 1 : 0);
@@ -1622,6 +1722,7 @@ function bagTotal(){
 }
 function addToBag(code, qty, color){
   color = color || "";
+  const offBefore = offerFor(bagLines()).off;
   const cap  = maxForCode(code);
   const line = BAG.find(l => l.code === code && (l.color || "") === color);
   const want = (line ? line.qty : 0) + (qty || 1);
@@ -1631,9 +1732,15 @@ function addToBag(code, qty, color){
   const bit = byCode(code);
   if (bit) track("add_to_cart", {currency: "INR", value: bit.price * set,
     items: [{item_id: code, item_name: titleOf(bit), price: bit.price, quantity: set}]});
+  const ofNow = offerFor(bagLines());
+  const shortHere = bit && ofNow.short.find(x => x.cat === bit.cat);
   toast(want > cap
     ? `${code} added — ${cap} ${cap === 1 ? "is" : "are"} all we have`
-    : code + (color ? ` (${color})` : "") + " added to your bag");
+    : ofNow.off > offBefore
+      ? `Offer unlocked — ${OFFER.pct}% off + free shipping`
+      : shortHere && offerReachable(bit)
+        ? `Added — add ${shortHere.need} more ${bit.catEn} for ${OFFER.pct}% off`
+        : code + (color ? ` (${color})` : "") + " added to your bag");
 }
 function setQty(code, color, q){
   const line = BAG.find(l => l.code === code && (l.color || "") === (color || "")); if (!line) return;
@@ -1683,10 +1790,12 @@ function toast(msg){
 function bagWaText(){
   const lines = BAG.map((l, i) => {
     const it = byCode(l.code); if (!it) return "";
-    return `${i+1}. ${it.code} — ${titleOf(it)}\n   ${priceOf(it)} × ${l.qty}\n   ${pieceUrl(it.code)}`;
+    return `${i+1}. ${it.code} — ${titleOf(it)}\n   ${priceOf(it)}${it.off ? ` (${it.off}% off ${rupees(it.mrp)})` : ""} × ${l.qty}\n   ${pieceUrl(it.code)}`;
   }).filter(Boolean).join("\n\n");
+  const of = offerFor(bagLines());
   return `Namaskar The Qala 🙏\n\nI would like to order:\n\n${lines}\n\n`
-    + `Total: ${rupees(bagTotal())}\n\n`
+    + (of.off ? `Buy-2 offer (${OFFER.pct}% off): ${minus(of.off)}\n` : "")
+    + `Total: ${rupees(bagTotal() - of.off)}\n\n`
     + `Please confirm availability and sizing.`;
 }
 /* ---------------------------------------------------------------------------
@@ -1829,12 +1938,52 @@ function orderRef(){
   const d = new Date();
   return "Q-" + String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0") + "-01";
 }
-/* goods + shipping + COD handling, for whichever way they chose to pay */
-function orderTotals(goods, pay){
+/* goods + shipping + COD handling, for whichever way they chose to pay,
+   less whatever the buy-2 offer saves. Earning the offer makes shipping free. */
+function orderTotals(goods, pay, off){
+  off = off || 0;
   const pickup = pay === "shop";
-  const ship = pickup ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+  const ship = pickup || off ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
   const cod  = pay === "cod" ? COD_EXTRA : 0;
-  return {goods, ship, cod, pickup, total: goods + ship + cod};
+  return {goods, off, ship, cod, pickup, total: goods - off + ship + cod};
+}
+
+/* What the buy-2 offer gives these lines ([{it, qty}]). Counted per category
+   and rounded per category, to the rupee — exactly the sum offerOff() does in
+   _worker.js, so the total she sees is the total in the book. Also says which
+   categories are a piece short, for the nudge in the bag. */
+function offerFor(lines){
+  const out = {off: 0, cats: [], short: []};
+  if (!OFFER.on) return out;
+  const by = {};
+  for (const l of lines){
+    if (!l || !l.it) continue;
+    const b = by[l.it.cat] || (by[l.it.cat] = {n: 0, sum: 0});
+    b.n += l.qty; b.sum += l.it.price * l.qty;
+  }
+  for (const [cat, b] of Object.entries(by)){
+    if (b.n >= OFFER.min){ out.off += Math.round(b.sum * OFFER.pct / 100); out.cats.push(cat); }
+    else out.short.push({cat, need: OFFER.min - b.n});
+  }
+  return out;
+}
+const bagLines = () => BAG.map(l => ({it: byCode(l.code), qty: l.qty})).filter(l => l.it);
+const minus = n => "\u2212" + rupees(n);
+/* Can this category ever earn it — two pieces still on offer, or one piece
+   the shop has more than one of? No point promising what cannot be had. */
+const offerReachable = it => OFFER.on && it &&
+  (ITEMS.filter(x => x.cat === it.cat && !soldOut(x)).length >= OFFER.min || maxFor(it) >= OFFER.min);
+
+/* The line that tells her how close she is, under the bag and the order. */
+function offerNudge(of){
+  if (!OFFER.on) return "";
+  if (of.off) return `<div class="offernudge won"><b>Offer unlocked</b>
+    ${OFFER.pct}% off and free shipping \u2014 you save ${rupees(of.off)}</div>`;
+  const s = of.short.find(x => { const any = ITEMS.find(i => i.cat === x.cat); return offerReachable(any); });
+  if (!s) return "";
+  const n = catName(s.cat);
+  return `<a class="offernudge" href="#/shop?c=${encodeURIComponent(s.cat)}">
+    Add <b>${s.need} more ${esc(n.en)}</b> and get ${OFFER.pct}% off both + free shipping \u2192</a>`;
 }
 const payName = id => (PAY.find(x => x.id === id) || PAY[0]).t;
 /* Whatever she chose last time, unless that way of paying has since been
@@ -1848,9 +1997,10 @@ const payPick = off => {
 function orderWaText(o){
   const lines = o.items.map((l, i) =>
     `${i+1}. ${l.code} — ${l.title}${l.color ? `\n   Colour: ${l.color}` : ""}${l.size ? `\n   Poth length: ${l.size} inches` : ""}`
-    + `\n   ${rupees(l.price)} × ${l.qty} = ${rupees(l.price * l.qty)}\n   ${l.url}`).join("\n\n");
+    + `\n   ${rupees(l.price)}${l.was ? ` (${l.off}% off ${rupees(l.was)})` : ""} × ${l.qty} = ${rupees(l.price * l.qty)}\n   ${l.url}`).join("\n\n");
   const t = o.totals;
   const money = [`Pieces: ${rupees(t.goods)}`,
+                 t.off ? `Buy-2 offer (${OFFER.pct}% off): ${minus(t.off)}` : null,
                  t.pickup ? `Collecting at the shop` : `Shipping: ${t.ship ? rupees(t.ship) : "Free"}`,
                  t.cod ? `Cash on delivery: ${rupees(t.cod)}` : null,
                  `Total: ${rupees(t.total)}`].filter(Boolean).join("\n");
@@ -1885,7 +2035,7 @@ function card(it){
       <h3>${esc(titleOf(it))}</h3>
       <p class="meta">${esc(it.catEn)} · ${esc(it.code)}</p>
     </div>
-    <div class="price"><span class="now rupee">${priceOf(it)}</span>${
+    <div class="price"><span class="now rupee">${priceOf(it)}</span>${wasTag(it)}${
       few ? `<span class="few">${few} left</span>` : ""}</div>
   </a>`;
 }
@@ -1903,12 +2053,12 @@ function card(it){
    says what the kind is called, how many are in it, and what the cheapest
    one costs. */
 function catCard(c){
-  const mine  = ITEMS.filter(i => i.cat === c.slug);
+  const mine  = ITEMS.filter(i => i.cat === c.slug && onShelf(i));
   if (!mine.length) return "";
   const face  = mine.find(i => i.images && i.images.length) || mine[0];
   const name  = catName(c.slug);
   const from  = Math.min(...mine.map(i => i.price));
-  const going = mine.filter(i => !soldOut(i)).length;
+  const going = mine.length;
 
   return `<a class="card rise catcard" href="#/shop?c=${encodeURIComponent(c.slug)}">
     <div class="arch">${mark()}${shot(face.images[0], {alt: name.en + " jewellery at The Qala"})}</div>
@@ -1936,6 +2086,27 @@ function nothingYet(where){
 }
 
 /* ============ views ============ */
+/* The buy-2 offer, as the first thing on the home page. One card, one tap to
+   the shop. Says only what is true: two from one collection, 10% off those two,
+   shipping free — no countdown, no "today only". */
+function offerHero(){
+  if (!OFFER.on) return "";
+  return `
+  <section class="wrap offerwrap">
+    <a class="offercard" href="#/shop" aria-label="Buy any 2 from one collection: ${OFFER.pct}% off and free shipping. Shop now.">
+      <span class="oc-shine" aria-hidden="true"></span>
+      <span class="oc-num" aria-hidden="true"><b>${OFFER.pct}</b><span>%<em>off</em></span></span>
+      <span class="oc-copy">
+        <span class="oc-mr">दोन घ्या · १०% सूट</span>
+        <span class="oc-h">Buy any 2, save ${OFFER.pct}%</span>
+        <span class="oc-p">Two pieces from the same collection — ${OFFER.pct}% off both,
+          and <b>free insured shipping</b> across India.</span>
+      </span>
+      <span class="oc-cta">Shop now <span aria-hidden="true">\u2192</span></span>
+    </a>
+  </section>`;
+}
+
 function home(){
   const hero = (CATALOGUE.hero || {});
   const cats = catsInUse();
@@ -1944,11 +2115,12 @@ function home(){
   const shelves = catsInUse();
 
   return `
+  ${offerHero()}
   ${cats.length ? `
   <section class="band wrap">
     <div class="sechead">
       <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What we make</h2></div>
-      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
+      <a class="seclink" href="#/shop">See all ${ITEMS.filter(onShelf).length}</a>
     </div>
     <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
@@ -2123,7 +2295,7 @@ function shop(params){
   const sort = params.get("s") || "featured";
   const cats = catsInUse();
 
-  let list = ITEMS.slice();
+  let list = ITEMS.filter(onShelf);
   if (active.length) list = list.filter(i => active.includes(i.cat));
   const range = band ? bandRange(band) : null;
   if (range) list = list.filter(i => i.price >= range.min && i.price < range.max);
@@ -2147,6 +2319,8 @@ function shop(params){
     <h1>${esc(heading.en)}</h1>
     <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
     ${blurb ? `<p class="blurb">${esc(blurb)}</p>` : ""}
+    ${OFFER.on ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${OFFER.pct}%</span><span>Buy any 2 from ${
+      active.length === 1 ? esc(heading.en) : "one collection"} \u2014 ${OFFER.pct}% off both + free shipping</span></p>` : ""}
   </div>
   <div class="wrap shoplayout">
     <aside class="filters">
@@ -2177,6 +2351,8 @@ function shop(params){
         </select>
       </div>
       ${list.length ? `<div class="grid">${list.map(card).join("")}</div>`
+        : active.length === 1 && !band && ITEMS.some(i => i.cat === active[0])
+        ? `<div class="empty"><h2>All spoken for, for now</h2><p class="muted">Every ${esc(heading.en)} piece has gone. Message us and we will tell you when the next ones are ready, or see what else is in the shop.</p><a class="btn" href="#/shop">Show all pieces</a></div>`
         : `<div class="empty"><h2>Nothing in this corner yet</h2><p class="muted">Try a wider price range, or see everything.</p><a class="btn" href="#/shop">Show all pieces</a></div>`}
     </div>
   </div>`;
@@ -2185,7 +2361,7 @@ function shop(params){
 function piece(code){
   const it = byCode(code);
   if (!it) return notFound();
-  const also = ITEMS.filter(x => x.cat === it.cat && x.code !== it.code).slice(0, 4);
+  const also = ITEMS.filter(x => x.cat === it.cat && x.code !== it.code && onShelf(x)).slice(0, 4);
   return `
   <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${it.cat}">← Back to ${esc(it.catEn)}</a></div>
   <div class="wrap pdp">
@@ -2206,9 +2382,12 @@ function piece(code){
           aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
       </h1>
       <p class="muted" style="margin:2px 0 0">${esc(it.catEn)} · ${esc(it.code)}</p>
-      <div class="pdprice rupee">${priceOf(it)}</div>
+      <div class="pdprice"><span class="rupee">${priceOf(it)}</span>${wasTag(it)}</div>
+      ${it.off ? `<p class="offsave">You save ${rupees(it.mrp - it.price)}${offEnds(it) ? ` \u00b7 offer ends ${offEnds(it)}` : ""}</p>` : ""}
       ${it.colors && Object.keys(it.colors).length ? `<p class="muted" id="colorLine" style="margin:6px 0 0;font-size:.92rem">Colour: <b id="colorName">${esc((it.colors[it.images[0].split("/").pop()]) || "choose one below")}</b></p>` : ""}
       <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
+      ${offerReachable(it) ? `<a class="offerchip" href="#/shop?c=${encodeURIComponent(it.cat)}">
+        <span class="pct">${OFFER.pct}%</span><span>Buy any 2 ${esc(it.catEn)} \u2014 ${OFFER.pct}% off both + free shipping</span></a>` : ""}
       ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
       <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       ${soldOut(it) ? `<div class="gonebox">
@@ -2238,7 +2417,7 @@ function piece(code){
       <dl class="spec">
         <div><dt>Reference</dt><dd style="margin:0">${esc(it.code)}</dd></div>
         <div><dt>Category</dt><dd style="margin:0">${esc(it.catEn)} · ${it.catMr}</dd></div>
-        <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}, inclusive of GST</dd></div>
+        <div><dt>Price</dt><dd style="margin:0">${priceOf(it)}${it.off ? ` (${it.off}% off ${rupees(it.mrp)})` : ""}, inclusive of GST</dd></div>
         <div><dt>Photographs</dt><dd style="margin:0">${it.images.length} view${it.images.length === 1 ? "" : "s"}${it.video ? " and a video" : ""}</dd></div>
         <div><dt>Ships from</dt><dd style="margin:0">Dighi, Pune 411015 · insured, tracked</dd></div>
         <div><dt>Payment</dt><dd style="margin:0">${codOk(it)
@@ -2269,6 +2448,8 @@ function bagView(){
       <div style="margin-top:22px"><a class="btn" href="#/shop">Browse the collection</a></div>
     </div>`;
   const total = bagTotal();
+  const bagOf = offerFor(bagLines());
+  const bagShip = bagOf.off || total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT;
   return `
   <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">पिशवी</span><h1>Your bag</h1></div>
   <div class="wrap cartlayout">
@@ -2281,7 +2462,7 @@ function bagView(){
           <div>
             <span class="mr">${it.catMr}</span>
             <h3><a href="#/piece/${encodeURIComponent(it.code)}">${esc(titleOf(it))}</a></h3>
-            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(it.catEn)} · ${esc(it.code)}${l.color ? ` · ${esc(l.color)}` : ""} · ${priceOf(it)} each</p>
+            <p class="meta muted" style="font-size:.8rem;margin:2px 0 10px">${esc(it.catEn)} · ${esc(it.code)}${l.color ? ` · ${esc(l.color)}` : ""} · ${priceOf(it)} each${it.off ? ` <s>${rupees(it.mrp)}</s>` : ""}</p>
             <div class="qty" style="display:inline-flex"><button data-dec="${esc(it.code)}" data-color="${esc(l.color||"")}" aria-label="Decrease">−</button><span>${l.qty}</span><button data-inc="${esc(it.code)}" data-color="${esc(l.color||"")}" aria-label="Increase">+</button></div>
             <button class="linkbtn" data-del="${esc(it.code)}" data-color="${esc(l.color||"")}" style="margin-left:14px">Remove</button>
           </div>
@@ -2292,8 +2473,10 @@ function bagView(){
     <aside class="summary">
       <h3>Order summary</h3>
       <div class="srow"><span>${bagCount()} piece${bagCount()===1?"":"s"}</span><span class="rupee">${rupees(total)}</span></div>
-      <div class="srow"><span>Shipping</span><span>${total >= SHIP_FREE_OVER ? "Free" : rupees(SHIP_FLAT)}</span></div>
-      <div class="srow total"><span>Total</span><span class="rupee">${rupees(total + (total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT))}</span></div>
+      ${bagOf.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(bagOf.off)}</span></div>` : ""}
+      <div class="srow"><span>Shipping</span><span>${bagShip ? rupees(SHIP_FLAT) : "Free"}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee">${rupees(total - bagOf.off + bagShip)}</span></div>
+      ${offerNudge(bagOf)}
       <div style="display:grid;gap:10px;margin-top:18px">
         <a class="btn wide" href="#/order">Order now</a>
         <a class="btn ghost wide" href="#/shop">Add another piece</a>
@@ -2440,7 +2623,8 @@ function orderView(params){
   const lines = orderLines(params);
   if (!lines.length) { location.hash = "#/shop"; return ""; }
   const total = lines.reduce((a,l) => a + l.it.price * l.qty, 0);
-  const ship = total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT;
+  const of = offerFor(lines);
+  const ship = of.off || total >= SHIP_FREE_OVER ? 0 : SHIP_FLAT;
   const back = params.get("p") ? `#/piece/${encodeURIComponent(params.get("p"))}` : "#/bag";
 
   return `
@@ -2518,9 +2702,11 @@ function orderView(params){
     <aside class="summary">
       <h3>${lines.reduce((a,l)=>a+l.qty,0)} piece${lines.reduce((a,l)=>a+l.qty,0)===1?"":"s"}</h3>
       ${lines.map(l => `<div class="srow"><span>${esc(titleOf(l.it))} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.price*l.qty)}</span></div>`).join("")}
+      ${of.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(of.off)}</span></div>` : ""}
       <div class="srow" id="shipRow"><span id="shipLbl">Shipping</span><span id="shipVal">${ship ? rupees(ship) : "Free"}</span></div>
       <div class="srow" id="codRow" hidden><span>Cash on delivery</span><span class="rupee">${rupees(COD_EXTRA)}</span></div>
-      <div class="srow total"><span>Total</span><span class="rupee" id="grandTotal">${rupees(total + ship)}</span></div>
+      <div class="srow total"><span>Total</span><span class="rupee" id="grandTotal">${rupees(total - of.off + ship)}</span></div>
+      ${offerNudge(of)}
       <p class="muted" style="font-size:.8rem;margin:8px 0 0">We confirm sizing and the dispatch date in the chat before you pay anything.</p>
     </aside>
   </div>`;
@@ -2564,6 +2750,7 @@ function placedView(){
       ${o.items.map(l => `<div class="srow"><span>${esc(l.title)}${
         l.color ? ` <span class="muted">· ${esc(l.color)}</span>` : ""}${
         l.size ? ` <span class="muted">${esc(l.size)}″</span>` : ""} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.price * l.qty)}</span></div>`).join("")}
+      ${o.totals && o.totals.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(o.totals.off)}</span></div>` : ""}
       <div class="srow total"><span>Total</span><span class="rupee">${rupees(o.total)}</span></div>
       ${(o.poth && !o.items.some(l => l.size)) ? `<div class="srow"><span>Poth length</span><span>${esc(o.poth)} inches</span></div>` : ""}
       <div class="srow"><span>Paying by</span><span>${esc(payName(o.pay))}${o.totals && o.totals.cod ? ` · +${rupees(o.totals.cod)}` : ""}</span></div>
@@ -2635,6 +2822,9 @@ const PAGES = {
     <p style="margin-top:20px">We re-polish any piece bought from us once, free, in the first year. Post it to us or drop it at the Dighi address.</p>`),
   shipping: () => page("पाठवणी","Shipping & COD",`
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
+    ${OFFER.on ? `<p><b>Buy 2, save ${OFFER.pct}%.</b> Two or more pieces from the same collection in one
+       order get ${OFFER.pct}% off those pieces, and shipping on that order is free. It is worked out
+       for you on the order page — there is no code to type.</p>` : ""}
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
     <p><b>How you pay</b> — ${ITEMS.some(codOk) ? "three ways" : "two ways"}, and you choose in the chat:</p>
@@ -2753,10 +2943,12 @@ const PAGES = {
     ${H}Counting visitors</h3>
     <p>The site keeps a rough count of how many people are looking at it just now, and how
        many orders were placed — no cookie, nothing that names you, nothing sent to anybody.
-       Where Google Analytics or Google Ads is switched on as well, it also records which
-       pages were opened and which pieces were looked at, using cookies in your browser, and
-       the site asks first: a banner offers <b>Allow</b> or <b>No thanks</b> before either one
-       starts, and <b>Cookie settings</b> in the footer changes your answer any time after.
+       Your bag and saved pieces are kept in your own browser so they are there next time;
+       that is necessary for the shop to work and is never sent anywhere.
+       Analytics and advertising cookies (Google Analytics, Google Ads, Meta) record which
+       pages were opened and which pieces were looked at, and the site asks first: a banner
+       offers <b>Accept all</b> or <b>Only necessary</b> before any of them starts, and
+       <b>Cookie settings</b> in the footer changes your answer any time after.
        Google is told what happened on the site, never who you are: your name, number and
        address never leave our own order book. You can also turn cookies off in your browser
        and the shop still works, and the site never asks for your location.</p>
@@ -2861,7 +3053,7 @@ async function freshenStock(){
   const before = JSON.stringify(LEFT);
   await loadLeft();
   LEFT_BUSY = false; LEFT_AT = Date.now();
-  if (JSON.stringify(LEFT) !== before) render();
+  if (JSON.stringify(LEFT) !== before) { paintNav(); render(); }
 }
 
 /* ---------------------------------------------------------------------------
@@ -3019,7 +3211,7 @@ function render(){
   if (LOAD_STATE === "loading") html = `<div class="wrap" style="padding:46px 0 80px">
       <div class="skelgrid">${Array.from({length:8},()=>`<div class="skel"></div>`).join("")}</div>
     </div>`;
-  else if (r === "") html = home();
+  else if (r === "") { html = home(); freshenStock(); }
   else if (r === "shop") { html = shop(params); freshenStock(); }
   else if (r === "piece") { html = piece(parts[1]); freshenStock(); }
   else if (r === "cart" || r === "bag") html = bagView();
@@ -3200,7 +3392,9 @@ function wire(route){
     let selectedColor = (it.colors && it.colors[it.images[0].split("/").pop()]) || "";
     const qv = $("#qVal");
     const sync = () => {
-      qv.textContent = q;
+      /* A sold-out piece has no quantity box at all — its page still opens
+         from a link, so nothing below may assume one is there. */
+      if (qv) qv.textContent = q;
       /* Nothing offers more than the shop has. The + goes dead at the ceiling
          rather than letting her ask for two of something there is one of. */
       const plus = $("#qPlus"), minus = $("#qMinus");
@@ -3267,10 +3461,11 @@ function wire(route){
     const payNow = () => (form.querySelector("input[name=pay]:checked") || {}).value || "online";
     const needsAddress = () => payNow() !== "shop";
     const goods = lines.reduce((a, l) => a + l.it.price * l.qty, 0);
+    const offOff = offerFor(lines).off;
 
     /* collecting at the shop needs no address, and the total moves with the choice */
     const refresh = () => {
-      const t = orderTotals(goods, payNow());
+      const t = orderTotals(goods, payNow(), offOff);
       const shipRow = $("#shipRow"), codRow = $("#codRow");
       if (shipRow) {
         $("#shipLbl").textContent = t.pickup ? "Collecting at" : "Shipping";
@@ -3333,10 +3528,11 @@ function wire(route){
         items: lines.map((l, idx) => {
           const chose = picked.find(x => x.i === idx);
           return {code: l.it.code, title: titleOf(l.it), qty: l.qty, price: l.it.price,
+                  was: l.it.off ? l.it.mrp : 0, off: l.it.off || 0,
                   url: pieceUrl(l.it.code), size: chose ? chose.size : "", color: l.color || ""};
         }),
         pay: payNow(),
-        totals: orderTotals(goods, payNow())
+        totals: orderTotals(goods, payNow(), offOff)
       });
       o.total = o.totals.total;
       o.text = orderWaText(o);
@@ -3543,8 +3739,9 @@ $("#menuToggle").onclick = () => {
     : `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
 };
 $("#topbar").innerHTML = [
-  `<span>Order on WhatsApp</span>`,
-  ...PHONES.map(n => `<a href="https://wa.me/${n.wa}" target="_blank" rel="noopener">${esc(n.label)}</a>`),
+  ...(OFFER.on ? [`<a class="tb-offer" href="#/shop">Buy 2 \u00b7 ${OFFER.pct}% off + free shipping</a>`] : []),
+  `<span class="tb-wa">Order on WhatsApp</span>`,
+  ...PHONES.map((n, i) => `<a class="${i ? "tb-more" : ""}" href="https://wa.me/${n.wa}" target="_blank" rel="noopener">${esc(n.label)}</a>`),
   `<span class="tag"><span class="sep">&middot;</span> Free insured shipping across India</span>`,
   `<span class="tag"><span class="sep">&middot;</span> Handmade in Dighi, Pune</span>`
 ].join("");
@@ -3761,5 +3958,12 @@ document.addEventListener("visibilitychange", watchHere);
 
 startHowTo();
 seen("visit");   // once a day per browser — see office/tally
-loadCatalogue().then(() => { paintNav(); render(); watchHere(); });
+/* The stock count is asked for alongside the catalogue, so sold-out pieces are
+   already out of the lists on the first paint rather than vanishing a moment
+   later. It is never waited on for more than a second and a half — a slow
+   answer just means everything shows, as before, until it arrives. */
+Promise.all([
+  loadCatalogue(),
+  Promise.race([loadLeft(), new Promise(res => setTimeout(res, 1500))])
+]).then(() => { if (LEFT) LEFT_AT = Date.now(); paintNav(); render(); watchHere(); });
 </script>

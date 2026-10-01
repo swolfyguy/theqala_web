@@ -242,7 +242,9 @@ function card(o){
                         : o.status === "Cancelled" ? "unknown" : "moving"}">${esc(o.status)}</span>
     </div>
     <div class="obody">
-      <ul class="lines">${(o.items || []).map(i => `
+      <ul class="lines">${(o.items || []).map(i => i.code === "OFFER-BUY2" ? `
+        <li><span class="t">${esc(i.title || "Buy-2 offer")}</span>
+            <span class="p">\u2212${money(-(i.price || 0))}</span></li>` : `
         <li><span class="t">${esc(i.title || i.code || "A piece")}</span>
             ${i.qty > 1 ? `<span class="q">×${esc(i.qty)}</span>` : ""}
             <span class="p">${money((i.price || 0) * (i.qty || 1))}</span></li>`).join("")}</ul>

@@ -77,6 +77,8 @@ main{padding:34px 0 90px}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700}
 label.f input,label.f select{background:var(--ground);border:1px solid var(--line-2);border-radius:10px;padding:11px 13px;width:100%}
 label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)}
+.offline{font-size:.78rem;font-weight:600;color:#9E2C3E;margin-top:2px}
+.offline.ended{color:var(--ink-2);font-weight:400;text-decoration:line-through}
 .hint{font-size:.82rem;color:var(--ink-2)}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:12px 22px;border-radius:999px;cursor:pointer;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
@@ -489,6 +491,19 @@ const stockBlob = (sizes, qty, cod) =>
                                          cod ? {cod: true} : {}), null, 2) + "\n"],
            {type: "application/json"});
 
+/* A discount on a piece lives in its own offer.json. The folder's price stays
+   the real price; the offer price is worked out from it, rounded to ₹10 —
+   the same sum the shop page and the worker do. */
+const OFFER_STEPS = [0, 10, 15, 20, 25, 30, 40, 50];
+const offPrice = (base, pct) => Math.round(base * (100 - pct) / 1000) * 10;
+const offerBlob = (pct, until) =>
+  new Blob([JSON.stringify(Object.assign({pct: Number(pct)}, until ? {until} : {}), null, 2) + "\n"],
+           {type: "application/json"});
+/* Today in India, as YYYY-MM-DD — an offer runs through its last day. */
+const todayIST = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+const offerLive = o => !!(o && o.pct > 0 && (!o.until || o.until >= todayIST()));
+const shortDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-IN", {day: "numeric", month: "short"});
+
 const colorsBlob = colors =>
   new Blob([JSON.stringify(colors, null, 2) + "\n"], {type: "application/json"});
 
@@ -777,6 +792,14 @@ function renderUpload(){
         <input id="u-price" inputmode="numeric" placeholder="2300">
         <span class="hint" id="u-band">the band is worked out from this</span>
       </label>
+      <label class="f">Offer <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
+        <select id="u-off">${OFFER_STEPS.map(n => `<option value="${n || ""}">${n ? n + "% off" : "No offer"}</option>`).join("")}</select>
+        <span class="hint" id="u-offsay">the price above stays the real price \u2014 customers see it crossed out</span>
+      </label>
+      <label class="f" id="u-until-wrap" hidden>Offer ends <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
+        <input id="u-until" type="date">
+        <span class="hint">last day of the offer \u2014 leave blank to run it until you take it off</span>
+      </label>
       <label class="f">How many <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
         <input id="u-qty" inputmode="numeric" placeholder="1">
         <span class="hint">leave blank if you have just the one</span>
@@ -871,12 +894,22 @@ function renderUpload(){
   sizeSummary();
 
   const priceIn = $("#u-price");
+  const offSay = () => {
+    const n = parseInt(priceIn.value.replace(/\D/g, ""), 10);
+    const pct = Number($("#u-off").value) || 0;
+    $("#u-until-wrap").hidden = !pct;
+    $("#u-offsay").innerHTML = pct && Number.isFinite(n) && n > 0
+      ? `customers see <s>₹${n.toLocaleString("en-IN")}</s> <b>₹${offPrice(n, pct).toLocaleString("en-IN")}</b> \u00b7 ${pct}% off`
+      : "the price above stays the real price \u2014 customers see it crossed out";
+  };
   priceIn.oninput = () => {
     const n = parseInt(priceIn.value.replace(/\D/g, ""), 10);
     $("#u-band").textContent = Number.isFinite(n) && n > 0
       ? "shows " + bandPhrase(n)
       : "the band is worked out from this";
+    offSay();
   };
+  $("#u-off").onchange = offSay;
 
   const drop = $("#drop"), input = $("#file");
   drop.onclick = () => input.click();
@@ -974,6 +1007,8 @@ function renderUpload(){
     const sizes = readSizes();
     const qty = $("#u-qty").value.replace(/\D/g, "");
     const cod = $("#u-cod").checked;
+    const off = Number($("#u-off").value) || 0;
+    const until = off ? $("#u-until").value : "";
     logBox.innerHTML = "";
     if (!cat) { say("Which category?", "wa"); return; }
     if (!Number.isFinite(price) || price < 1) { say("Give the price as a plain number, e.g. 2300.", "wa"); return; }
@@ -985,7 +1020,8 @@ function renderUpload(){
         const files = [];
         for (const q of QUEUE) files.push({kind: q.kind, ext: q.ext, b64: await toBase64(q.blob)});
         const data = await localPost("/api/product", {category: cat, price, title, files,
-                                                     separate: many, sizes, qty, cod});
+                                                     separate: many, sizes, qty, cod,
+                                                     offer: off, until});
         const made = data.createdAll || [data.created];
         if (made.length > 1) {
           say(`saved ${made.length} products`, "ok");
@@ -1012,6 +1048,7 @@ function renderUpload(){
             made.push(folder);
             adds.push({path: `${folder}/1${q.ext}`, blob: q.blob});
             adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty, cod)});
+            if (off) adds.push({path: `${folder}/offer.json`, blob: offerBlob(off, until)});
           });
         } else {
           const folder = `photos/${cat}/${price}${safe ? " " + safe : ""}`;
@@ -1019,6 +1056,7 @@ function renderUpload(){
           let n = 1;
           for (const q of QUEUE) adds.push({path: q.kind === "video" ? `${folder}/video${q.ext}` : `${folder}/${n++}${q.ext}`, blob: q.blob});
           adds.push({path: `${folder}/stock.json`, blob: stockBlob(sizes, qty, cod)});
+          if (off) adds.push({path: `${folder}/offer.json`, blob: offerBlob(off, until)});
         }
         const sha = await commitChanges(
           many ? `Add ${made.length} ${cat} pieces at ₹${price}` : `Add ${title || cat} at ₹${price}`, adds, []);
@@ -1029,6 +1067,7 @@ function renderUpload(){
       QUEUE = []; paint();
       $("#u-price").value = ""; $("#u-title").value = ""; $("#u-qty").value = "";
       $("#u-cod").checked = false;
+      $("#u-off").value = ""; $("#u-until").value = ""; offSay();
       $("#u-min").value = ""; $("#u-max").value = "";
       sizeSummary();
       $("#u-band").textContent = "the band is worked out from this";
@@ -1187,6 +1226,9 @@ function paintManage(){
           <code>${esc(p.code)}</code>
           <div class="ttl">${esc(p.title || titleish(cat) + " " + String(p.n).padStart(2, "0"))}</div>
           <div class="band">₹${Number(p.price).toLocaleString("en-IN")} · ${bandLabelFor(p.price)}</div>
+          ${p.offer && p.offer.pct ? `<div class="offline${offerLive(p.offer) ? "" : " ended"}">${p.offer.pct}% off \u2192 ₹${
+            offPrice(p.price, p.offer.pct).toLocaleString("en-IN")}${p.offer.until
+            ? (offerLive(p.offer) ? ` \u00b7 till ${shortDate(p.offer.until)}` : ` \u00b7 ended ${shortDate(p.offer.until)}`) : ""}</div>` : ""}
           <div class="stk">
             <span class="lbl" data-lbl>In stock</span>
             <span class="step">
@@ -1204,6 +1246,7 @@ function paintManage(){
             <button class="btn ghost sm" data-edit>Price / name</button>
             <button class="btn ghost sm" data-more>Add views</button>
             <button class="btn ghost sm" data-colors>Colours</button>
+            <button class="btn ghost sm" data-offer>Offer</button>
             <button class="btn danger sm" data-del>Delete</button>
           </div>
         </div>`;
@@ -1271,6 +1314,42 @@ function paintManage(){
           say(`updating ${p.code}…`);
           await localPost("/api/product/edit", {folder: p.folder, price: n, title});
           say(`${p.code} is now ₹${n.toLocaleString("en-IN")} — ${bandLabelFor(n)}. Its code did not change.`, "ok");
+          renderManage();
+        } catch (e) { say(e.message, "er"); }
+      };
+
+      card.querySelector("[data-offer]").onclick = async () => {
+        const had = p.offer && p.offer.pct ? p.offer : null;
+        const typed = prompt(
+          `Offer on ${p.code} (₹${Number(p.price).toLocaleString("en-IN")}): percent off, e.g. 10, 20, 30.\n`
+          + `0 or blank takes the offer off. The price itself does not change.`,
+          had ? String(had.pct) : "");
+        if (typed === null) return;
+        const pct = parseInt(String(typed).replace(/\D/g, ""), 10) || 0;
+        if (pct > 90) { alert("More than 90% off — is that number right?"); return; }
+        let until = "";
+        if (pct) {
+          const u = prompt(`Last day of the offer, as YYYY-MM-DD (e.g. 2026-10-31).\nLeave blank to run it until you take it off.\n\n`
+            + `Customers will see ₹${Number(p.price).toLocaleString("en-IN")} crossed out and ₹${
+              offPrice(p.price, pct).toLocaleString("en-IN")}.`, had && had.until ? had.until : "");
+          if (u === null) return;
+          until = u.trim();
+          if (until && !/^\d{4}-\d{2}-\d{2}$/.test(until)) { alert("Give the date as YYYY-MM-DD, e.g. 2026-10-31."); return; }
+        }
+        try {
+          logBox.innerHTML = "";
+          say(`saving the offer on ${p.code}…`);
+          if (isLocal()) {
+            await localPost("/api/product/offer", {folder: p.folder, pct, until});
+          } else if (pct) {
+            await commitChanges(`${p.code}: ${pct}% off${until ? " till " + until : ""}`,
+              [{path: `${p.folder}/offer.json`, blob: offerBlob(pct, until)}], []);
+          } else if (had) {
+            await commitChanges(`${p.code}: offer off`, [], [`${p.folder}/offer.json`]);
+          }
+          p.offer = pct ? Object.assign({pct}, until ? {until} : {}) : null;
+          say(pct ? `${p.code}: ${pct}% off — shows ₹${offPrice(p.price, pct).toLocaleString("en-IN")}${until ? " till " + until : ""}`
+                  : `${p.code}: no offer`, "ok");
           renderManage();
         } catch (e) { say(e.message, "er"); }
       };

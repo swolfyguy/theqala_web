@@ -26,6 +26,26 @@ const SHIP_FREE_OVER = 1499;
 const SHIP_FLAT      = 79;
 const COD_EXTRA      = 200;
 
+/* The buy-2 offer. Two or more pieces from the SAME category in one order:
+   10% off those pieces, and shipping is free on the whole order. Kept the same
+   as OFFER at the top of index.html — the page shows the saving, this is what
+   actually decides it. OFFER.on = false switches it off everywhere at once.
+
+   The saving is written into the order as one extra line with a negative
+   price and the code below, so the line items still add up to `goods`, the
+   office and the customer's own order page show it as a line, and nothing
+   about the order book's shape had to change. No piece has this code, so it
+   takes nothing off any stock count. */
+const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2"};
+
+/* A piece's own discount, from offer.json via catalogue.json
+   (product.offer = {pct, until}). Same three helpers as index.html and the
+   studio: today in India, whether an offer is still running (through its
+   last day), and the offer price rounded to ₹10. */
+const todayIST  = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+const offerLive = o => !!(o && o.pct > 0 && o.pct <= 90 && (!o.until || o.until >= todayIST()));
+const offPrice  = (base, pct) => Math.round(base * (100 - pct) / 1000) * 10;
+
 /* Poth lengths the shop offers, in inches. Same list as the order form. */
 const POTH = ["24", "26", "28", "30", "32", "34", "36", "38", "40"];
 
@@ -300,7 +320,13 @@ async function takeOrder(request, env) {
        Both carry the same code, so the code is what tells them apart from two
        real orders — and it is asked about here, before the stock check, or her
        own first copy would be the thing that told her it was sold out. */
-    const items = JSON.stringify(o.items);
+    /* The buy-2 offer, worked out here from the catalogue's own categories.
+       Done before the items are written out, because the saving travels as
+       one more line among them. */
+    await howManyMade(env);
+    repriceItems(o);
+    applyOffer(o);
+    const items = JSON.stringify(o.offerLine ? [...o.items, o.offerLine] : o.items);
     if (o.wanted && sameOrder(await rowFor(env, o.wanted), o, items))
       return json({ok: true, stored: true, ref: o.wanted});
 
@@ -499,6 +525,8 @@ async function howManyMade(env) {
   const out = {};
   const cod = {};
   const colors = {};
+  const cats = {};
+  const prices = {};
   try {
     const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
     if (res.ok) {
@@ -507,6 +535,8 @@ async function howManyMade(env) {
         for (const p of c.products || []) {
           const n = p.sizes && p.sizes.qty;
           out[p.code] = Number.isFinite(n) ? n : 1;      // nothing said means one
+          cats[p.code] = c.slug;                          // for the buy-2 offer
+          prices[p.code] = {base: p.price, offer: p.offer || null};
           if (p.sizes && p.sizes.cod === true) cod[p.code] = true;
           /* Which colour names this piece actually offers — one photograph
              can be tagged as a colour, several usually are. A piece with
@@ -519,7 +549,7 @@ async function howManyMade(env) {
         }
     }
   } catch { /* no catalogue is the same as knowing nothing */ }
-  MADE = out; COD_OK = cod; COLOR_OK = colors; MADE_AT = Date.now();
+  MADE = out; COD_OK = cod; COLOR_OK = colors; CAT_OF = cats; PRICE_OF = prices; MADE_AT = Date.now();
   return out;
 }
 
@@ -539,6 +569,74 @@ let COLOR_OK = {};
 async function colorsAllowed(env, items) {
   await howManyMade(env);
   return (items || []).every(l => !l.color || (COLOR_OK[l.code] || []).includes(l.color));
+}
+
+/* Which category each piece belongs to, filled in by howManyMade(). */
+let CAT_OF = {};
+/* Each piece's regular price and its offer, if any — also from howManyMade(). */
+let PRICE_OF = {};
+
+/* The price on each line is the shop's, not the browser's. A line may carry
+   the regular price or the offer price — either is something the page really
+   showed (an offer can end while she is filling in the form, so one that
+   ended yesterday is still accepted) — and anything else is replaced by
+   today's price. A line at the offer price is marked with
+   the regular price it came off (`was`) and the percent (`off`), so the order
+   book and the office can say so. Totals are then worked out again, the same
+   way clean() first did. Pieces the catalogue does not know keep what was sent. */
+function repriceItems(o) {
+  for (const l of o.items) {
+    const p = PRICE_OF[l.code];
+    if (!p || !Number.isFinite(p.base)) continue;
+    const live = offerLive(p.offer);
+    const now  = live ? offPrice(p.base, p.offer.pct) : p.base;
+    /* An offer that ended yesterday is still honoured for a page opened
+       before midnight — the price she saw is the price she gets. */
+    const yday  = new Date(Date.now() + 5.5 * 3600e3 - 864e5).toISOString().slice(0, 10);
+    const grace = !!(p.offer && p.offer.pct > 0 && p.offer.pct <= 90 && (!p.offer.until || p.offer.until >= yday));
+    const sale  = grace ? offPrice(p.base, p.offer.pct) : null;
+    if (l.price !== p.base && l.price !== now && l.price !== sale) l.price = now;
+    if (sale !== null && l.price === sale && sale < p.base) { l.was = p.base; l.off = p.offer.pct; }
+    else { delete l.was; delete l.off; }
+  }
+  o.goods    = o.items.reduce((a, l) => a + l.price * l.qty, 0);
+  o.shipping = o.pay === "shop" ? 0 : (o.goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+  o.total    = o.goods + o.shipping + o.cod_fee;
+  return o;
+}
+
+/* How much the buy-2 offer takes off these pieces. Counted per category: two
+   Double Wati and one Necklace earns the saving on the two Double Wati only.
+   Two of the same piece count as two. Rounded per category, to the rupee —
+   offerFor() in index.html does exactly the same sum, so the total she saw
+   on the page is the total in the book. */
+function offerOff(items) {
+  if (!OFFER.on) return {off: 0, cats: []};
+  const by = {};
+  for (const l of items || []) {
+    const c = CAT_OF[l.code];
+    if (!c) continue;
+    const b = by[c] || (by[c] = {n: 0, sum: 0});
+    b.n += l.qty; b.sum += l.price * l.qty;
+  }
+  let off = 0; const cats = [];
+  for (const [c, b] of Object.entries(by))
+    if (b.n >= OFFER.min) { off += Math.round(b.sum * OFFER.pct / 100); cats.push(c); }
+  return {off, cats};
+}
+
+/* Apply it to a cleaned order: the saving comes off the goods, shipping goes
+   to nothing, and the extra line is kept aside to be written with the items.
+   Needs howManyMade() to have run, for CAT_OF. */
+function applyOffer(o) {
+  const {off} = offerOff(o.items);
+  if (!off) return o;
+  o.offerLine = {code: OFFER.code, title: `Buy 2, get ${OFFER.pct}% off + free shipping`,
+                 qty: 1, price: -off};
+  o.goods    = o.goods - off;
+  o.shipping = 0;
+  o.total    = o.goods + o.shipping + o.cod_fee;
+  return o;
 }
 
 /* What the next order code will most likely be. The checkout page asks for
@@ -2159,7 +2257,9 @@ async function updateOrder(request, env, who = "") {
      so there changing how she pays changes only the word. */
   if (newPay && (was.source || "site") === "site") {
     const goods    = Number(was.goods) || 0;
-    const shipping = newPay === "shop" ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+    /* An order that earned the buy-2 offer keeps its free shipping. */
+    const offered  = safeItems(was.items).some(l => l && l.code === OFFER.code);
+    const shipping = newPay === "shop" || offered ? 0 : (goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
     const cod_fee  = newPay === "cod" ? COD_EXTRA : 0;
     sets.push("shipping = ?", "cod_fee = ?", "total = ?");
     bind.push(shipping, cod_fee, goods + shipping + cod_fee);

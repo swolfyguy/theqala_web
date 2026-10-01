@@ -258,6 +258,9 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .items{margin:0;padding:0;list-style:none}
 .items li{display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px dotted var(--line)}
 .items li:last-child{border-bottom:0}
+.items li.offerline .what{color:var(--accent);font-weight:600}
+.items li.offerline .rup{color:var(--accent)}
+.items .offnote{color:var(--accent);font-weight:600}
 .items .code{color:var(--ink-2);font-size:.78rem;display:block}
 .items .len{color:var(--gold);font-weight:600;font-size:.85rem}
 .items .what{flex:1 1 auto;min-width:0}
@@ -408,6 +411,11 @@ const $  = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
   c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rupees = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+/* The website's buy-2 offer line — same code as OFFER.code in _worker.js. */
+const OFFER_CODE = "OFFER-BUY2";
+const realLines = o => (o.items || []).filter(l => l && l.code !== OFFER_CODE);
+const offerOffOf = o => (o.items || []).filter(l => l && l.code === OFFER_CODE)
+  .reduce((a, l) => a - (Number(l.price) || 0), 0);
 const pretty = p => p.slice(0,5) + " " + p.slice(5);
 
 function snack(text){
@@ -735,7 +743,7 @@ function paintSum(){
   const live = ORDERS.filter(o => o.status !== "cancelled" && o.status !== "deleted");
   const money = live.reduce((a, o) => a + (Number(o.total) || 0), 0);
   const pieces = live.reduce((a, o) =>
-    a + (o.items || []).reduce((b, l) => b + (Number(l.qty) || 1), 0), 0);
+    a + realLines(o).reduce((b, l) => b + (Number(l.qty) || 1), 0), 0);
   /* Dates keep their capitals — "3 Sept" reads wrong as "3 sept". */
   const label = RANGE === "picked" && (FROM || TO)
     ? pickedLabel()
@@ -824,6 +832,15 @@ function detail(o){
   const chat = howMany ? shotUrl(0) : "";
 
   const items = (o.items || []).map((l, i) => {
+    /* The buy-2 offer travels as one line with a negative price. It has no
+       photograph and no length, but keeps an (empty, hidden) length box so
+       the list of lengths sent back still has one entry per line. */
+    if (l.code === OFFER_CODE) return `<li class="offerline">
+      <span class="thumb none"></span>
+      <span class="what">${esc(l.title || "Buy-2 offer")}
+        <select class="i-size" data-i="${i}" hidden aria-hidden="true"><option value="" selected></option></select>
+        <span class="code">applied by the website</span></span>
+      <span class="rup">\u2212${rupees(-l.price)}</span></li>`;
     const piece = PIECES[l.code];
     const shot  = piece && (piece.images || [])[0];
     /* The website's photograph if we know the piece, otherwise the one they
@@ -849,7 +866,8 @@ function detail(o){
           ${POTH.map(n => `<option value="${n}"${l.size === n ? " selected" : ""}>${n}&Prime;</option>`).join("")}
         </select>
         <span class="code">${l.color ? esc(l.color) + " · " : ""}${l.code === "OFFLINE" ? "" : esc(l.code) + " "}× ${l.qty}${
-          piece && piece.price !== l.price ? ` · now ${rupees(piece.price)}` : ""}</span>
+          l.was ? ` · <b class="offnote">${esc(l.off)}% off ${rupees(l.was)}</b>` : ""}${
+          piece && piece.price !== (l.was || l.price) ? ` · now ${rupees(piece.price)}` : ""}</span>
       </span>
       <span class="rup">${rupees(l.price * l.qty)}</span></li>`;
   }).join("");
@@ -925,10 +943,11 @@ function detail(o){
         </div>`}
       </div>
       <div>
-        <h3>${(o.items || []).length} piece${(o.items || []).length === 1 ? "" : "s"}</h3>
+        <h3>${realLines(o).length} piece${realLines(o).length === 1 ? "" : "s"}</h3>
         <ul class="items">${items}</ul>
         ${cameFrom(o) ? "" : `
-        <div class="money"><span>Pieces</span><span>${rupees(o.goods)}</span></div>
+        <div class="money"><span>Pieces</span><span>${rupees(o.goods + offerOffOf(o))}</span></div>
+        ${offerOffOf(o) ? `<div class="money"><span>Buy-2 offer</span><span>\u2212${rupees(offerOffOf(o))}</span></div>` : ""}
         ${pickup ? "" : `<div class="money"><span>Shipping</span><span>${o.shipping ? rupees(o.shipping) : "Free"}</span></div>`}
         ${o.cod_fee ? `<div class="money"><span>Cash on delivery</span><span>${rupees(o.cod_fee)}</span></div>` : ""}`}
         <div class="money tot"><span>${cameFrom(o) ? "Agreed price" : "Total"}</span><span>${

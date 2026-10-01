@@ -224,6 +224,7 @@ def to_jpeg(src):
 
 STOCK_FILE = "stock.json"
 COLORS_FILE = "colors.json"
+OFFER_FILE = "offer.json"
 # The poth lengths the shop makes, in inches. Same list as the order form.
 SIZES = [str(n) for n in range(24, 41, 2)]
 
@@ -349,6 +350,53 @@ def read_colors(folder, images):
     return {img.name: out[img.name] for img in images if img.name in out}
 
 
+def read_offer(folder):
+    """A discount on this piece, if the shop has given it one.
+
+       photos/<cat>/<price> <name>/offer.json holds
+
+           {"pct": 10, "until": "2026-10-15"}
+
+       pct   — percent off the price in the folder name, a whole number 1–90.
+       until — optional, the last day the offer runs (India time). Missing
+               means it runs until the shop takes it off.
+
+       The folder's price stays the piece's real, regular price; the offer is
+       worked out from it on the page and again by the worker, so nothing here
+       is ever a made-up "was" price. Expiry is judged when the page is viewed
+       (the catalogue is not rebuilt every day), so an offer whose day has
+       passed simply stops showing — it does not need this file deleted."""
+    f = folder / OFFER_FILE
+    if not f.is_file():
+        return None
+    try:
+        raw = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        warn(f"{rel(f)} is not readable as JSON ({e}) — no offer")
+        return None
+    if not isinstance(raw, dict):
+        warn(f'{rel(f)} should look like {{"pct": 10, "until": "2026-10-15"}} — no offer')
+        return None
+    try:
+        pct = int(raw.get("pct", 0))
+    except Exception:
+        warn(f"{rel(f)} has {raw.get('pct')!r} as the percent, which is not a number — no offer")
+        return None
+    if pct <= 0:
+        return None
+    if pct > 90:
+        warn(f"{rel(f)} gives {pct}% off — more than 90% looks like a typo, so no offer")
+        return None
+    out = {"pct": pct}
+    until = str(raw.get("until") or "").strip()
+    if until:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", until):
+            warn(f"{rel(f)} has {until!r} as the end date — use YYYY-MM-DD; the offer runs with no end")
+        else:
+            out["until"] = until
+    return out
+
+
 def media_in(folder):
     """Images (converted and optionally shrunk) and videos inside a product folder.
        A picture whose name matches a video in the same folder is that video's
@@ -364,6 +412,8 @@ def media_in(folder):
         if f.name.lower() == STOCK_FILE:      # how many of each size — not a picture
             continue
         if f.name.lower() == COLORS_FILE:     # which photo is which colour — not a picture
+            continue
+        if f.name.lower() == OFFER_FILE:      # this piece's discount — not a picture
             continue
         ext = f.suffix.lower()
         if ext in WEB_EXT:
@@ -621,6 +671,7 @@ def read_category(catdir, nxt):
             "videoPoster": poster_for(videos[0]) if videos else None,
             "sizes": read_stock(folder),
             "colors": read_colors(folder, images),
+            "offer": read_offer(folder),
         })
         if len(videos) > 1:
             warn(f"{rel(folder)} has more than one video — only {videos[0].name} is used")
