@@ -20,17 +20,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://theqalashree.com/piece/double-wati-rajwadi-handmade-22/</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/double-wati-rajwadi-handmade/1400/1.jpg</image:loc>
-      <image:title>double wati rajwadi handmade 22 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>double wati rajwadi handmade 22 - Rs 1400</image:caption>
-    </image:image>
-  </url>
-  <url>
     <loc>https://theqalashree.com/piece/double-wati-rajwadi-handmade-23/</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -468,6 +457,17 @@
       <image:loc>https://theqalashree.com/photos/double-wati-rajwadi-handmade/1500%20%284%29/1.jpg</image:loc>
       <image:title>double wati rajwadi handmade 4 - handmade jewellery from The Qala, Dighi, Pune</image:title>
       <image:caption>double wati rajwadi handmade 4 - Rs 1500</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://theqalashree.com/piece/double-wati-rajwadi-handmade-22/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://theqalashree.com/photos/double-wati-rajwadi-handmade/1500%20double/1.jpg</image:loc>
+      <image:title>double - handmade jewellery from The Qala, Dighi, Pune</image:title>
+      <image:caption>double - Rs 1500</image:caption>
     </image:image>
   </url>
   <url>
