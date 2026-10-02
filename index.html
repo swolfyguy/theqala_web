@@ -1061,12 +1061,20 @@ const WA = "919579628754";
      GA4_ID     from Google Analytics, Admin > Data streams   e.g. "G-XXXXXXX"
      ADS_ID     from Google Ads, Tools > Conversions          e.g. "AW-000000000"
      ADS_ORDER  the conversion label on that page             e.g. "abcDEF_gh12"
+     META_PIXEL_ID  from Meta Events Manager, the website dataset  e.g. "1234567890123456"
+
+   The Meta Pixel follows exactly the same rule as Google: nothing loads until
+   she taps Accept all. It is told five things, all from track() below —
+   PageView, ViewContent (a piece), AddToCart, InitiateCheckout (the order
+   form) and Purchase (an order that landed in the book, with its rupee value
+   and the piece codes). Never a name, a phone number or an address.
 
    The privacy page already says this is here and asks first — see "Counting
    visitors" in the privacy policy text further down. */
 const GA4_ID    = "";
 const ADS_ID    = "";
 const ADS_ORDER = "";
+const META_PIXEL_ID = "";     // Meta (Facebook/Instagram) Pixel — Events Manager > the dataset's ID, digits only
 
 /* Every number you answer on. The first one is where orders land (WA above). */
 const PHONES = [
@@ -1077,6 +1085,7 @@ const PHONES = [
 
 /* Loaded once, and only if there is something to load. */
 function startTags(){
+  startPixel();
   if (!GA4_ID && !ADS_ID) return;
   window.dataLayer = window.dataLayer || [];
   window.gtag = function(){ window.dataLayer.push(arguments); };
@@ -1090,6 +1099,25 @@ function startTags(){
   t.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA4_ID || ADS_ID);
   document.head.appendChild(t);
 }
+/* Meta's own loader, as Meta publishes it, only reshaped to read. It makes
+   fbq() queue calls straight away and fetches the real script in the
+   background. Run once, and only after a yes. */
+function startPixel(){
+  if (!META_PIXEL_ID || window.fbq) return;
+  const f = window.fbq = function(){
+    f.callMethod ? f.callMethod.apply(f, arguments) : f.queue.push(arguments);
+  };
+  if (!window._fbq) window._fbq = f;
+  f.push = f; f.loaded = true; f.version = "2.0"; f.queue = [];
+  const t = document.createElement("script");
+  t.async = true;
+  t.src = "https://connect.facebook.net/en_US/fbevents.js";
+  document.head.appendChild(t);
+  fbq("init", META_PIXEL_ID);
+  /* Page views are sent by hand from track("page_view"), like Google's,
+     because the shop is one page with a changing #. */
+}
+
 /* Every call goes through here, so with nothing configured the whole thing is
    a function that returns. */
 let SEEN = "";                 // the page last counted, so none is counted twice
@@ -1128,8 +1156,27 @@ function seen(what){
 }
 
 function track(name, params){
-  if (typeof gtag !== "function") return;
-  try { gtag("event", name, params || {}); } catch (e) {}
+  params = params || {};
+  if (typeof gtag === "function") { try { gtag("event", name, params); } catch (e) {} }
+  if (typeof fbq === "function") { try { pixel(name, params); } catch (e) {} }
+}
+
+/* The same moments, in Meta's words. Only the piece codes and rupee values
+   go — content_ids are the shop's own references (DOUBLE-WATI-…-22). */
+function pixel(name, p){
+  const ids  = (p.items || []).map(i => i.item_id).filter(Boolean);
+  const base = {currency: "INR", value: Number(p.value) || 0, content_type: "product", content_ids: ids};
+  if (name === "page_view")      fbq("track", "PageView");
+  if (name === "view_item")      fbq("track", "ViewContent", base);
+  if (name === "add_to_cart")    fbq("track", "AddToCart", base);
+  if (name === "begin_checkout") fbq("track", "InitiateCheckout",
+                                   Object.assign({}, base, {num_items: (p.items || []).reduce((a, i) => a + (i.quantity || 1), 0)}));
+  if (name === "purchase")       fbq("track", "Purchase",
+                                   Object.assign({}, base, {
+                                     contents: (p.items || []).filter(i => i.item_id && i.price >= 0)
+                                       .map(i => ({id: i.item_id, quantity: i.quantity || 1, item_price: i.price})),
+                                     num_items: (p.items || []).reduce((a, i) => a + (i.price >= 0 ? (i.quantity || 1) : 0), 0)}),
+                                   {eventID: p.transaction_id || undefined});
 }
 
 /* Whether she has said yes or no to the cookie banner, kept in this browser
@@ -1154,7 +1201,11 @@ function showCookiebar(){
   bar.hidden = false;
   requestAnimationFrame(() => bar.classList.add("show"));
   const hide = () => { bar.classList.remove("show"); setTimeout(() => { bar.hidden = true; }, 400); };
-  document.getElementById("cookieYes").onclick = () => { setCookieChoice("yes"); hide(); startTags(); };
+  document.getElementById("cookieYes").onclick = () => {
+    setCookieChoice("yes"); hide(); startTags();
+    /* The page she is on was painted before the yes, so nothing counted it. */
+    track("page_view", {page_location: location.href, page_title: document.title});
+  };
   document.getElementById("cookieNo").onclick  = () => { setCookieChoice("no");  hide(); };
 }
 function startTagsIfAllowed(){
