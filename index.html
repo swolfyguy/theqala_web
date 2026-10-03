@@ -1,5 +1,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google consent mode — must come before Tag Manager. Google's tools start
+     with analytics and advertising cookies OFF for everybody, and only switch
+     them on after "Accept all" on the cookie bar (a "yes" already given on
+     this phone is applied straight away). See startTags() and #cookiebar. -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function qalaConsent(){ dataLayer.push(arguments); }
+qalaConsent("consent", "default", {ad_storage: "denied", analytics_storage: "denied",
+  ad_user_data: "denied", ad_personalization: "denied", wait_for_update: 500});
+try {
+  if (localStorage.getItem("qala.cookies") === "yes")
+    qalaConsent("consent", "update", {ad_storage: "granted", analytics_storage: "granted",
+      ad_user_data: "granted", ad_personalization: "granted"});
+} catch (e) {}
+</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-M8CJ4W6Q');</script>
+<!-- End Google Tag Manager -->
 <title>The Qala — Rajwadi &amp; Victorian Jewellery, Dighi, Pune</title>
 <meta name="description" content="Rajwadi, Victorian and moissanite jewellery, made by hand in Dighi, Pune. Order on WhatsApp.">
 <link rel="canonical" href="https://theqalashree.com/">
@@ -913,6 +935,11 @@ footer a:hover{color:var(--accent)}
 }
 </style>
 
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M8CJ4W6Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
 <div class="topbar" id="topbar"></div>
 
 <header class="site">
@@ -1064,11 +1091,15 @@ const WA = "919579628754";
      META_PIXEL_ID  from Meta Events Manager, the website dataset  e.g. "1234567890123456"
      GTM_ID     Google Tag Manager container                  e.g. "GTM-XXXXXXX"
 
-   Google Tag Manager is the same container snippet Google hands out, but it
-   is NOT pasted raw into the page: that would load it for everybody before
-   the cookie question is answered. startGTM() below does exactly what the
-   snippet does, only after Accept all. Its <noscript> half is left out on
-   purpose — it cannot ask first, and almost nobody browses without script.
+   Google Tag Manager: since 3 Oct 2026 Google's own two snippets are in the
+   page exactly where Tag Manager asks (top of the head, start of the body),
+   at the shop's request. So the container loads on every visit — but under
+   Google consent mode, set "denied" just above it, so Google's tags inside
+   it keep analytics/ad cookies off until Accept all. The shop's own events
+   (below) are only pushed to it after Accept all. Anything in the container
+   that is NOT a Google tag (a Meta or Pinterest tag, say) does not obey
+   consent mode by itself — give such a tag the trigger "after consent" in
+   GTM, or keep it in this code like the Meta Pixel.
 
    ONE RULE: each tool lives in one place. If GA4 or the Meta Pixel is set up
    inside the GTM container, leave GA4_ID / META_PIXEL_ID here empty — both
@@ -1099,6 +1130,9 @@ const PHONES = [
 
 /* Loaded once, and only if there is something to load. */
 function startTags(){
+  if (window.qalaConsent)
+    qalaConsent("consent", "update", {ad_storage: "granted", analytics_storage: "granted",
+      ad_user_data: "granted", ad_personalization: "granted"});
   startGTM();
   startPixel();
   if (!GA4_ID && !ADS_ID) return;
@@ -1118,6 +1152,10 @@ function startTags(){
 function startGTM(){
   if (!GTM_ID || window.__qalaGTM) return;
   window.__qalaGTM = true;
+  /* Since 3 Oct 2026 Google's own snippet sits at the top of the page, as
+     Tag Manager asks, so the container is normally loaded already — then
+     this only marks it, so track() starts feeding it the shop's events. */
+  if ((window.dataLayer || []).some(x => x && x["gtm.start"])) return;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({"gtm.start": new Date().getTime(), event: "gtm.js"});
   const j = document.createElement("script");
@@ -1258,7 +1296,12 @@ function showCookiebar(){
     /* The page she is on was painted before the yes, so nothing counted it. */
     track("page_view", {page_location: location.href, page_title: document.title});
   };
-  document.getElementById("cookieNo").onclick  = () => { setCookieChoice("no");  hide(); };
+  document.getElementById("cookieNo").onclick  = () => {
+    setCookieChoice("no"); hide();
+    if (window.qalaConsent)
+      qalaConsent("consent", "update", {ad_storage: "denied", analytics_storage: "denied",
+        ad_user_data: "denied", ad_personalization: "denied"});
+  };
 }
 function startTagsIfAllowed(){
   /* Asked on every first visit now, whether or not a tag is configured yet —
@@ -3050,8 +3093,11 @@ const PAGES = {
        that is necessary for the shop to work and is never sent anywhere.
        Analytics and advertising cookies (Google Analytics, Google Ads, Meta) record which
        pages were opened and which pieces were looked at, and the site asks first: a banner
-       offers <b>Accept all</b> or <b>Only necessary</b> before any of them starts, and
-       <b>Cookie settings</b> in the footer changes your answer any time after.
+       offers <b>Accept all</b> or <b>Only necessary</b>, and <b>Cookie settings</b> in the
+       footer changes your answer any time after. Google Tag Manager, which loads Google's
+       tools, starts on every visit, but it is told to keep Google's analytics and
+       advertising cookies off until you tap Accept all; the Meta Pixel does not load at all
+       until then.
        Google is told what happened on the site, never who you are: your name, number and
        address never leave our own order book. You can also turn cookies off in your browser
        and the shop still works, and the site never asks for your location.</p>
