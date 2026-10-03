@@ -1062,6 +1062,19 @@ const WA = "919579628754";
      ADS_ID     from Google Ads, Tools > Conversions          e.g. "AW-000000000"
      ADS_ORDER  the conversion label on that page             e.g. "abcDEF_gh12"
      META_PIXEL_ID  from Meta Events Manager, the website dataset  e.g. "1234567890123456"
+     GTM_ID     Google Tag Manager container                  e.g. "GTM-XXXXXXX"
+
+   Google Tag Manager is the same container snippet Google hands out, but it
+   is NOT pasted raw into the page: that would load it for everybody before
+   the cookie question is answered. startGTM() below does exactly what the
+   snippet does, only after Accept all. Its <noscript> half is left out on
+   purpose — it cannot ask first, and almost nobody browses without script.
+
+   ONE RULE: each tool lives in one place. If GA4 or the Meta Pixel is set up
+   inside the GTM container, leave GA4_ID / META_PIXEL_ID here empty — both
+   at once counts every visit twice. Whatever GTM holds is fed by the events
+   track() pushes onto dataLayer (page_view, view_item, add_to_cart,
+   begin_checkout, purchase — GA4 ecommerce shape, ecommerce cleared first).
 
    The Meta Pixel follows exactly the same rule as Google: nothing loads until
    she taps Accept all. It is told five things, all from track() below —
@@ -1074,7 +1087,8 @@ const WA = "919579628754";
 const GA4_ID    = "";
 const ADS_ID    = "";
 const ADS_ORDER = "";
-const META_PIXEL_ID = "";     // Meta (Facebook/Instagram) Pixel — Events Manager > the dataset's ID, digits only
+const META_PIXEL_ID = "1429281848565434";     // Meta (Facebook/Instagram) Pixel — Events Manager > the dataset's ID, digits only
+const GTM_ID    = "GTM-M8CJ4W6Q";   // Google Tag Manager container (tagmanager.google.com)
 
 /* Every number you answer on. The first one is where orders land (WA above). */
 const PHONES = [
@@ -1085,6 +1099,7 @@ const PHONES = [
 
 /* Loaded once, and only if there is something to load. */
 function startTags(){
+  startGTM();
   startPixel();
   if (!GA4_ID && !ADS_ID) return;
   window.dataLayer = window.dataLayer || [];
@@ -1099,6 +1114,42 @@ function startTags(){
   t.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA4_ID || ADS_ID);
   document.head.appendChild(t);
 }
+/* Google's container snippet, reshaped to read and run only after a yes. */
+function startGTM(){
+  if (!GTM_ID || window.__qalaGTM) return;
+  window.__qalaGTM = true;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({"gtm.start": new Date().getTime(), event: "gtm.js"});
+  const j = document.createElement("script");
+  j.async = true;
+  j.src = "https://www.googletagmanager.com/gtm.js?id=" + encodeURIComponent(GTM_ID);
+  document.head.appendChild(j);
+}
+
+/* The same moments for Tag Manager, as dataLayer events. Shop events go in
+   GA4's ecommerce shape so a GA4 event tag in GTM can pass them straight
+   through ("Send ecommerce data"); the previous ecommerce object is cleared
+   first, as Google asks. Page views are virtual — the shop is one page with
+   a changing # — so in GTM fire page tags on the custom event "page_view",
+   not on "All Pages". */
+function gtmPush(name, p){
+  const dl = window.dataLayer;
+  if (name === "page_view") {
+    dl.push({event: "page_view", page_location: p.page_location, page_title: p.page_title});
+    return;
+  }
+  if (["view_item", "add_to_cart", "begin_checkout", "purchase"].includes(name)) {
+    const eco = {currency: p.currency || "INR", value: Number(p.value) || 0, items: p.items || []};
+    if (p.transaction_id) eco.transaction_id = p.transaction_id;
+    if (p.shipping != null) eco.shipping = p.shipping;
+    dl.push({ecommerce: null});
+    dl.push({event: name, ecommerce: eco});
+    return;
+  }
+  if (name === "conversion") return;            // Google Ads, gtag only
+  dl.push(Object.assign({event: name}, p));      // whatsapp_order, howto_* …
+}
+
 /* Meta's own loader, as Meta publishes it, only reshaped to read. It makes
    fbq() queue calls straight away and fetches the real script in the
    background. Run once, and only after a yes. */
@@ -1159,6 +1210,7 @@ function track(name, params){
   params = params || {};
   if (typeof gtag === "function") { try { gtag("event", name, params); } catch (e) {} }
   if (typeof fbq === "function") { try { pixel(name, params); } catch (e) {} }
+  if (window.__qalaGTM) { try { gtmPush(name, params); } catch (e) {} }
 }
 
 /* The same moments, in Meta's words. Only the piece codes and rupee values
