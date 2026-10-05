@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-05T13:36:40Z",
+ "generated": "2026-10-05T13:37:21Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2935,7 +2935,7 @@
   {
    "slug": "victorian",
    "cover": null,
-   "next": 20,
+   "next": 22,
    "products": [
     {
      "n": 4,
@@ -3423,6 +3423,56 @@
      "colors": {},
      "offer": {
       "pct": 20
+     }
+    },
+    {
+     "n": 20,
+     "code": "VICTORIAN-20",
+     "folder": "photos/victorian/3000",
+     "title": "",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/victorian/3000/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 30
+     }
+    },
+    {
+     "n": 21,
+     "code": "VICTORIAN-21",
+     "folder": "photos/victorian/3000 (2)",
+     "title": "",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/victorian/3000 (2)/1.jpeg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 30
      }
     }
    ]
