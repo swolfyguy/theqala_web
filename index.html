@@ -390,6 +390,10 @@ video.photo{background:#000;object-fit:contain}
 .hero h1 em{font-style:normal;color:var(--accent);font-family:"Tiro Devanagari Marathi",serif}
 .hero p.lede{font-size:1.06rem;max-width:46ch;color:var(--ink-2);margin:22px 0 32px}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.heroffer .offercard{grid-template-columns:auto 1fr;gap:14px 20px}
+.heroffer .oc-cta{grid-column:1 / -1;justify-self:start}
+@media(max-width:640px){.heroffer .oc-cta{justify-self:stretch;text-align:center}}
 .hero .stage{position:relative;display:grid;place-items:center;min-height:420px}
 .hero .stage .halo{position:absolute;width:92%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--wash-gold) 0%,transparent 68%)}
 .hero .stage .heroshot{position:relative;width:min(370px,84%);box-shadow:0 30px 60px -34px var(--shadow-2)}
@@ -2238,7 +2242,11 @@ function nothingYet(where){
 function offerHero(){
   if (!OFFER.on) return "";
   return `
-  <section class="wrap offerwrap">
+  <section class="wrap offerwrap">${offerCard()}
+  </section>`;
+}
+function offerCard(){
+  return `
     <a class="offercard" href="#/shop" aria-label="Buy any 2 from one collection: ${OFFER.pct}% off and free shipping. Shop now.">
       <span class="oc-shine" aria-hidden="true"></span>
       <span class="oc-num" aria-hidden="true"><b>${OFFER.pct}</b><span>%<em>off</em></span></span>
@@ -2249,8 +2257,7 @@ function offerHero(){
           and <b>free insured shipping</b> across India.</span>
       </span>
       <span class="oc-cta">Shop now <span aria-hidden="true">\u2192</span></span>
-    </a>
-  </section>`;
+    </a>`;
 }
 
 function home(){
@@ -2261,7 +2268,33 @@ function home(){
   const shelves = catsInUse();
 
   return `
-  ${offerHero()}
+  <section class="hero">
+    <div class="wrap inner">
+      ${OFFER.on ? `<div class="heroffer">
+        <!-- Still the page's one headline for search engines and screen readers,
+             though the offer now stands where it used to be shown. -->
+        <h1 class="vh">The Qala — Rajwadi, Victorian and moissanite jewellery, made by hand in Dighi, Pune</h1>
+        ${offerCard()}
+      </div>` : `<div>
+        <p class="eyebrow">Dighi, Pune · since the first thushi we strung</p>
+        <h1>The jewellery of <em>महाराष्ट्र</em>.</h1>
+        <p class="lede">Rajwadi, Victorian, short mangalsutra, rings and heritage pieces — made by hand, photographed as they actually arrive, and sent insured across India.</p>
+        <div class="cta">
+          <a class="btn" href="#/shop">Shop the collection</a>
+          <a class="btn ghost" href="#/story">How we make it</a>
+        </div>
+        ${visitLine()}
+      </div>`}
+      <div class="stage">
+        <div class="halo" aria-hidden="true"></div>
+        <div class="arch heroshot">${mark()}${shot(hero.image, {alt:"The Qala jewellery", eager:true})}${heroVideo()}</div>
+      </div>
+    </div>
+  </section>
+
+  ${welcomeSection()}
+
+  ${saajRule()}
   ${cats.length ? `
   <section class="band wrap">
     <div class="sechead">
@@ -2271,28 +2304,6 @@ function home(){
     <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
 
-  ${saajRule()}
-
-  <section class="hero">
-    <div class="wrap inner">
-      <div>
-        <p class="eyebrow">Dighi, Pune · since the first thushi we strung</p>
-        <h1>The jewellery of <em>महाराष्ट्र</em>.</h1>
-        <p class="lede">Rajwadi, Victorian, short mangalsutra, rings and heritage pieces — made by hand, photographed as they actually arrive, and sent insured across India.</p>
-        <div class="cta">
-          <a class="btn" href="#/shop">Shop the collection</a>
-          <a class="btn ghost" href="#/story">How we make it</a>
-        </div>
-        ${visitLine()}
-      </div>
-      <div class="stage">
-        <div class="halo" aria-hidden="true"></div>
-        <div class="arch heroshot">${mark()}${shot(hero.image, {alt:"The Qala jewellery", eager:true})}${heroVideo()}</div>
-      </div>
-    </div>
-  </section>
-
-  ${welcomeSection()}
 
   <section class="story">
     <div class="wrap inner">

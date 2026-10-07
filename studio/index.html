@@ -780,7 +780,7 @@ function renderUpload(){
   box.innerHTML = `
   <div class="card">
     <h2>Add a product</h2>
-    <p class="sub">Choose how the photographs should be read, then drop them in. ${isLocal() ? "Everything is shrunk here, then written into the folder on this computer." : "Everything is shrunk here before it is committed."}</p>
+    <p class="sub">Choose how the photographs should be read, then drop them in. ${isLocal() ? "Everything is shrunk here, then written into the folder on this computer." : "Everything is shrunk here, then published straight to the shop — there is no separate push step."}</p>
     <div class="row">
       <label class="f">Category
         <select id="u-cat">${catOpts}<option value="__new">＋ new category…</option></select>
@@ -861,7 +861,7 @@ function renderUpload(){
     <div class="queue" id="queue"></div>
 
     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
-      <button class="btn" id="u-commit" disabled>${isLocal() ? "Save the product" : "Commit the product"}</button>
+      <button class="btn" id="u-commit" disabled>${isLocal() ? "Save the product" : "Publish to the shop"}</button>
       <button class="btn ghost" id="u-clear" disabled>Clear</button>
       <span class="hint" id="u-tally"></span>
     </div>
@@ -990,8 +990,8 @@ function renderUpload(){
           ? `${images} photograph${images === 1 ? "" : "s"} → ${images} separate product${images === 1 ? "" : "s"} · ${kb(after)}`
           : `${images} photograph${images === 1 ? "" : "s"}${video ? " and a video" : ""} · one product · ${kb(after)}`)
       : "";
-    const label = separate() ? `${isLocal() ? "Save" : "Commit"} ${images || ""} product${images === 1 ? "" : "s"}`.replace(/\s+/g, " ")
-                             : (isLocal() ? "Save the product" : "Commit the product");
+    const label = separate() ? `${isLocal() ? "Save" : "Publish"} ${images || ""} product${images === 1 ? "" : "s"}`.replace(/\s+/g, " ")
+                             : (isLocal() ? "Save the product" : "Publish to the shop");
     $("#u-commit").textContent = label;
     $("#u-commit").disabled = !images;
     $("#u-clear").disabled = !QUEUE.length;
@@ -1014,7 +1014,7 @@ function renderUpload(){
     if (!Number.isFinite(price) || price < 1) { say("Give the price as a plain number, e.g. 2300.", "wa"); return; }
 
     const btn = $("#u-commit"); btn.disabled = true;
-    btn.innerHTML = `<span class="spin"></span> ${isLocal() ? "Saving" : "Committing"}`;
+    btn.innerHTML = `<span class="spin"></span> ${isLocal() ? "Saving" : "Publishing"}`;
     try {
       if (isLocal()){
         const files = [];
@@ -1060,9 +1060,13 @@ function renderUpload(){
         }
         const sha = await commitChanges(
           many ? `Add ${made.length} ${cat} pieces at ₹${price}` : `Add ${title || cat} at ₹${price}`, adds, []);
-        say(`committed ${sha.slice(0, 7)} — ${made.length > 1 ? made.length + " products" : "the product is in " + made[0]}`, "ok");
+        /* On the website there is no separate push: this one step has already
+           written the photographs to GitHub, and Cloudflare rebuilds the shop
+           from there by itself. */
+        say(`published — ${made.length > 1 ? made.length + " products are" : "the product is"} saved (${sha.slice(0, 7)}). `
+          + `Nothing more to do: the shop rebuilds itself and ${made.length > 1 ? "they appear" : "it appears"} in about 2 minutes.`, "ok");
         const link = say("");
-        link.innerHTML = `<a href="https://github.com/${esc(CFG.owner)}/${esc(CFG.repo)}/actions" target="_blank" rel="noopener">Watch the catalogue rebuild →</a>`;
+        link.innerHTML = `<a href="/#/shop" target="_blank" rel="noopener">Open the shop →</a> (refresh it in a couple of minutes)`;
       }
       QUEUE = []; paint();
       $("#u-price").value = ""; $("#u-title").value = ""; $("#u-qty").value = "";
@@ -1291,7 +1295,7 @@ function paintManage(){
           try {
             const files = TREE.filter(n => n.path.startsWith(p.folder + "/")).map(n => n.path);
             await commitChanges(`Remove ${p.code}`, [], files);
-            snack(`${label} removed — the files are still in your git history`);
+            snack(`${label} removed — it leaves the shop in about 2 minutes, nothing more to do`);
             renderManage();
           } catch (e) {
             card.classList.remove("going");
@@ -1535,7 +1539,7 @@ function bindCount(card, p){
       p.sizes = Object.assign({}, p.sizes, sizes, {qty: want}, codOf(p) ? {cod: true} : {});
       mark("\u2713", isLocal()
         ? `${p.code}: ${want} in stock, written into the folder`
-        : `${p.code}: ${want} in stock, committed`, "ok");
+        : `${p.code}: ${want} in stock, published — live in about 2 minutes`, "ok");
       setTimeout(() => { if (state.textContent === "\u2713") mark("", ""); }, 3000);
     } catch (e) {
       now = saved;                       /* put the number back where it was */
