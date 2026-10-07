@@ -1177,7 +1177,13 @@ function startGTM(){
 function gtmPush(name, p){
   const dl = window.dataLayer;
   if (name === "page_view") {
-    dl.push({event: "page_view", page_location: p.page_location, page_title: p.page_title});
+    /* GA4 ignores everything after a #, so every page of this one-page shop
+       would report as "/". Hand it the address the page would have if it were
+       a real one: #/piece/RAJWADI-25 → /piece/RAJWADI-25, #/shop?c=saaz →
+       /shop?c=saaz. The original stays alongside as hash_location. */
+    const path = (location.hash || "").replace(/^#/, "") || "/";
+    dl.push({event: "page_view", page_location: location.origin + path, page_path: path,
+             page_title: p.page_title, hash_location: p.page_location});
     return;
   }
   if (["view_item", "add_to_cart", "begin_checkout", "purchase"].includes(name)) {
