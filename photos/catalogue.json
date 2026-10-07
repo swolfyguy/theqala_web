@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T19:02:57Z",
+ "generated": "2026-10-07T19:10:30Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2496,29 +2496,8 @@
   {
    "slug": "saaz",
    "cover": null,
-   "next": 4,
+   "next": 5,
    "products": [
-    {
-     "n": 3,
-     "code": "SAAZ-03",
-     "folder": "photos/saaz/2500",
-     "title": "",
-     "price": 2500,
-     "band": {
-      "min": 2000,
-      "max": 3000
-     },
-     "images": [
-      "photos/saaz/2500/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     },
-     "colors": {},
-     "offer": null
-    },
     {
      "n": 2,
      "code": "SAAZ-02",
@@ -2531,6 +2510,27 @@
      },
      "images": [
       "photos/saaz/2800 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     },
+     "colors": {},
+     "offer": null
+    },
+    {
+     "n": 4,
+     "code": "SAAZ-04",
+     "folder": "photos/saaz/2800",
+     "title": "",
+     "price": 2800,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/saaz/2800/1.jpg"
      ],
      "video": null,
      "videoPoster": null,

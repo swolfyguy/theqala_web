@@ -1,0 +1,92 @@
+# Rebuild the catalogue whenever photographs change on GitHub.
+#
+# Why this exists: the studio on the website (theqalashree.com/studio) writes
+# photographs, stock.json, colors.json and offer.json straight to GitHub, but it
+# cannot run build_catalogue.py — so before this, a piece added or deleted there
+# reached GitHub but never reached photos/catalogue.json, and the shop never
+# showed it. (The studio on the computer, preview.bat, builds the catalogue
+# itself before it pushes, which is why that route always worked.)
+#
+# This runs build_catalogue.py on GitHub's machine, then commits the new
+# catalogue, sitemap, llms.txt and any new .id files back to main. Cloudflare
+# deploys that commit like any other. A push made by this workflow does not
+# start the workflow again (GitHub's rule for its own token), so it cannot loop.
+#
+# When nothing really changed — e.g. a push from preview.bat, which already
+# carries a fresh catalogue — it commits nothing.
+
+name: Rebuild the catalogue
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "photos/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One at a time, in order — several quick edits in the studio each get their turn.
+concurrency:
+  group: catalogue
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pillow converts phone photos (HEIC/PNG) to JPEG; imageio-ffmpeg makes
+      # the still frame for a video. Both are only used when needed.
+      - run: pip install --quiet pillow pillow-heif imageio-ffmpeg
+
+      - run: python build_catalogue.py
+
+      - name: Commit the catalogue if anything really changed
+        run: |
+          git config user.name  "qala-catalogue"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # catalogue.json always carries a fresh "generated" time and the
+          # sitemap a fresh date; that alone is not worth a commit.
+          python - <<'PY'
+          import json, subprocess
+          def at_head(path):
+              r = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True)
+              return r.stdout if r.returncode == 0 else ""
+          try:
+              old = json.loads(at_head("photos/catalogue.json") or "{}")
+              new = json.load(open("photos/catalogue.json", encoding="utf-8"))
+              old.pop("generated", None); new.pop("generated", None)
+              same = old == new
+          except Exception:
+              same = False
+          lines = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout.splitlines()
+          quiet = {"photos/catalogue.json", "sitemap.xml", "llms.txt", "robots.txt"}
+          others = [l[3:] for l in lines if l.strip() and l[3:].strip('"') not in quiet]
+          open("skip.flag", "w").write("1" if same and not others else "0")
+          print("catalogue unchanged" if same else "catalogue changed", "| other files:", others)
+          PY
+          skip=$(cat skip.flag); rm -f skip.flag
+          if [ "$skip" = "1" ]; then
+            echo "Nothing new to commit."
+            git checkout -- .
+            exit 0
+          fi
+
+          git add -A photos sitemap.xml llms.txt robots.txt
+          git commit -m "Rebuild catalogue"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          echo "Could not push the rebuilt catalogue." >&2
+          exit 1
