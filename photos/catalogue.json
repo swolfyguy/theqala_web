@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T19:59:06Z",
+ "generated": "2026-10-07T19:12:29Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2496,20 +2496,20 @@
   {
    "slug": "saaz",
    "cover": null,
-   "next": 5,
+   "next": 6,
    "products": [
     {
-     "n": 2,
-     "code": "SAAZ-02",
-     "folder": "photos/saaz/2800 (2)",
+     "n": 5,
+     "code": "SAAZ-05",
+     "folder": "photos/saaz/2500",
      "title": "",
-     "price": 2800,
+     "price": 2500,
      "band": {
       "min": 2000,
       "max": 3000
      },
      "images": [
-      "photos/saaz/2800 (2)/1.jpg"
+      "photos/saaz/2500/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
