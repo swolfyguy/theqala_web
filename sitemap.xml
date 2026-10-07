@@ -1061,17 +1061,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://theqalashree.com/piece/rajwadi-41/</loc>
-    <lastmod>2026-10-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://theqalashree.com/photos/rajwadi/4000%20%2812%29/1.jpg</image:loc>
-      <image:title>rajwadi 41 - handmade jewellery from The Qala, Dighi, Pune</image:title>
-      <image:caption>rajwadi 41 - Rs 4000</image:caption>
-    </image:image>
-  </url>
-  <url>
     <loc>https://theqalashree.com/piece/rajwadi-42/</loc>
     <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -1137,6 +1126,17 @@
     <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://theqalashree.com/piece/saaz-03/</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://theqalashree.com/photos/saaz/2500/1.jpg</image:loc>
+      <image:title>saaz 3 - handmade jewellery from The Qala, Dighi, Pune</image:title>
+      <image:caption>saaz 3 - Rs 2500</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://theqalashree.com/piece/saaz-02/</loc>

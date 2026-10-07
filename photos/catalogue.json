@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T18:35:26Z",
+ "generated": "2026-10-07T19:02:57Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2368,29 +2368,6 @@
      }
     },
     {
-     "n": 41,
-     "code": "RAJWADI-41",
-     "folder": "photos/rajwadi/4000 (12)",
-     "title": "",
-     "price": 4000,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4000 (12)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 1
-     },
-     "colors": {},
-     "offer": {
-      "pct": 25
-     }
-    },
-    {
      "n": 42,
      "code": "RAJWADI-42",
      "folder": "photos/rajwadi/4000 (13)",
@@ -2519,8 +2496,29 @@
   {
    "slug": "saaz",
    "cover": null,
-   "next": 3,
+   "next": 4,
    "products": [
+    {
+     "n": 3,
+     "code": "SAAZ-03",
+     "folder": "photos/saaz/2500",
+     "title": "",
+     "price": 2500,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/saaz/2500/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1
+     },
+     "colors": {},
+     "offer": null
+    },
     {
      "n": 2,
      "code": "SAAZ-02",
