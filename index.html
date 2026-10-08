@@ -497,6 +497,12 @@ a.cnt:hover{color:var(--accent);border-bottom-color:var(--accent)}
 a.cnt svg{display:inline-block;vertical-align:-1px;margin-left:1px}
 .stars{display:inline-flex;gap:2px;color:var(--gold)}
 .stars svg{width:15px;height:15px}
+.pdrate{display:inline-flex;align-items:center;gap:7px;margin:10px 0 4px;padding:0;border:0;background:none;
+  font:inherit;font-size:.88rem;color:var(--ink-2);cursor:pointer;text-align:left}
+.pdrate b{color:var(--ink);font-weight:700}
+.pdrate .stars svg{width:14px;height:14px}
+.pdrate:hover .cnt,.pdrate:focus-visible .cnt{text-decoration:underline}
+#reviews{scroll-margin-top:84px}
 .revtop{display:flex;align-items:center;justify-content:space-between;gap:16px;
   flex-wrap:wrap;margin:-8px 0 18px}
 .revtop .score{margin:0}
@@ -1630,7 +1636,11 @@ function siteBase(){
   const base = SITE || (location.origin + location.pathname);
   return base.replace(/index\.html$/i, "").replace(/\/?$/, "/");
 }
-const pieceUrl = code => siteBase() + "#/piece/" + encodeURIComponent(code);
+/* A piece's own address. It is a real page now — the site's worker fills in
+   its title, price and photograph (realPage() in _worker.js) — so a link pasted
+   into WhatsApp or Instagram previews the jewellery instead of the logo.
+   Lower-case and with the closing slash, exactly as sitemap.xml lists it. */
+const pieceUrl = code => siteBase() + "piece/" + encodeURIComponent(String(code).toLowerCase()) + "/";
 const url = s => String(s).split("/").map(encodeURIComponent).join("/");
 const titleish = s => s.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 const catName = slug => CAT_NAMES[slug] || {mr:"", en:titleish(slug)};
@@ -2310,6 +2320,8 @@ function home(){
     <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
 
+  ${reviewsSection()}
+
 
   <section class="story">
     <div class="wrap inner">
@@ -2393,7 +2405,7 @@ function reviewsSection(){
     ? `<span class="score"><b>${esc(String(r.rating))}</b>${stars(Math.round(r.rating))}${count}</span>`
     : count;
   return `
-  <section class="band wrap reviews">
+  <section class="band wrap reviews" id="reviews">
     <div class="sechead">
       <div><span class="mr" style="color:var(--accent)">अभिप्राय</span><h2>What people say</h2></div>
       ${r.url ? `<a class="seclink" href="${esc(r.url)}" target="_blank" rel="noopener">Read them on Google</a>` : ""}
@@ -2421,6 +2433,19 @@ function reviewsSection(){
       person named. <a href="${esc(r.url)}" target="_blank" rel="noopener">See all of them</a>.</p>` : ""}
   </section>`;
 }
+
+/* The Google score in one line, for under a price. It scrolls down to the
+   reviews on the same page, so she reads them without leaving the shop. */
+function ratingLine(){
+  const r = (CATALOGUE && CATALOGUE.reviews) || null;
+  if (!r || !r.rating || !r.count || !r.reviews || !r.reviews.length) return "";
+  return `<button class="pdrate" type="button" data-goreviews
+      aria-label="Rated ${esc(String(r.rating))} out of 5 from ${esc(String(r.count))} reviews on Google. Read them">
+    <span class="stars" aria-hidden="true">${STAR.repeat(Math.round(r.rating))}</span><b>${esc(String(r.rating))}</b><span class="cnt">${esc(String(r.count))} reviews on Google</span>
+  </button>`;
+}
+
+const SHARE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>`;
 
 function contactRows(){
   const shots = (CATALOGUE && CATALOGUE.social) || {};
@@ -2543,10 +2568,13 @@ function piece(code){
       <h1>${esc(titleOf(it))}
         <button class="heart ${isSaved(it.code)?"on":""}" data-save="${esc(it.code)}" style="position:static;display:inline-grid;vertical-align:middle;margin-left:10px"
           aria-label="${isSaved(it.code)?"Remove from saved":"Save this piece"}">${HEART}</button>
+        <button class="heart" id="shareBtn" type="button" style="position:static;display:inline-grid;vertical-align:middle;margin-left:6px"
+          aria-label="Share this piece">${SHARE_ICON}</button>
       </h1>
       <p class="muted" style="margin:2px 0 0">${esc(it.catEn)} · ${esc(it.code)}</p>
       <div class="pdprice"><span class="rupee">${priceOf(it)}</span>${wasTag(it)}</div>
       ${it.off ? `<p class="offsave">You save ${rupees(it.mrp - it.price)}${offEnds(it) ? ` \u00b7 offer ends ${offEnds(it)}` : ""}</p>` : ""}
+      ${ratingLine()}
       ${it.colors && Object.keys(it.colors).length ? `<p class="muted" id="colorLine" style="margin:6px 0 0;font-size:.92rem">Colour: <b id="colorName">${esc((it.colors[it.images[0].split("/").pop()]) || "choose one below")}</b></p>` : ""}
       <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
       ${offerReachable(it) ? `<a class="offerchip" href="#/shop?c=${encodeURIComponent(it.cat)}">
@@ -2599,7 +2627,8 @@ function piece(code){
   <section class="band wrap">
     <div class="sechead"><div><span class="mr" style="color:var(--accent)">सोबत</span><h2>More ${esc(it.catEn)}</h2></div><a class="seclink" href="#/shop?c=${it.cat}">See all</a></div>
     <div class="grid">${also.map(card).join("")}</div>
-  </section>` : ""}`;
+  </section>` : ""}
+  ${reviewsSection()}`;
 }
 
 function bagView(){
@@ -3438,6 +3467,13 @@ function render(){
   document.querySelectorAll("[data-save]").forEach(btn => {
     btn.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleSaved(btn.dataset.save, btn); };
   });
+  document.querySelectorAll("[data-goreviews]").forEach(btn => {
+    btn.onclick = () => {
+      const rv = $("#reviews");
+      if (rv) rv.scrollIntoView({block: "start",
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+    };
+  });
 
   reveal();
   wire(r);
@@ -3579,6 +3615,22 @@ function wire(route){
     if ($("#qMinus")) $("#qMinus").onclick = () => { q = Math.max(1, q - 1); sync(); };
     if ($("#qPlus"))  $("#qPlus").onclick  = () => { q = Math.min(cap, q + 1); sync(); };
     if ($("#addBtn")) $("#addBtn").onclick = () => addToBag(it.code, q, selectedColor);
+
+    /* Share. The phone's own share sheet where it has one — WhatsApp,
+       Instagram, whatever she uses — and WhatsApp straight away where it does
+       not. The link is the piece's real address, so it arrives with its
+       photograph, name and price. */
+    const shareBtn = $("#shareBtn");
+    if (shareBtn) shareBtn.onclick = async () => {
+      const link = pieceUrl(it.code);
+      const text = `${titleOf(it)} · ${priceOf(it)} — The Qala`;
+      track("share", {method: navigator.share ? "share_sheet" : "whatsapp", item_id: it.code});
+      if (navigator.share) {
+        try { await navigator.share({title: text, text, url: link}); } catch (e) {}
+        return;
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + link), "_blank", "noopener");
+    };
 
     const main = $("#mainArt");
     const zoom = () => { const im = main.querySelector("img"); if (im) openLightbox(im.getAttribute("src"), titleOf(it)); };

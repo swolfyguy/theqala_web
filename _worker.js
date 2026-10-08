@@ -11,6 +11,7 @@
      POST /office/api     the order book changes a status      (signed in only)
      /office/gh/*         the studio's way to GitHub           (signed in only)
      /studio*             the studio itself                    (signed in only)
+     /piece/<code>/ …     real addresses for link previews     (public, see realPage)
 
    Orders live in a D1 database bound to this project under the name DB.
    If that binding is missing, or the database is asleep, the order still
@@ -225,6 +226,13 @@ export default {
         const who = await whoGoes(request, env);
         if (!who.ok) return Response.redirect(
           url.origin + "/office/?next=" + encodeURIComponent(url.pathname + url.search), 302);
+      }
+
+      /* A piece, a shelf or a page asked for by a real address rather than a #.
+         Only reached when no file of that name exists — see realPage(). */
+      if (request.method === "GET" || request.method === "HEAD") {
+        const real = await realPage(url, path, env);
+        if (real) return real;
       }
 
       return env.ASSETS.fetch(request);
@@ -527,6 +535,7 @@ async function howManyMade(env) {
   const colors = {};
   const cats = {};
   const prices = {};
+  const pieces = {};
   try {
     const res = await env.ASSETS.fetch(new Request("https://qala.local/photos/catalogue.json"));
     if (res.ok) {
@@ -537,6 +546,9 @@ async function howManyMade(env) {
           out[p.code] = Number.isFinite(n) ? n : 1;      // nothing said means one
           cats[p.code] = c.slug;                          // for the buy-2 offer
           prices[p.code] = {base: p.price, offer: p.offer || null};
+          /* What a link preview needs — see realPage(). */
+          pieces[p.code] = {n: p.n, title: p.title || "", price: p.price, offer: p.offer || null,
+                            image: (p.images || [])[0] || "", cat: c.slug, qty: out[p.code]};
           if (p.sizes && p.sizes.cod === true) cod[p.code] = true;
           /* Which colour names this piece actually offers — one photograph
              can be tagged as a colour, several usually are. A piece with
@@ -549,9 +561,13 @@ async function howManyMade(env) {
         }
     }
   } catch { /* no catalogue is the same as knowing nothing */ }
-  MADE = out; COD_OK = cod; COLOR_OK = colors; CAT_OF = cats; PRICE_OF = prices; MADE_AT = Date.now();
+  MADE = out; COD_OK = cod; COLOR_OK = colors; CAT_OF = cats; PRICE_OF = prices; PIECE_OF = pieces;
+  MADE_AT = Date.now();
   return out;
 }
+
+/* Every piece by code, for realPage(). Filled beside the counts above. */
+let PIECE_OF = {};
 
 /* Which pieces the shop is willing to send cash on delivery. Filled in beside
    the counts above, from the same catalogue, and off for anything not named. */
@@ -2738,3 +2754,164 @@ const unb64 = s => Uint8Array.from(
   atob(String(s).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(s).length + 3) % 4)),
   c => c.charCodeAt(0)
 );
+
+/* ---------------------------------------------------------------------------
+   Real addresses for pages that otherwise live behind a #.
+
+   The shop is one page; a piece is #/piece/CODE. WhatsApp, Instagram and
+   Facebook never run the page's script, so a link like that always arrived
+   as the shop's logo and its one general line. These addresses are real:
+
+     /piece/<code>/      one piece — its photograph, name and price
+     /shop/<slug>/       one shelf
+     /shop/  /terms/  /privacy/  /shipping/  /returns/  /refunds/
+     /story/  /contact/  /care/
+
+   Each answers with the shop's own index.html, with the title, description,
+   link-preview tags, canonical address and (for a piece) Product data set for
+   that page, plus one line at the very top that turns the address back into
+   the usual /#/piece/CODE before anything else runs. So a visitor gets the
+   same shop as ever, landing on that piece, and a link preview gets the
+   jewellery. Nothing is generated or committed — it follows the catalogue
+   by itself. These are the addresses sitemap.xml has always listed.
+
+   The query string is kept (?utm_source=…, ?fbclid=…), so an ad's tags still
+   reach Tag Manager.
+--------------------------------------------------------------------------- */
+const SITE_URL = "https://theqalashree.com";
+const PAGE_NAMES = {
+  contact:  "Contact us",
+  story:    "Our story",
+  care:     "Care & polish",
+  shipping: "Shipping & cash on delivery",
+  returns:  "Returns & damage",
+  terms:    "Terms & conditions",
+  privacy:  "Privacy policy",
+  refunds:  "Refunds & cancellation"
+};
+
+/* ₹1,40,000 — the Indian grouping, without leaning on the runtime's locale data. */
+const inr = n => {
+  const s = String(Math.round(Number(n) || 0));
+  const head = s.slice(0, -3), tail = s.slice(-3);
+  return "₹" + (head ? head.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," : "") + tail;
+};
+const attr = s => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const pathUrl = p => SITE_URL + "/" + String(p).split("/").map(encodeURIComponent).join("/");
+const titleish = s => String(s).split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
+/* The English shelf names live in CAT_NAMES in index.html. Read from the page
+   being served rather than kept twice; a shelf missing there is named from its
+   folder, exactly as the shop itself does. */
+function shelfNames(html) {
+  const out = {};
+  const block = html.slice(html.indexOf("const CAT_NAMES"), html.indexOf("const CAT_NAMES") + 20000);
+  const re = /"([a-z0-9-]+)":\s*\{\s*mr:\s*"[^"]*",\s*en:\s*"([^"]*)"/g;
+  let m;
+  while ((m = re.exec(block))) out[m[1]] = m[2];
+  return out;
+}
+
+async function realPage(url, path, env) {
+  let m, want = null;
+  if ((m = path.match(/^\/piece\/([A-Za-z0-9-]{1,80})$/)))   want = {kind: "piece", code: m[1].toUpperCase()};
+  else if ((m = path.match(/^\/shop\/([a-z0-9-]{1,60})$/))) want = {kind: "shelf", slug: m[1]};
+  else if (path === "/shop")                                 want = {kind: "shop"};
+  else if ((m = path.match(/^\/([a-z]+)$/)) && PAGE_NAMES[m[1]]) want = {kind: "page", page: m[1]};
+  if (!want) return null;
+
+  await howManyMade(env);
+  const page = await env.ASSETS.fetch(new Request(url.origin + "/"));
+  if (!page.ok) return null;
+  let html = await page.text();
+  const names = shelfNames(html);
+  const shelf = slug => names[slug] || titleish(slug);
+
+  let hash, canonical, title, ogTitle, desc, image = null, type = "website", extra = "";
+
+  if (want.kind === "piece") {
+    const p = PIECE_OF[want.code];
+    hash = "#/piece/" + want.code;
+    if (!p) return Response.redirect(url.origin + "/" + url.search + hash, 302);
+    const name  = p.title || shelf(p.cat) + " " + String(p.n).padStart(2, "0");
+    const live  = offerLive(p.offer);
+    const price = live ? offPrice(p.price, p.offer.pct) : p.price;
+    canonical = `${SITE_URL}/piece/${want.code.toLowerCase()}/`;
+    title   = `${name} · ${inr(price)} · The Qala`;
+    ogTitle = `${name} · ${inr(price)}`;
+    desc    = `${name} — handmade ${shelf(p.cat).toLowerCase()} at ${inr(price)}`
+            + (live ? ` (${p.offer.pct}% off ${inr(p.price)})` : "")
+            + `, made in Dighi, Pune and sent insured across India. Order on WhatsApp.`;
+    image = p.image ? pathUrl(p.image) : null;
+    type  = "product";
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": name,
+      "sku": want.code,
+      "category": shelf(p.cat),
+      "description": desc,
+      "url": canonical,
+      ...(image ? {"image": [image]} : {}),
+      "brand": {"@type": "Brand", "name": "The Qala"},
+      "offers": {
+        "@type": "Offer",
+        "url": canonical,
+        "priceCurrency": "INR",
+        "price": String(price),
+        "availability": p.qty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {"@id": SITE_URL + "/#shop"}
+      }
+    };
+    extra = `<meta property="product:price:amount" content="${price}">\n`
+          + `<meta property="product:price:currency" content="INR">\n`
+          + `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>\n`;
+  }
+  else if (want.kind === "shelf") {
+    const mine = Object.entries(PIECE_OF).filter(([, p]) => p.cat === want.slug);
+    if (!mine.length) return Response.redirect(url.origin + "/" + url.search + "#/shop", 302);
+    hash = "#/shop?c=" + want.slug;
+    canonical = `${SITE_URL}/shop/${want.slug}/`;
+    const from = Math.min(...mine.map(([, p]) => offerLive(p.offer) ? offPrice(p.price, p.offer.pct) : p.price));
+    title   = `${shelf(want.slug)} · The Qala`;
+    ogTitle = `${shelf(want.slug)} — The Qala`;
+    desc    = `${mine.length} handmade ${shelf(want.slug)} piece${mine.length === 1 ? "" : "s"} from ${inr(from)}, `
+            + `made in Dighi, Pune and sent insured across India. Order on WhatsApp.`;
+    const first = mine.find(([, p]) => p.image);
+    image = first ? pathUrl(first[1].image) : null;
+  }
+  else if (want.kind === "shop") {
+    hash = "#/shop";
+    canonical = `${SITE_URL}/shop/`;
+    title = ogTitle = "Shop all jewellery · The Qala";
+  }
+  else {
+    hash = "#/" + want.page;
+    canonical = `${SITE_URL}/${want.page}/`;
+    title = ogTitle = `${PAGE_NAMES[want.page]} · The Qala`;
+  }
+
+  const setMeta = (re, value) => { html = html.replace(re, (all, a, b) => a + attr(value) + b); };
+  /* The first thing the page does: become /#/piece/CODE again, so the shop's
+     own router, its relative links and Tag Manager all see the usual address. */
+  const jump = `<script>(function(){var h=${JSON.stringify(hash)};`
+    + `try{history.replaceState(null,"","/"+location.search+h)}catch(e){location.replace("/"+location.search+h)}})();</script>`;
+  html = html.replace(/<meta name="viewport"[^>]*>/, tag => tag + "\n" + jump);
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${attr(title)}</title>`);
+  if (desc) setMeta(/(<meta name="description" content=")[^"]*(")/, desc);
+  setMeta(/(<link rel="canonical" href=")[^"]*(")/, canonical);
+  setMeta(/(<meta property="og:url" content=")[^"]*(")/, canonical);
+  setMeta(/(<meta property="og:type" content=")[^"]*(")/, type);
+  setMeta(/(<meta property="og:title" content=")[^"]*(")/, ogTitle);
+  if (desc)  setMeta(/(<meta property="og:description" content=")[^"]*(")/, desc);
+  if (image) setMeta(/(<meta property="og:image" content=")[^"]*(")/, image);
+  if (extra) html = html.replace(/<meta name="twitter:card"[^>]*>/, tag => tag + "\n" + extra);
+
+  return new Response(html, {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=300"
+    }
+  });
+}
