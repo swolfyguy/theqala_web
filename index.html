@@ -1732,12 +1732,12 @@ async function loadLeft(){
 const leftOf   = it => (LEFT && it.code in LEFT) ? LEFT[it.code] : null;
 const soldOut  = it => leftOf(it) === 0;
 const fewLeft  = it => { const n = leftOf(it); return n !== null && n > 0 && n <= 3 ? n : 0; };
-/* What is on the shelf. A sold-out piece is left out of every list — the
-   shop, the category cards and their counts, "More …" on a piece page — but
-   its own page still opens from a link (an Instagram post, a WhatsApp share,
-   a saved piece) and says plainly that it has gone. While the stock count is
-   not known yet, everything counts as on the shelf. */
+/* Still for sale. Sold-out pieces stay in every list (he asked on 8 Oct that
+   customers see what has sold) — greyed, marked "Sold out" on the card, and
+   placed after the ones still for sale. byShelf() does that ordering. While
+   the stock count is not known yet, everything counts as for sale. */
 const onShelf  = it => !soldOut(it);
+const byShelf  = list => list.filter(onShelf).concat(list.filter(soldOut));
 /* The most of a piece anyone can ask for: what is really left when the shop
    has told us, and never more than twenty. A piece we know nothing about is
    left alone — the order is checked again by the shop when it arrives. */
@@ -1762,7 +1762,7 @@ function lengthsOf(it){
 }
 const hasSizes = it => lengthsOf(it).length > 0;
 const catsInUse = () => (CATALOGUE && CATALOGUE.categories || [])
-  .filter(c => (c.products || []).some(onShelf))   // a category with nothing left drops out of the menu
+  .filter(c => (c.products || []).length)          // every shelf with pieces, sold out or not
   .sort((a,b) => {
     const order = Object.keys(CAT_NAMES);
     const ia = order.indexOf(a.slug), ib = order.indexOf(b.slug);
@@ -2219,12 +2219,13 @@ function card(it){
    says what the kind is called, how many are in it, and what the cheapest
    one costs. */
 function catCard(c){
-  const mine  = ITEMS.filter(i => i.cat === c.slug && onShelf(i));
+  const mine  = byShelf(ITEMS.filter(i => i.cat === c.slug));
   if (!mine.length) return "";
   const face  = mine.find(i => i.images && i.images.length) || mine[0];
   const name  = catName(c.slug);
-  const from  = Math.min(...mine.map(i => i.price));
-  const going = mine.length;
+  const avail = mine.filter(onShelf);
+  const from  = Math.min(...avail.map(i => i.price));
+  const going = avail.length;
 
   return `<a class="card rise catcard" href="#/shop?c=${encodeURIComponent(c.slug)}">
     <div class="arch">${mark()}${shot(face.images[0], {alt: name.en + " jewellery at The Qala"})}</div>
@@ -2315,7 +2316,7 @@ function home(){
   <section class="band wrap">
     <div class="sechead">
       <div><span class="mr" style="color:var(--accent)">निवडक</span><h2>What we make</h2></div>
-      <a class="seclink" href="#/shop">See all ${ITEMS.filter(onShelf).length}</a>
+      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
     </div>
     <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
@@ -2483,12 +2484,13 @@ function shop(params){
   const sort = params.get("s") || "featured";
   const cats = catsInUse();
 
-  let list = ITEMS.filter(onShelf);
+  let list = ITEMS.slice();
   if (active.length) list = list.filter(i => active.includes(i.cat));
   const range = band ? bandRange(band) : null;
   if (range) list = list.filter(i => i.price >= range.min && i.price < range.max);
   if (sort === "lowhigh") list.sort((a,b) => a.price - b.price || a.code.localeCompare(b.code));
   if (sort === "highlow") list.sort((a,b) => b.price - a.price || a.code.localeCompare(b.code));
+  list = byShelf(list);                 // sold out last, in the same order among themselves
 
   const heading = active.length === 1 ? catName(active[0]) : {mr:"संग्रह", en:"The collection"};
   const blurb = active.length === 1 ? (catName(active[0]).blurb || "") : "";
@@ -2549,7 +2551,7 @@ function shop(params){
 function piece(code){
   const it = byCode(code);
   if (!it) return notFound();
-  const also = ITEMS.filter(x => x.cat === it.cat && x.code !== it.code && onShelf(x)).slice(0, 4);
+  const also = byShelf(ITEMS.filter(x => x.cat === it.cat && x.code !== it.code)).slice(0, 4);
   return `
   <div class="wrap" style="padding-top:22px"><a class="linkbtn" href="#/shop?c=${it.cat}">← Back to ${esc(it.catEn)}</a></div>
   <div class="wrap pdp">
