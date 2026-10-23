@@ -1,6 +1,6 @@
 {
-  "qty": 2,
-  "cod": true,
+  "qty": 3,
   "min": 30,
-  "max": 36
+  "max": 36,
+  "cod": true
 }
