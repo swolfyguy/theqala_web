@@ -172,8 +172,8 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
       exactly one order of hers, the parcel is tied to it on the spot.</p>
 
     <div class="quickrow">
-      <input class="qinput" id="q-awb" type="text" inputmode="numeric"
-        placeholder="AWB — the number on the sticker" maxlength="20" spellcheck="false">
+      <input class="qinput" id="q-awb" type="text" autocapitalize="characters"
+        placeholder="AWB or India Post number (EY…IN)" maxlength="20" spellcheck="false">
       <input class="qinput" id="q-who" type="text" placeholder="Her name" maxlength="80">
       <input class="qinput" id="q-phone" type="tel" inputmode="numeric"
         placeholder="Her mobile number (optional)" maxlength="10">
@@ -276,6 +276,7 @@ function stateOf(p){
   if (p.by_hand) return {cls: "arrived", word: "Delivered", hand: true};
   if (p.done)    return {cls: "arrived", word: p.status || "Delivered"};
   if (p.status)  return {cls: "moving",  word: p.status};
+  if (p.asks === false) return {cls: "unknown", word: "India Post — open the link"};
   return {cls: "unknown", word: "not asked yet"};
 }
 
@@ -428,13 +429,13 @@ function card(p){
         : `<div class="say">No movements recorded yet.</div>`}
       ${link(p)}
       <div class="acts">
-        <button type="button" data-again="${esc(p.awb)}">Ask again</button>
+        ${p.asks === false ? "" : `<button type="button" data-again="${esc(p.awb)}">Ask again</button>`}
         ${p.by_hand
           ? `<button type="button" data-hand="${esc(p.awb)}" data-on="no">Not delivered after all</button>`
           : p.done ? ""
           : `<button type="button" data-hand="${esc(p.awb)}" data-on="yes">Mark delivered</button>`}
-        <a class="acts-link" href="https://shreeanjani.co.in/tracking?awb=${encodeURIComponent(p.awb)}"
-           target="_blank" rel="noopener"><button type="button">Open on their site</button></a>
+        <a class="acts-link" href="${esc(p.link || "https://shreeanjani.co.in/tracking?awb=" + encodeURIComponent(p.awb))}"
+           target="_blank" rel="noopener"><button type="button">${p.asks === false ? "Track on India Post" : "Open on their site"}</button></a>
         <button type="button" data-drop="${esc(p.awb)}">Remove</button>
       </div>
       ${p.by_hand ? `<div class="say" style="margin-top:8px">Marked delivered by ${
@@ -481,7 +482,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 let chasing = false;                 /* one round at a time, never two at once */
 async function chaseThem(){
   if (!SWITCHED_ON || chasing) return;
-  const out = PARCELS.filter(p => !p.done).map(p => p.awb).slice(0, 12);
+  const out = PARCELS.filter(p => !p.done && p.asks !== false).map(p => p.awb).slice(0, 12);
   if (!out.length) return;
   chasing = true;
   let moved = false;
@@ -501,13 +502,13 @@ async function chaseThem(){
    here ties to her order exactly the same way: an exact match on that
    number, or left untied rather than guessed at. */
 $("#qadd").onclick = async () => {
-  const awb   = $("#q-awb").value.replace(/\s+/g, "").trim();
+  const awb   = $("#q-awb").value.replace(/[\s-]+/g, "").trim().toUpperCase();
   const who   = $("#q-who").value.trim();
   const phone = $("#q-phone").value.replace(/\D/g, "");
   const say   = $("#qsay");
 
-  if (!/^[0-9]{6,20}$/.test(awb)) {
-    say.className = "say bad"; say.textContent = "That does not look like an AWB number.";
+  if (!/^([0-9]{6,20}|[A-Z]{2}[0-9]{9}IN)$/.test(awb)) {
+    say.className = "say bad"; say.textContent = "That does not look like an AWB or an India Post number (like EY674794658IN).";
     $("#q-awb").focus(); return;
   }
   if (!who) {

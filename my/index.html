@@ -160,6 +160,7 @@ function parcelState(p){
   if (isReturn(p.status)) return {cls:"back", word: p.status || "Coming back"};
   if (p.arrived)          return {cls:"arrived", word: p.status || "Delivered"};
   if (p.status)           return {cls:"moving", word: p.status};
+  if (p.carrier === "India Post") return {cls:"moving", word:"Sent by India Post"};
   return {cls:"unknown", word:"not picked up yet"};
 }
 
@@ -273,8 +274,9 @@ function parcel(p){
             <span><b>${esc(m.what)}</b>${m.where ? ` at ${esc(m.where)}` : ""}${
               m.to ? ` — on to ${esc(m.to)}` : ""}</span></li>`).join("")}</ul>
       <button class="seemore" data-more="1">Show where it has been</button>` : ""}
-    <a class="theirs" href="https://shreeanjani.co.in/tracking?awb=${encodeURIComponent(p.awb)}"
-       target="_blank" rel="noopener">Track it on the courier's own site →</a>
+    <a class="theirs" href="${esc(p.link || "https://shreeanjani.co.in/tracking?awb=" + encodeURIComponent(p.awb))}"
+       target="_blank" rel="noopener">${p.carrier === "India Post"
+         ? "Track it on India Post →" : "Track it on the courier's own site →"}</a>
   </div>`;
 }
 

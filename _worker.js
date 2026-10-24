@@ -1046,7 +1046,24 @@ const isDelivered = t => {
   return /delivered|delivery\s*done/i.test(said);
 };
 
-const isAwb = a => /^[0-9]{6,20}$/.test(a);
+/* India Post (Speed Post, registered parcel): two letters, nine digits, IN —
+   EY674794658IN. Shree Anjani numbers are digits only. India Post has no
+   tracking API we can call (Oct 2026: only an IP-whitelisted bulk-customer
+   feed, no per-parcel lookup), so for these we do not ask anybody: the parcel
+   carries a link to a public tracking page instead, on the office list and on
+   her own page, and the shop marks it delivered by hand. */
+const isIndiaPost = a => /^[A-Z]{2}[0-9]{9}IN$/.test(a);
+const isAwb = a => /^[0-9]{6,20}$/.test(a) || isIndiaPost(a);
+/* A number as typed or pasted, made into the one form it is kept in. */
+const normAwb = x => {
+  const t = String(x == null ? "" : x).toUpperCase().replace(/[\s-]+/g, "");
+  return /^[A-Z]{2}[0-9]{9}IN$/.test(t) ? t : t.replace(/\D/g, "");
+};
+/* Where a person can follow the parcel themselves. */
+const trackLink = a => isIndiaPost(a)
+  ? "https://track91.com/india-post/track?n=" + encodeURIComponent(a)
+  : "https://shreeanjani.co.in/tracking?awb=" + encodeURIComponent(a);
+const carrierOf = a => isIndiaPost(a) ? "India Post" : "Shree Anjani";
 
 /* What she pasted, turned into parcels.
 
@@ -1082,13 +1099,13 @@ function readPaste(text) {
   const joined = [];
   for (let i = 0; i < pieces.length; i++) {
     const one = pieces[i], next = pieces[i + 1];
-    if (/^[0-9]{6,20}$/.test(one) && next && !/[0-9]{6,20}/.test(next)) {
+    if (/^([0-9]{6,20}|[A-Za-z]{2}[0-9]{9}[Ii][Nn])$/.test(one) && next && !/[0-9]{6,20}/.test(next)) {
       joined.push(one + " " + next); i++;
     } else joined.push(one);
   }
 
   for (const line of joined) {
-    const m = /^([0-9]{6,20})[\s|\t]+(.+)$/.exec(line);
+    const m = /^([0-9]{6,20}|[A-Za-z]{2}[0-9]{9}[Ii][Nn])[\s|\t]+(.+)$/.exec(line);
     if (!m) { bad.push(line.slice(0, 60)); continue; }
     let rest = m[2].replace(/\s+/g, " ").trim();
 
@@ -1101,7 +1118,7 @@ function readPaste(text) {
 
     const who = rest.slice(0, 80);
     if (!who) { bad.push(line.slice(0, 60)); continue; }
-    rows.push({awb: m[1], who, phone});
+    rows.push({awb: normAwb(m[1]), who, phone});
   }
   return {rows, bad};
 }
@@ -1153,7 +1170,8 @@ async function parcels(request, env) {
         `SELECT * FROM parcels
          ORDER BY CASE WHEN booked_at = '' THEN added_at ELSE booked_at END DESC`).all();
       return json({ok: true, on: !!ANJANI_TRACK, parcels: (results || []).map(r => ({
-        ...r, moves: (() => { try { return JSON.parse(r.moves || "[]"); } catch { return []; } })()
+        ...r, moves: (() => { try { return JSON.parse(r.moves || "[]"); } catch { return []; } })(),
+        link: trackLink(r.awb), carrier: carrierOf(r.awb), asks: !isIndiaPost(r.awb)
       }))}, 200, {"cache-control": "no-store"});
     } catch (e) {
       return json({ok: false, why: "The order book has no parcels table yet. "
@@ -1201,8 +1219,11 @@ async function parcels(request, env) {
 
   /* ---- ask after one parcel ---- */
   if (b.track != null) {
-    const awb = String(b.track).replace(/\D/g, "");
+    const awb = normAwb(b.track);
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
+    if (isIndiaPost(awb))
+      return json({ok: true, asked: false, why: "India Post — follow it on the tracking link",
+                   link: trackLink(awb)});
     if (!ANJANI_TRACK) return json({ok: true, asked: false, why: "not switched on"});
 
     /* What we already hold. Two things hang on it. */
@@ -1255,7 +1276,7 @@ async function parcels(request, env) {
      the customer's own page matches on, so a parcel tied to the wrong order
      shows nobody anything rather than showing the wrong person something. */
   if (b.tie != null) {
-    const awb = String(b.tie).replace(/\D/g, "");
+    const awb = normAwb(b.tie);
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
     const ref = String(b.ref || "").toUpperCase().replace(/\s+/g, "").slice(0, 24);
 
@@ -1303,7 +1324,7 @@ async function parcels(request, env) {
      written over, so nothing is lost. And it is undoable: taking the mark
      off puts the parcel straight back into the asking round. */
   if (b.hand != null) {
-    const awb = String(b.hand).replace(/\D/g, "");
+    const awb = normAwb(b.hand);
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
     const on   = b.on !== false;                  /* leaving it out means mark it */
     const now  = new Date().toISOString();
@@ -1326,7 +1347,7 @@ async function parcels(request, env) {
 
   /* ---- take one off the list ---- */
   if (b.drop != null) {
-    const awb = String(b.drop).replace(/\D/g, "");
+    const awb = normAwb(b.drop);
     if (!isAwb(awb)) return json({ok: false, why: "That is not a parcel number."}, 400);
     try { await env.DB.prepare("DELETE FROM parcels WHERE awb = ?").bind(awb).run(); }
     catch (e) { return json({ok: false, why: "could not remove it"}, 500); }
@@ -1504,6 +1525,7 @@ async function myOrders(env, phone) {
            courier's stale word. Who marked it is the shop's business. */
         status: p.by_hand ? "Delivered" : (p.status || ""),
         arrived: !!p.done,
+        link: trackLink(p.awb), carrier: carrierOf(p.awb),
         from_c: p.from_c || "", to_c: p.to_c || "",
         moves: (() => { try { return JSON.parse(p.moves || "[]"); } catch { return []; } })()
       });
