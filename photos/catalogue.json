@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24T09:41:07Z",
+ "generated": "2026-10-24T09:58:38Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2028,7 +2028,7 @@
   {
    "slug": "rajwadi",
    "cover": null,
-   "next": 53,
+   "next": 62,
    "products": [
     {
      "n": 31,
@@ -2565,6 +2565,231 @@
      "colors": {},
      "offer": {
       "pct": 5
+     }
+    },
+    {
+     "n": 53,
+     "code": "RAJWADI-53",
+     "folder": "photos/rajwadi/5500",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 54,
+     "code": "RAJWADI-54",
+     "folder": "photos/rajwadi/5500 (2)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 55,
+     "code": "RAJWADI-55",
+     "folder": "photos/rajwadi/5500 (3)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 56,
+     "code": "RAJWADI-56",
+     "folder": "photos/rajwadi/5500 (4)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 57,
+     "code": "RAJWADI-57",
+     "folder": "photos/rajwadi/5500 (5)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 58,
+     "code": "RAJWADI-58",
+     "folder": "photos/rajwadi/5500 (6)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 59,
+     "code": "RAJWADI-59",
+     "folder": "photos/rajwadi/5500 (7)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 60,
+     "code": "RAJWADI-60",
+     "folder": "photos/rajwadi/5500 (8)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
+     }
+    },
+    {
+     "n": 61,
+     "code": "RAJWADI-61",
+     "folder": "photos/rajwadi/5500 (9)",
+     "title": "",
+     "price": 5500,
+     "band": {
+      "min": 5000,
+      "max": 6000
+     },
+     "images": [
+      "photos/rajwadi/5500 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 25
      }
     }
    ]

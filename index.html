@@ -300,6 +300,7 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .oc-h{font-family:Marcellus,serif;font-size:1.75rem;line-height:1.15;color:#FFF6E3;text-wrap:balance}
 .oc-p{font-size:.9rem;line-height:1.5;color:rgba(246,230,199,.86);max-width:44ch}
 .oc-p b{color:#FFF6E3;font-weight:600}
+.oc-x{display:block;margin-top:4px;font-size:.8em;opacity:.8}
 .oc-cta{justify-self:end;white-space:nowrap;padding:13px 22px;border-radius:999px;
   background:linear-gradient(180deg,#F6E3A8,#CFA84F);color:#4A0B16;font-weight:700;
   font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
@@ -1454,7 +1455,12 @@ const SHIP_FLAT = 79;
    10% off those pieces, and shipping is free on the whole order. The same
    OFFER sits at the top of _worker.js, and that copy is the one that decides
    — this one only shows her the saving. on:false hides it everywhere. */
-const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2"};
+/* skip: collections left out of the offer. Rajwadi (24 Oct 2026, his call) —
+   every Rajwadi piece already has its own discount. Same list in _worker.js. */
+const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2", skip: ["rajwadi"]};
+const offerOn = cat => OFFER.on && !OFFER.skip.includes(cat);
+/* "Rajwadi" — the left-out collections by name, for the small print. */
+const offerLeftOut = () => OFFER.skip.map(s => catName(s).en).join(", ");
 
 /* A piece's own discount, set in the studio (offer.json → product.offer).
    The folder's price is the real, regular price and is what gets crossed
@@ -2123,7 +2129,7 @@ function offerFor(lines){
   if (!OFFER.on) return out;
   const by = {};
   for (const l of lines){
-    if (!l || !l.it) continue;
+    if (!l || !l.it || !offerOn(l.it.cat)) continue;
     const b = by[l.it.cat] || (by[l.it.cat] = {n: 0, sum: 0});
     b.n += l.qty; b.sum += l.it.price * l.qty;
   }
@@ -2137,7 +2143,7 @@ const bagLines = () => BAG.map(l => ({it: byCode(l.code), qty: l.qty})).filter(l
 const minus = n => "\u2212" + rupees(n);
 /* Can this category ever earn it — two pieces still on offer, or one piece
    the shop has more than one of? No point promising what cannot be had. */
-const offerReachable = it => OFFER.on && it &&
+const offerReachable = it => it && offerOn(it.cat) &&
   (ITEMS.filter(x => x.cat === it.cat && !soldOut(x)).length >= OFFER.min || maxFor(it) >= OFFER.min);
 
 /* The line that tells her how close she is, under the bag and the order. */
@@ -2271,7 +2277,8 @@ function offerCard(){
         <span class="oc-mr">दोन घ्या · १०% सूट</span>
         <span class="oc-h">Buy any 2, save ${OFFER.pct}%</span>
         <span class="oc-p">Two pieces from the same collection — ${OFFER.pct}% off both,
-          and <b>free insured shipping</b> across India.</span>
+          and <b>free insured shipping</b> across India.${OFFER.skip.length
+          ? ` <span class="oc-x">Not on ${esc(offerLeftOut())} — already discounted.</span>` : ""}</span>
       </span>
       <span class="oc-cta">Shop now <span aria-hidden="true">\u2192</span></span>
     </a>`;
@@ -2509,8 +2516,9 @@ function shop(params){
     <h1>${esc(heading.en)}</h1>
     <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
     ${blurb ? `<p class="blurb">${esc(blurb)}</p>` : ""}
-    ${OFFER.on ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${OFFER.pct}%</span><span>Buy any 2 from ${
-      active.length === 1 ? esc(heading.en) : "one collection"} \u2014 ${OFFER.pct}% off both + free shipping</span></p>` : ""}
+    ${OFFER.on && !(active.length === 1 && !offerOn(active[0])) ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${OFFER.pct}%</span><span>Buy any 2 from ${
+      active.length === 1 ? esc(heading.en) : "one collection"} \u2014 ${OFFER.pct}% off both + free shipping${
+      active.length !== 1 && OFFER.skip.length ? ` (not ${esc(offerLeftOut())})` : ""}</span></p>` : ""}
   </div>
   <div class="wrap shoplayout">
     <aside class="filters">
@@ -3018,7 +3026,8 @@ const PAGES = {
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
     ${OFFER.on ? `<p><b>Buy 2, save ${OFFER.pct}%.</b> Two or more pieces from the same collection in one
        order get ${OFFER.pct}% off those pieces, and shipping on that order is free. It is worked out
-       for you on the order page — there is no code to type.</p>` : ""}
+       for you on the order page — there is no code to type.${OFFER.skip.length
+       ? ` ${esc(offerLeftOut())} is not part of it: those pieces already carry their own discount.` : ""}</p>` : ""}
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
     <p><b>How you pay</b> — ${ITEMS.some(codOk) ? "three ways" : "two ways"}, and you choose in the chat:</p>

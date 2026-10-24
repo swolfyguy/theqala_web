@@ -37,7 +37,10 @@ const COD_EXTRA      = 200;
    office and the customer's own order page show it as a line, and nothing
    about the order book's shape had to change. No piece has this code, so it
    takes nothing off any stock count. */
-const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2"};
+/* skip: collections left out of it. Rajwadi (24 Oct 2026, his call) — every
+   Rajwadi piece already carries its own discount, so buy-2 stays off there.
+   Kept the same as OFFER.skip in index.html. */
+const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2", skip: ["rajwadi"]};
 
 /* A piece's own discount, from offer.json via catalogue.json
    (product.offer = {pct, until}). Same three helpers as index.html and the
@@ -631,7 +634,7 @@ function offerOff(items) {
   const by = {};
   for (const l of items || []) {
     const c = CAT_OF[l.code];
-    if (!c) continue;
+    if (!c || OFFER.skip.includes(c)) continue;
     const b = by[c] || (by[c] = {n: 0, sum: 0});
     b.n += l.qty; b.sum += l.price * l.qty;
   }
