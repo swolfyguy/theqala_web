@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24T09:58:38Z",
+ "generated": "2026-10-25T07:40:16Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -165,6 +165,388 @@
   }
  ],
  "categories": [
+  {
+   "slug": "damru-mangalsutra",
+   "cover": null,
+   "next": 16,
+   "products": [
+    {
+     "n": 1,
+     "code": "DAMRU-MANGALSUTRA-01",
+     "folder": "photos/damru-mangalsutra/1500",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 2,
+     "code": "DAMRU-MANGALSUTRA-02",
+     "folder": "photos/damru-mangalsutra/1500 (2)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 3,
+     "code": "DAMRU-MANGALSUTRA-03",
+     "folder": "photos/damru-mangalsutra/1500 (3)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 4,
+     "code": "DAMRU-MANGALSUTRA-04",
+     "folder": "photos/damru-mangalsutra/1500 (4)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 5,
+     "code": "DAMRU-MANGALSUTRA-05",
+     "folder": "photos/damru-mangalsutra/1500 (5)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 6,
+     "code": "DAMRU-MANGALSUTRA-06",
+     "folder": "photos/damru-mangalsutra/1500 (6)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 7,
+     "code": "DAMRU-MANGALSUTRA-07",
+     "folder": "photos/damru-mangalsutra/1500 (7)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 8,
+     "code": "DAMRU-MANGALSUTRA-08",
+     "folder": "photos/damru-mangalsutra/1500 (8)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 9,
+     "code": "DAMRU-MANGALSUTRA-09",
+     "folder": "photos/damru-mangalsutra/1500 (9)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 10,
+     "code": "DAMRU-MANGALSUTRA-10",
+     "folder": "photos/damru-mangalsutra/1500 (10)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (10)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 11,
+     "code": "DAMRU-MANGALSUTRA-11",
+     "folder": "photos/damru-mangalsutra/1500 (11)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (11)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 12,
+     "code": "DAMRU-MANGALSUTRA-12",
+     "folder": "photos/damru-mangalsutra/1500 (12)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (12)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 13,
+     "code": "DAMRU-MANGALSUTRA-13",
+     "folder": "photos/damru-mangalsutra/1500 (13)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (13)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 14,
+     "code": "DAMRU-MANGALSUTRA-14",
+     "folder": "photos/damru-mangalsutra/1500 (14)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (14)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    },
+    {
+     "n": 15,
+     "code": "DAMRU-MANGALSUTRA-15",
+     "folder": "photos/damru-mangalsutra/1500 (15)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/damru-mangalsutra/1500 (15)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 36,
+      "qty": 1
+     },
+     "colors": {},
+     "offer": {
+      "pct": 20
+     }
+    }
+   ]
+  },
   {
    "slug": "double-wati-rajwadi-handmade",
    "cover": null,
