@@ -947,7 +947,7 @@ function detail(o){
         <ul class="items">${items}</ul>
         ${cameFrom(o) ? "" : `
         <div class="money"><span>Pieces</span><span>${rupees(o.goods + offerOffOf(o))}</span></div>
-        ${offerOffOf(o) ? `<div class="money"><span>Buy-2 offer</span><span>\u2212${rupees(offerOffOf(o))}</span></div>` : ""}
+        ${offerOffOf(o) ? `<div class="money"><span>Multi-piece offer</span><span>\u2212${rupees(offerOffOf(o))}</span></div>` : ""}
         ${pickup ? "" : `<div class="money"><span>Shipping</span><span>${o.shipping ? rupees(o.shipping) : "Free"}</span></div>`}
         ${o.cod_fee ? `<div class="money"><span>Cash on delivery</span><span>${rupees(o.cod_fee)}</span></div>` : ""}`}
         <div class="money tot"><span>${cameFrom(o) ? "Agreed price" : "Total"}</span><span>${

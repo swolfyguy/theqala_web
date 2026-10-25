@@ -27,20 +27,25 @@ const SHIP_FREE_OVER = 1499;
 const SHIP_FLAT      = 79;
 const COD_EXTRA      = 200;
 
-/* The buy-2 offer. Two or more pieces from the SAME category in one order:
-   10% off those pieces, and shipping is free on the whole order. Kept the same
-   as OFFER at the top of index.html — the page shows the saving, this is what
-   actually decides it. OFFER.on = false switches it off everywhere at once.
+/* The multi-piece offer (since 25 Oct 2026; before that it was 10% off two
+   from the same collection). Any pieces, any collection, in one order:
+   2 pieces ₹100 off, 3 pieces ₹200 off, and ₹100 more for every piece after
+   that — (pieces − 1) × ₹100 — and shipping is free on the whole order. Kept
+   the same as OFFER at the top of index.html — the page shows the saving,
+   this is what actually decides it. OFFER.on = false switches it off
+   everywhere at once.
 
    The saving is written into the order as one extra line with a negative
    price and the code below, so the line items still add up to `goods`, the
    office and the customer's own order page show it as a line, and nothing
    about the order book's shape had to change. No piece has this code, so it
    takes nothing off any stock count. */
-/* skip: collections left out of it. Rajwadi (24 Oct 2026, his call) — every
-   Rajwadi piece already carries its own discount, so buy-2 stays off there.
-   Kept the same as OFFER.skip in index.html. */
-const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2", skip: ["rajwadi"]};
+/* skip: collections left out of it — none now (25 Oct he chose to count
+   Rajwadi too). The code stays OFFER-BUY2 so older orders still read right.
+   Kept the same as OFFER in index.html. */
+const OFFER = {on: true, min: 2, per: 100, code: "OFFER-BUY2", skip: []};
+/* What n pieces earn: nothing for one, then ₹100 for each piece after the first. */
+const offerAmount = n => n >= OFFER.min ? (n - 1) * OFFER.per : 0;
 
 /* A piece's own discount, from offer.json via catalogue.json
    (product.offer = {pct, until}). Same three helpers as index.html and the
@@ -624,33 +629,31 @@ function repriceItems(o) {
   return o;
 }
 
-/* How much the buy-2 offer takes off these pieces. Counted per category: two
-   Double Wati and one Necklace earns the saving on the two Double Wati only.
-   Two of the same piece count as two. Rounded per category, to the rupee —
-   offerFor() in index.html does exactly the same sum, so the total she saw
-   on the page is the total in the book. */
+/* How much the multi-piece offer takes off these pieces. Every piece counts,
+   whatever its collection, and two of the same piece count as two:
+   (pieces − 1) × ₹100 from two pieces up. offerFor() in index.html does
+   exactly the same sum, so the total she saw on the page is the total in the
+   book. */
 function offerOff(items) {
-  if (!OFFER.on) return {off: 0, cats: []};
-  const by = {};
+  if (!OFFER.on) return {off: 0, n: 0};
+  let n = 0, sum = 0;
   for (const l of items || []) {
     const c = CAT_OF[l.code];
     if (!c || OFFER.skip.includes(c)) continue;
-    const b = by[c] || (by[c] = {n: 0, sum: 0});
-    b.n += l.qty; b.sum += l.price * l.qty;
+    n += l.qty; sum += l.price * l.qty;
   }
-  let off = 0; const cats = [];
-  for (const [c, b] of Object.entries(by))
-    if (b.n >= OFFER.min) { off += Math.round(b.sum * OFFER.pct / 100); cats.push(c); }
-  return {off, cats};
+  /* Never more than the pieces cost — not a real risk at ₹750 and up, but a
+     total must not go below nothing whatever the catalogue holds. */
+  return {off: Math.min(offerAmount(n), sum), n};
 }
 
 /* Apply it to a cleaned order: the saving comes off the goods, shipping goes
    to nothing, and the extra line is kept aside to be written with the items.
    Needs howManyMade() to have run, for CAT_OF. */
 function applyOffer(o) {
-  const {off} = offerOff(o.items);
+  const {off, n} = offerOff(o.items);
   if (!off) return o;
-  o.offerLine = {code: OFFER.code, title: `Buy 2, get ${OFFER.pct}% off + free shipping`,
+  o.offerLine = {code: OFFER.code, title: `Buy ${n}, \u20b9${off} off + free shipping`,
                  qty: 1, price: -off};
   o.goods    = o.goods - off;
   o.shipping = 0;

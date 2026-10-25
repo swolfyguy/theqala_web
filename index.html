@@ -295,6 +295,10 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .oc-num b{font-weight:400;font-size:5rem;letter-spacing:-.03em}
 .oc-num>span{display:flex;flex-direction:column;font-size:1.9rem;margin:4px 0 0 3px}
 .oc-num em{font-style:normal;font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;margin-top:8px}
+.oc-num.rs{flex-direction:column;align-items:flex-start}
+.oc-num.rs b{font-size:3.4rem}
+.oc-num.rs>span{margin:6px 0 0 2px}
+.oc-num.rs em{margin-top:0}
 .oc-copy{display:grid;gap:5px;min-width:0}
 .oc-mr{font-size:.92rem;color:#E3C06B}
 .oc-h{font-family:Marcellus,serif;font-size:1.75rem;line-height:1.15;color:#FFF6E3;text-wrap:balance}
@@ -311,6 +315,7 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
   .oc-num b{font-size:3.9rem}
   .oc-num>span{font-size:1.5rem}
   .oc-num em{font-size:.72rem}
+  .oc-num.rs b{font-size:2.5rem}
   .oc-h{font-size:1.32rem}
   .oc-p{font-size:.84rem}
   .oc-cta{grid-column:1 / -1;justify-self:stretch;text-align:center}
@@ -1451,13 +1456,14 @@ const PAY = [
 const SITE = "https://theqalashree.com/";
 const SHIP_FREE_OVER = 1499;
 const SHIP_FLAT = 79;
-/* The buy-2 offer: two or more pieces from the SAME category in one order get
-   10% off those pieces, and shipping is free on the whole order. The same
-   OFFER sits at the top of _worker.js, and that copy is the one that decides
-   — this one only shows her the saving. on:false hides it everywhere. */
-/* skip: collections left out of the offer. Rajwadi (24 Oct 2026, his call) —
-   every Rajwadi piece already has its own discount. Same list in _worker.js. */
-const OFFER = {on: true, min: 2, pct: 10, code: "OFFER-BUY2", skip: ["rajwadi"]};
+/* The multi-piece offer (25 Oct 2026): any pieces, any collection, in one
+   order — 2 pieces ₹100 off, 3 pieces ₹200 off, then ₹100 more for every
+   piece after that, and shipping is free. The same OFFER sits at the top of
+   _worker.js, and that copy is the one that decides — this one only shows her
+   the saving. on:false hides it everywhere. skip lists collections left out
+   (none now). */
+const OFFER = {on: true, min: 2, per: 100, code: "OFFER-BUY2", skip: []};
+const offerAmount = n => n >= OFFER.min ? (n - 1) * OFFER.per : 0;
 const offerOn = cat => OFFER.on && !OFFER.skip.includes(cat);
 /* "Rajwadi" — the left-out collections by name, for the small print. */
 const offerLeftOut = () => OFFER.skip.map(s => catName(s).en).join(", ");
@@ -1905,13 +1911,12 @@ function addToBag(code, qty, color){
   if (bit) track("add_to_cart", {currency: "INR", value: bit.price * set,
     items: [{item_id: code, item_name: titleOf(bit), price: bit.price, quantity: set}]});
   const ofNow = offerFor(bagLines());
-  const shortHere = bit && ofNow.short.find(x => x.cat === bit.cat);
   toast(want > cap
     ? `${code} added — ${cap} ${cap === 1 ? "is" : "are"} all we have`
     : ofNow.off > offBefore
-      ? `Offer unlocked — ${OFFER.pct}% off + free shipping`
-      : shortHere && offerReachable(bit)
-        ? `Added — add ${shortHere.need} more ${bit.catEn} for ${OFFER.pct}% off`
+      ? `Added — now ${rupees(ofNow.off)} off + free shipping`
+      : ofNow.need && offerReachable(bit)
+        ? `Added — add ${ofNow.need} more piece for ${rupees(OFFER.per)} off + free shipping`
         : code + (color ? ` (${color})` : "") + " added to your bag");
 }
 function setQty(code, color, q){
@@ -1966,7 +1971,7 @@ function bagWaText(){
   }).filter(Boolean).join("\n\n");
   const of = offerFor(bagLines());
   return `Namaskar The Qala 🙏\n\nI would like to order:\n\n${lines}\n\n`
-    + (of.off ? `Buy-2 offer (${OFFER.pct}% off): ${minus(of.off)}\n` : "")
+    + (of.off ? `Offer (${of.n} pieces): ${minus(of.off)}\n` : "")
     + `Total: ${rupees(bagTotal() - of.off)}\n\n`
     + `Please confirm availability and sizing.`;
 }
@@ -2120,23 +2125,20 @@ function orderTotals(goods, pay, off){
   return {goods, off, ship, cod, pickup, total: goods - off + ship + cod};
 }
 
-/* What the buy-2 offer gives these lines ([{it, qty}]). Counted per category
-   and rounded per category, to the rupee — exactly the sum offerOff() does in
-   _worker.js, so the total she sees is the total in the book. Also says which
-   categories are a piece short, for the nudge in the bag. */
+/* What the multi-piece offer gives these lines ([{it, qty}]): every piece
+   counts, (pieces − 1) × ₹100 from two up — exactly the sum offerOff() does in
+   _worker.js, so the total she sees is the total in the book. need = how many
+   more pieces until it starts, for the nudge in the bag. */
 function offerFor(lines){
-  const out = {off: 0, cats: [], short: []};
+  const out = {off: 0, n: 0, need: OFFER.min};
   if (!OFFER.on) return out;
-  const by = {};
+  let sum = 0;
   for (const l of lines){
     if (!l || !l.it || !offerOn(l.it.cat)) continue;
-    const b = by[l.it.cat] || (by[l.it.cat] = {n: 0, sum: 0});
-    b.n += l.qty; b.sum += l.it.price * l.qty;
+    out.n += l.qty; sum += l.it.price * l.qty;
   }
-  for (const [cat, b] of Object.entries(by)){
-    if (b.n >= OFFER.min){ out.off += Math.round(b.sum * OFFER.pct / 100); out.cats.push(cat); }
-    else out.short.push({cat, need: OFFER.min - b.n});
-  }
+  out.off  = Math.min(offerAmount(out.n), sum);
+  out.need = Math.max(0, OFFER.min - out.n);
   return out;
 }
 const bagLines = () => BAG.map(l => ({it: byCode(l.code), qty: l.qty})).filter(l => l.it);
@@ -2144,18 +2146,16 @@ const minus = n => "\u2212" + rupees(n);
 /* Can this category ever earn it — two pieces still on offer, or one piece
    the shop has more than one of? No point promising what cannot be had. */
 const offerReachable = it => it && offerOn(it.cat) &&
-  (ITEMS.filter(x => x.cat === it.cat && !soldOut(x)).length >= OFFER.min || maxFor(it) >= OFFER.min);
+  (ITEMS.filter(x => offerOn(x.cat) && !soldOut(x)).length >= OFFER.min || maxFor(it) >= OFFER.min);
 
 /* The line that tells her how close she is, under the bag and the order. */
 function offerNudge(of){
   if (!OFFER.on) return "";
   if (of.off) return `<div class="offernudge won"><b>Offer unlocked</b>
-    ${OFFER.pct}% off and free shipping \u2014 you save ${rupees(of.off)}</div>`;
-  const s = of.short.find(x => { const any = ITEMS.find(i => i.cat === x.cat); return offerReachable(any); });
-  if (!s) return "";
-  const n = catName(s.cat);
-  return `<a class="offernudge" href="#/shop?c=${encodeURIComponent(s.cat)}">
-    Add <b>${s.need} more ${esc(n.en)}</b> and get ${OFFER.pct}% off both + free shipping \u2192</a>`;
+    ${rupees(of.off)} off and free shipping \u2014 add one more piece and save ${rupees(OFFER.per)} more</div>`;
+  if (!of.n || !of.need) return "";
+  return `<a class="offernudge" href="#/shop">
+    Add <b>${of.need} more piece</b> and get ${rupees(OFFER.per)} off + free shipping \u2192</a>`;
 }
 const payName = id => (PAY.find(x => x.id === id) || PAY[0]).t;
 /* Whatever she chose last time, unless that way of paying has since been
@@ -2172,7 +2172,7 @@ function orderWaText(o){
     + `\n   ${rupees(l.price)}${l.was ? ` (${l.off}% off ${rupees(l.was)})` : ""} × ${l.qty} = ${rupees(l.price * l.qty)}\n   ${l.url}`).join("\n\n");
   const t = o.totals;
   const money = [`Pieces: ${rupees(t.goods)}`,
-                 t.off ? `Buy-2 offer (${OFFER.pct}% off): ${minus(t.off)}` : null,
+                 t.off ? `Multi-piece offer: ${minus(t.off)}` : null,
                  t.pickup ? `Collecting at the shop` : `Shipping: ${t.ship ? rupees(t.ship) : "Free"}`,
                  t.cod ? `Cash on delivery: ${rupees(t.cod)}` : null,
                  `Total: ${rupees(t.total)}`].filter(Boolean).join("\n");
@@ -2260,8 +2260,8 @@ function nothingYet(where){
 
 /* ============ views ============ */
 /* The buy-2 offer, as the first thing on the home page. One card, one tap to
-   the shop. Says only what is true: two from one collection, 10% off those two,
-   shipping free — no countdown, no "today only". */
+   the shop. Says only what is true: ₹100 off two pieces, ₹200 off three, and
+   so on, shipping free — no countdown, no "today only". */
 function offerHero(){
   if (!OFFER.on) return "";
   return `
@@ -2270,14 +2270,14 @@ function offerHero(){
 }
 function offerCard(){
   return `
-    <a class="offercard" href="#/shop" aria-label="Buy any 2 from one collection: ${OFFER.pct}% off and free shipping. Shop now.">
+    <a class="offercard" href="#/shop" aria-label="Buy any 2 pieces: ${rupees(OFFER.per)} off. Buy 3: ${rupees(2 * OFFER.per)} off. Free shipping. Shop now.">
       <span class="oc-shine" aria-hidden="true"></span>
-      <span class="oc-num" aria-hidden="true"><b>${OFFER.pct}</b><span>%<em>off</em></span></span>
+      <span class="oc-num rs" aria-hidden="true"><b>${rupees(OFFER.per)}</b><span><em>off</em></span></span>
       <span class="oc-copy">
-        <span class="oc-mr">दोन घ्या · १०% सूट</span>
-        <span class="oc-h">Buy any 2, save ${OFFER.pct}%</span>
-        <span class="oc-p">Two pieces from the same collection — ${OFFER.pct}% off both,
-          and <b>free insured shipping</b> across India.${OFFER.skip.length
+        <span class="oc-mr">जास्त घ्या · जास्त बचत</span>
+        <span class="oc-h">Buy 2, save ${rupees(OFFER.per)}<br>Buy 3, save ${rupees(2 * OFFER.per)}</span>
+        <span class="oc-p">Any pieces, from any collection — and ${rupees(OFFER.per)} more off for
+          every piece after that, with <b>free insured shipping</b> across India.${OFFER.skip.length
           ? ` <span class="oc-x">Not on ${esc(offerLeftOut())} — already discounted.</span>` : ""}</span>
       </span>
       <span class="oc-cta">Shop now <span aria-hidden="true">\u2192</span></span>
@@ -2516,8 +2516,8 @@ function shop(params){
     <h1>${esc(heading.en)}</h1>
     <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
     ${blurb ? `<p class="blurb">${esc(blurb)}</p>` : ""}
-    ${OFFER.on && !(active.length === 1 && !offerOn(active[0])) ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${OFFER.pct}%</span><span>Buy any 2 from ${
-      active.length === 1 ? esc(heading.en) : "one collection"} \u2014 ${OFFER.pct}% off both + free shipping${
+    ${OFFER.on && !(active.length === 1 && !offerOn(active[0])) ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${rupees(OFFER.per)}</span><span>Buy any 2 \u2014 ${
+      rupees(OFFER.per)} off, 3 \u2014 ${rupees(2 * OFFER.per)} off + free shipping${
       active.length !== 1 && OFFER.skip.length ? ` (not ${esc(offerLeftOut())})` : ""}</span></p>` : ""}
   </div>
   <div class="wrap shoplayout">
@@ -2587,8 +2587,8 @@ function piece(code){
       ${ratingLine()}
       ${it.colors && Object.keys(it.colors).length ? `<p class="muted" id="colorLine" style="margin:6px 0 0;font-size:.92rem">Colour: <b id="colorName">${esc((it.colors[it.images[0].split("/").pop()]) || "choose one below")}</b></p>` : ""}
       <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
-      ${offerReachable(it) ? `<a class="offerchip" href="#/shop?c=${encodeURIComponent(it.cat)}">
-        <span class="pct">${OFFER.pct}%</span><span>Buy any 2 ${esc(it.catEn)} \u2014 ${OFFER.pct}% off both + free shipping</span></a>` : ""}
+      ${offerReachable(it) ? `<a class="offerchip" href="#/shop">
+        <span class="pct">${rupees(OFFER.per)}</span><span>Buy any 2 pieces \u2014 ${rupees(OFFER.per)} off, 3 \u2014 ${rupees(2 * OFFER.per)} off + free shipping</span></a>` : ""}
       ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
       <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       ${soldOut(it) ? `<div class="gonebox">
@@ -2675,7 +2675,7 @@ function bagView(){
     <aside class="summary">
       <h3>Order summary</h3>
       <div class="srow"><span>${bagCount()} piece${bagCount()===1?"":"s"}</span><span class="rupee">${rupees(total)}</span></div>
-      ${bagOf.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(bagOf.off)}</span></div>` : ""}
+      ${bagOf.off ? `<div class="srow offerrow"><span>Offer \u00b7 ${bagOf.n} pieces</span><span class="rupee">${minus(bagOf.off)}</span></div>` : ""}
       <div class="srow"><span>Shipping</span><span>${bagShip ? rupees(SHIP_FLAT) : "Free"}</span></div>
       <div class="srow total"><span>Total</span><span class="rupee">${rupees(total - bagOf.off + bagShip)}</span></div>
       ${offerNudge(bagOf)}
@@ -2904,7 +2904,7 @@ function orderView(params){
     <aside class="summary">
       <h3>${lines.reduce((a,l)=>a+l.qty,0)} piece${lines.reduce((a,l)=>a+l.qty,0)===1?"":"s"}</h3>
       ${lines.map(l => `<div class="srow"><span>${esc(titleOf(l.it))} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.it.price*l.qty)}</span></div>`).join("")}
-      ${of.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(of.off)}</span></div>` : ""}
+      ${of.off ? `<div class="srow offerrow"><span>Offer \u00b7 ${of.n} pieces</span><span class="rupee">${minus(of.off)}</span></div>` : ""}
       <div class="srow" id="shipRow"><span id="shipLbl">Shipping</span><span id="shipVal">${ship ? rupees(ship) : "Free"}</span></div>
       <div class="srow" id="codRow" hidden><span>Cash on delivery</span><span class="rupee">${rupees(COD_EXTRA)}</span></div>
       <div class="srow total"><span>Total</span><span class="rupee" id="grandTotal">${rupees(total - of.off + ship)}</span></div>
@@ -2952,7 +2952,7 @@ function placedView(){
       ${o.items.map(l => `<div class="srow"><span>${esc(l.title)}${
         l.color ? ` <span class="muted">· ${esc(l.color)}</span>` : ""}${
         l.size ? ` <span class="muted">${esc(l.size)}″</span>` : ""} <span class="muted">× ${l.qty}</span></span><span class="rupee">${rupees(l.price * l.qty)}</span></div>`).join("")}
-      ${o.totals && o.totals.off ? `<div class="srow offerrow"><span>Buy 2 \u00b7 ${OFFER.pct}% off</span><span class="rupee">${minus(o.totals.off)}</span></div>` : ""}
+      ${o.totals && o.totals.off ? `<div class="srow offerrow"><span>Multi-piece offer</span><span class="rupee">${minus(o.totals.off)}</span></div>` : ""}
       <div class="srow total"><span>Total</span><span class="rupee">${rupees(o.total)}</span></div>
       ${(o.poth && !o.items.some(l => l.size)) ? `<div class="srow"><span>Poth length</span><span>${esc(o.poth)} inches</span></div>` : ""}
       <div class="srow"><span>Paying by</span><span>${esc(payName(o.pay))}${o.totals && o.totals.cod ? ` · +${rupees(o.totals.cod)}` : ""}</span></div>
@@ -3024,9 +3024,10 @@ const PAGES = {
     <p style="margin-top:20px">We re-polish any piece bought from us once, free, in the first year. Post it to us or drop it at the Dighi address.</p>`),
   shipping: () => page("पाठवणी","Shipping & COD",`
     <p><b>Free insured shipping</b> on every order over ${rupees(SHIP_FREE_OVER)}. Below that it is a flat ₹79.</p>
-    ${OFFER.on ? `<p><b>Buy 2, save ${OFFER.pct}%.</b> Two or more pieces from the same collection in one
-       order get ${OFFER.pct}% off those pieces, and shipping on that order is free. It is worked out
-       for you on the order page — there is no code to type.${OFFER.skip.length
+    ${OFFER.on ? `<p><b>Buy more, save more.</b> Any 2 pieces in one order: ${rupees(OFFER.per)} off. 3 pieces:
+       ${rupees(2 * OFFER.per)} off — and ${rupees(OFFER.per)} more for every piece after that, from any collection.
+       Shipping on that order is free. It is worked out for you on the order page — there is no code to
+       type.${OFFER.skip.length
        ? ` ${esc(offerLeftOut())} is not part of it: those pieces already carry their own discount.` : ""}</p>` : ""}
     <p><b>Dispatch:</b> ready pieces leave Pune within two working days. Anything fitted or polished to order takes five to seven days.</p>
     <p><b>Delivery:</b> two days across most of Maharashtra, three to five elsewhere in India. Every parcel is insured and tracked, and we send the tracking link on WhatsApp.</p>
@@ -3968,7 +3969,7 @@ $("#menuToggle").onclick = () => {
     : `<svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>`;
 };
 $("#topbar").innerHTML = [
-  ...(OFFER.on ? [`<a class="tb-offer" href="#/shop">Buy 2 \u00b7 ${OFFER.pct}% off + free shipping</a>`] : []),
+  ...(OFFER.on ? [`<a class="tb-offer" href="#/shop">Buy 2 \u00b7 ${rupees(OFFER.per)} off \u00b7 Buy 3 \u00b7 ${rupees(2 * OFFER.per)} off</a>`] : []),
   `<span class="tb-wa">Order on WhatsApp</span>`,
   ...PHONES.map((n, i) => `<a class="${i ? "tb-more" : ""}" href="https://wa.me/${n.wa}" target="_blank" rel="noopener">${esc(n.label)}</a>`),
   `<span class="tag"><span class="sep">&middot;</span> Free insured shipping across India</span>`,
