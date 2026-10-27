@@ -120,7 +120,7 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .head{display:none}
 @media (min-width:760px){
   .head{display:grid;gap:14px;padding:10px 16px 8px;
-    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.4rem 16px;
+    grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.2rem 6.4rem 16px;
     font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);
     font-weight:600;border-bottom:1px solid var(--line)}
   .head .r{text-align:right}
@@ -173,8 +173,8 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 @media (min-width:760px){ .row .pay{justify-self:start} }
 
 @media (min-width:760px){
-  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.4rem 16px;
-    grid-template-areas:"s ref who meta word pay anj money chev";padding:13px 16px}
+  .row{grid-template-columns:14px 8.6rem minmax(0,1fr) 6.2rem 5.6rem 4.8rem 4.4rem 6.2rem 6.4rem 16px;
+    grid-template-areas:"s ref who meta word pay anj pcl money chev";padding:13px 16px}
   .row .who{font-size:.9rem;color:var(--ink)}
   .row .meta{text-align:left;font-size:.8rem}
   .row .money{font-size:.95rem}
@@ -216,6 +216,19 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .setrow select:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
 .setrow .p-say{font-size:.78rem;color:var(--ink-2)}
 .setrow .p-say.bad{color:var(--accent)}
+/* Is a parcel tied to this order? Shouts only where it matters — a sent order
+   with no tracking number on it. */
+.pcl{grid-area:pcl;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;white-space:nowrap;align-self:center;justify-self:start}
+.pcl.yes{color:var(--sent)}
+.pcl.no{color:var(--accent)}
+.pcl.na{color:var(--ink-2);opacity:.55;font-weight:600}
+@media (max-width:759px){
+  .pcl{grid-area:auto;grid-column:2 / -1;justify-self:start}
+  .pcl.na{display:none}
+}
+.parcelrow{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin:2px 0}
+.parcelrow code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem}
 .anj{grid-area:anj;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
   font-weight:700;white-space:nowrap;align-self:center;justify-self:start}
 .anj.yes{color:var(--gold)}
@@ -358,7 +371,7 @@ b.paid{color:var(--sent);font-weight:600}
   <div id="msg"></div>
   <div class="head" id="head2" hidden>
     <span></span><span>Order</span><span>Customer</span><span>Placed</span>
-    <span>Status</span><span>Paying</span><span>Anjani</span><span class="r">Total</span><span></span>
+    <span>Status</span><span>Paying</span><span>Anjani</span><span>Parcel</span><span class="r">Total</span><span></span>
   </div>
   <div class="list" id="list"><div class="spin">Opening the book…</div></div>
 </div>
@@ -809,6 +822,7 @@ function row(o){
       <span class="stword st ${esc(o.status)}" style="background:none">${esc(o.status)}</span>
       <span class="pay ${payTag(o).cls}" title="${esc(payTag(o).why)}">${esc(payTag(o).t)}</span>
       ${anjaniCell(o)}
+      ${parcelCell(o)}
       <span class="money">${cameFrom(o) && !o.total
         ? `<i class="unset" title="No price on this one yet">—</i>` : rupees(o.total)}</span>
       <span class="chev">›</span>
@@ -895,6 +909,8 @@ function detail(o){
           `<a href="${shotUrl(i)}" target="_blank" rel="noopener" title="Picture ${i + 1} of ${howMany}">
              <img src="${shotUrl(i)}" alt="Picture ${i + 1}" loading="lazy"
                   onerror="this.parentNode.remove()"></a>`).join("")}</div>` : ""}
+        <h3>Parcel</h3>
+        ${parcelNote(o)}
         ${anjaniNote(o)}
         <h3>Shree Anjani</h3>
         <div class="setrow">
@@ -1122,6 +1138,27 @@ async function fillPincodes(){
    be true and useless.
 
    A pincode nobody has looked up yet is a dash — not a no. */
+/* Tied to a parcel or not. Sent (or done) with nothing tied is the one to
+   notice: the customer cannot see any tracking on her own page until it is. */
+const NEEDS_PARCEL = ["sent", "done"];
+function parcelCell(o){
+  const ps = o.parcels || [];
+  if (ps.length) return `<span class="pcl yes" title="${esc(ps.map(p => p.awb + " · " + p.carrier).join(", "))}">\u2713 ${
+    ps.length > 1 ? ps.length + " parcels" : "Linked"}</span>`;
+  if (NEEDS_PARCEL.includes(o.status))
+    return `<span class="pcl no" title="Sent, but no parcel is tied to this order yet">Not linked</span>`;
+  return `<span class="pcl na" title="No parcel yet">\u2014</span>`;
+}
+function parcelNote(o){
+  const ps = o.parcels || [];
+  if (ps.length) return ps.map(p => `<div class="parcelrow"><code>${esc(p.awb)}</code>
+      <span style="color:var(--ink-2);font-size:.85rem">${esc(p.carrier)}${p.status ? " \u00b7 " + esc(p.status) : ""}</span>
+      <a href="${esc(p.link)}" target="_blank" rel="noopener">Track</a></div>`).join("");
+  return `<div style="color:${NEEDS_PARCEL.includes(o.status) ? "var(--accent)" : "var(--ink-2)"};font-size:.88rem">
+      No parcel linked yet. Add it on the <a href="/office/parcels/">Parcels</a> page with her
+      mobile number (${esc(o.phone || "")}) and it links itself.</div>`;
+}
+
 function anjaniCell(o){
   const pay = o.pay || "online";
   if (pay !== "online")

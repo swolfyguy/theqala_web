@@ -2118,6 +2118,22 @@ async function listOrders(env, url, who) {
     rows.forEach(r => { r.voice = heard.has(r.ref); });
   } catch (e) { /* no recordings table yet, so none of them have one */ }
 
+  /* Which parcels are tied to each order — so the book can say at a glance
+     whether a sent order has its tracking number on it yet. */
+  try {
+    const marks = rows.map(() => "?").join(",") || "''";
+    const {results} = await env.DB.prepare(
+      `SELECT awb, ref, status, done, by_hand FROM parcels WHERE ref IN (${marks})`
+    ).bind(...rows.map(r => r.ref)).all();
+    const tied = new Map();
+    for (const p of results || []) {
+      if (!tied.has(p.ref)) tied.set(p.ref, []);
+      tied.get(p.ref).push({awb: p.awb, carrier: carrierOf(p.awb), link: trackLink(p.awb),
+        status: p.by_hand ? "Delivered" : (p.status || ""), done: !!p.done});
+    }
+    rows.forEach(r => { r.parcels = tied.get(r.ref) || []; });
+  } catch (e) { rows.forEach(r => { r.parcels = []; }); }
+
   /* And how many photographs each one carries, so the card can show them all
      without the listing dragging the pictures themselves along. */
   try {

@@ -96,8 +96,14 @@ textarea:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(
   background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;
   grid-template-columns:1fr auto}
 @media (min-width:720px){
-  .phead{grid-template-columns:9.5rem minmax(0,1fr) 8rem 9rem 7.5rem 1.2rem}
+  .phead{grid-template-columns:9.5rem minmax(0,1fr) 8rem 7.6rem 9rem 7.5rem 1.2rem}
 }
+/* Linked to an order or not — the reason it matters: only a linked parcel
+   shows up on her own page. On a phone it takes a line of its own. */
+.plink{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;white-space:nowrap}
+.plink.yes{color:var(--arrived)}
+.plink.no{color:var(--back, #A3253A)}
+@media (max-width:719px){ .plink{grid-column:1 / -1;order:9} .chev{order:8} }
 .awb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;color:var(--ink-2)}
 .who{font-weight:600}
 .phone{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;color:var(--ink-2);
@@ -288,7 +294,8 @@ let SHOW = "all";
 const SHOWS = {
   all:     {word: "All",        keep: () => true},
   out:     {word: "Still out",  keep: p => !p.done},
-  arrived: {word: "Delivered",  keep: p => !!p.done}
+  arrived: {word: "Delivered",  keep: p => !!p.done},
+  loose:   {word: "Not linked", keep: p => !p.ref}
 };
 
 function paintFilters(){
@@ -413,6 +420,8 @@ function card(p){
       <span class="awb">${esc(p.awb)}</span>
       <span class="who">${esc(p.who)}</span>
       <span class="phone">${p.phone ? esc(pretty(p.phone)) : "—"}</span>
+      ${p.ref ? `<span class="plink yes" title="Linked to order ${esc(p.ref)}">\u2713 ${esc(p.ref)}</span>`
+              : `<span class="plink no" title="Not linked to an order — she cannot see it on her own page">Not linked</span>`}
       <span class="where">${esc(p.to_c || "—")}</span>
       <span class="state ${st.cls}"${st.hand
         ? ` title="Marked delivered by ${esc(p.by_hand)} — not by the courier"` : ""
