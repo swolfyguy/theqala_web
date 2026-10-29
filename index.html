@@ -51,16 +51,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
      Every fact here is repeated somewhere a visitor can see it, which is
      both the rule and the point.
      --------------------------------------------------------------------- -->
+<!-- Merged 29 Oct 2026 with the version Sayalaa sent: logo, all three numbers
+     with languages, Pune/Maharashtra/India served, "Qala Shree". The @id stays
+     #shop because each product page (realPage() in _worker.js) names its
+     seller by that id. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "JewelryStore",
   "@id": "https://theqalashree.com/#shop",
   "name": "The Qala",
-  "alternateName": "कला",
+  "alternateName": [
+    "Qala Shree",
+    "कला"
+  ],
   "url": "https://theqalashree.com/",
-  "image": "https://theqalashree.com/photos/logo-square.jpg",
-  "description": "Rajwadi, Victorian and moissanite jewellery — thushi, saaj, mangalsutra, bangles and bridal pieces — made by hand in Dighi, Pune and sent insured across India.",
+  "image": [
+    "https://theqalashree.com/photos/logo-square.jpg",
+    "https://theqalashree.com/photos/logo.jpg"
+  ],
+  "logo": "https://theqalashree.com/photos/logo-square.jpg",
+  "description": "Handmade Rajwadi, Peshwai, Victorian and moissanite jewellery: thushi, saaj, mangalsutra, bangles and bridal pieces. Made in Dighi, Pune and sent insured across India. Order on WhatsApp.",
   "telephone": "+91-90112-40352",
   "priceRange": "₹₹",
   "currenciesAccepted": "INR",
@@ -73,27 +84,90 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     "postalCode": "411015",
     "addressCountry": "IN"
   },
-  "openingHoursSpecification": [{
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-    "opens": "09:00",
-    "closes": "21:00"
-  }],
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "opens": "09:00",
+      "closes": "21:00"
+    }
+  ],
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "telephone": "+91-90112-40352",
+      "contactType": "customer service",
+      "areaServed": "IN",
+      "availableLanguage": [
+        "en",
+        "hi",
+        "mr"
+      ]
+    },
+    {
+      "@type": "ContactPoint",
+      "telephone": "+91-75582-09163",
+      "contactType": "sales",
+      "areaServed": "IN",
+      "availableLanguage": [
+        "en",
+        "hi",
+        "mr"
+      ]
+    },
+    {
+      "@type": "ContactPoint",
+      "telephone": "+91-95796-28754",
+      "contactType": "customer service",
+      "areaServed": "IN",
+      "availableLanguage": [
+        "en",
+        "hi",
+        "mr"
+      ]
+    }
+  ],
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Pune"
+    },
+    {
+      "@type": "State",
+      "name": "Maharashtra"
+    },
+    {
+      "@type": "Country",
+      "name": "India"
+    }
+  ],
   "sameAs": [
     "https://www.instagram.com/theqala_com",
     "https://www.instagram.com/qala_shree/"
-  ],
-  "areaServed": {"@type": "Country", "name": "India"}
+  ]
 }
 </script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "The Qala",
+  "@id": "https://theqalashree.com/#website",
   "url": "https://theqalashree.com/",
-  "publisher": {"@id": "https://theqalashree.com/#shop"},
-  "inLanguage": ["en-IN", "mr-IN"]
+  "name": "The Qala",
+  "alternateName": [
+    "Qala Shree"
+  ],
+  "publisher": {
+    "@id": "https://theqalashree.com/#shop"
+  },
+  "inLanguage": "en-IN"
 }
 </script>
 <script>
