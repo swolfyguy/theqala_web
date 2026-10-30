@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-30T07:41:17Z",
+ "generated": "2026-10-30T07:43:04Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -541,7 +541,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -565,7 +565,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -823,7 +823,7 @@
      "sizes": {
       "min": 24,
       "max": 30,
-      "qty": 3
+      "qty": 1
      },
      "colors": {},
      "offer": null
@@ -846,7 +846,7 @@
      "sizes": {
       "min": 24,
       "max": 30,
-      "qty": 3
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -869,7 +869,7 @@
      "sizes": {
       "min": 24,
       "max": 30,
-      "qty": 3
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -892,7 +892,7 @@
      "sizes": {
       "min": 24,
       "max": 30,
-      "qty": 3
+      "qty": 1
      },
      "colors": {},
      "offer": null
@@ -915,7 +915,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 2
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -1122,7 +1122,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 3
+      "qty": 1
      },
      "colors": {},
      "offer": null
@@ -1145,7 +1145,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 3
+      "qty": 1
      },
      "colors": {},
      "offer": null
@@ -1214,7 +1214,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 3
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -1451,7 +1451,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
