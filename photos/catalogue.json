@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-30T07:46:27Z",
+ "generated": "2026-10-30T07:49:11Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2580,7 +2580,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -2606,7 +2606,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 3,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -2722,7 +2722,7 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -2816,7 +2816,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -2841,7 +2841,8 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0,
+      "cod": true
      },
      "colors": {},
      "offer": {
@@ -2866,7 +2867,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -2891,7 +2892,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -2916,7 +2917,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -3091,7 +3092,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -3241,7 +3242,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
