@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-30T07:49:11Z",
+ "generated": "2026-10-30T13:15:41Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -2942,7 +2942,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -2967,7 +2967,7 @@
      "sizes": {
       "min": 36,
       "max": 40,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
