@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-29T17:26:11Z",
+ "generated": "2026-10-30T07:41:17Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -363,7 +363,7 @@
      "sizes": {
       "min": 36,
       "max": 36,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -388,7 +388,7 @@
      "sizes": {
       "min": 36,
       "max": 36,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
@@ -413,7 +413,7 @@
      "sizes": {
       "min": 36,
       "max": 36,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": {
