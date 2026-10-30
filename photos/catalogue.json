@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-30T07:43:04Z",
+ "generated": "2026-10-30T07:46:27Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -1650,8 +1650,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 2,
-      "cod": true
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -1906,7 +1905,7 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -2083,7 +2082,7 @@
      "video": null,
      "videoPoster": null,
      "sizes": {
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -3324,7 +3323,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -3347,7 +3346,7 @@
      "sizes": {
       "min": 30,
       "max": 36,
-      "qty": 1
+      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -4200,7 +4199,7 @@
      "sizes": {
       "min": 24,
       "max": 36,
-      "qty": 1,
+      "qty": 0,
       "cod": true
      },
      "colors": {},
