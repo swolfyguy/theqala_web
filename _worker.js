@@ -2318,6 +2318,93 @@ async function updateOrder(request, env, who = "") {
     sets.push("items = ?"); bind.push(JSON.stringify(now2));
   }
 
+  /* ---------------------------------------------------------------------
+     The pieces themselves, changed by the shop (31 Oct 2026): one taken off,
+     another added, a quantity changed — she rang and changed her mind.
+
+     Sent as the whole list of pieces the order should now hold (the offer
+     line is the shop's to work out, never sent). A piece already on the
+     order keeps the price she agreed; a piece added now comes in at today's
+     price, its own offer included. Anything added beyond what was on the
+     order must still be in stock. Then the money is worked out again exactly
+     as for a new website order — multi-piece offer, shipping, cash on
+     delivery. An order taken on WhatsApp keeps its own shipping and simply
+     adds up its lines. An order already paid online cannot be changed here:
+     the money taken would no longer match. */
+  if (b.items != null) {
+    if (b.sizes != null || b.pay != null || b.price != null)
+      return json({ok: false, why: "Change the pieces on their own, then the rest."}, 400);
+    if (was.pay_state === "paid")
+      return json({ok: false, why: "This one is already paid online — its pieces can't be changed here."}, 400);
+    if (!Array.isArray(b.items) || !b.items.length)
+      return json({ok: false, why: "An order needs at least one piece. To drop the whole order, cancel it."}, 400);
+    if (b.items.length > MAX_ITEMS)
+      return json({ok: false, why: "That is more pieces than one order can hold."}, 400);
+
+    await howManyMade(env);
+    const old = safeItems(was.items).filter(l => l && l.code !== OFFER.code);
+    const oldQty = {};
+    for (const l of old) oldQty[l.code] = (oldQty[l.code] || 0) + (Number(l.qty) || 1);
+
+    const lines = [];
+    for (const raw of b.items) {
+      const code  = String((raw && raw.code) || "").trim().toUpperCase().slice(0, 64);
+      const qty   = Math.floor(Number(raw && raw.qty));
+      const size  = String((raw && raw.size) || "").trim();
+      const color = String((raw && raw.color) || "").trim().slice(0, 40);
+      if (!code || !Number.isFinite(qty) || qty < 1 || qty > 50)
+        return json({ok: false, why: "Each piece needs a quantity from 1 to 50."}, 400);
+      if (size && !POTH.includes(size)) return json({ok: false, why: "That is not a poth length we make."}, 400);
+      const before = old.find(l => l.code === code && (l.color || "") === color) || old.find(l => l.code === code);
+      const piece  = PIECE_OF[code];
+      if (!before && !piece) return json({ok: false, why: `There is no piece ${code} in the shop.`}, 400);
+      let line;
+      if (before) line = {...before, qty};
+      else {
+        const live  = offerLive(piece.offer);
+        const price = live ? offPrice(piece.price, piece.offer.pct) : piece.price;
+        line = {code, title: String((raw && raw.title) || "").trim().slice(0, 120) || code, qty, price};
+        if (live && price < piece.price) { line.was = piece.price; line.off = piece.offer.pct; }
+      }
+      if (size) line.size = size; else delete line.size;
+      if (color) line.color = color; else delete line.color;
+      lines.push(line);
+    }
+    if (!(await colorsAllowed(env, lines)))
+      return json({ok: false, why: "That colour is not one this piece comes in."}, 400);
+
+    /* Only what is added beyond the order's own pieces needs to be free —
+       what it already held is already counted against the shop. */
+    const taken = await takenNow(env);
+    const want = {};
+    for (const l of lines) want[l.code] = (want[l.code] || 0) + l.qty;
+    for (const [code, n] of Object.entries(want)) {
+      if (!(code in MADE)) continue;
+      const extra = n - (oldQty[code] || 0);
+      if (extra <= 0) continue;
+      const left = Math.max(0, MADE[code] - (taken[code] || 0));
+      if (extra > left)
+        return json({ok: false, why: left ? `Only ${left} more of ${code} left.` : `${code} is sold out.`}, 409);
+    }
+
+    const site = (was.source || "site") === "site";
+    const o = {items: lines, pay: was.pay, cod_fee: 0};
+    o.goods = lines.reduce((a, l) => a + l.price * l.qty, 0);
+    if (site) {
+      o.shipping = was.pay === "shop" ? 0 : (o.goods >= SHIP_FREE_OVER ? 0 : SHIP_FLAT);
+      o.cod_fee  = was.pay === "cod" ? COD_EXTRA : 0;
+      o.total    = o.goods + o.shipping + o.cod_fee;
+      applyOffer(o);
+      if (o.offerLine) o.items.push(o.offerLine);
+    } else {
+      o.shipping = Number(was.shipping) || 0;
+      o.cod_fee  = Number(was.cod_fee) || 0;
+      o.total    = o.goods + o.shipping + o.cod_fee;
+    }
+    sets.push("items = ?", "goods = ?", "shipping = ?", "cod_fee = ?", "total = ?");
+    bind.push(JSON.stringify(o.items), o.goods, o.shipping, o.cod_fee, o.total);
+  }
+
   /* Filling in the price the shop agreed in the chat.
      Only ever on an order that did not come through the website — a customer
      who saw a price on the shop must not have it changed underneath her. */

@@ -278,6 +278,23 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .poth{display:inline-block;border:1px solid var(--gold-2);color:var(--gold);
   border-radius:8px;padding:2px 10px;font-size:.85rem;font-weight:600}
 .items{margin:0;padding:0;list-style:none}
+/* Changing the pieces on an order. */
+.pedit{margin:10px 0 6px}
+.pedit .e-form{display:grid;gap:10px;margin-top:8px;padding:12px;border:1px dashed var(--line-2);border-radius:10px}
+.pedit .e-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dotted var(--line)}
+.pedit .e-line .nm{flex:1 1 12rem;min-width:0}
+.pedit .e-line .nm small{display:block;color:var(--ink-2);font-size:.76rem}
+.pedit input{padding:7px 9px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);
+  color:inherit;font:inherit;font-size:.88rem}
+.pedit input[type=number]{width:4.2rem}
+.pedit .e-add{display:flex;gap:8px;flex-wrap:wrap}
+.pedit .e-code{flex:1 1 14rem;min-width:0}
+.pedit .e-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pedit .e-say{font-size:.8rem;color:var(--ink-2)}
+.pedit .e-say.bad{color:var(--accent)}
+.pedit .e-note{margin:0;font-size:.76rem;color:var(--ink-2)}
+/* display:grid above would otherwise beat the hidden attribute. */
+.addrbox .a-form[hidden],.pedit .e-form[hidden],.addrbox .a-open[hidden],.pedit .e-open[hidden]{display:none}
 .items li{display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px dotted var(--line)}
 .items li:last-child{border-bottom:0}
 .items li.offerline .what{color:var(--accent);font-weight:600}
@@ -984,6 +1001,25 @@ function detail(o){
       <div>
         <h3>${realLines(o).length} piece${realLines(o).length === 1 ? "" : "s"}</h3>
         <ul class="items">${items}</ul>
+        ${o.pay_state === "paid" ? "" : `<div class="pedit">
+          <button type="button" class="act e-open">Change pieces</button>
+          <div class="e-form" hidden>
+            <div class="e-rows"></div>
+            <div class="e-add">
+              <input class="e-code" list="pieceList" placeholder="Add a piece — type its code or name"
+                aria-label="Piece to add" autocapitalize="characters" spellcheck="false">
+              <input class="e-qty" type="number" min="1" max="50" value="1" aria-label="How many">
+              <button type="button" class="act e-addbtn">Add</button>
+            </div>
+            <div class="e-row">
+              <button type="button" class="act e-save">Save pieces</button>
+              <button type="button" class="act e-cancel">Cancel</button>
+              <span class="e-say"></span>
+            </div>
+            <p class="e-note">Pieces already on the order keep their price. Added pieces come in
+              at today's price. The offer, shipping and total are worked out again when you save.</p>
+          </div>
+        </div>`}
         ${cameFrom(o) ? "" : `
         <div class="money"><span>Pieces</span><span>${rupees(o.goods + offerOffOf(o))}</span></div>
         ${offerOffOf(o) ? `<div class="money"><span>Multi-piece offer</span><span>\u2212${rupees(offerOffOf(o))}</span></div>` : ""}
@@ -1073,13 +1109,13 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref);
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref); bindPieces(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
       bindSizes(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref);
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref); bindPieces(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
@@ -1259,6 +1295,76 @@ function bindAddress(el, ref){
     } catch (err) {
       say.textContent = "not saved — " + err.message; say.className = "a-say bad";
     }
+  };
+}
+
+/* Every piece in the shop, for the "add a piece" box: type a code or a name
+   and the browser offers the match. Built once, after the catalogue loads. */
+function paintPieceList(){
+  let dl = document.getElementById("pieceList");
+  if (!dl) { dl = document.createElement("datalist"); dl.id = "pieceList"; document.body.appendChild(dl); }
+  if (dl.dataset.n === String(Object.keys(PIECES).length)) return;
+  dl.innerHTML = Object.values(PIECES).map(p =>
+    `<option value="${esc(p.code)}">${esc(nameOf({}, p))} \u00b7 ${rupees(p.price)}</option>`).join("");
+  dl.dataset.n = String(Object.keys(PIECES).length);
+}
+
+/* Change which pieces are on an order. Edited here as a list, sent whole when
+   saved; the book reprices, rechecks stock and redoes the money. */
+function bindPieces(el, ref){
+  const box = el.querySelector(".pedit");
+  if (!box || box.dataset.wired) return;
+  box.dataset.wired = "1";
+  paintPieceList();
+  const form = box.querySelector(".e-form"), rows = box.querySelector(".e-rows");
+  const say = box.querySelector(".e-say"), open = box.querySelector(".e-open");
+  let list = [];
+
+  const draw = () => {
+    rows.innerHTML = list.length ? list.map((l, i) => {
+      const p = PIECES[l.code];
+      return `<div class="e-line">
+        <span class="nm">${esc(nameOf(l, p))}<small>${esc(l.code === "OFFLINE" ? "no code" : l.code)}${
+          l.color ? " \u00b7 " + esc(l.color) : ""}${l.price != null ? " \u00b7 " + rupees(l.price) + " each"
+          : p ? " \u00b7 " + rupees(p.price) + " each (today)" : ""}${l.isNew ? " \u00b7 new" : ""}</small></span>
+        <input type="number" min="1" max="50" value="${l.qty}" data-q="${i}" aria-label="How many">
+        <button type="button" class="act" data-x="${i}">Remove</button></div>`;
+    }).join("") : `<div class="e-say bad">No pieces left — add one, or cancel the order instead.</div>`;
+    rows.querySelectorAll("[data-q]").forEach(inp => inp.oninput = () => {
+      list[+inp.dataset.q].qty = Math.max(1, Math.min(50, parseInt(inp.value, 10) || 1)); });
+    rows.querySelectorAll("[data-x]").forEach(b => b.onclick = () => { list.splice(+b.dataset.x, 1); draw(); });
+  };
+
+  open.onclick = () => {
+    const o = ORDERS.find(x => x.ref === ref) || {};
+    list = realLines(o).map(l => ({...l}));
+    form.hidden = false; open.hidden = true; say.textContent = ""; draw();
+  };
+  box.querySelector(".e-cancel").onclick = () => { form.hidden = true; open.hidden = false; say.textContent = ""; };
+  box.querySelector(".e-addbtn").onclick = () => {
+    const code = box.querySelector(".e-code").value.trim().toUpperCase();
+    const qty  = Math.max(1, Math.min(50, parseInt(box.querySelector(".e-qty").value, 10) || 1));
+    const p = PIECES[code];
+    if (!p) { say.textContent = "No piece " + (code || "") + " in the shop — pick one from the list."; say.className = "e-say bad"; return; }
+    const same = list.find(l => l.code === code && !l.color);
+    if (same) same.qty = Math.min(50, same.qty + qty);
+    else list.push({code, qty, title: nameOf({}, p), isNew: true});
+    box.querySelector(".e-code").value = ""; box.querySelector(".e-qty").value = "1";
+    say.textContent = ""; draw();
+  };
+  box.querySelector(".e-save").onclick = async () => {
+    if (!list.length) { say.textContent = "An order needs at least one piece."; say.className = "e-say bad"; return; }
+    say.textContent = "saving…"; say.className = "e-say";
+    try {
+      const r = await api("/office/api", {method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, items: list.map(l => ({code: l.code, qty: l.qty, title: l.title || "",
+          size: l.size || "", color: l.color || ""}))})});
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      snack("pieces saved — total worked out again");
+      await load();
+    } catch (err) { say.textContent = "not saved — " + err.message; say.className = "e-say bad"; }
   };
 }
 
