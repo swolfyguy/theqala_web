@@ -890,7 +890,11 @@ const COURIER_UA   = "The Qala (theqalashree.com) pincode check - 9011240352";
    zoneType is deliberately NOT used. DHANORI is zoneType 2 and is a Pune
    suburb they certainly serve, so zoneType is not the signal. It is stored
    anyway, in case that turns out to be wrong. */
-const DELIVERS = t => String(t) === "1";
+/* Updated 31 Oct 2026: Jalna (431203) marks its plain city lanes — JALNA
+   CITY, OLD JALNA, KADRABAD — with 2 and 3, and only its outlying villages
+   with 9. So 9 is the one that means "not delivered"; everything else,
+   including a lane left blank, counts as delivered. */
+const DELIVERS = t => String(t) !== "9";
 
 const isPin = p => /^[1-9]\d{5}$/.test(p);
 
@@ -931,7 +935,9 @@ const TOO_COMMON = new Set(["ROAD","GAON","NAGAR","MARG","MARGA","EAST","WEST",
 
 /* One area name can hold two lanes — "VISHRANTWADI , KALAS" — and either
    matching is a match. */
-const phrasesOf = name => String(name || "").split(",")
+/* Lanes are separated by commas, and sometimes by "AND", "&" or "/" —
+   Jalna lists "OLD JALNA AND OLD MIDC" as one entry (31 Oct 2026). */
+const phrasesOf = name => String(name || "").split(/,|&|\/|\s+AND\s+/i)
   .map(flatAddr).filter(p => p.length >= 4)
   .filter(p => !(p.split(" ").length === 1 && TOO_COMMON.has(p)));
 
@@ -2259,6 +2265,26 @@ async function updateOrder(request, env, who = "") {
        and the worked-out verdict is written to r.anjani a moment later. Two
        different things must not share a name. */
     sets.push("anjani_set = ?"); bind.push(a);
+  }
+
+  /* Her address, put right afterwards: she messaged a new flat number, a
+     landmark, or the right pincode. Same rules as when the order came in —
+     a full address and a six-digit pincode — except on an order she is
+     collecting at the shop, which needs neither. (30 Oct 2026.) */
+  if (b.address != null || b.pincode != null) {
+    const pickup = (newPay || was.pay) === "shop";
+    if (b.address != null) {
+      const addr = String(b.address).replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim().slice(0, 400);
+      if (!pickup && addr.length < 12)
+        return json({ok: false, why: "That address looks too short — give the full address."}, 400);
+      sets.push("address = ?"); bind.push(addr);
+    }
+    if (b.pincode != null) {
+      const pin = String(b.pincode).replace(/\D/g, "");
+      if (!(pickup && pin === "") && !/^[1-9][0-9]{5}$/.test(pin))
+        return json({ok: false, why: "A pincode is six digits."}, 400);
+      sets.push("pincode = ?"); bind.push(pin);
+    }
   }
 
   if (b.poth != null) {

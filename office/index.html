@@ -265,6 +265,15 @@ input[type=search]{flex:1 1 200px;min-width:0;padding:9px 12px;border:1px solid 
 .obody h3{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
   font-weight:600;margin:10px 0 4px}
 .who-lines{white-space:pre-wrap;word-break:break-word}
+.addrbox{margin:8px 0 2px}
+.addrbox .a-form{display:grid;gap:8px;margin-top:8px}
+.addrbox textarea,.addrbox input{width:100%;padding:9px 11px;border:1px solid var(--line-2);
+  border-radius:9px;background:var(--panel);color:inherit;font:inherit;font-size:.9rem}
+.addrbox input{max-width:9rem;font-variant-numeric:tabular-nums}
+.addrbox textarea:focus,.addrbox input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--wash-gold)}
+.addrbox .a-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.addrbox .a-say{font-size:.8rem;color:var(--ink-2)}
+.addrbox .a-say.bad{color:var(--accent)}
 .who-lines a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--gold-2)}
 .poth{display:inline-block;border:1px solid var(--gold-2);color:var(--gold);
   border-radius:8px;padding:2px 10px;font-size:.85rem;font-weight:600}
@@ -904,6 +913,20 @@ function detail(o){
               : "no piece code on it, so nothing is held on the website"}</span></div>` : ""}
         <h3>Who</h3>
         <div class="who-lines">${where}</div>
+        ${pickup ? "" : `<div class="addrbox">
+          <button type="button" class="act a-open">Edit address</button>
+          <div class="a-form" hidden>
+            <textarea class="a-addr" rows="3" maxlength="400" aria-label="Delivery address"
+              placeholder="House / flat, street, area, city">${esc(o.address || "")}</textarea>
+            <input class="a-pin" inputmode="numeric" maxlength="6" aria-label="Pincode"
+              placeholder="Pincode" value="${esc(o.pincode || "")}">
+            <div class="a-row">
+              <button type="button" class="act a-save">Save address</button>
+              <button type="button" class="act a-cancel">Cancel</button>
+              <span class="a-say"></span>
+            </div>
+          </div>
+        </div>`}
         ${howMany > 1 ? `<h3>What they sent</h3>
         <div class="sentshots">${Array.from({length: howMany}, (_, i) =>
           `<a href="${shotUrl(i)}" target="_blank" rel="noopener" title="Picture ${i + 1} of ${howMany}">
@@ -1050,13 +1073,13 @@ function wire(){
       box.hidden = !now;
       el.classList.toggle("open", now);
       el.querySelector(".row").setAttribute("aria-expanded", String(now));
-      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
+      if (now) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
       bindSizes(el, ref); }
     };
-    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref);
+    if (OPEN.has(ref)) { bindActs(el, ref); bindFill(el, ref); bindPurge(el, ref); bindPay(el, ref); bindMemo(el, ref); bindAddress(el, ref);
       bindPick(el, ref, ".p-poth", "poth", v => v ? v + " inches" : "poth not set");
       bindPick(el, ref, ".p-anj", "anjani", v =>
         v === "yes" ? "Anjani yes" : v === "no" ? "Anjani no" : "Anjani back to the check");
@@ -1200,6 +1223,43 @@ function anjaniNote(o){
              : ` — ${esc(a.why || "")}`}.
       Book it with another service.</div>`;
   return "";
+}
+
+/* Change where it goes. Saved on the button, not as she types — an address
+   half-edited must never be the one a parcel is booked to. A new pincode is
+   looked up with the courier straight away, so the Anjani column is right
+   when the list redraws. */
+function bindAddress(el, ref){
+  const box = el.querySelector(".addrbox");
+  if (!box || box.dataset.wired) return;
+  box.dataset.wired = "1";
+  const open = box.querySelector(".a-open"), form = box.querySelector(".a-form");
+  const addr = box.querySelector(".a-addr"), pin = box.querySelector(".a-pin");
+  const say  = box.querySelector(".a-say");
+  open.onclick = () => { form.hidden = false; open.hidden = true; addr.focus(); };
+  box.querySelector(".a-cancel").onclick = () => {
+    const o = ORDERS.find(x => x.ref === ref) || {};
+    addr.value = o.address || ""; pin.value = o.pincode || "";
+    form.hidden = true; open.hidden = false; say.textContent = "";
+  };
+  box.querySelector(".a-save").onclick = async () => {
+    const a = addr.value.trim(), p = pin.value.replace(/\D/g, "");
+    if (!/^[1-9][0-9]{5}$/.test(p)) { say.textContent = "A pincode is six digits."; say.className = "a-say bad"; pin.focus(); return; }
+    if (a.length < 12) { say.textContent = "Please give the full address."; say.className = "a-say bad"; addr.focus(); return; }
+    say.textContent = "saving…"; say.className = "a-say";
+    try {
+      const r = await api("/office/api", {method: "POST", headers: {"content-type": "application/json"},
+        body: JSON.stringify({ref, address: a, pincode: p})});
+      const d = await r.json();
+      if (r.status === 401) { gate(d.why); return; }
+      if (!r.ok || !d.ok) throw new Error(d.why || "refused");
+      try { await fetch("/api/pincode/" + p); } catch (e) {}   /* warm the courier check */
+      snack("address saved");
+      await load();
+    } catch (err) {
+      say.textContent = "not saved — " + err.message; say.className = "a-say bad";
+    }
+  };
 }
 
 function bindMemo(el, ref){

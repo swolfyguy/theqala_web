@@ -80,7 +80,15 @@ input:focus{outline:none;border-color:var(--gold-2);box-shadow:0 0 0 3px var(--w
 .pill.unknown{color:var(--unknown)}
 .obody{padding:16px 18px}
 .lines{list-style:none;margin:0 0 14px;padding:0}
-.lines li{display:flex;gap:10px;padding:7px 0;border-top:1px dashed var(--line);font-size:.94rem}
+.lines li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px dashed var(--line);font-size:.94rem}
+/* Each piece with its own photograph, so she sees what she ordered, not a code. */
+.lines .thumb{flex:none;width:58px;height:72px;border-radius:9px;overflow:hidden;
+  background:var(--panel-2);border:1px solid var(--line);display:block}
+.lines .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.lines .t a{color:inherit;text-decoration:none;font-weight:600}
+.lines .t a:hover{text-decoration:underline}
+.lines .m{display:block;font-size:.8rem;color:var(--ink-2);margin-top:3px;line-height:1.45}
+.lines .p s{color:var(--ink-2);font-size:.8rem;margin-right:4px}
 .lines li:first-child{border-top:none}
 .lines .t{flex:1}
 .lines .q{color:var(--ink-2);font-size:.86rem;white-space:nowrap}
@@ -153,6 +161,46 @@ function when(iso, withTime){
 }
 const money = n => "₹" + Number(n || 0).toLocaleString("en-IN");
 
+/* The shop's own catalogue, for each piece's photograph and page. Read once,
+   alongside her orders; if it cannot be had, the lines simply show without a
+   picture. */
+let CAT = null;
+async function catalogue(){
+  if (CAT) return CAT;
+  CAT = {};
+  try {
+    const d = await (await fetch("/photos/catalogue.json")).json();
+    for (const c of d.categories || [])
+      for (const p of c.products || [])
+        CAT[p.code] = {img: (p.images || [])[0] || ""};
+  } catch (e) {}
+  return CAT;
+}
+const fileUrl = f => "/" + String(f).split("/").map(encodeURIComponent).join("/");
+const pageOf  = code => "/piece/" + encodeURIComponent(String(code).toLowerCase()) + "/";
+
+/* One piece of her order: photograph, name (to its page), code, colour and
+   poth length, and the price — each and in all. */
+function line(i){
+  const known = CAT && CAT[i.code];
+  const qty   = i.qty || 1;
+  const pic   = known && known.img
+    ? `<a class="thumb" href="${pageOf(i.code)}"><img src="${esc(fileUrl(known.img))}" alt="" loading="lazy"
+         onerror="this.parentNode.style.visibility='hidden'"></a>`
+    : `<span class="thumb" aria-hidden="true"></span>`;
+  const name  = known
+    ? `<a href="${pageOf(i.code)}">${esc(i.title || i.code)}</a>`
+    : esc(i.title || i.code || "A piece");
+  const bits  = [i.code && i.code !== "OFFLINE" ? esc(i.code) : "",
+                 i.color ? "Colour: " + esc(i.color) : "",
+                 i.size ? "Poth: " + esc(i.size) + " in" : "",
+                 qty > 1 ? money(i.price) + " each" : ""].filter(Boolean);
+  return `<li>${pic}
+      <span class="t">${name}${bits.length ? `<span class="m">${bits.join(" \u00b7 ")}</span>` : ""}</span>
+      ${qty > 1 ? `<span class="q">×${esc(qty)}</span>` : ""}
+      <span class="p">${i.was ? `<s>${money(i.was * qty)}</s>` : ""}${money((i.price || 0) * qty)}</span></li>`;
+}
+
 /* A parcel coming back to us — the courier's word is RTO. */
 const isReturn = t => /\brto\b|return/i.test(String(t || ""));
 
@@ -194,6 +242,7 @@ async function send(){
   $("#go").disabled = true;
   say.className = "say"; say.textContent = "one moment…";
   let d = null;
+  const cat = catalogue();               /* asked for alongside her orders */
   try {
     const r = await fetch("/api/track", {
       method: "POST", headers: {"content-type": "application/json"},
@@ -207,6 +256,7 @@ async function send(){
     say.textContent = (d && d.why) || "That did not work. Please try again.";
     return;
   }
+  await cat;
   paintOrders(d);
 }
 
@@ -246,9 +296,7 @@ function card(o){
       <ul class="lines">${(o.items || []).map(i => i.code === "OFFER-BUY2" ? `
         <li><span class="t">${esc(i.title || "Buy-2 offer")}</span>
             <span class="p">\u2212${money(-(i.price || 0))}</span></li>` : `
-        <li><span class="t">${esc(i.title || i.code || "A piece")}</span>
-            ${i.qty > 1 ? `<span class="q">×${esc(i.qty)}</span>` : ""}
-            <span class="p">${money((i.price || 0) * (i.qty || 1))}</span></li>`).join("")}</ul>
+        ${line(i)}`).join("")}</ul>
       <div class="sum"><span>Total${paid ? " · " + esc(paid) : ""}</span><span>${money(o.total)}</span></div>
       ${o.poth ? `<div class="none">Poth length: ${esc(o.poth)} inches</div>` : ""}
       ${(o.parcels || []).length

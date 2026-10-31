@@ -3379,7 +3379,9 @@ const flatAddr = s => String(s || "").toUpperCase()
 const TOO_COMMON = new Set(["ROAD","GAON","NAGAR","MARG","MARGA","EAST","WEST",
   "NORTH","SOUTH","CITY","MAIN","NEW","OLD","MALL","SECTOR","PARK","MARKET",
   "PUNE","MUMBAI","NAVI","THANE","AREA","VILLAGE","CHOWK","GALLI","PETH"]);
-const phrasesOf = name => String(name || "").split(",")
+/* Lanes are separated by commas, and sometimes by "AND", "&" or "/" —
+   Jalna lists "OLD JALNA AND OLD MIDC" as one entry (31 Oct 2026). */
+const phrasesOf = name => String(name || "").split(/,|&|\/|\s+AND\s+/i)
   .map(flatAddr).filter(p => p.length >= 4)
   .filter(p => !(p.split(" ").length === 1 && TOO_COMMON.has(p)));
 
@@ -3403,7 +3405,7 @@ function wirePin(box, say, addrBox){
   const paint = () => {
     if (!seen || !seen.covered) { say.textContent = ""; return; }
     const m = matchArea(addrBox ? addrBox.value : "", seen.centres);
-    if (m && String(m.d) !== "1") {
+    if (m && String(m.d) === "9") {     /* 9 = a lane they skip; see DELIVERS in _worker.js */
       /* A lane they skip. She is told plainly, and can still order. */
       say.textContent = "Our usual courier does not deliver to this lane. You can still "
                       + "order — we will send it another way and tell you on WhatsApp.";
