@@ -477,6 +477,20 @@ video.photo{background:#000;object-fit:contain}
 .hero .stage{position:relative;display:grid;place-items:center;min-height:420px}
 .hero .stage .halo{position:absolute;width:92%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--wash-gold) 0%,transparent 68%)}
 .hero .stage .heroshot{position:relative;width:min(370px,84%);box-shadow:0 30px 60px -34px var(--shadow-2)}
+/* Controls on the opening video: sound bottom-left, pause bottom-right. */
+.heroshot .vidbtn,.heroshot .vidsnd{position:absolute;bottom:18px;z-index:4;border:0;cursor:pointer;
+  background:rgba(20,10,8,.64);color:#fff;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.heroshot .vidbtn{right:18px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;padding:0}
+.heroshot .vidbtn svg{width:15px;height:15px}
+.heroshot .vidsnd{left:18px;height:40px;border-radius:999px;padding:0 15px 0 12px;display:inline-flex;
+  align-items:center;gap:7px;font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em}
+.heroshot .vidsnd svg{width:18px;height:18px;flex:none}
+.heroshot .vidsnd[aria-pressed="false"]{animation:sndhint 2.4s ease-in-out 1.2s 3}
+@keyframes sndhint{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.25)}50%{box-shadow:0 0 0 6px rgba(207,168,79,.45)}}
+.heroshot .vidbtn:focus-visible,.heroshot .vidsnd:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px}
+.heroshot .vidbtn[hidden],.heroshot .vidsnd[hidden]{display:none}
+@media (prefers-reduced-motion: reduce){ .heroshot .vidsnd{animation:none} }
 .trustrow{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
 .trustrow div{flex:1 1 200px;padding:17px 20px;font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);border-right:1px solid var(--line);text-align:center}
 .trustrow div:last-child{border-right:0}
@@ -1942,7 +1956,11 @@ window.qalaMiss = function(img){
   img.remove();
 };
 
-/* the opening video: photos/hero.mp4, silent and looping, with a pause button */
+/* the opening video: photos/hero.mp4, looping, with a pause button and a sound
+   button. It has to start muted — no browser lets a page play sound before a
+   tap — so the sound button is how she hears it (31 Oct 2026). */
+const SOUND_OFF = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6"/></svg>`;
+const SOUND_ON  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>`;
 function heroVideo(){
   const src = CATALOGUE && CATALOGUE.hero && CATALOGUE.hero.video;
   if (!src) return "";
@@ -1954,7 +1972,8 @@ function heroVideo(){
     </video>
     <button class="vidbtn" id="vidBtn" hidden aria-label="Pause video">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-    </button>`;
+    </button>
+    <button class="vidsnd" id="sndBtn" type="button" hidden aria-pressed="false">${SOUND_OFF}<span>Sound off</span></button>`;
 }
 window.qalaNoVideo = function(src){
   const v = src.closest("video"); if (v) v.remove();
@@ -3657,7 +3676,21 @@ function wire(route){
       if (wv.readyState >= 1) fit(); else wv.addEventListener("loadedmetadata", fit, {once:true});
       addEventListener("resize", fit, {passive:true});
     }
-    const v = $("#heroVid"), btn = $("#vidBtn");
+    const v = $("#heroVid"), btn = $("#vidBtn"), snd = $("#sndBtn");
+    if (v && snd) {
+      const paintSnd = () => {
+        snd.innerHTML = (v.muted ? SOUND_OFF : SOUND_ON) + `<span>${v.muted ? "Sound off" : "Sound on"}</span>`;
+        snd.setAttribute("aria-pressed", String(!v.muted));
+        snd.setAttribute("aria-label", v.muted ? "Turn the video sound on" : "Turn the video sound off");
+      };
+      v.addEventListener("loadeddata", () => { snd.hidden = false; }, {once:true});
+      snd.onclick = () => {
+        v.muted = !v.muted;
+        if (!v.muted) { v.volume = 1; if (v.paused) { v.play(); if (btn) { btn.innerHTML = ICON_PAUSE; btn.setAttribute("aria-label","Pause video"); } } }
+        paintSnd();
+      };
+      paintSnd();
+    }
     if (v && btn) {
       v.addEventListener("loadeddata", () => { btn.hidden = false; }, {once:true});
       const pr = v.play();
