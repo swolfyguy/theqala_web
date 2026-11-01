@@ -360,7 +360,9 @@ function paint(){
       const on = b.dataset.on === "yes";
       const d = await send({hand: b.dataset.hand, on});
       await load();
-      snack(d && d.ok ? (on ? "marked delivered" : "back on the list — it will be asked about again")
+      snack(d && d.ok ? (on ? "marked delivered" + (d.order_done ? " · order " + d.order_done + " moved to Done" : "")
+                            : "back on the list — it will be asked about again"
+                              + (d.order_back ? " · order " + d.order_back + " back to Sent" : ""))
                       : "could not do that — " + ((d && d.why) || "no answer"));
     };
   });

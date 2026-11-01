@@ -1176,6 +1176,28 @@ async function askCourier(awb) {
    order from last month, a deleted one, or an order already tied to its
    parcel is never picked. Newest first. {phone: [{ref, status, ...}]} */
 const OPEN_FOR_PARCEL = ["new", "confirmed", "sent"];
+
+/* A delivered parcel finishes its order (1 Nov 2026, his rule): when the
+   courier says delivered, or the shop marks it delivered by hand, the order
+   it is tied to moves to "done" — only from new, confirmed or sent, never a
+   cancelled or deleted one. Taking the mark back ("not delivered after all")
+   puts a done order back to "sent". Returns the order code it moved, or "". */
+async function orderFollowsParcel(env, awb, delivered) {
+  try {
+    const p = await env.DB.prepare("SELECT ref FROM parcels WHERE awb = ?").bind(awb).first();
+    if (!p || !p.ref) return "";
+    const now = new Date().toISOString();
+    const res = delivered
+      ? await env.DB.prepare(
+          `UPDATE orders SET status = 'done', updated_at = ?
+            WHERE ref = ? AND status IN ('new', 'confirmed', 'sent')`).bind(now, p.ref).run()
+      : await env.DB.prepare(
+          `UPDATE orders SET status = 'sent', updated_at = ?
+            WHERE ref = ? AND status = 'done'`).bind(now, p.ref).run();
+    return (res && res.meta && typeof res.meta.changes === "number" ? res.meta.changes > 0 : true)
+      ? p.ref : "";
+  } catch (e) { return ""; }
+}
 async function openOrdersFor(env, phones) {
   const by = {};
   if (!phones.length) return by;
@@ -1224,11 +1246,24 @@ async function parcels(request, env) {
               const res = await env.DB.prepare(
                 "UPDATE parcels SET ref = ? WHERE awb = ? AND (ref IS NULL OR ref = '')")
                 .bind(m[0].ref, p.awb).run();
-              if (didWrite(res)) { p.ref = m[0].ref; p.tied_now = true; by[p.phone] = []; }
+              if (didWrite(res)) {
+                p.ref = m[0].ref; p.tied_now = true; by[p.phone] = [];
+                if (p.done) await orderFollowsParcel(env, p.awb, true);
+              }
             } else p.matches = m.slice(0, 6);
           }
         } catch (e) { /* the list still opens; nothing tied this time */ }
       }
+      /* Parcels that arrived before the "delivered finishes the order" rule
+         existed, or whose order was tied afterwards: catch their orders up.
+         One statement, and only open orders move. */
+      try {
+        await env.DB.prepare(
+          `UPDATE orders SET status = 'done', updated_at = ?
+            WHERE status IN ('new', 'confirmed', 'sent')
+              AND ref IN (SELECT ref FROM parcels WHERE done = 1 AND ref IS NOT NULL AND ref != '')`)
+          .bind(new Date().toISOString()).run();
+      } catch (e) { /* the list still opens */ }
       return json({ok: true, on: !!ANJANI_TRACK, parcels: list}, 200, {"cache-control": "no-store"});
     } catch (e) {
       return json({ok: false, why: "The order book has no parcels table yet. "
@@ -1316,7 +1351,8 @@ async function parcels(request, env) {
         .bind(seen.status, seen.booked_at, seen.from_c, seen.to_c, seen.moves,
               done, new Date().toISOString(), awb).run();
     } catch (e) { return json({ok: true, asked: false, why: "could not write it down"}); }
-    return json({ok: true, asked: true, awb, status: seen.status, done: !!done});
+    const finished = done ? await orderFollowsParcel(env, awb, true) : "";
+    return json({ok: true, asked: true, awb, status: seen.status, done: !!done, order_done: finished});
   }
 
   /* ---- tie this parcel to an order, or untie it ----
@@ -1365,8 +1401,16 @@ async function parcels(request, env) {
           + `line for it in the D1 console, then try again.`
         : "Could not write that down: " + said}, 500);
     }
+    /* Tied to a parcel that has already arrived: the order is finished too. */
+    let finished = "";
+    if (order) {
+      try {
+        const pd = await env.DB.prepare("SELECT done FROM parcels WHERE awb = ?").bind(awb).first();
+        if (pd && pd.done) finished = await orderFollowsParcel(env, awb, true);
+      } catch (e) {}
+    }
     return json({ok: true, awb, ref: order ? order.ref : "",
-                 who: order ? String(order.name || "") : ""});
+                 who: order ? String(order.name || "") : "", order_done: finished});
   }
 
   /* ---- say it has arrived ourselves, or take that back ----
@@ -1397,7 +1441,9 @@ async function parcels(request, env) {
           + `line for it in the D1 console, then try again.`
         : "Could not write that down: " + said}, 500);
     }
-    return json({ok: true, awb, done: on, by: on ? whom : "", at: on ? now : ""});
+    const moved = await orderFollowsParcel(env, awb, on);
+    return json({ok: true, awb, done: on, by: on ? whom : "", at: on ? now : "",
+                 order_done: on ? moved : "", order_back: on ? "" : moved});
   }
 
   /* ---- take one off the list ---- */
