@@ -1170,6 +1170,27 @@ async function askCourier(awb) {
   }
 }
 
+/* Which orders a parcel for this number could be for (1 Nov 2026, his rule):
+   only an order still open — new, confirmed or sent — and not already
+   carrying a parcel. A cancelled order she replaced with a new one, a done
+   order from last month, a deleted one, or an order already tied to its
+   parcel is never picked. Newest first. {phone: [{ref, status, ...}]} */
+const OPEN_FOR_PARCEL = ["new", "confirmed", "sent"];
+async function openOrdersFor(env, phones) {
+  const by = {};
+  if (!phones.length) return by;
+  const {results} = await env.DB.prepare(
+    `SELECT o.ref, o.phone, o.status, o.placed_at, o.name FROM orders o
+      WHERE o.phone IN (${phones.map(() => "?").join(",")})
+        AND o.status IN (${OPEN_FOR_PARCEL.map(() => "?").join(",")})
+        AND NOT EXISTS (SELECT 1 FROM parcels p WHERE p.ref = o.ref)
+      ORDER BY o.placed_at DESC`).bind(...phones, ...OPEN_FOR_PARCEL).all();
+  for (const o of results || [])
+    (by[o.phone] = by[o.phone] || []).push(
+      {ref: o.ref, status: o.status, placed_at: o.placed_at, name: o.name || ""});
+  return by;
+}
+
 async function parcels(request, env) {
   const who = await whoGoes(request, env);
   if (!who.ok) return json({ok: false, login: true, why: who.why}, 401);
@@ -1181,10 +1202,34 @@ async function parcels(request, env) {
       const {results} = await env.DB.prepare(
         `SELECT * FROM parcels
          ORDER BY CASE WHEN booked_at = '' THEN added_at ELSE booked_at END DESC`).all();
-      return json({ok: true, on: !!ANJANI_TRACK, parcels: (results || []).map(r => ({
+      const list = (results || []).map(r => ({
         ...r, moves: (() => { try { return JSON.parse(r.moves || "[]"); } catch { return []; } })(),
         link: trackLink(r.awb), carrier: carrierOf(r.awb), asks: !isIndiaPost(r.awb)
-      }))}, 200, {"cache-control": "no-store"});
+      }));
+
+      /* A parcel written down with her number but not tied — usually because
+         the order reached the book after the parcel did — is looked at again
+         every time this list opens (1 Nov 2026). Same rule as when it was
+         added: her number on exactly one order ties it; on several, the
+         candidates are handed to the page to pick from; on none, the page
+         says so. A parcel untied by hand has its number wiped, so it is
+         never tied back behind anybody's back. */
+      const loose = list.filter(p => !p.ref && /^[6-9][0-9]{9}$/.test(p.phone || ""));
+      if (loose.length) {
+        try {
+          const by = await openOrdersFor(env, [...new Set(loose.map(p => p.phone))]);
+          for (const p of loose) {
+            const m = by[p.phone] || [];
+            if (m.length === 1) {
+              const res = await env.DB.prepare(
+                "UPDATE parcels SET ref = ? WHERE awb = ? AND (ref IS NULL OR ref = '')")
+                .bind(m[0].ref, p.awb).run();
+              if (didWrite(res)) { p.ref = m[0].ref; p.tied_now = true; by[p.phone] = []; }
+            } else p.matches = m.slice(0, 6);
+          }
+        } catch (e) { /* the list still opens; nothing tied this time */ }
+      }
+      return json({ok: true, on: !!ANJANI_TRACK, parcels: list}, 200, {"cache-control": "no-store"});
     } catch (e) {
       return json({ok: false, why: "The order book has no parcels table yet. "
         + "Paste schema.sql into the D1 console again."}, 500);
@@ -1211,10 +1256,8 @@ async function parcels(request, env) {
       let ref = "";
       if (r.phone) {
         try {
-          const {results} = await env.DB.prepare(
-            `SELECT ref FROM orders WHERE phone = ? AND status != 'deleted'
-             ORDER BY placed_at DESC LIMIT 2`).bind(r.phone).all();
-          if (results && results.length === 1) { ref = results[0].ref; tied++; }
+          const m = (await openOrdersFor(env, [r.phone]))[r.phone] || [];
+          if (m.length === 1) { ref = m[0].ref; tied++; }
         } catch (e) { /* the parcel is still written down without the tie */ }
       }
       try {
