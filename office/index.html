@@ -8,7 +8,7 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&family=Tiro+Devanagari+Marathi&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700&family=Tiro+Devanagari+Marathi&family=Mukta:wght@400;600;800&display=swap">
 <style>
 :root{
   --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
@@ -358,6 +358,87 @@ b.paid{color:var(--sent);font-weight:600}
   max-width:92vw;text-align:center}
 #snack.up{transform:translate(-50%,0)}
 #snack:empty{display:none}
+
+/* ---------- Parcel labels (2 Nov 2026) ----------
+   A tick on each order, a bar that appears once something is ticked, and an
+   A4 sheet with two labels — top half, bottom half. One ticked order prints
+   on the top half only. Everything for the sheet is prefixed lb- so none of
+   the order book's own rules reach it. */
+.rowline{display:flex;align-items:stretch}
+.rowline .row{flex:1;min-width:0}
+.pick{flex:none;width:38px;display:grid;place-items:center;cursor:pointer;border-right:1px solid var(--line)}
+.pick input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;margin:0}
+.pick.none{cursor:default}
+.order.ticked{border-color:var(--accent)}
+@media (min-width:760px){ #head2{padding-left:54px} }
+.printbar{position:fixed;left:0;right:0;margin:0 auto;width:fit-content;bottom:16px;z-index:30;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);border-radius:14px;
+  padding:10px 14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.35);max-width:calc(100vw - 24px)}
+.printbar b{font-weight:700}
+.printbar button{font:inherit;font-size:.9rem;border-radius:9px;padding:8px 14px;cursor:pointer;
+  border:1px solid var(--line-2);background:none;color:var(--ink)}
+.printbar button.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.printbar .hint{font-size:.78rem;color:var(--ink-2);width:100%;text-align:center}
+.printbar[hidden]{display:none}
+body:has(#printbar:not([hidden])) .list{padding-bottom:130px}
+
+#labels{display:none}
+@page lbsheet{size:A4;margin:0}
+@media print{
+  body.lb-printing > :not(#labels){display:none !important}
+  body.lb-printing{background:#fff !important;margin:0}
+  body.lb-printing #labels{display:block}
+}
+#labels{color:#1d1414;font-family:Karla,"Mukta","Nirmala UI",system-ui,sans-serif;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lb-sheet{page:lbsheet;width:210mm;height:297mm;display:flex;flex-direction:column;
+  break-after:page;page-break-after:always;background:#fff;overflow:hidden}
+.lb-sheet:last-child{break-after:auto;page-break-after:auto}
+.lb-half{height:148.5mm;padding:7mm 9mm;position:relative;display:flex}
+.lb-half + .lb-half{border-top:1px dashed #b9a79b}
+.lb-half + .lb-half::before{content:"\2702  cut here";position:absolute;top:-2.3mm;left:12mm;
+  background:#fff;padding:0 2mm;font-size:8pt;color:#9a8a80;letter-spacing:.08em}
+.lb-half.lb-blank{border-top-color:transparent}
+.lb-half.lb-blank::before{content:none}
+.lb-card{flex:1;border:1.6mm solid #8b1a1a;border-radius:2.5mm;display:flex;flex-direction:column;overflow:hidden}
+.lb-border{height:4.2mm;flex:none;background:
+  radial-gradient(circle at 50% 50%, #e8b84a 0 .8mm, transparent .9mm) 0 0/5mm 4.2mm,
+  linear-gradient(#8b1a1a,#8b1a1a)}
+.lb-inner{padding:3.2mm 6mm 0;display:flex;flex-direction:column;gap:2.6mm;flex:1;min-height:0}
+.lb-head{display:flex;gap:5mm;align-items:center}
+.lb-head img{width:50mm;height:auto;display:block;border-radius:1mm}
+.lb-from{font-size:8.6pt;line-height:1.38;color:#5d4a46;border-left:.4mm solid #d9c6b8;padding-left:4mm}
+.lb-k{display:block;font-size:7pt;letter-spacing:.16em;text-transform:uppercase;color:#8b1a1a;font-weight:700;margin-bottom:.6mm}
+.lb-from b{color:#1d1414;font-family:Marcellus,Georgia,serif;font-weight:400;font-size:11pt;letter-spacing:.02em}
+.lb-to{flex:1;display:flex;flex-direction:column;gap:1.8mm;padding-top:1mm;min-height:0;overflow:hidden}
+.lb-to .lb-k{font-size:8pt;letter-spacing:.2em;font-weight:800;margin:0}
+.lb-to .lb-k span{font-family:"Tiro Devanagari Marathi",serif;letter-spacing:0;text-transform:none;font-weight:400;font-size:10pt;margin-left:1.5mm}
+.lb-name{font-size:26pt;font-weight:800;line-height:1.1}
+.lb-addr{font-size:16pt;line-height:1.35;max-width:170mm}
+.lb-addr.long{font-size:13.5pt}
+.lb-addr.vlong{font-size:11.5pt}
+.lb-name.mr,.lb-addr.mr{font-family:"Mukta","Tiro Devanagari Marathi",sans-serif}
+.lb-reach{display:flex;align-items:center;gap:7mm;margin-top:1.2mm;flex-wrap:wrap}
+.lb-pin{display:flex;align-items:center;gap:1.4mm}
+.lb-t{font-size:8pt;font-weight:800;letter-spacing:.14em;color:#8b1a1a;margin-right:1mm}
+.lb-pin i{font-style:normal;width:8.6mm;height:10.6mm;border:.45mm solid #1d1414;border-radius:1mm;
+  display:grid;place-items:center;font-size:17pt;font-weight:800;font-variant-numeric:tabular-nums}
+.lb-pin em{font-style:normal;font-size:17pt;font-weight:800}
+.lb-phone{font-size:20pt;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.lb-foot{display:flex;align-items:center;gap:4mm;border-top:.35mm solid #d9c6b8;padding-top:2.4mm}
+.lb-facts{flex:1;display:flex;flex-wrap:wrap;gap:1mm 6mm}
+.lb-facts div{display:flex;flex-direction:column}
+.lb-facts span{font-size:6.8pt;letter-spacing:.16em;text-transform:uppercase;color:#5d4a46;font-weight:700}
+.lb-facts b{font-size:10.5pt;font-weight:700}
+.lb-stamp{flex:none;min-width:52mm;border:.6mm solid #8b1a1a;border-radius:1.6mm;padding:1.6mm 3.5mm;
+  display:flex;flex-direction:column;justify-content:center;text-align:center;transform:rotate(-2deg)}
+.lb-stamp .a{font-size:8pt;font-weight:800;letter-spacing:.18em}
+.lb-stamp .b{font-size:15pt;font-weight:800;line-height:1.1}
+.lb-stamp.cod{background:#8b1a1a;color:#fff}
+.lb-stamp.paid{color:#8b1a1a}
+.lb-care{display:flex;justify-content:space-between;gap:4mm;align-items:baseline;font-size:8.4pt;color:#5d4a46;padding-bottom:2.2mm}
+.lb-care .mr{font-family:"Tiro Devanagari Marathi",serif;font-size:10pt;color:#8b1a1a}
 </style>
 </head>
 <body>
@@ -402,6 +483,14 @@ b.paid{color:var(--sent);font-weight:600}
   <div class="list" id="list"><div class="spin">Opening the book…</div></div>
 </div>
 
+<div class="printbar" id="printbar" hidden>
+  <span><b id="pb-n">0</b> ticked</span>
+  <button type="button" class="go" id="pb-print">Print labels</button>
+  <button type="button" id="pb-all">Tick all shown</button>
+  <button type="button" id="pb-clear">Clear</button>
+  <span class="hint" id="pb-hint"></span>
+</div>
+<div id="labels"></div>
 <div id="snack"></div>
 
 <script>
@@ -831,14 +920,15 @@ function paintList(){
     return head + row(o);
   }).join("");
   wire();
+  paintPrintBar();
 }
 
 /* One line each, until you open one. */
 function row(o){
   const open = OPEN.has(o.ref);
-  return `<article class="order st-${esc(o.status)} ${open ? "open" : ""}${
+  return `<article class="order st-${esc(o.status)} ${open ? "open" : ""}${SEL.has(o.ref) ? " ticked" : ""}${
     o.status === "deleted" ? " binned" : ""}" data-ref="${esc(o.ref)}">
-    <button class="row" type="button" aria-expanded="${open}">
+    <div class="rowline">${pickBox(o)}<button class="row" type="button" aria-expanded="${open}">
       <span class="dotst st ${esc(o.status)}" title="${esc(o.status)}"></span>
       <span class="ref">${esc(o.ref)}</span>
       <span class="who">${cameFrom(o) ? `<b class="tag ${esc(o.source)}">${esc(cameFrom(o))}</b> ` : ""
@@ -852,7 +942,7 @@ function row(o){
       <span class="money">${cameFrom(o) && !o.total
         ? `<i class="unset" title="No price on this one yet">—</i>` : rupees(o.total)}</span>
       <span class="chev">›</span>
-    </button>
+    </button></div>
     <div class="more" ${open ? "" : "hidden"}>${open ? detail(o) : ""}</div>
   </article>`;
 }
@@ -1094,6 +1184,122 @@ function shrink(file, longest = 1400){
     img.src = url;
   });
 }
+
+/* ---------- Parcel labels ----------
+   Tick orders, press Print labels: two labels to an A4 sheet. A single
+   ticked order fills the top half only. The ticks survive a refresh or a
+   change of tab — SELO keeps the order itself, so one ticked under New can
+   still be printed from Confirmed. Collecting at the shop needs no label, so
+   those orders get no box. */
+const SEL = new Set(), SELO = new Map();
+const SHOP_FROM = `<b>The Qala</b><br>Crystal Cube, Vijay Nagar Lane 2, Dighi, Pune 411015<br>
+  90112 40352 · 84464 70352 · theqalashree.com`;
+function pickBox(o){
+  if (o.pay === "shop") return `<span class="pick none" title="Collecting at the shop — no label needed"></span>`;
+  return `<label class="pick" title="Tick to print a parcel label"><input type="checkbox" data-pick="${esc(o.ref)}"${
+    SEL.has(o.ref) ? " checked" : ""} aria-label="Tick ${esc(o.ref)} for a parcel label"></label>`;
+}
+function paintPrintBar(){
+  ORDERS.forEach(o => { if (SEL.has(o.ref)) SELO.set(o.ref, o); });
+  const n = SEL.size;
+  $("#printbar").hidden = !n;
+  $("#pb-n").textContent = n;
+  const sheets = Math.ceil(n / 2);
+  $("#pb-hint").textContent = n ? `${sheets} A4 sheet${sheets === 1 ? "" : "s"}${
+    n % 2 ? " · the last one prints on the top half only" : ""}` : "";
+}
+function labelCourier(o){
+  const p = (o.parcels || [])[0];
+  if (p && p.carrier) return p.carrier;
+  if ((o.pay || "online") === "online" && o.anjani && o.anjani.verdict === "yes") return "Shree Anjani";
+  return "";
+}
+function labelHtml(o){
+  const deva = t => /[ऀ-ॿ]/.test(t || "");
+  const pin = String(o.pincode || "").replace(/\D/g, "");
+  const ph = String(o.phone || "").replace(/\D/g, "").slice(-10);
+  const addr = String(o.address || "").trim();
+  const pieces = realLines(o).reduce((a, l) => a + (Number(l.qty) || 1), 0);
+  const courier = labelCourier(o);
+  const packed = new Intl.DateTimeFormat("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short", year:"numeric"}).format(new Date());
+  /* Cash on delivery is the only one where the courier takes money. With no
+     price set yet the amount is left as a line to write on. */
+  const stamp = (o.pay === "cod" && o.pay_state !== "paid")
+    ? `<div class="lb-stamp cod"><span class="a">CASH ON DELIVERY</span><span class="b">${
+        Number(o.total) ? "Collect " + rupees(o.total) : "Collect ₹ ________"}</span></div>`
+    : `<div class="lb-stamp paid"><span class="a">PREPAID</span><span class="b">Do not collect cash</span></div>`;
+  const len = addr.length;
+  return `<section class="lb-half"><div class="lb-card">
+    <div class="lb-border"></div>
+    <div class="lb-inner">
+      <div class="lb-head">
+        <img src="/photos/logo.jpg" alt="The Qala">
+        <div class="lb-from"><span class="lb-k">From · प्रेषक</span>${SHOP_FROM}</div>
+      </div>
+      <div class="lb-to">
+        <div class="lb-k">Deliver to<span>प्रति</span></div>
+        <div class="lb-name${deva(o.name) ? " mr" : ""}">${esc(o.name)}</div>
+        <div class="lb-addr${deva(addr) ? " mr" : ""}${len > 180 ? " vlong" : len > 110 ? " long" : ""}">${
+          esc(addr).replace(/\n+/g, "<br>")}</div>
+        <div class="lb-reach">
+          <div class="lb-pin"><span class="lb-t">PIN</span>${pin.length === 6
+            ? [...pin].map(d => `<i>${d}</i>`).join("") : `<em>${esc(o.pincode || "")}</em>`}</div>
+          <div class="lb-phone"><span class="lb-t">MOBILE</span>${ph.length === 10 ? pretty(ph) : esc(o.phone || "")}</div>
+        </div>
+      </div>
+      <div class="lb-foot">
+        <div class="lb-facts">
+          <div><span>Order</span><b>${esc(o.ref)}</b></div>
+          ${pieces ? `<div><span>Pieces</span><b>${pieces}</b></div>` : ""}
+          ${courier ? `<div><span>Courier</span><b>${esc(courier)}</b></div>` : ""}
+          <div><span>Packed</span><b>${esc(packed)}</b></div>
+        </div>
+        ${stamp}
+      </div>
+      <div class="lb-care">
+        <span class="mr">नाजूक वस्तू — काळजीपूर्वक हाताळा</span>
+        <span>Fragile · Please handle with care · Do not bend</span>
+      </div>
+    </div>
+    <div class="lb-border"></div>
+  </div></section>`;
+}
+async function printLabels(){
+  const list = [...SEL].map(r => SELO.get(r) || ORDERS.find(o => o.ref === r)).filter(Boolean);
+  if (!list.length) return;
+  const sheets = [];
+  for (let i = 0; i < list.length; i += 2){
+    const two = list.slice(i, i + 2).map(labelHtml);
+    if (two.length === 1) two.push(`<section class="lb-half lb-blank"></section>`);
+    sheets.push(`<div class="lb-sheet">${two.join("")}</div>`);
+  }
+  const box = $("#labels");
+  box.innerHTML = sheets.join("");
+  /* Wait for the logo and the fonts, or the first sheet prints without them. */
+  await Promise.all([...box.querySelectorAll("img")].map(im => im.decode().catch(() => {})));
+  try { await document.fonts.ready; } catch (e) {}
+  document.body.classList.add("lb-printing");
+  window.print();
+}
+window.addEventListener("afterprint", () => {
+  document.body.classList.remove("lb-printing");
+  $("#labels").innerHTML = "";
+});
+$("#list").addEventListener("change", e => {
+  const t = e.target;
+  if (!t.matches || !t.matches("input[data-pick]")) return;
+  const ref = t.dataset.pick;
+  if (t.checked){ SEL.add(ref); const o = ORDERS.find(x => x.ref === ref); if (o) SELO.set(ref, o); }
+  else { SEL.delete(ref); SELO.delete(ref); }
+  const art = t.closest(".order"); if (art) art.classList.toggle("ticked", t.checked);
+  paintPrintBar();
+});
+$("#pb-print").onclick = printLabels;
+$("#pb-clear").onclick = () => { SEL.clear(); SELO.clear(); paintList(); paintPrintBar(); };
+$("#pb-all").onclick = () => {
+  ORDERS.filter(o => o.pay !== "shop").forEach(o => { SEL.add(o.ref); SELO.set(o.ref, o); });
+  paintList(); paintPrintBar();
+};
 
 function wire(){
   document.querySelectorAll(".order").forEach(el => {
