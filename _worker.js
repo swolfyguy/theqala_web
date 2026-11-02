@@ -70,7 +70,10 @@ const HOLDS_FOREVER = ["confirmed", "sent", "done"];   // cancelled frees it at 
 /* Left out of Everything, and seen only by asking for them by name. A piece
    sent is still held — this is about which orders want work, not which hold
    stock. */
-const RESTING = ["deleted", "sent", "cancelled"];
+/* "done" joined them on 1 Nov 2026 — he asked that Everything show only new
+   and confirmed, the orders still to be packed. Kept the same as RESTING in
+   office/index.html, which counts the tab. */
+const RESTING = ["deleted", "sent", "done", "cancelled"];
 
 /* Flood guards. Generous for a real shop, tight enough to stop a script. */
 const MAX_PER_PHONE_PER_DAY = 8;
