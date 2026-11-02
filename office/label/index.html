@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Parcel labels — The Qala</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600;700;800&family=Tiro+Devanagari+Marathi&family=Mukta:wght@400;600;800&display=swap">
+<!--
+  The Qala — a parcel label for an order that never went through the website
+  (2 Nov 2026). Type or paste the address, press Add, print. Nothing is saved
+  on the server: the sheet waiting to be printed is kept in this browser only,
+  so a refresh does not lose it. Same label as the tick + Print labels in the
+  order book — the lb- CSS below is copied from office/index.html; change both.
+-->
+<style>
+:root{
+  --ground:#FAF3EB; --panel:#FFFBF6; --panel-2:#F1E5D6;
+  --ink:#2A1A14; --ink-2:#7A6152; --line:#E7D6C2; --line-2:#CDB79B;
+  --accent:#7E1226; --gold:#9A7325; --gold-2:#CFA84F;
+  --shadow:rgba(74,42,14,.10); --on-accent:#FFF6E9; --good:#2F6E5B; --bad:#A3271C;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#131011; --panel:#1C1719; --panel-2:#272023;
+    --ink:#F3E8D8; --ink-2:#B29C8B; --line:#3A2E33; --line-2:#5A484F;
+    --accent:#E0BC72; --gold:#CFA84F; --gold-2:#E0BC72;
+    --shadow:rgba(0,0,0,.4); --on-accent:#131011; --good:#7FC0A8; --bad:#F09A8E;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Karla,"Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+
+header{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+.bar h1{font-size:1.35rem}
+.crossnav{display:flex;align-items:center;gap:4px;font-size:.82rem;flex-wrap:wrap}
+.crossnav a,.crossnav span{padding:5px 11px;border-radius:999px;text-decoration:none;
+  color:var(--ink-2);border:1px solid transparent}
+.crossnav a:hover{border-color:var(--line-2);color:var(--ink)}
+.crossnav span[aria-current]{background:var(--panel-2);color:var(--ink);font-weight:600}
+.bar .out{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--ink-2);
+  padding:5px 12px;border-radius:999px;font:inherit;font-size:.78rem;cursor:pointer}
+.bar .out:hover{border-color:var(--accent);color:var(--accent)}
+
+.page{display:grid;gap:22px;padding:22px 0 80px;grid-template-columns:1fr}
+@media (min-width:980px){ .page{grid-template-columns:minmax(0,1fr) 470px;align-items:start} }
+.side,.stack{display:grid;gap:18px;grid-template-columns:minmax(0,1fr);min-width:0}
+.page>*{min-width:0}
+@media (min-width:980px){ .side{position:sticky;top:84px} }
+
+fieldset{border:1px solid var(--line);border-radius:14px;background:var(--panel);
+  margin:0;padding:16px 18px 20px;box-shadow:0 1px 2px var(--shadow)}
+legend{font-family:Marcellus,Georgia,serif;font-size:1.05rem;padding:0 8px}
+.hint{color:var(--ink-2);font-size:.83rem;margin:-2px 0 12px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.grid .wide{grid-column:1/-1}
+@media (max-width:560px){ .grid{grid-template-columns:1fr} }
+label.f{display:block}
+label.f>span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;display:block;margin-bottom:7px}
+label.f>span em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:400}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--ground);
+  border:1px solid var(--line-2);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:84px}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--gold-2);outline-offset:1px;border-color:var(--gold-2)}
+.paste textarea{min-height:110px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:600;font-size:.92rem;border-radius:10px;padding:10px 16px;cursor:pointer;
+  border:1px solid var(--line-2);background:var(--panel);color:var(--ink)}
+.btn:hover{border-color:var(--ink-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:focus-visible{outline:3px solid var(--gold-2);outline-offset:2px}
+.say{font-size:.86rem;color:var(--ink-2)}
+.say.bad{color:var(--bad)} .say.good{color:var(--good)}
+
+.payrow{display:flex;gap:8px;flex-wrap:wrap}
+.payrow label{flex:1;min-width:140px;display:flex;gap:9px;align-items:center;cursor:pointer;
+  border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;background:var(--ground)}
+.payrow input{width:auto;margin:0;accent-color:var(--accent)}
+.payrow label:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* the label as it will print, scaled down to fit */
+.preview{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px;box-shadow:0 1px 2px var(--shadow)}
+.preview h2,.queue h2{font-size:1.05rem;margin-bottom:10px}
+.pv{position:relative;overflow:hidden;border-radius:6px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.12)}
+.pv .lb-half{position:absolute;top:0;left:0;width:210mm;transform-origin:0 0}
+.queue{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px;box-shadow:0 1px 2px var(--shadow)}
+.queue ol{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.queue li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--ground)}
+.queue li .t{flex:1;min-width:0;font-size:.88rem;line-height:1.4}
+.queue li .t b{display:block;font-size:.95rem}
+.queue li .t span{color:var(--ink-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.queue li .pay{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  border:1px solid var(--line-2);border-radius:999px;padding:2px 8px;white-space:nowrap;color:var(--ink-2)}
+.queue li .pay.cod{border-color:var(--accent);color:var(--accent)}
+.queue li button{border:0;background:none;color:var(--ink-2);font:inherit;font-size:.82rem;cursor:pointer;padding:2px 4px;text-decoration:underline}
+.queue li button:hover{color:var(--bad)}
+.queue .empty{color:var(--ink-2);font-size:.88rem;margin:0 0 12px}
+
+/* ---- label sheet: copied from office/index.html (lb-) ---- */
+#labels{display:none}
+@page lbsheet{size:A4;margin:0}
+@media print{
+  body.lb-printing > :not(#labels){display:none !important}
+  body.lb-printing{background:#fff !important;margin:0}
+  body.lb-printing #labels{display:block}
+}
+#labels{color:#1d1414;font-family:Karla,"Mukta","Nirmala UI",system-ui,sans-serif;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lb-sheet{page:lbsheet;width:210mm;height:297mm;display:flex;flex-direction:column;
+  break-after:page;page-break-after:always;background:#fff;overflow:hidden}
+.lb-sheet:last-child{break-after:auto;page-break-after:auto}
+.lb-half{height:148.5mm;padding:7mm 9mm;position:relative;display:flex}
+.lb-half + .lb-half{border-top:1px dashed #b9a79b}
+.lb-half + .lb-half::before{content:"\2702  cut here";position:absolute;top:-2.3mm;left:12mm;
+  background:#fff;padding:0 2mm;font-size:8pt;color:#9a8a80;letter-spacing:.08em}
+.lb-half.lb-blank{border-top-color:transparent}
+.lb-half.lb-blank::before{content:none}
+.lb-card{flex:1;border:1.6mm solid #8b1a1a;border-radius:2.5mm;display:flex;flex-direction:column;overflow:hidden}
+.lb-border{height:4.2mm;flex:none;background:
+  radial-gradient(circle at 50% 50%, #e8b84a 0 .8mm, transparent .9mm) 0 0/5mm 4.2mm,
+  linear-gradient(#8b1a1a,#8b1a1a)}
+.lb-inner{padding:3.2mm 6mm 0;display:flex;flex-direction:column;gap:2.6mm;flex:1;min-height:0}
+.lb-head{display:flex;gap:5mm;align-items:center}
+.lb-head img{width:50mm;height:auto;display:block;border-radius:1mm}
+.lb-from{font-size:8.6pt;line-height:1.38;color:#5d4a46;border-left:.4mm solid #d9c6b8;padding-left:4mm}
+.lb-k{display:block;font-size:7pt;letter-spacing:.16em;text-transform:uppercase;color:#8b1a1a;font-weight:700;margin-bottom:.6mm}
+.lb-from b{color:#1d1414;font-family:Marcellus,Georgia,serif;font-weight:400;font-size:11pt;letter-spacing:.02em}
+.lb-to{flex:1;display:flex;flex-direction:column;gap:1.8mm;padding-top:1mm;min-height:0;overflow:hidden}
+.lb-to .lb-k{font-size:8pt;letter-spacing:.2em;font-weight:800;margin:0}
+.lb-to .lb-k span{font-family:"Tiro Devanagari Marathi",serif;letter-spacing:0;text-transform:none;font-weight:400;font-size:10pt;margin-left:1.5mm}
+.lb-name{font-size:26pt;font-weight:800;line-height:1.1}
+.lb-addr{font-size:16pt;line-height:1.35;max-width:170mm}
+.lb-addr.long{font-size:13.5pt}
+.lb-addr.vlong{font-size:11.5pt}
+.lb-name.mr,.lb-addr.mr{font-family:"Mukta","Tiro Devanagari Marathi",sans-serif}
+.lb-reach{display:flex;align-items:center;gap:7mm;margin-top:1.2mm;flex-wrap:wrap}
+.lb-pin{display:flex;align-items:center;gap:1.4mm}
+.lb-t{font-size:8pt;font-weight:800;letter-spacing:.14em;color:#8b1a1a;margin-right:1mm}
+.lb-pin i{font-style:normal;width:8.6mm;height:10.6mm;border:.45mm solid #1d1414;border-radius:1mm;
+  display:grid;place-items:center;font-size:17pt;font-weight:800;font-variant-numeric:tabular-nums}
+.lb-pin em{font-style:normal;font-size:17pt;font-weight:800}
+.lb-phone{font-size:20pt;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.lb-foot{display:flex;align-items:center;gap:4mm;border-top:.35mm solid #d9c6b8;padding-top:2.4mm}
+.lb-facts{flex:1;display:flex;flex-wrap:wrap;gap:1mm 6mm}
+.lb-facts div{display:flex;flex-direction:column}
+.lb-facts span{font-size:6.8pt;letter-spacing:.16em;text-transform:uppercase;color:#5d4a46;font-weight:700}
+.lb-facts b{font-size:10.5pt;font-weight:700}
+.lb-stamp{flex:none;min-width:52mm;border:.6mm solid #8b1a1a;border-radius:1.6mm;padding:1.6mm 3.5mm;
+  display:flex;flex-direction:column;justify-content:center;text-align:center;transform:rotate(-2deg)}
+.lb-stamp .a{font-size:8pt;font-weight:800;letter-spacing:.18em}
+.lb-stamp .b{font-size:15pt;font-weight:800;line-height:1.1}
+.lb-stamp.cod{background:#8b1a1a;color:#fff}
+.lb-stamp.paid{color:#8b1a1a}
+.lb-care{display:flex;justify-content:space-between;gap:4mm;align-items:baseline;font-size:8.4pt;color:#5d4a46;padding-bottom:2.2mm}
+.lb-care .mr{font-family:"Tiro Devanagari Marathi",serif;font-size:10pt;color:#8b1a1a}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <h1>Parcel labels</h1>
+      <div class="crossnav">
+        <a href="/office/">Orders</a>
+        <a href="/office/new/">New order</a>
+        <a href="/office/parcels/">Parcels</a>
+        <span aria-current="page">Labels</span>
+        <a href="/office/visits/">Visits</a>
+        <a href="/studio/">Studio</a>
+      </div>
+      <button class="out" id="out" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap page">
+  <form id="f" autocomplete="off" novalidate>
+    <div class="stack">
+      <fieldset class="paste">
+        <legend>Paste from WhatsApp</legend>
+        <p class="hint">Paste the customer's message as it is — name, address, pincode and mobile get picked out
+          and filled in below. Check them before adding.</p>
+        <textarea id="paste" placeholder="e.g. Pooja Korlekar 504/ A wing, Kanishka Height, Manisha Nagar, Kalwa West pincode : 400605 8291922381"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button type="button" class="btn" id="fill">Fill the form</button>
+          <span class="say" id="fillsay"></span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Deliver to</legend>
+        <div class="grid">
+          <label class="f wide"><span>Name</span><input id="name" maxlength="80"></label>
+          <label class="f wide"><span>Address <em>— house, street, area, city</em></span>
+            <textarea id="addr" maxlength="400"></textarea></label>
+          <label class="f"><span>Pincode</span><input id="pin" inputmode="numeric" maxlength="7"></label>
+          <label class="f"><span>Mobile</span><input id="phone" inputmode="tel" maxlength="16"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Payment and parcel</legend>
+        <div class="grid">
+          <div class="wide payrow" role="radiogroup" aria-label="Payment">
+            <label><input type="radio" name="pay" value="paid" checked> Prepaid — already paid</label>
+            <label><input type="radio" name="pay" value="cod"> Cash on delivery</label>
+          </div>
+          <label class="f" id="amtbox" hidden><span>Amount to collect (₹)</span>
+            <input id="amt" inputmode="numeric" maxlength="7" placeholder="e.g. 2499"></label>
+          <label class="f"><span>Courier <em>— optional</em></span>
+            <select id="courier">
+              <option value="">Not printed</option>
+              <option>Shree Anjani</option>
+              <option>India Post</option>
+              <option>DTDC</option>
+              <option>Delhivery</option>
+            </select></label>
+          <label class="f"><span>Pieces <em>— optional</em></span><input id="pieces" inputmode="numeric" maxlength="2"></label>
+          <label class="f"><span>Order no. <em>— optional</em></span><input id="ref" maxlength="24" placeholder="e.g. WA-0211"></label>
+        </div>
+      </fieldset>
+
+      <div class="row">
+        <button type="submit" class="btn go" id="add">Add to sheet</button>
+        <button type="button" class="btn" id="now">Print just this one</button>
+        <button type="button" class="btn" id="reset">Clear the form</button>
+        <span class="say" id="say" role="status"></span>
+      </div>
+    </div>
+  </form>
+
+  <div class="side">
+    <section class="preview" aria-label="How the label will print">
+      <h2>Preview</h2>
+      <div class="pv" id="pv"></div>
+    </section>
+    <section class="queue">
+      <h2>Waiting to print <span id="qn" class="say"></span></h2>
+      <ol id="q"></ol>
+      <p class="empty" id="qempty">Nothing added yet. Each A4 sheet takes two labels — one alone prints on the top half.</p>
+      <div class="row">
+        <button type="button" class="btn go" id="printall" disabled>Print labels</button>
+        <button type="button" class="btn" id="clearq" hidden>Empty the list</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="labels"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rupees = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+const pretty = p => p.slice(0,5) + " " + p.slice(5);
+const SHOP_FROM = `<b>The Qala</b><br>Crystal Cube, Vijay Nagar Lane 2, Dighi, Pune 411015<br>
+  90112 40352 · 84464 70352 · theqalashree.com`;
+
+/* Marathi digits typed on a phone keyboard count as digits too. */
+const asciiDigits = t => String(t || "").replace(/[०-९]/g, d => "०१२३४५६७८९".indexOf(d));
+const onlyDigits = t => asciiDigits(t).replace(/\D/g, "");
+
+/* ---------- reading a pasted WhatsApp message ----------
+   Mobile = a 10-digit number starting 6–9 (with or without +91 / 0 / spaces).
+   Pincode = a 6-digit number, preferring one written after "pin".
+   Name = the first line, or on a one-line message everything before the
+   first digit or comma. Whatever is left is the address. */
+function readPaste(raw){
+  let t = asciiDigits(raw).replace(/\r/g, "");
+  const out = {};
+  const ph = t.match(/(?<!\d)(?:\+?91[\s-]*|0)?([6-9]\d{4}[\s-]?\d{5})(?!\d)/);
+  if (ph){ out.phone = ph[1].replace(/\D/g, ""); t = t.replace(ph[0], " "); }
+  const pinAfter = t.match(/(?:pin\s*code|pincode|pin|पिन\s*कोड|पिन)\s*(?:no\.?|number)?\s*[:\-–.]?\s*(\d{3})\s?(\d{3})\b/i);
+  const pinAny = pinAfter || t.match(/(?<!\d)(\d{3})\s?(\d{3})(?!\d)/);
+  if (pinAny){ out.pin = pinAny[1] + pinAny[2]; t = t.replace(pinAny[0], " "); }
+  /* labels people type, and the "To," at the top of a note */
+  t = t.replace(/^\s*(to|प्रति)\s*[,:.]?\s*$/gim, "")
+       .replace(/\b(name|address|addr|mobile|mob|phone|contact|ph|no)\s*[:\-–]\s*/gi, "")
+       .replace(/(नाव|पत्ता|मोबाईल|मोबाइल)\s*[:\-–]\s*/g, "")
+       .replace(/\b(mob(?:ile)?|ph(?:one)?|contact|whatsapp)\b\.?(\s*no\.?)?/gi, "")
+       .replace(/(?:pin\s*code|pincode|पिन\s*कोड|पिन)\s*[:\-–]?/gi, "");
+  const lines = t.split("\n").map(l => l.replace(/\s+/g, " ").replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, "")).filter(Boolean);
+  if (!lines.length) return out;
+  if (lines.length > 1 && !/\d/.test(lines[0]) && lines[0].length <= 60){
+    out.name = lines[0];
+    out.addr = lines.slice(1).join(", ");
+  } else {
+    const one = lines.join(", ");
+    const cut = one.search(/[\d,]/);
+    if (cut > 2){ out.name = one.slice(0, cut).replace(/[\s,]+$/, ""); out.addr = one.slice(cut).replace(/^[\s,]+/, ""); }
+    else out.addr = one;
+  }
+  if (out.addr) out.addr = out.addr.replace(/\s*,[\s,]*/g, ", ").replace(/[\s,]+$/, "");
+  return out;
+}
+
+/* ---------- the label (same as office/index.html labelHtml) ---------- */
+function labelHtml(L){
+  const deva = t => /[ऀ-ॿ]/.test(t || "");
+  const pin = onlyDigits(L.pin);
+  const ph = onlyDigits(L.phone).slice(-10);
+  const addr = String(L.addr || "").trim();
+  const packed = new Intl.DateTimeFormat("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short", year:"numeric"}).format(new Date());
+  const stamp = L.pay === "cod"
+    ? `<div class="lb-stamp cod"><span class="a">CASH ON DELIVERY</span><span class="b">${
+        Number(L.amt) ? "Collect " + rupees(L.amt) : "Collect ₹ ________"}</span></div>`
+    : `<div class="lb-stamp paid"><span class="a">PREPAID</span><span class="b">Do not collect cash</span></div>`;
+  const len = addr.length;
+  return `<section class="lb-half"><div class="lb-card">
+    <div class="lb-border"></div>
+    <div class="lb-inner">
+      <div class="lb-head">
+        <img src="/photos/logo.jpg" alt="The Qala">
+        <div class="lb-from"><span class="lb-k">From · प्रेषक</span>${SHOP_FROM}</div>
+      </div>
+      <div class="lb-to">
+        <div class="lb-k">Deliver to<span>प्रति</span></div>
+        <div class="lb-name${deva(L.name) ? " mr" : ""}">${esc(L.name || "")}</div>
+        <div class="lb-addr${deva(addr) ? " mr" : ""}${len > 180 ? " vlong" : len > 110 ? " long" : ""}">${
+          esc(addr).replace(/\n+/g, "<br>")}</div>
+        <div class="lb-reach">
+          <div class="lb-pin"><span class="lb-t">PIN</span>${pin.length === 6
+            ? [...pin].map(d => `<i>${d}</i>`).join("") : `<em>${esc(L.pin || "")}</em>`}</div>
+          <div class="lb-phone"><span class="lb-t">MOBILE</span>${ph.length === 10 ? pretty(ph) : esc(L.phone || "")}</div>
+        </div>
+      </div>
+      <div class="lb-foot">
+        <div class="lb-facts">
+          ${L.ref ? `<div><span>Order</span><b>${esc(L.ref)}</b></div>` : ""}
+          ${Number(L.pieces) ? `<div><span>Pieces</span><b>${Number(L.pieces)}</b></div>` : ""}
+          ${L.courier ? `<div><span>Courier</span><b>${esc(L.courier)}</b></div>` : ""}
+          <div><span>Packed</span><b>${esc(packed)}</b></div>
+        </div>
+        ${stamp}
+      </div>
+      <div class="lb-care">
+        <span class="mr">नाजूक वस्तू — काळजीपूर्वक हाताळा</span>
+        <span>Fragile · Please handle with care · Do not bend</span>
+      </div>
+    </div>
+    <div class="lb-border"></div>
+  </div></section>`;
+}
+
+/* ---------- form ---------- */
+const F = ["name", "addr", "pin", "phone", "amt", "courier", "pieces", "ref"];
+function readForm(){
+  const L = {pay: document.querySelector('input[name="pay"]:checked').value};
+  F.forEach(k => L[k] = $("#" + k).value.trim());
+  if (L.pay !== "cod") L.amt = "";
+  return L;
+}
+function problem(L){
+  if (!L.name) return ["name", "Write her name."];
+  if (L.addr.length < 8) return ["addr", "The address looks too short."];
+  if (onlyDigits(L.pin).length !== 6) return ["pin", "The pincode should be 6 digits."];
+  if (onlyDigits(L.phone).slice(-10).length !== 10) return ["phone", "The mobile number should be 10 digits."];
+  if (L.pay === "cod" && !Number(onlyDigits(L.amt))) return ["amt", "Write the amount the courier should collect."];
+  return null;
+}
+function say(text, cls){ const s = $("#say"); s.textContent = text; s.className = "say" + (cls ? " " + cls : ""); }
+
+function paintPreview(){
+  const box = $("#pv");
+  box.innerHTML = labelHtml(readForm());
+  const half = box.firstElementChild;
+  const scale = box.clientWidth / half.offsetWidth;
+  half.style.transform = `scale(${scale})`;
+  box.style.height = Math.round(half.offsetHeight * scale) + "px";
+}
+function payChanged(){
+  $("#amtbox").hidden = readForm().pay !== "cod";
+  paintPreview();
+}
+
+/* ---------- the list waiting to print, kept in this browser ---------- */
+let QUEUE = [];
+try { QUEUE = JSON.parse(localStorage.getItem("qala.labels") || "[]"); if (!Array.isArray(QUEUE)) QUEUE = []; } catch (e) { QUEUE = []; }
+function keep(){ try { localStorage.setItem("qala.labels", JSON.stringify(QUEUE)); } catch (e) {} }
+function paintQueue(){
+  $("#q").innerHTML = QUEUE.map((L, i) => `<li>
+    <div class="t"><b>${esc(L.name)}</b><span>${esc(L.addr)} · ${esc(L.pin)}</span></div>
+    <span class="pay ${L.pay === "cod" ? "cod" : ""}">${L.pay === "cod" ? "COD " + rupees(L.amt) : "Prepaid"}</span>
+    <button type="button" data-drop="${i}" aria-label="Remove ${esc(L.name)}">Remove</button></li>`).join("");
+  const n = QUEUE.length, sheets = Math.ceil(n / 2);
+  $("#qempty").hidden = !!n;
+  $("#qn").textContent = n ? `· ${n} label${n === 1 ? "" : "s"}, ${sheets} sheet${sheets === 1 ? "" : "s"}` : "";
+  $("#printall").disabled = !n;
+  $("#printall").textContent = n ? `Print ${n} label${n === 1 ? "" : "s"}` : "Print labels";
+  $("#clearq").hidden = !n;
+}
+
+async function printThese(list){
+  const sheets = [];
+  for (let i = 0; i < list.length; i += 2){
+    const two = list.slice(i, i + 2).map(labelHtml);
+    if (two.length === 1) two.push(`<section class="lb-half lb-blank"></section>`);
+    sheets.push(`<div class="lb-sheet">${two.join("")}</div>`);
+  }
+  const box = $("#labels");
+  box.innerHTML = sheets.join("");
+  await Promise.all([...box.querySelectorAll("img")].map(im => im.decode().catch(() => {})));
+  try { await document.fonts.ready; } catch (e) {}
+  document.body.classList.add("lb-printing");
+  window.print();
+}
+window.addEventListener("afterprint", () => {
+  document.body.classList.remove("lb-printing");
+  $("#labels").innerHTML = "";
+});
+
+function checked(){
+  const L = readForm();
+  const bad = problem(L);
+  if (bad){ say(bad[1], "bad"); $("#" + bad[0]).focus(); return null; }
+  L.pin = onlyDigits(L.pin); L.phone = onlyDigits(L.phone).slice(-10); L.amt = onlyDigits(L.amt);
+  return L;
+}
+function clearForm(){
+  F.forEach(k => { if (k !== "courier") $("#" + k).value = ""; });
+  $("#paste").value = ""; $("#fillsay").textContent = "";
+  document.querySelector('input[name="pay"][value="paid"]').checked = true;
+  payChanged();
+}
+
+$("#f").addEventListener("submit", e => {
+  e.preventDefault();
+  const L = checked(); if (!L) return;
+  QUEUE.push(L); keep(); paintQueue();
+  say(`Added ${L.name}. ${QUEUE.length % 2 ? "Add one more to fill the sheet, or print now." : "Sheet full — print, or keep adding."}`, "good");
+  clearForm(); $("#paste").focus();
+});
+$("#now").onclick = () => { const L = checked(); if (L){ say(""); printThese([L]); } };
+$("#reset").onclick = () => { clearForm(); say(""); };
+$("#printall").onclick = () => printThese(QUEUE);
+$("#clearq").onclick = () => { QUEUE = []; keep(); paintQueue(); };
+$("#q").addEventListener("click", e => {
+  const b = e.target.closest("[data-drop]"); if (!b) return;
+  QUEUE.splice(Number(b.dataset.drop), 1); keep(); paintQueue();
+});
+$("#fill").onclick = () => {
+  const got = readPaste($("#paste").value);
+  const found = [];
+  if (got.name){ $("#name").value = got.name; found.push("name"); }
+  if (got.addr){ $("#addr").value = got.addr; found.push("address"); }
+  if (got.pin){ $("#pin").value = got.pin; found.push("pincode"); }
+  if (got.phone){ $("#phone").value = got.phone; found.push("mobile"); }
+  const s = $("#fillsay");
+  s.textContent = found.length ? "Filled " + found.join(", ") + " — please check them." : "Could not pick anything out — type it in below.";
+  s.className = "say" + (found.length ? " good" : " bad");
+  paintPreview();
+};
+document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", payChanged));
+F.forEach(k => $("#" + k).addEventListener("input", paintPreview));
+$("#courier").addEventListener("change", paintPreview);
+window.addEventListener("resize", paintPreview);
+$("#out").addEventListener("click", async () => {
+  try { await fetch("/office/logout", {method: "POST", credentials: "same-origin"}); } catch {}
+  location.href = "/office/";
+});
+
+paintQueue();
+payChanged();
+document.fonts && document.fonts.ready.then(paintPreview);
+</script>
+</body>
+</html>

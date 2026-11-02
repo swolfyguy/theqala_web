@@ -233,7 +233,7 @@ export default {
          below — this only saves showing a page to somebody who cannot use it. */
       if (path === "/studio" || path.startsWith("/studio/")
           || path === "/office/new" || path === "/office/parcels"
-          || path === "/office/visits") {
+          || path === "/office/visits" || path === "/office/label") {
         const who = await whoGoes(request, env);
         if (!who.ok) return Response.redirect(
           url.origin + "/office/?next=" + encodeURIComponent(url.pathname + url.search), 302);
