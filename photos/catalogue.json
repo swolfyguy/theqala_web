@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-03T14:26:26Z",
+ "generated": "2026-11-03T14:51:39Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -3818,7 +3818,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 30
+      "pct": 40
      }
     },
     {
@@ -3841,7 +3841,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 30
+      "pct": 40
      }
     },
     {
@@ -3864,7 +3864,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 30
+      "pct": 40
      }
     },
     {
@@ -3887,7 +3887,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 30
+      "pct": 40
      }
     },
     {
