@@ -219,7 +219,12 @@ footer a{color:var(--ink-2)}
 </footer>
 
 <script>
-const WA = "919579628754";
+/* /order/1 is Geeth's link — the WhatsApp button goes to The Qala's 90112 40352.
+   /order/2, and plain /order/, go to 95796 28754. Keep in step with
+   ORDER_LINKS in _worker.js. */
+const LINKS = {"1": "919011240352", "2": "919579628754"};
+const LINK = (location.pathname.match(/^\/order\/([12])\/?$/) || [])[1] || "";
+const WA = LINKS[LINK] || "919579628754";
 const POTH = ["24","26","28","30","32","34","36","38","40"];
 const $ = s => document.querySelector(s);
 
@@ -438,6 +443,7 @@ $("#f").addEventListener("submit", async e => {
 
   const body = {
     source: FROM,
+    link:  LINK,
     name:  $("#i-name").value,
     phone: $("#i-phone").value,
     addr:  $("#i-addr").value,
@@ -468,7 +474,7 @@ $("#f").addEventListener("submit", async e => {
     });
     const d = await r.json();
     if (!r.ok || !d.ok) throw new Error(d.why || "That did not go through.");
-    done(d.ref);
+    done(d.ref, body);
   } catch (e2) {
     err.innerHTML = esc(e2.message || "That did not go through.")
       + ` <a href="https://wa.me/${WA}">Message us instead</a>`;
@@ -476,8 +482,34 @@ $("#f").addEventListener("submit", async e => {
   }
 });
 
-function done(ref){
-  const chat = "Namaskar The Qala \u{1F64F}\n\nI have sent my details.\nOrder code: " + ref;
+/* The message she sends us at the end carries everything she typed, so the
+   chat has it all even before anyone opens the order book. */
+const PAYWORD = {online: "Pay online", shop: "Collect at the shop", cod: "Cash on delivery"};
+function orderChat(ref, b){
+  const t = v => String(v == null ? "" : v).replace(/\s+/g, " ").trim();
+  const lines = [
+    "Namaskar The Qala \u{1F64F}",
+    "",
+    "I have placed an order.",
+    "Order code: " + ref,
+    "",
+    "Name: " + t(b.name),
+    "Mobile: " + t(b.phone).replace(/\D/g, "").slice(-10),
+    "Address: " + t(b.addr),
+    "Pincode: " + t(b.pin).replace(/\D/g, "")
+  ];
+  if (t(b.want)) lines.push("Piece: " + t(b.want));
+  if (t(b.poth)) lines.push("Poth length: " + t(b.poth) + " inches");
+  lines.push("Payment: " + (PAYWORD[b.pay] || t(b.pay)));
+  if (t(b.note)) lines.push("Note: " + t(b.note));
+  const n = (b.photos || []).length;
+  if (n) lines.push(`(${n} picture${n === 1 ? "" : "s"} sent with the form)`);
+  if (b.voice) lines.push("(voice note sent with the form)");
+  return lines.join("\n");
+}
+
+function done(ref, b){
+  const chat = b ? orderChat(ref, b) : "Namaskar The Qala \u{1F64F}\n\nI have sent my details.\nOrder code: " + ref;
   $("#main").innerHTML = `
     <div class="top">
       <span class="mr">॥ कला ॥</span>

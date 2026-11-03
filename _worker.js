@@ -193,6 +193,16 @@ const HERE_SWEEP_AFTER = 10;      // minutes, before a row is thrown away
    project as STUDIO_PASSWORD, so it never reaches anybody's browser. */
 const STAFF = ["9011240352", "7558209163", "9579628754"];
 
+/* Two copies of the customer's own order form (3 Nov 2026), so each of us
+   can send our own link: /order/1 is Geeth's and the "message us" at the end
+   opens WhatsApp to The Qala's 90112 40352; /order/2 goes to 95796 28754, as
+   /order/ always has. Same page, same form — only the number and a note on
+   the order differ. Keep in step with LINKS in order/index.html. */
+const ORDER_LINKS = {
+  "1": {who: "Geeth", wa: "9011240352"},
+  "2": {who: "",      wa: "9579628754"}
+};
+
 const COOKIE       = "qala_session";
 const SESSION_DAYS = 30;
 const MAX_LOGIN_FAILS = 10;     // per address, per quarter of an hour
@@ -227,6 +237,13 @@ export default {
                                                                   return photoOut(request, env, path);
       if (path.startsWith("/office/note/") && request.method === "GET")
                                                                   return voiceOut(request, env, path);
+
+      /* /order/1 and /order/2 are the same page as /order/ — the page reads
+         the number itself. */
+      if ((path === "/order/1" || path === "/order/2")
+          && (request.method === "GET" || request.method === "HEAD"))
+        return env.ASSETS.fetch(new Request(url.origin + "/order/",
+          {method: request.method, headers: request.headers}));
 
       /* The studio and the office's order form are never handed out
          unsigned-in. Everything they can do is checked again on the way in
@@ -2728,6 +2745,18 @@ async function chatOrder(request, env) {
     + "Please send us your address on WhatsApp instead."}, 500);
   if (!ref) return json({ok: false, why: "Something went wrong here. Please message us."}, 503);
 
+  /* Say on the order which link it came through, where the book shows the
+     shop's own notes. A note that will not save is no reason to fail her. */
+  if (o.link) {
+    const L = ORDER_LINKS[o.link];
+    const memo = `Came through order link ${o.link}${L.who ? " (" + L.who + ")" : ""}`
+      + ` — she was sent to WhatsApp ${L.wa.slice(0, 5)} ${L.wa.slice(5)}`;
+    try {
+      await env.DB.prepare("UPDATE orders SET memo = ?, memo_by = ?, memo_at = ? WHERE ref = ?")
+        .bind(memo, "order link " + o.link, o.placed_at, ref).run();
+    } catch (e) { /* the order itself is safe */ }
+  }
+
   /* The picture goes in a table of its own, so listing the book never drags
      photographs along with it. If it will not save, the order still stands —
      her address is the part that matters, and the shop can ask for the picture
@@ -2777,6 +2806,10 @@ function cleanChat(b) {
   const want = s(b.want, 120);
   const note = s(b.note, 500);
 
+  /* Which of the two order links she used, if any. Only ever 1 or 2. */
+  const link = Object.prototype.hasOwnProperty.call(ORDER_LINKS, String(b.link || ""))
+    ? String(b.link) : "";
+
   /* The picture she is holding: a screenshot from Instagram, or a photograph
      of something she was shown in a chat. It is the surest way of saying which
      piece she means — surer than any words she can find for it. Optional, and
@@ -2794,7 +2827,7 @@ function cleanChat(b) {
   return {placed_at: new Date().toISOString(), name, phone, pincode, address, pay, poth,
           items: [Object.assign({code: "OFFLINE", title: want || "To be filled in by the shop",
                                  qty: 1, price: 0}, poth ? {size: poth} : {})],
-          note, source, shot, voice};
+          note, source, shot, voice, link};
 }
 
 /* Everything the office form can send, checked and rebuilt from scratch —
