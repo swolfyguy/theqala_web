@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-04T10:00:14Z",
+ "generated": "2026-11-04T10:05:12Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -158,10 +158,6 @@
   {
    "min": 4000,
    "max": 5000
-  },
-  {
-   "min": 5000,
-   "max": 6000
   }
  ],
  "categories": [
@@ -2629,81 +2625,6 @@
      }
     },
     {
-     "n": 46,
-     "code": "RAJWADI-46",
-     "folder": "photos/rajwadi/4000 (14)",
-     "title": "",
-     "price": 4000,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4000 (14)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": {
-      "pct": 25
-     }
-    },
-    {
-     "n": 47,
-     "code": "RAJWADI-47",
-     "folder": "photos/rajwadi/4000 (15)",
-     "title": "",
-     "price": 4000,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4000 (15)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": {
-      "pct": 25
-     }
-    },
-    {
-     "n": 48,
-     "code": "RAJWADI-48",
-     "folder": "photos/rajwadi/4000 (16)",
-     "title": "",
-     "price": 4000,
-     "band": {
-      "min": 4000,
-      "max": 5000
-     },
-     "images": [
-      "photos/rajwadi/4000 (16)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": {
-      "pct": 25
-     }
-    },
-    {
      "n": 52,
      "code": "RAJWADI-52",
      "folder": "photos/rajwadi/4000 (20)",
@@ -3126,31 +3047,6 @@
      "colors": {},
      "offer": {
       "pct": 25
-     }
-    },
-    {
-     "n": 30,
-     "code": "RAJWADI-30",
-     "folder": "photos/rajwadi/5200",
-     "title": "",
-     "price": 5200,
-     "band": {
-      "min": 5000,
-      "max": 6000
-     },
-     "images": [
-      "photos/rajwadi/5200/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 36,
-      "max": 40,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": {
-      "pct": 5
      }
     }
    ]
