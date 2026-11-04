@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-04T10:18:07Z",
+ "generated": "2026-11-04T10:22:09Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -158,10 +158,6 @@
   {
    "min": 4000,
    "max": 5000
-  },
-  {
-   "min": 5000,
-   "max": 6000
   }
  ],
  "categories": [
@@ -3324,81 +3320,6 @@
      "colors": {},
      "offer": {
       "pct": 25
-     }
-    },
-    {
-     "n": 98,
-     "code": "RAJWADI-98",
-     "folder": "photos/rajwadi/5000",
-     "title": "",
-     "price": 5000,
-     "band": {
-      "min": 5000,
-      "max": 6000
-     },
-     "images": [
-      "photos/rajwadi/5000/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 34,
-      "max": 40,
-      "qty": 1
-     },
-     "colors": {},
-     "offer": {
-      "pct": 30
-     }
-    },
-    {
-     "n": 99,
-     "code": "RAJWADI-99",
-     "folder": "photos/rajwadi/5000 (2)",
-     "title": "",
-     "price": 5000,
-     "band": {
-      "min": 5000,
-      "max": 6000
-     },
-     "images": [
-      "photos/rajwadi/5000 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 34,
-      "max": 40,
-      "qty": 1
-     },
-     "colors": {},
-     "offer": {
-      "pct": 30
-     }
-    },
-    {
-     "n": 100,
-     "code": "RAJWADI-100",
-     "folder": "photos/rajwadi/5000 (3)",
-     "title": "",
-     "price": 5000,
-     "band": {
-      "min": 5000,
-      "max": 6000
-     },
-     "images": [
-      "photos/rajwadi/5000 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 34,
-      "max": 40,
-      "qty": 1
-     },
-     "colors": {},
-     "offer": {
-      "pct": 30
      }
     }
    ]
