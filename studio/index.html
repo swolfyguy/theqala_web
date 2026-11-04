@@ -202,6 +202,20 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
   width:100%;transform-origin:left;animation:snackrun 10s linear forwards}
 @keyframes snackrun{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 @media (prefers-reduced-motion:reduce){.snack,.snack .sbar{animation:none}}
+/* Ticking several to delete at once (4 Nov 2026). The box sits on the photo,
+   top right, clear of the "N views" badge on the left. */
+.piece .tick{position:absolute;top:8px;right:8px;z-index:2;width:32px;height:32px;border-radius:9px;
+  background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.28)}
+.piece .tick input{width:19px;height:19px;margin:0;accent-color:var(--bad);cursor:pointer}
+.piece.picked{border-color:var(--bad);box-shadow:0 0 0 2px var(--bad)}
+.delbar{position:fixed;left:0;right:0;bottom:18px;margin:0 auto;width:fit-content;
+  max-width:calc(100vw - 24px);z-index:70;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  justify-content:center;background:var(--panel);color:var(--ink);border:1px solid var(--line-2);
+  border-radius:14px;padding:10px 14px;box-shadow:0 14px 34px -14px rgba(0,0,0,.45)}
+.delbar[hidden]{display:none}
+.delbar .btn.danger.armed{outline:3px solid color-mix(in srgb,var(--bad) 40%,transparent)}
+body:has(.delbar:not([hidden])) #m-body{padding-bottom:90px}
 .piece.going{opacity:.25;transform:scale(.97);pointer-events:none;transition:opacity .2s,transform .2s}
 .btn.danger.armed{background:var(--accent);color:#fff;border-color:var(--accent)}
 
@@ -1140,6 +1154,8 @@ let MPRODUCTS = [];
 let MGONE = 0;                  // deleted, but the catalogue has not caught up
 const MFILTER = new Set();      // empty means everything
 let MSEARCH = "";
+const MSEL = new Set();         // codes ticked for deleting together
+let MSHOWN = [];                // what the filters are showing now, for "Select all shown"
 
 function paintManage(){
   const products = MPRODUCTS;
@@ -1199,6 +1215,10 @@ function paintManage(){
   const shown = products.filter(p =>
     (!MFILTER.size || MFILTER.has(p.cat)) &&
     (!needle || (p.code + " " + (p.title || "")).toLowerCase().includes(needle)));
+  MSHOWN = shown;
+  /* A tick on something that is no longer in the shop means nothing. */
+  for (const c of [...MSEL]) if (!products.some(p => p.code === c)) MSEL.delete(c);
+  paintDelBar();
 
   body.innerHTML = `<p class="mcount">${shown.length} of ${products.length} piece${
     products.length === 1 ? "" : "s"}${
@@ -1224,8 +1244,10 @@ function paintManage(){
     const grid = el("div", "pieces");
     list.forEach(p => {
       const views = (p.images || []).length + (p.video ? 1 : 0);
-      const card = el("div", "piece");
-      card.innerHTML = `<div class="shot">${views > 1 ? `<span class="n">${views} views</span>` : ""}</div>
+      const card = el("div", "piece" + (MSEL.has(p.code) ? " picked" : ""));
+      card.innerHTML = `<div class="shot">${views > 1 ? `<span class="n">${views} views</span>` : ""}${
+        p.folder ? `<label class="tick" title="Tick to delete several at once"><input type="checkbox" data-pick${
+          MSEL.has(p.code) ? " checked" : ""} aria-label="Select ${esc(p.code)} to delete"></label>` : ""}</div>
         <div class="body">
           <code>${esc(p.code)}</code>
           <div class="ttl">${esc(p.title || titleish(cat) + " " + String(p.n).padStart(2, "0"))}</div>
@@ -1259,6 +1281,12 @@ function paintManage(){
 
       const delBtn = card.querySelector("[data-del]");
       const label = p.title ? `${p.code} — ${p.title}` : p.code;
+      const pick = card.querySelector("[data-pick]");
+      if (pick) pick.onchange = () => {
+        pick.checked ? MSEL.add(p.code) : MSEL.delete(p.code);
+        card.classList.toggle("picked", pick.checked);
+        paintDelBar();
+      };
 
       if (isLocal()) {
         /* Straight to the trash. No dialog: the bar at the bottom carries the undo. */
@@ -1689,6 +1717,86 @@ function stamp(){
     : (ready() ? `${CFG.owner}/${CFG.repo} · ${CFG.branch}` : "not connected");
   $("#repoLabel").title = isLocal() ? LOCAL.root : "";
 }
+/* ---------- deleting several at once ----------
+   Tick the box on each photo, then Delete at the bottom. On this computer the
+   pieces go to the trash together, with one Undo for the lot. On the website
+   they go in one commit — so the button asks "Sure?" first, as the single
+   Delete does. */
+function delBar(){
+  let bar = $("#delbar");
+  if (bar) return bar;
+  bar = el("div", "delbar");
+  bar.id = "delbar"; bar.hidden = true;
+  bar.innerHTML = `<span><b id="db-n">0</b> selected</span>
+    <button type="button" class="btn danger sm" id="db-del">Delete</button>
+    <button type="button" class="btn ghost sm" id="db-all">Select all shown</button>
+    <button type="button" class="btn ghost sm" id="db-clear">Clear</button>`;
+  document.body.appendChild(bar);
+  let armed = null;
+  const del = bar.querySelector("#db-del");
+  const disarm = () => { clearTimeout(armed); armed = null; del.classList.remove("armed"); paintDelBar(); };
+  del.onclick = async () => {
+    const n = MSEL.size;
+    if (!n) return;
+    if (!armed){
+      del.textContent = `Sure? Delete ${n}`;
+      del.classList.add("armed");
+      armed = setTimeout(disarm, 4000);
+      return;
+    }
+    clearTimeout(armed); armed = null; del.classList.remove("armed");
+    await deleteSelected();
+  };
+  bar.querySelector("#db-all").onclick = () => {
+    MSHOWN.filter(p => p.folder).forEach(p => MSEL.add(p.code));
+    paintManage();
+  };
+  bar.querySelector("#db-clear").onclick = () => { MSEL.clear(); disarm(); paintManage(); };
+  return bar;
+}
+function paintDelBar(){
+  const bar = delBar();
+  const onManage = !!$("#m-body") && !$("#tab-manage").hidden;
+  const n = MSEL.size;
+  bar.hidden = !(onManage && n);
+  $("#db-n").textContent = n;
+  const del = $("#db-del");
+  if (!del.classList.contains("armed"))
+    del.textContent = `Delete ${n} piece${n === 1 ? "" : "s"}`;
+}
+async function deleteSelected(){
+  const picked = MPRODUCTS.filter(p => MSEL.has(p.code) && p.folder);
+  if (!picked.length) return;
+  const n = picked.length;
+  const word = `${n} piece${n === 1 ? "" : "s"}`;
+  document.querySelectorAll(".piece.picked").forEach(c => c.classList.add("going"));
+  $("#db-del").disabled = true;
+  try {
+    if (isLocal()) {
+      const res = await localPost("/api/delete", {folders: picked.map(p => p.folder)});
+      snack(`${word} moved to the trash`, async () => {
+        await localPost("/api/undelete", {undo: res.undo});
+        snack(`${word} are back`);
+        renderManage();
+      });
+    } else {
+      const files = TREE.filter(t => picked.some(p => t.path.startsWith(p.folder + "/"))).map(t => t.path);
+      if (!files.length) throw new Error("Could not find the photographs for those pieces — refresh and try again.");
+      const codes = picked.map(p => p.code);
+      await commitChanges(`Remove ${word}: ${codes.slice(0, 8).join(", ")}${codes.length > 8 ? " …" : ""}`, [], files);
+      snack(`${word} removed — they leave the shop in about 2 minutes, nothing more to do`);
+    }
+    MSEL.clear();
+    renderManage();
+  } catch (e) {
+    document.querySelectorAll(".piece.going").forEach(c => c.classList.remove("going"));
+    snack(e.message);
+  } finally {
+    $("#db-del").disabled = false;
+    paintDelBar();
+  }
+}
+
 function go(name){
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
   ["upload","manage","settings"].forEach(n => { $("#tab-" + n).hidden = n !== name; });
@@ -1696,6 +1804,7 @@ function go(name){
   if (name === "upload") renderUpload();
   if (name === "manage") renderManage();
   if (name === "settings") renderSettings();
+  paintDelBar();
   refreshGit();
   location.hash = name;
 }
