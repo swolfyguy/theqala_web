@@ -751,6 +751,9 @@ def write_sitemap(categories):
             entry(f"{SITE}/piece/{pr['code'].lower()}/", "weekly", "0.7", images)
             url_count += 1
 
+    entry(f"{SITE}/pune/", "weekly", "0.8")      # where the adverts land (4 Nov 2026)
+    url_count += 1
+
     for r in ("terms", "privacy", "shipping", "returns", "refunds"):
         entry(f"{SITE}/{r}/", "monthly", "0.3")
         url_count += 1

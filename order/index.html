@@ -508,7 +508,33 @@ function orderChat(ref, b){
   return lines.join("\n");
 }
 
+/* Tell the adverts a lead came in — only if she said Accept all on the shop
+   (same browser, same yes), and nothing but the fact of it: no name, no
+   phone. Meta's pixel gets it, and the shop's server passes on a copy with
+   the same id (metaEvent in _worker.js). */
+function leadSent(ref){
+  let yes = false;
+  try { yes = localStorage.getItem("qala.cookies") === "yes"; } catch (e) {}
+  if (!yes) return;
+  const PIXEL = "1429281848565434";
+  if (!window.fbq) {
+    const f = window.fbq = function(){ f.callMethod ? f.callMethod.apply(f, arguments) : f.queue.push(arguments); };
+    if (!window._fbq) window._fbq = f;
+    f.push = f; f.loaded = true; f.version = "2.0"; f.queue = [];
+    const t = document.createElement("script");
+    t.async = true; t.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(t);
+    fbq("init", PIXEL);
+  }
+  fbq("track", "Lead", {}, {eventID: ref});
+  const jar = k => (document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)")) || [])[1] || "";
+  fetch("/api/ev", {method: "POST", keepalive: true, headers: {"content-type": "application/json"},
+    body: JSON.stringify({name: "generate_lead", id: ref, url: location.href, fbp: jar("_fbp"), fbc: jar("_fbc")})
+  }).catch(() => {});
+}
+
 function done(ref, b){
+  try { leadSent(ref); } catch (e) {}
   const chat = b ? orderChat(ref, b) : "Namaskar The Qala \u{1F64F}\n\nI have sent my details.\nOrder code: " + ref;
   $("#main").innerHTML = `
     <div class="top">

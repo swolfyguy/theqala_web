@@ -254,6 +254,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--gold-2);outline-
         <button type="button" class="btn go" id="printall" disabled>Print labels</button>
         <button type="button" class="btn" id="clearq" hidden>Empty the list</button>
       </div>
+      <div class="row" style="margin-top:10px">
+        <span class="say" id="qsay" role="status"></span>
+        <button type="button" class="btn" id="undo" hidden>Bring them back</button>
+      </div>
     </section>
   </div>
 </div>
@@ -395,12 +399,38 @@ function paintQueue(){
     <div class="t"><b>${esc(L.name)}</b><span>${esc(L.addr)} · ${esc(L.pin)}</span></div>
     <span class="pay ${L.pay === "cod" ? "cod" : ""}">${L.pay === "cod" ? "COD " + rupees(L.amt) : "Prepaid"}</span>
     <button type="button" data-drop="${i}" aria-label="Remove ${esc(L.name)}">Remove</button></li>`).join("");
-  const n = QUEUE.length, sheets = Math.ceil(n / 2);
-  $("#qempty").hidden = !!n;
-  $("#qn").textContent = n ? `· ${n} label${n === 1 ? "" : "s"}, ${sheets} sheet${sheets === 1 ? "" : "s"}` : "";
+  /* What is typed in the form and not yet added counts too — Print takes it
+     along, so filling the form is enough to print (5 Nov 2026). */
+  const extra = formFilled() ? 1 : 0;
+  const n = QUEUE.length + extra, sheets = Math.ceil(n / 2);
+  $("#qempty").hidden = !!QUEUE.length || !!extra;
+  $("#qn").textContent = n ? `· ${n} label${n === 1 ? "" : "s"}, ${sheets} sheet${sheets === 1 ? "" : "s"}${
+    extra ? " (with the one in the form)" : ""}` : "";
   $("#printall").disabled = !n;
   $("#printall").textContent = n ? `Print ${n} label${n === 1 ? "" : "s"}` : "Print labels";
-  $("#clearq").hidden = !n;
+  $("#clearq").hidden = !QUEUE.length;
+}
+function formFilled(){ return ["name", "addr", "pin", "phone"].some(k => $("#" + k).value.trim()); }
+
+/* After a print, the list and the form start empty for the next parcels.
+   The browser cannot say whether the paper actually came out (a cancelled
+   print looks the same), so what was cleared can be brought back. */
+let PRINTING = null, LAST = null;
+function afterPrinting(){
+  if (!PRINTING) return;
+  const done = PRINTING; PRINTING = null;
+  LAST = {queue: QUEUE.slice(), form: done.form};
+  if (!done.keepQueue) { QUEUE = []; keep(); }
+  clearForm();
+  paintQueue();
+  $("#qsay").textContent = `Printed ${done.n} label${done.n === 1 ? "" : "s"} — the list is empty for the next ones.`;
+  $("#qsay").className = "say good";
+  $("#undo").hidden = false;
+}
+function formState(){
+  const o = {pay: document.querySelector('input[name="pay"]:checked').value};
+  F.forEach(k => o[k] = $("#" + k).value);
+  return o;
 }
 
 async function printThese(list){
@@ -420,6 +450,7 @@ async function printThese(list){
 window.addEventListener("afterprint", () => {
   document.body.classList.remove("lb-printing");
   $("#labels").innerHTML = "";
+  afterPrinting();
 });
 
 function checked(){
@@ -434,6 +465,7 @@ function clearForm(){
   $("#paste").value = ""; $("#fillsay").textContent = "";
   document.querySelector('input[name="pay"][value="paid"]').checked = true;
   payChanged();
+  paintQueue();
 }
 
 $("#f").addEventListener("submit", e => {
@@ -443,9 +475,33 @@ $("#f").addEventListener("submit", e => {
   say(`Added ${L.name}. ${QUEUE.length % 2 ? "Add one more to fill the sheet, or print now." : "Sheet full — print, or keep adding."}`, "good");
   clearForm(); $("#paste").focus();
 });
-$("#now").onclick = () => { const L = checked(); if (L){ say(""); printThese([L]); } };
+$("#now").onclick = () => {
+  const L = checked(); if (!L) return;
+  say("");
+  PRINTING = {n: 1, form: formState(), keepQueue: true};
+  printThese([L]);
+};
 $("#reset").onclick = () => { clearForm(); say(""); };
-$("#printall").onclick = () => printThese(QUEUE);
+$("#printall").onclick = () => {
+  let list = QUEUE.slice();
+  if (formFilled()) { const L = checked(); if (!L) return; list.push(L); }
+  if (!list.length) return;
+  say("");
+  PRINTING = {n: list.length, form: formState()};
+  printThese(list);
+};
+$("#undo").onclick = () => {
+  if (!LAST) return;
+  QUEUE = LAST.queue; keep();
+  const f = LAST.form || {};
+  F.forEach(k => { if (f[k] != null) $("#" + k).value = f[k]; });
+  const r = document.querySelector(`input[name="pay"][value="${f.pay === "cod" ? "cod" : "paid"}"]`);
+  if (r) r.checked = true;
+  LAST = null;
+  $("#undo").hidden = true;
+  $("#qsay").textContent = "Brought back."; $("#qsay").className = "say";
+  payChanged(); paintQueue();
+};
 $("#clearq").onclick = () => { QUEUE = []; keep(); paintQueue(); };
 $("#q").addEventListener("click", e => {
   const b = e.target.closest("[data-drop]"); if (!b) return;
@@ -462,9 +518,10 @@ $("#fill").onclick = () => {
   s.textContent = found.length ? "Filled " + found.join(", ") + " — please check them." : "Could not pick anything out — type it in below.";
   s.className = "say" + (found.length ? " good" : " bad");
   paintPreview();
+  paintQueue();
 };
 document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", payChanged));
-F.forEach(k => $("#" + k).addEventListener("input", paintPreview));
+F.forEach(k => $("#" + k).addEventListener("input", () => { paintPreview(); paintQueue(); }));
 $("#courier").addEventListener("change", paintPreview);
 window.addEventListener("resize", paintPreview);
 $("#out").addEventListener("click", async () => {

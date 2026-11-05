@@ -220,6 +220,7 @@ export default {
       if (path.startsWith("/api/pincode/") && request.method === "GET")
                                                                   return pinCheck(request, env, path);
       if (path === "/api/seen"      && request.method === "POST") return countSeen(request, env);
+      if (path === "/api/ev"        && request.method === "POST") return metaEvent(request, env);
       if (path === "/api/me" || path.startsWith("/api/me/"))      return meApi(request, env, path);
       if (path === "/api/track"     && request.method === "POST") return trackApi(request, env);
       if (path === "/office/tally"  && request.method === "GET")  return tallyOut(request, env);
@@ -815,6 +816,82 @@ const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished",
                   "visit", "order_page", "browsed", "order_left", "shop_open"];
 
 const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
+
+/* ===========================================================================
+   Meta Conversions API (4 Nov 2026)
+   ===========================================================================
+   The browser sends each moment to Meta's pixel and, after Accept all, a copy
+   here (relayMeta in index.html) with the same event id, so Meta counts it
+   once. This passes the copy on from Cloudflare, which iPhones and ad
+   blockers cannot drop.
+
+   Switched off until the token is set:
+       npx wrangler secret put META_CAPI_TOKEN
+   (Events Manager → the dataset → Settings → Conversions API → Generate
+   access token). Optional META_TEST_CODE sends to the Test Events tab.
+
+   What goes: the event, its id, the page address, the visitor's IP and
+   browser (Meta needs these to match), Meta's own _fbp/_fbc cookies, and for
+   shop events the piece codes and rupees. No name, phone or address. A
+   Purchase is only passed on for an order that is really in the book, at the
+   book's own total — so nobody can post made-up sales into the ads account. */
+const META_PIXEL   = "1429281848565434";
+const META_GRAPH   = "https://graph.facebook.com/v26.0";
+const META_NAMES = {page_view: "PageView", view_item: "ViewContent", add_to_cart: "AddToCart",
+  begin_checkout: "InitiateCheckout", purchase: "Purchase", contact: "Contact",
+  find_location: "FindLocation", generate_lead: "Lead"};
+
+async function metaEvent(request, env) {
+  const none = new Response(null, {status: 204});
+  if (!env.META_CAPI_TOKEN) return none;
+  let b;
+  try {
+    const raw = await request.text();
+    if (raw.length > 4000) return none;
+    b = JSON.parse(raw);
+  } catch { return none; }
+
+  const name = META_NAMES[b && b.name];
+  const id = String((b && b.id) || "");
+  if (!name || !/^[A-Za-z0-9_-]{4,64}$/.test(id)) return none;
+  let page;
+  try { page = new URL(String(b.url || "")); } catch { return none; }
+  if (page.hostname !== "theqalashree.com" && page.hostname !== "www.theqalashree.com") return none;
+
+  const cookie = v => /^fb\.\d\.\d{10,16}\.[A-Za-z0-9_.-]{1,200}$/.test(String(v || "")) ? String(v) : undefined;
+  const user = {
+    client_ip_address: request.headers.get("cf-connecting-ip") || undefined,
+    client_user_agent: (request.headers.get("user-agent") || "").slice(0, 400) || undefined,
+    fbp: cookie(b.fbp), fbc: cookie(b.fbc)
+  };
+  const ids = Array.isArray(b.ids) ? b.ids.map(x => String(x).slice(0, 80)).filter(x => /^[A-Z0-9-]+$/.test(x)).slice(0, 20) : [];
+  let custom = {};
+  if (["ViewContent", "AddToCart", "InitiateCheckout"].includes(name)) {
+    const value = Math.max(0, Math.min(1000000, Number(b.value) || 0));
+    custom = {currency: "INR", value, content_type: "product", content_ids: ids};
+    if (name === "InitiateCheckout") custom.num_items = Math.max(0, Math.min(99, Number(b.num) || 0));
+  }
+  if (name === "Contact" && /^(whatsapp|phone)$/.test(String(b.method || ""))) custom = {method: b.method};
+  if (name === "Purchase") {
+    if (!env.DB) return none;
+    try {
+      const o = await env.DB.prepare(
+        "SELECT total, placed_at FROM orders WHERE ref = ? AND status != 'deleted'").bind(id).first();
+      if (!o || Date.now() - Date.parse(o.placed_at) > 2 * 864e5) return none;
+      custom = {currency: "INR", value: Number(o.total) || 0, content_type: "product", content_ids: ids,
+                num_items: Math.max(0, Math.min(99, Number(b.num) || 0))};
+    } catch { return none; }
+  }
+
+  const payload = {data: [{event_name: name, event_time: Math.floor(Date.now() / 1000), event_id: id,
+    event_source_url: page.href, action_source: "website", user_data: user, custom_data: custom}]};
+  if (env.META_TEST_CODE) payload.test_event_code = String(env.META_TEST_CODE);
+  try {
+    await fetch(`${META_GRAPH}/${META_PIXEL}/events?access_token=${encodeURIComponent(env.META_CAPI_TOKEN)}`,
+      {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify(payload)});
+  } catch { /* Meta being slow is no reason to bother the shopper */ }
+  return none;
+}
 
 async function countSeen(request, env) {
   if (!env.DB) return json({ok: true});
@@ -3069,7 +3146,13 @@ const PAGE_NAMES = {
   returns:  "Returns & damage",
   terms:    "Terms & conditions",
   privacy:  "Privacy policy",
-  refunds:  "Refunds & cancellation"
+  refunds:  "Refunds & cancellation",
+  pune:     "Bridal & Rajwadi jewellery in Pune"
+};
+/* A line for the pages that need more than their name in a link preview. */
+const PAGE_DESC = {
+  pune: "Thushi, mangalsutra, nath, Rajwadi and Victorian jewellery, handmade in Dighi, Pune. "
+      + "Visit the shop or order on WhatsApp — delivered to your door."
 };
 
 /* ₹1,40,000 — the Indian grouping, without leaning on the runtime's locale data. */
@@ -3172,6 +3255,7 @@ async function realPage(url, path, env) {
     hash = "#/" + want.page;
     canonical = `${SITE_URL}/${want.page}/`;
     title = ogTitle = `${PAGE_NAMES[want.page]} · The Qala`;
+    desc = PAGE_DESC[want.page] || desc;
   }
 
   const setMeta = (re, value) => { html = html.replace(re, (all, a, b) => a + attr(value) + b); };

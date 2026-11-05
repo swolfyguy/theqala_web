@@ -504,6 +504,29 @@ video.photo{background:#000;object-fit:contain}
 
 /* ---------- sections ---------- */
 section.band{padding:70px 0}
+/* /pune — the page the Instagram and Facebook ads land on (4 Nov 2026). */
+.pune{padding:34px 0 40px;display:grid;gap:34px}
+.pune-top{display:grid;gap:24px;align-items:start}
+@media(min-width:880px){.pune-top{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:40px}}
+.pune-top .mr{display:block;font-size:1.05rem;color:var(--accent);margin-bottom:8px}
+.pune-top h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.08;text-wrap:balance}
+.pune-top .lede{font-size:1.05rem;color:var(--ink-2);max-width:48ch;margin:16px 0 18px}
+.pune-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.pune-cta .btn{display:inline-flex;align-items:center;gap:9px}
+.pune-cta .btn svg{width:18px;height:18px}
+.pune-visit{display:grid;gap:12px}
+.pune-visit h2{font-size:1.25rem}
+.pune-visit .open{display:flex;align-items:center;gap:8px;font-weight:600}
+.pune-visit .open i{width:9px;height:9px;border-radius:50%;background:var(--line-2)}
+.pune-visit .open i.on{background:#1F9D55}
+.pune-gift{border:1.5px dashed var(--accent);border-radius:12px;padding:12px 14px;color:var(--accent);font-weight:600;line-height:1.45}
+.pune-steps{display:grid;gap:14px;counter-reset:st;padding:0;margin:0;list-style:none}
+@media(min-width:760px){.pune-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pune-steps li{border:1px solid var(--line);border-radius:14px;padding:16px 16px 18px;background:var(--panel)}
+.pune-steps b{display:block;font-family:Marcellus,Georgia,serif;font-weight:400;font-size:1.12rem;margin-bottom:4px}
+.pune-steps li::before{counter-increment:st;content:counter(st);display:inline-grid;place-items:center;width:28px;height:28px;
+  border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);font-weight:700;font-size:.85rem;margin-bottom:10px}
+.pune-steps p{margin:0;color:var(--ink-2);line-height:1.55}
 .sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap}
 .sechead h2{font-size:clamp(1.6rem,3vw,2.3rem)}
 .sechead .mr{display:block;font-size:.95rem;color:var(--accent);margin-bottom:5px}
@@ -1282,7 +1305,11 @@ function gtmPush(name, p){
        a real one: #/piece/RAJWADI-25 → /piece/RAJWADI-25, #/shop?c=saaz →
        /shop?c=saaz. The original stays alongside as hash_location. */
     const path = (location.hash || "").replace(/^#/, "") || "/";
-    dl.push({event: "page_view", page_location: location.origin + path, page_path: path,
+    /* The ad's own tags (?utm_source=…, ?fbclid=…) sit before the #, and
+       without them GA4 files an advert's visit as "direct". */
+    const q = (location.search || "").replace(/^\?/, "");
+    const loc = location.origin + path + (q ? (path.includes("?") ? "&" : "?") + q : "");
+    dl.push({event: "page_view", page_location: loc, page_path: path,
              page_title: p.page_title, hash_location: p.page_location});
     return;
   }
@@ -1292,6 +1319,10 @@ function gtmPush(name, p){
     if (p.shipping != null) eco.shipping = p.shipping;
     dl.push({ecommerce: null});
     dl.push({event: name, ecommerce: eco});
+    return;
+  }
+  if (["contact", "find_location", "generate_lead"].includes(name)) {
+    dl.push({event: name, method: p.method || ""});
     return;
   }
   if (name === "conversion") return;            // Google Ads, gtag only
@@ -1356,21 +1387,62 @@ function seen(what){
 
 function track(name, params){
   params = params || {};
+  /* One id per moment, shared by the browser's pixel and the server's copy
+     (relayMeta below), so Meta counts it once. An order uses its own code. */
+  const eid = params.transaction_id || ("e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
   if (typeof gtag === "function") { try { gtag("event", name, params); } catch (e) {} }
-  if (typeof fbq === "function") { try { pixel(name, params); } catch (e) {} }
+  if (typeof fbq === "function") { try { pixel(name, params, eid); } catch (e) {} }
   if (window.__qalaGTM) { try { gtmPush(name, params); } catch (e) {} }
+  try { relayMeta(name, params, eid); } catch (e) {}
 }
+
+/* The same moment sent again from the shop's own server (Meta's Conversions
+   API), because iPhones and ad blockers drop a share of what the browser
+   sends. Only after Accept all — the same yes the pixel waits for — and only
+   what the pixel already gets: no name, no phone, no address. The server
+   does nothing with it until META_CAPI_TOKEN is set on Cloudflare. */
+const RELAYED = ["page_view", "view_item", "add_to_cart", "begin_checkout", "purchase",
+                 "contact", "find_location", "generate_lead"];
+function relayMeta(name, p, eid){
+  if (!META_PIXEL_ID || !RELAYED.includes(name) || cookieChoice() !== "yes") return;
+  const jar = k => (document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)")) || [])[1] || "";
+  const body = {name, id: eid, url: location.href, fbp: jar("_fbp"), fbc: jar("_fbc"),
+    value: Number(p.value) || 0, ids: (p.items || []).map(i => i.item_id).filter(Boolean).slice(0, 20),
+    num: (p.items || []).reduce((a, i) => a + (i.price >= 0 ? (i.quantity || 1) : 0), 0),
+    method: p.method || ""};
+  fetch("/api/ev", {method: "POST", keepalive: true, headers: {"content-type": "application/json"},
+    body: JSON.stringify(body)}).catch(() => {});
+}
+
+/* Leads. Most of the shop's orders start as a WhatsApp chat, so a tap on any
+   WhatsApp number is the moment that matters to an advert — and a tap on
+   Directions is somebody coming to the shop. Counted wherever they are on the
+   page, once per tap. The share-a-piece link (wa.me/?text=…, no number) is a
+   customer sending a piece to a friend, not a lead, so it is left out. */
+document.addEventListener("click", e => {
+  const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+  if (!a) return;
+  const h = a.getAttribute("href") || "";
+  if (/^https:\/\/wa\.me\/\d/.test(h)) track("contact", {method: "whatsapp"});
+  else if (/^tel:/.test(h)) track("contact", {method: "phone"});
+  else if (h === ADDRESS.maps || /google\.[a-z.]+\/maps|maps\.app\.goo\.gl|share\.google/.test(h))
+    track("find_location", {method: "maps"});
+}, true);
 
 /* The same moments, in Meta's words. Only the piece codes and rupee values
    go — content_ids are the shop's own references (DOUBLE-WATI-…-22). */
-function pixel(name, p){
+function pixel(name, p, eid){
   const ids  = (p.items || []).map(i => i.item_id).filter(Boolean);
   const base = {currency: "INR", value: Number(p.value) || 0, content_type: "product", content_ids: ids};
-  if (name === "page_view")      fbq("track", "PageView");
-  if (name === "view_item")      fbq("track", "ViewContent", base);
-  if (name === "add_to_cart")    fbq("track", "AddToCart", base);
+  const once = {eventID: eid};
+  if (name === "page_view")      fbq("track", "PageView", {}, once);
+  if (name === "view_item")      fbq("track", "ViewContent", base, once);
+  if (name === "add_to_cart")    fbq("track", "AddToCart", base, once);
+  if (name === "contact")        fbq("track", "Contact", {method: p.method || ""}, once);
+  if (name === "find_location")  fbq("track", "FindLocation", {}, once);
+  if (name === "generate_lead")  fbq("track", "Lead", {}, once);
   if (name === "begin_checkout") fbq("track", "InitiateCheckout",
-                                   Object.assign({}, base, {num_items: (p.items || []).reduce((a, i) => a + (i.quantity || 1), 0)}));
+                                   Object.assign({}, base, {num_items: (p.items || []).reduce((a, i) => a + (i.quantity || 1), 0)}), once);
   if (name === "purchase")       fbq("track", "Purchase",
                                    Object.assign({}, base, {
                                      contents: (p.items || []).filter(i => i.item_id && i.price >= 0)
@@ -3377,9 +3449,85 @@ const PAGE_TITLES = {
   returns:  "Returns & damage",
   terms:    "Terms & conditions",
   privacy:  "Privacy policy",
-  refunds:  "Refunds & cancellation"
+  refunds:  "Refunds & cancellation",
+  pune:     "Bridal & Rajwadi jewellery in Pune"
 };
 const SHOP_NAME = "The Qala";
+
+/* ---------------------------------------------------------------------------
+   /pune — where the Instagram and Facebook adverts send people (4 Nov 2026).
+   One page that answers what somebody tapping an advert wants to know: what
+   it looks like, what it costs, that other people liked it, where the shop is
+   and how to get it — with WhatsApp and Directions always one tap away.
+
+   PUNE_PICKS: piece codes to show first (best-sellers, or what the advert
+   shows). Left empty, the page takes a mix from every shelf, in stock only.
+   VISIT_OFFER: what somebody gets for showing this page at the counter, e.g.
+   "a free gift box". Left empty, no offer is shown — the shop decides this. */
+const PUNE_PICKS = [];
+const VISIT_OFFER = "";
+function punePicks(){
+  const usable = it => it && onShelf(it) && it.images.length;
+  const chosen = PUNE_PICKS.map(byCode).filter(usable).slice(0, 12);
+  const taken = new Set(chosen.map(it => it.code));
+  const shelves = catsInUse().map(c => ITEMS.filter(it => it.cat === c.slug && usable(it) && !taken.has(it.code)));
+  for (let round = 0; chosen.length < 12 && shelves.some(s => s.length > round); round++)
+    for (const s of shelves) { if (chosen.length >= 12) break; if (s[round]) chosen.push(s[round]); }
+  return chosen;
+}
+function punePage(){
+  const picks = punePicks();
+  const now = shopNow();
+  const anyCod = COD_ON && ITEMS.some(codOk);
+  const hello = waLink("Namaskar The Qala \u{1F64F} I saw your page and would like to see your jewellery.");
+  const ship = OFFER.on
+    ? `Free insured shipping on ${OFFER.min} or more pieces, or over ${rupees(SHIP_FREE_OVER)}; ${rupees(SHIP_FLAT)} otherwise.`
+    : `Free insured shipping over ${rupees(SHIP_FREE_OVER)}; ${rupees(SHIP_FLAT)} below that.`;
+  return `
+  <div class="wrap pune">
+    <div class="pune-top">
+      <div>
+        <span class="mr">पुण्यातील हातघडणीचे दागिने</span>
+        <h1>Bridal &amp; Rajwadi jewellery, handmade in Pune</h1>
+        <p class="lede">Thushi, mangalsutra, nath, Rajwadi and Victorian sets — made by hand in our
+          shop in Dighi. Come and see them, or message us and we deliver to your door.</p>
+        ${ratingLine()}
+        <div class="pune-cta">
+          <a class="btn wa" href="${hello}" target="_blank" rel="noopener">${WA_ICON_BTN} WhatsApp us</a>
+          <a class="btn ghost" href="${esc(ADDRESS.maps)}" target="_blank" rel="noopener">${PIN_ICON} Get directions</a>
+        </div>
+      </div>
+      <div class="cbox pune-visit">
+        <h2>Visit the shop</h2>
+        <p class="open"><i class="${now.open ? "on" : ""}" aria-hidden="true"></i>${now.text}</p>
+        <p><b>The Qala</b><br>${esc(ADDRESS.line1)}<br>${esc(ADDRESS.line2)}<br>${esc(ADDRESS.area)}</p>
+        <p class="hours"><b>${esc(HOURS)}</b><br><span class="shut">${esc(CLOSED)}</span></p>
+        ${VISIT_OFFER ? `<p class="pune-gift">Show this page at the counter and get ${esc(VISIT_OFFER)}.</p>` : ""}
+        <a class="btn ghost" href="${esc(ADDRESS.maps)}" target="_blank" rel="noopener">${PIN_ICON} Open in Google Maps</a>
+      </div>
+    </div>
+
+    ${OFFER.on ? offerCard() : ""}
+
+    ${picks.length ? `<section>
+      <div class="sechead">
+        <div><span class="mr">निवडक</span><h2>From our shop</h2></div>
+        <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
+      </div>
+      <div class="grid">${picks.map(card).join("")}</div>
+    </section>` : ""}
+
+    <section>
+      <div class="sechead"><div><span class="mr">कसे मागवायचे</span><h2>How to order</h2></div></div>
+      <ol class="pune-steps">
+        <li><b>Pick a piece</b><p>Tap one above, or send us a screenshot from Instagram on WhatsApp.</p></li>
+        <li><b>We confirm it with you</b><p>Price, poth length and colour settled in the chat — or try it on at the shop.</p></li>
+        <li><b>Delivered to your door</b><p>${esc(ship)}${anyCod ? ` Cash on delivery on many pieces (${rupees(COD_EXTRA)} extra).` : ""}</p></li>
+      </ol>
+    </section>
+  </div>
+  ${reviewsSection()}`;
+}
 const SHOP_FULL = "The Qala — Rajwadi & Victorian Jewellery, Dighi, Pune";
 
 /* ---------------------------------------------------------------------------
@@ -3528,6 +3676,7 @@ function render(){
   }
   else if (r === "placed") html = placedView();
   else if (r === "paid")   html = paidView();
+  else if (r === "pune") html = punePage();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
 
