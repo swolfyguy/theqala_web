@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-05T18:02:57Z",
+ "generated": "2026-11-10T06:45:45Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -428,54 +428,6 @@
    "next": 61,
    "products": [
     {
-     "n": 23,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-23",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (2)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 3,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 24,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-24",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (3)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 2,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 25,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-25",
      "folder": "photos/double-wati-rajwadi-handmade/1400 (4)",
@@ -518,54 +470,6 @@
       "min": 30,
       "max": 36,
       "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 27,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-27",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (6)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (6)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 0,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 28,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-28",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (7)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (7)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 30,
-      "max": 36,
-      "qty": 0,
       "cod": true
      },
      "colors": {},
@@ -829,29 +733,6 @@
      "offer": null
     },
     {
-     "n": 40,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-40",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (19)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (19)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 30,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 41,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-41",
      "folder": "photos/double-wati-rajwadi-handmade/1400 (20)",
@@ -893,29 +774,6 @@
       "min": 24,
       "max": 30,
       "qty": 1
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 43,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-43",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (22)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (22)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 0
      },
      "colors": {},
      "offer": null
@@ -1197,29 +1055,6 @@
      "offer": null
     },
     {
-     "n": 56,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-56",
-     "folder": "photos/double-wati-rajwadi-handmade/1400 (35)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1400 (35)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 57,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-57",
      "folder": "photos/double-wati-rajwadi-handmade/1400 (36)",
@@ -1338,30 +1173,6 @@
      "offer": null
     },
     {
-     "n": 4,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-04",
-     "folder": "photos/double-wati-rajwadi-handmade/1500 (4)",
-     "title": "",
-     "price": 1500,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1500 (4)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 22,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-22",
      "folder": "photos/double-wati-rajwadi-handmade/1500 double",
@@ -1434,30 +1245,6 @@
      "offer": null
     },
     {
-     "n": 20,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-20",
-     "folder": "photos/double-wati-rajwadi-handmade/1700 (4)",
-     "title": "",
-     "price": 1700,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1700 (4)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 0,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 21,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-21",
      "folder": "photos/double-wati-rajwadi-handmade/1700 (5)",
@@ -1488,173 +1275,6 @@
    "cover": null,
    "next": 51,
    "products": [
-    {
-     "n": 36,
-     "code": "HAND-MADE-RAJWADI-36",
-     "folder": "photos/hand-made-rajwadi/950",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 37,
-     "code": "HAND-MADE-RAJWADI-37",
-     "folder": "photos/hand-made-rajwadi/950 (2)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (2)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 38,
-     "code": "HAND-MADE-RAJWADI-38",
-     "folder": "photos/hand-made-rajwadi/950 (3)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 39,
-     "code": "HAND-MADE-RAJWADI-39",
-     "folder": "photos/hand-made-rajwadi/950 (4)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (4)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 40,
-     "code": "HAND-MADE-RAJWADI-40",
-     "folder": "photos/hand-made-rajwadi/950 (5)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (5)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 41,
-     "code": "HAND-MADE-RAJWADI-41",
-     "folder": "photos/hand-made-rajwadi/950 (6)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (6)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 5,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 42,
-     "code": "HAND-MADE-RAJWADI-42",
-     "folder": "photos/hand-made-rajwadi/950 (7)",
-     "title": "",
-     "price": 950,
-     "band": {
-      "min": 0,
-      "max": 1000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/950 (7)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 0
-     },
-     "colors": {},
-     "offer": null
-    },
     {
      "n": 3,
      "code": "HAND-MADE-RAJWADI-03",
@@ -1770,78 +1390,6 @@
      "offer": null
     },
     {
-     "n": 27,
-     "code": "HAND-MADE-RAJWADI-27",
-     "folder": "photos/hand-made-rajwadi/1400 (3)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (3)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 33,
-     "code": "HAND-MADE-RAJWADI-33",
-     "folder": "photos/hand-made-rajwadi/1400 (5)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (5)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 34,
-     "code": "HAND-MADE-RAJWADI-34",
-     "folder": "photos/hand-made-rajwadi/1400 (6)",
-     "title": "",
-     "price": 1400,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1400 (6)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
      "n": 12,
      "code": "HAND-MADE-RAJWADI-12",
      "folder": "photos/hand-made-rajwadi/1500",
@@ -1860,74 +1408,6 @@
       "min": 30,
       "max": 36,
       "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 29,
-     "code": "HAND-MADE-RAJWADI-29",
-     "folder": "photos/hand-made-rajwadi/1500 (4)",
-     "title": "",
-     "price": 1500,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1500 (4)/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
-      "max": 36,
-      "qty": 1,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 10,
-     "code": "HAND-MADE-RAJWADI-10",
-     "folder": "photos/hand-made-rajwadi/1550 (2)",
-     "title": "",
-     "price": 1550,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1550 (2)/1.jpeg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 0,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 14,
-     "code": "HAND-MADE-RAJWADI-14",
-     "folder": "photos/hand-made-rajwadi/1600",
-     "title": "",
-     "price": 1600,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/hand-made-rajwadi/1600/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "qty": 2,
       "cod": true
      },
      "colors": {},
