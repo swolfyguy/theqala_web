@@ -320,6 +320,14 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 
 /* ---------- ornament rules ---------- */
 .catcard .seeall{font-size:.82rem;color:var(--accent);letter-spacing:.02em}
+/* Category cards on the home page (10 Nov 2026): the name in bold capitals and
+   how many pieces sit on that shelf, on the photo itself. */
+.catcard h3{font-family:Karla,"Segoe UI",system-ui,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-size:1rem;line-height:1.25;color:var(--ink)}
+.catcard .meta b{color:var(--ink);font-weight:700}
+.catcard .catcount{position:absolute;bottom:14px;left:0;z-index:3;background:var(--accent);color:var(--on-accent);
+  padding:6px 14px 6px 12px;border-radius:0 999px 999px 0;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  display:flex;align-items:baseline;gap:5px;box-shadow:0 6px 14px -8px rgba(0,0,0,.5)}
+.catcard .catcount b{font-size:1.05rem;letter-spacing:0;font-weight:800;font-variant-numeric:tabular-nums}
 
 .pinsay{display:block;margin-top:5px;font-size:.8rem;line-height:1.45;color:var(--ink-2)}
 .pinsay.yes{color:var(--gold)}
@@ -535,35 +543,6 @@ section.band{padding:70px 0}
 .secnote{border:0;color:var(--ink-2);cursor:default;white-space:normal;max-width:100%;min-width:0}
 @media(max-width:760px){.secnote{display:none}}
 
-/* ---------- new arrivals slider (home, 9 Nov 2026) ----------
-   A row of the newest pieces that moves on by itself every few seconds,
-   with a slow zoom on each photograph so the jewellery catches the light.
-   It is an ordinary swipe row underneath, so it still works with a finger,
-   a mouse wheel or the keyboard, and it stops moving the moment she touches
-   it. With "reduce motion" on, nothing moves at all. */
-.newin{padding:40px 0 18px;border-bottom:1px solid var(--line)}
-.newin .sechead{margin-bottom:18px}
-.ni-track{display:grid;grid-auto-flow:column;grid-auto-columns:min(74%,290px);gap:16px;
-  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;
-  padding:4px max(4vw,calc((100vw - 1180px)/2)) 6px;scroll-padding-inline:max(4vw,calc((100vw - 1180px)/2))}
-.ni-track::-webkit-scrollbar{display:none}
-.ni-track:focus-visible{outline:2px solid var(--gold-2);outline-offset:4px}
-.ni-slide{scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;color:inherit;text-decoration:none}
-.ni-slide .arch .photo{transform-origin:50% 38%;animation:niZoom 9s ease-in-out infinite alternate}
-.ni-slide:nth-child(2n) .arch .photo{animation-delay:-4.5s}
-@keyframes niZoom{from{transform:scale(1)}to{transform:scale(1.09)}}
-.ni-slide .arch .tag{font-family:"Tiro Devanagari Marathi",serif;letter-spacing:.06em;text-transform:none;font-size:.78rem;font-weight:400}
-.ni-slide .ni-few{position:absolute;bottom:15px;right:14px;z-index:3;background:rgba(0,0,0,.6);color:#fff;
-  font-size:.66rem;letter-spacing:.06em;padding:4px 10px;border-radius:999px}
-.ni-slide .mr{font-size:1.08rem;color:var(--accent);line-height:1.3}
-.ni-slide h3{font-size:.94rem;letter-spacing:.02em;margin:0}
-.ni-dots{display:flex;justify-content:center;gap:7px;margin-top:16px;min-height:8px}
-.ni-dots button{width:8px;height:8px;border-radius:999px;border:0;padding:0;background:var(--line-2,var(--line));cursor:pointer;
-  transition:width .3s cubic-bezier(.2,.7,.3,1),background .3s}
-.ni-dots button.on{width:22px;background:var(--gold-2)}
-.ni-dots button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media(min-width:900px){.ni-track{grid-auto-columns:250px}}
-@media(prefers-reduced-motion:reduce){.ni-slide .arch .photo{animation:none}.ni-dots button{transition:none}}
 
 .catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:16px}
 .cat{background:var(--panel);border:1px solid var(--line);padding:20px 16px 18px;text-align:center;cursor:pointer;transition:border-color .22s,transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s;border-radius:14px}
@@ -2429,12 +2408,11 @@ function catCard(c){
   const going = avail.length;
 
   return `<a class="card rise catcard" href="#/shop?c=${encodeURIComponent(c.slug)}">
-    <div class="arch">${mark()}${shot(face.images[0], {alt: name.en + " jewellery at The Qala"})}</div>
+    <div class="arch">${mark()}${shot(face.images[0], {alt: name.en + " jewellery at The Qala"})}<span class="catcount"><b>${mine.length}</b> ${mine.length === 1 ? "piece" : "pieces"}</span></div>
     <div>
       <span class="mr">${esc(name.mr)}</span>
       <h3>${esc(name.en)}</h3>
-      <p class="meta">${mine.length} piece${mine.length === 1 ? "" : "s"}${
-        going ? ` \u00b7 from ${rupees(from)}` : " \u00b7 all spoken for"}</p>
+      <p class="meta">${going ? `From <b>${rupees(from)}</b>` : "All spoken for"}</p>
     </div>
     <div class="price"><span class="seeall">See all ${mine.length} →</span></div>
   </a>`;
@@ -2479,118 +2457,6 @@ function offerCard(){
     </a>`;
 }
 
-/* ---------------------------------------------------------------------------
-   New arrivals — the moving row near the top of the home page (9 Nov 2026).
-   NEW_PICKS: piece codes to show, newest first. Sold-out or deleted ones are
-   skipped by themselves. Anything left over is filled with the highest-numbered
-   (most recently added) pieces from each shelf, in stock only. Up to 8. */
-const NEW_PICKS = ["RAJWADI-104", "RAJWADI-103", "RAJWADI-102", "RANI-HAAR-11",
-  "DOUBLE-WATI-RAJWADI-HANDMADE-17", "RAJWADI-101", "RANI-HAAR-10", "DOUBLE-WATI-RAJWADI-HANDMADE-42"];
-function newPicks(){
-  const usable = it => it && onShelf(it) && it.images.length;
-  const chosen = NEW_PICKS.map(byCode).filter(usable).slice(0, 8);
-  const taken = new Set(chosen.map(it => it.code));
-  const shelves = catsInUse().map(c => ITEMS.filter(it => it.cat === c.slug && usable(it) && !taken.has(it.code))
-    .sort((a, b) => b.n - a.n));
-  for (let round = 0; chosen.length < 8 && shelves.some(s => s.length > round); round++)
-    for (const s of shelves) { if (chosen.length >= 8) break; if (s[round]) chosen.push(s[round]); }
-  return chosen;
-}
-function newInSection(){
-  const picks = newPicks();
-  if (picks.length < 3) return "";
-  return `
-  <section class="newin" aria-label="New arrivals">
-    <div class="wrap sechead">
-      <div><span class="mr">नवीन आलेले</span><h2>New arrivals</h2></div>
-      <a class="seclink" href="#/shop">See all ${ITEMS.length}</a>
-    </div>
-    <div class="ni-track" id="niTrack" tabindex="0" aria-label="New arrivals. Swipe or use the arrow keys for more.">
-      ${picks.map(it => {
-        const few = fewLeft(it);
-        return `<a class="ni-slide" href="#/piece/${encodeURIComponent(it.code)}" data-ni-code="${esc(it.code)}">
-          <div class="arch">${mark()}${shot(it.images[0], {alt: titleOf(it) + " — " + it.catEn})}<span class="tag">नवीन · New</span>${
-            few ? `<span class="ni-few">${few === 1 ? "Only 1 left" : few + " left"}</span>` : ""}</div>
-          <div>
-            <span class="mr">${esc(it.catMr)}</span>
-            <h3>${esc(titleOf(it))}</h3>
-          </div>
-          <div class="price"><span class="now rupee">${priceOf(it)}</span>${wasTag(it)}</div>
-        </a>`;
-      }).join("")}
-    </div>
-    <div class="ni-dots" id="niDots" role="group" aria-label="New arrivals position"></div>
-  </section>`;
-}
-
-/* Moves the row on by one piece every few seconds — only while it is on the
-   screen, the tab is open, and she is not touching it. render() repaints the
-   page when stock counts change, so each call starts from scratch. */
-let NI_TIMER = null, NI_SEEN = null, NI_RESIZE = null;
-function wireNewIn(){
-  clearInterval(NI_TIMER);
-  if (NI_SEEN) { NI_SEEN.disconnect(); NI_SEEN = null; }
-  const row = $("#niTrack"), dots = $("#niDots");
-  if (!row || !dots) return;
-  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let until = 0, over = false, onScreen = false;
-  const hold = ms => { until = Date.now() + ms; };
-  const slides = [...row.children];
-  const step = () => slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : row.clientWidth;
-  const stops = () => Math.max(1, Math.round((row.scrollWidth - row.clientWidth) / step()) + 1);
-  const at = () => Math.min(stops() - 1, Math.round(row.scrollLeft / step()));
-  const go = i => row.scrollTo({left: i * step(), behavior: still ? "auto" : "smooth"});
-  const paint = () => {
-    const i = at();
-    [...dots.children].forEach((d, k) => { d.classList.toggle("on", k === i); d.setAttribute("aria-current", k === i ? "true" : "false"); });
-  };
-  const build = () => {
-    const n = stops();
-    dots.innerHTML = n < 2 ? "" : Array.from({length: n}, (_, k) =>
-      `<button type="button" aria-label="Show piece ${k + 1} of ${n}" data-ni="${k}"></button>`).join("");
-    dots.querySelectorAll("[data-ni]").forEach(b => b.onclick = () => { hold(8000); go(Number(b.dataset.ni)); });
-    paint();
-  };
-  let tick = 0;
-  row.onscroll = () => { cancelAnimationFrame(tick); tick = requestAnimationFrame(paint); };
-  row.onclick = e => {
-    const a = e.target.closest("[data-ni-code]");
-    if (a) track("select_item", {item_list_name: "New arrivals", items: [{item_id: a.dataset.niCode}]});
-  };
-  row.onkeydown = e => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault(); hold(8000);
-    go(Math.max(0, Math.min(stops() - 1, at() + (e.key === "ArrowRight" ? 1 : -1))));
-  };
-  build();
-  if (NI_RESIZE) removeEventListener("resize", NI_RESIZE);
-  NI_RESIZE = () => { if (row.isConnected) build(); };
-  addEventListener("resize", NI_RESIZE, {passive: true});
-  if (still) return;
-
-  /* Paused while touched, hovered or focused; a touch or a dot keeps it still
-     for a few seconds afterwards so it never pulls a piece away from her. */
-  row.addEventListener("pointerdown", () => hold(8000), {passive: true});
-  row.addEventListener("touchstart", () => hold(8000), {passive: true});
-  row.addEventListener("wheel", () => hold(8000), {passive: true});
-  row.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") over = true; });
-  row.addEventListener("pointerleave", () => { over = false; });
-  row.addEventListener("focusin", () => { over = true; });
-  row.addEventListener("focusout", () => { over = false; });
-  if ("IntersectionObserver" in window) {
-    NI_SEEN = new IntersectionObserver(es => es.forEach(en => { onScreen = en.isIntersecting; }), {threshold: 0.4});
-    NI_SEEN.observe(row);
-  } else onScreen = true;
-
-  NI_TIMER = setInterval(() => {
-    if (!row.isConnected) { clearInterval(NI_TIMER); return; }
-    if (!onScreen || over || document.hidden || Date.now() < until) return;
-    const n = stops();
-    if (n < 2) return;
-    go(at() >= n - 1 ? 0 : at() + 1);
-  }, 3800);
-}
-
 function home(){
   const hero = (CATALOGUE.hero || {});
   const cats = catsInUse();
@@ -2622,8 +2488,6 @@ function home(){
       </div>
     </div>
   </section>
-
-  ${newInSection()}
 
   ${welcomeSection()}
 
@@ -3958,7 +3822,6 @@ function wire(route){
   }
 
   if (route === "") {
-    wireNewIn();
     const wv = $("#welcomeVid");
     if (wv){
       const fit = () => {
