@@ -313,6 +313,11 @@ h1,h2,h3{font-family:Marcellus,"Iowan Old Style",Georgia,serif;font-weight:400;t
 .muted{color:var(--ink-2)}
 .rupee{font-variant-numeric:tabular-nums}
 .blurb{max-width:64ch;margin:14px 0 0;color:var(--ink-2);line-height:1.7}
+/* Long descriptions start as two lines; "Read more" opens the rest (14 Nov 2026). */
+.blurb.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.morebtn{border:0;background:none;padding:4px 0;margin-top:2px;color:var(--accent);font:inherit;font-size:.86rem;
+  font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.morebtn:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px}
 
 /* reveal on scroll */
 .rise{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
@@ -437,6 +442,21 @@ nav.main a{position:relative;padding:6px 0;transition:color .18s}
 nav.main a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--gold-2);transition:right .28s cubic-bezier(.2,.7,.3,1)}
 nav.main a:hover::after,nav.main a.on::after{right:0}
 nav.main a:hover,nav.main a.on{color:var(--accent)}
+.navshop{position:relative;display:flex;align-items:center}
+.navdrop{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:6px 0;cursor:pointer;
+  font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+.navdrop svg{width:13px;height:13px;transition:transform .2s}
+.navshop.open .navdrop svg{transform:rotate(180deg)}
+.navdrop:hover,.navdrop.on,.navshop.open .navdrop{color:var(--accent)}
+.navdrop:focus-visible{outline:2px solid var(--gold-2);outline-offset:4px}
+.dropmenu{display:none;position:absolute;top:100%;left:-18px;z-index:70;min-width:250px;flex-direction:column;
+  padding:10px 0;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 22px 44px -22px var(--shadow-2);text-transform:none;letter-spacing:.03em;font-size:.92rem}
+.dropmenu::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
+.navshop:hover .dropmenu,.navshop.open .dropmenu{display:flex}
+.dropmenu a{padding:9px 20px}
+.dropmenu a::after{display:none}
+.dropmenu a:hover,.dropmenu a.on{background:var(--panel-2);color:var(--accent)}
 
 .iconbtn{position:relative;display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--line-2);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;transition:border-color .18s,background .18s}
 .iconbtn:hover{border-color:var(--gold-2);background:var(--panel)}
@@ -1022,6 +1042,15 @@ footer a:hover{color:var(--accent)}
 .cookiebar p a{color:var(--accent)}
 .cookiebar .row{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
 .cookiebar .btn{padding:11px 22px;font-size:.72rem}
+/* On a phone the bar is two short lines and one row of small buttons, so it
+   never sits over a quarter of the screen (14 Nov 2026). */
+@media (max-width:640px){
+  .cookiebar{padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+  .cookiebar .inner{gap:8px}
+  .cookiebar p{font-size:.76rem;line-height:1.4;flex-basis:100%}
+  .cookiebar .row{margin-left:0;width:100%;flex-wrap:nowrap}
+  .cookiebar .btn{flex:1 1 0;padding:9px 10px;font-size:.66rem;letter-spacing:.1em}
+}
 
 @media (max-width:900px){
   .hero .inner{grid-template-columns:minmax(0,1fr);gap:28px;padding:36px 0 44px}
@@ -1042,6 +1071,9 @@ footer a:hover{color:var(--accent)}
     border-top:1px solid var(--line);flex-direction:column;gap:0;padding:10px 7vw 40vh;z-index:60;
     font-size:1.08rem;letter-spacing:.04em;text-transform:none;font-family:Marcellus,serif}
   nav.main.open a{padding:19px 2px;border-bottom:1px solid var(--line);color:var(--ink)}
+  nav.main .navdrop{display:none}
+  nav.main.open .navshop{display:contents}
+  nav.main.open .dropmenu{display:contents}
   nav.main.open a:hover{color:var(--accent)}
   body.menu-open{overflow:hidden}
   body.menu-open .orderbar,body.menu-open .fab{display:none}
@@ -1191,9 +1223,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <div class="cookiebar" id="cookiebar" hidden role="region" aria-label="Cookies">
   <div class="inner">
-    <p><b>Cookies.</b> We keep your bag on this phone, and with your OK use
-      analytics and ad cookies (Google, Meta) to see which pieces people like —
-      never your name or number. <a href="#/privacy">Read more</a></p>
+    <p><b>Cookies:</b> your bag stays on this phone. With your OK we also count which
+      pieces people like (Google, Meta), never your name or number. <a href="#/privacy">More</a></p>
     <div class="row">
       <button class="btn ghost" id="cookieNo">Only necessary</button>
       <button class="btn" id="cookieYes">Accept all</button>
@@ -2047,7 +2078,8 @@ function heroVideo(){
   if (!src) return "";
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return "";
   const type = src.endsWith(".webm") ? "video/webm" : "video/mp4";
-  return `<video class="photo" id="heroVid" autoplay muted loop playsinline preload="auto"
+  const still = CATALOGUE && CATALOGUE.hero && CATALOGUE.hero.image;
+  return `<video class="photo" id="heroVid" autoplay muted loop playsinline preload="auto"${still ? ` poster="${esc(url(still))}"` : ""}
       aria-label="The Qala jewellery" tabindex="-1">
       <source src="${esc(url(src))}" type="${type}" onerror="qalaNoVideo(this)">
     </video>
@@ -2418,6 +2450,13 @@ function catCard(c){
   </a>`;
 }
 
+/* A description that opens on demand. Short ones are shown whole. */
+function moreText(text, style){
+  const long = String(text).length > 150;
+  return `<div class="morewrap"${style ? ` style="${style}"` : ""}><p class="blurb${long ? " clamp" : ""}" style="margin:0">${esc(text)}</p>${
+    long ? `<button class="morebtn" type="button" data-more aria-expanded="false">Read more</button>` : ""}</div>`;
+}
+
 function saajRule(){ return `<div class="saaj" aria-hidden="true"></div>`; }
 
 function nothingYet(where){
@@ -2489,9 +2528,6 @@ function home(){
     </div>
   </section>
 
-  ${welcomeSection()}
-
-  ${saajRule()}
   ${cats.length ? `
   <section class="band wrap">
     <div class="sechead">
@@ -2500,6 +2536,9 @@ function home(){
     </div>
     <div class="grid">${shelves.map(catCard).join("")}</div>
   </section>` : `<section class="band wrap">${nothingYet("The shop is empty for the moment")}</section>`}
+
+  ${saajRule()}
+  ${welcomeSection()}
 
   ${reviewsSection()}
 
@@ -2688,7 +2727,7 @@ function shop(params){
     <span class="mr" style="font-size:1.3rem;color:var(--accent)">${heading.mr}</span>
     <h1>${esc(heading.en)}</h1>
     <p class="muted">${list.length} piece${list.length===1?"":"s"} · handmade in Dighi, Pune</p>
-    ${blurb ? `<p class="blurb">${esc(blurb)}</p>` : ""}
+    ${blurb ? moreText(blurb) : ""}
     ${OFFER.on && !(active.length === 1 && !offerOn(active[0])) ? `<p class="offerchip" style="margin-top:14px"><span class="pct">${rupees(OFFER.per)}</span><span>Buy any 2 \u2014 ${
       rupees(OFFER.per)} off, 3 \u2014 ${rupees(2 * OFFER.per)} off + free shipping${
       active.length !== 1 && OFFER.skip.length ? ` (not ${esc(offerLeftOut())})` : ""}</span></p>` : ""}
@@ -2762,8 +2801,6 @@ function piece(code){
       <p class="muted" style="font-size:.85rem;margin:0">Inclusive of GST · free insured shipping over ${rupees(SHIP_FREE_OVER)}</p>
       ${offerReachable(it) ? `<a class="offerchip" href="#/shop">
         <span class="pct">${rupees(OFFER.per)}</span><span>Buy any 2 pieces \u2014 ${rupees(OFFER.per)} off, 3 \u2014 ${rupees(2 * OFFER.per)} off + free shipping</span></a>` : ""}
-      ${catName(it.cat).blurb ? `<p class="blurb" style="margin:20px 0 0">${esc(catName(it.cat).blurb)}</p>` : ""}
-      <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       ${soldOut(it) ? `<div class="gonebox">
         <b>Sold out</b>
         <p>This one has gone. Message us and we will tell you how soon another
@@ -2778,6 +2815,8 @@ function piece(code){
         ${soldOut(it) ? "" : `<a class="btn" id="orderBtn" href="#/order?p=${encodeURIComponent(it.code)}&q=1${it.colors && Object.keys(it.colors).length ? "&c=" + encodeURIComponent((it.colors[it.images[0].split("/").pop()]) || "") : ""}">Order now</a>`}
       </div>
       ${soldOut(it) ? "" : `<div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>`}
+      <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
+      ${catName(it.cat).blurb ? moreText(catName(it.cat).blurb, "margin:18px 0 0") : ""}
 
       <div class="paybox">
         <h4>How you can pay</h4>
@@ -3721,6 +3760,7 @@ function render(){
   document.querySelectorAll("nav.main a").forEach(a => {
     a.classList.toggle("on", a.getAttribute("href") === "#" + (location.hash.replace(/^#/, "") || "/"));
   });
+  { const d = document.querySelector("nav.main .navdrop"); if (d) d.classList.toggle("on", r === "shop"); }
   $("#nav").classList.remove("open");
   document.body.classList.remove("menu-open");
   $("#menuToggle").setAttribute("aria-expanded", "false");
@@ -3730,6 +3770,13 @@ function render(){
 
   document.querySelectorAll("[data-save]").forEach(btn => {
     btn.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleSaved(btn.dataset.save, btn); };
+  });
+  document.querySelectorAll("[data-more]").forEach(btn => {
+    btn.onclick = () => {
+      const p = btn.previousElementSibling, open = p.classList.toggle("clamp") === false;
+      btn.textContent = open ? "Show less" : "Read more";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    };
   });
   document.querySelectorAll("[data-goreviews]").forEach(btn => {
     btn.onclick = () => {
@@ -4176,9 +4223,21 @@ function startHowTo(){
     try { localStorage.setItem("qala.told", "1"); } catch (e) {}
   };
   $("#nudgeShut").onclick = hush;
-  if (!told) setTimeout(() => {
-    if (!box.hidden) { nudge.hidden = false; setTimeout(hush, 9000); }
+  /* Only on the home page: on a piece or a category it sat over the price
+     (14 Nov 2026). Someone who lands on a piece first sees it on her first
+     visit to the home page instead. */
+  const atHome = () => !location.hash || location.hash === "#" || location.hash === "#/";
+  const offer = () => setTimeout(() => {
+    if (!box.hidden && atHome() && nudge.hidden) { nudge.hidden = false; setTimeout(hush, 9000); }
   }, 2600);
+  if (!told) {
+    if (atHome()) offer();
+    else {
+      const once = () => { if (atHome()) { removeEventListener("hashchange", once); offer(); } };
+      addEventListener("hashchange", once);
+    }
+  }
+  addEventListener("hashchange", () => { if (!atHome() && !nudge.hidden) nudge.hidden = true; });
 
   /* The whole film, where the circle already is. Nothing opens over the shop:
      she watches it with the page she is being shown how to use behind it. */
@@ -4264,11 +4323,24 @@ function paintNav(){
   const cats = catsInUse();
 
   const nav = $("#nav");
-  if (nav) nav.innerHTML =
-    `<a href="#/shop">Shop All</a>`
-    + cats.map(c => `<a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")
-    + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`
-    + `<a href="/my/">Track order</a>`;
+  /* On a computer the categories sit under one "Shop" menu instead of
+     thirteen links squeezed into a row (14 Nov 2026). On a phone the drawer
+     still lists every category, as before. */
+  if (nav) {
+    nav.innerHTML =
+      `<div class="navshop"><button class="navdrop" type="button" aria-expanded="false" aria-haspopup="true">Shop<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>`
+      + `<div class="dropmenu"><a href="#/shop">Shop all</a>`
+      + cats.map(c => `<a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")
+      + `</div></div>`
+      + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`
+      + `<a href="/my/">Track order</a>`;
+    const box = nav.querySelector(".navshop"), btn = nav.querySelector(".navdrop");
+    const set = open => { box.classList.toggle("open", open); btn.setAttribute("aria-expanded", open ? "true" : "false"); };
+    btn.onclick = e => { e.stopPropagation(); set(!box.classList.contains("open")); };
+    document.addEventListener("click", e => { if (!box.contains(e.target)) set(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && box.classList.contains("open")) { set(false); btn.focus(); } });
+    box.addEventListener("click", e => { if (e.target.closest(".dropmenu a")) set(false); });
+  }
 
   const foot = $("#footShop");
   if (foot) foot.innerHTML =
