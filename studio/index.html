@@ -154,6 +154,17 @@ label.f input:focus,label.f select:focus{outline:none;border-color:var(--gold-2)
 .piece .body{padding:11px 12px 13px}
 .piece code{font-size:.78rem;font-weight:700;display:block;margin-bottom:2px}
 .piece .band{font-size:.74rem;color:var(--ink-2)}
+.piece .band.tapedit{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.piece .band.tapedit:hover{color:var(--accent)}
+.ped{display:flex;flex-direction:column;gap:7px;margin-top:6px;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}
+.ped label{display:flex;flex-direction:column;gap:3px;font-size:.7rem;color:var(--ink-2)}
+.ped input{width:100%;min-width:0;font:inherit;font-size:.95rem;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.ped input:focus{outline:2px solid var(--accent);outline-offset:0}
+.pedrow{display:flex;gap:8px}
+.pedrow .btn{flex:1 1 0}
+.pedmsg{font-size:.74rem;color:var(--ink-2);min-height:0}
+.pedmsg:empty{display:none}
+.pedmsg.er{color:#b3261e}
 .piece .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .piece .stk{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:.74rem;color:var(--ink-2)}
 .piece .stk .lbl{white-space:nowrap}
@@ -463,6 +474,55 @@ async function localPost(path, body){
     (data.warnings || []).forEach(w => say("  ! " + w, "wa"));
   }
   return data;
+}
+
+/* Website mode: give a piece a new price or name by moving every file in its
+   folder to "<price> <name>" in one commit, the way studio.py renames the
+   folder on the computer. Taken names get " (2)", " (3)"… exactly as there. */
+async function renameHosted(p, price, title){
+  const name = String(title || "").replace(/[\\/:*?"<>|\x00-\x1f]/g, " ").replace(/\s+/g, " ")
+    .replace(/^[ .]+|[ .]+$/g, "").slice(0, 70);
+  const parent = p.folder.slice(0, p.folder.lastIndexOf("/"));
+  const base = `${price} ${name}`.trim();
+  const {headSha, treeSha} = await loadTree();
+  const taken = new Set(TREE.map(n => n.path.slice(0, n.path.lastIndexOf("/"))));
+  let want = base, k = 2;
+  while (taken.has(`${parent}/${want}`) && `${parent}/${want}` !== p.folder) want = `${base} (${k++})`;
+  const target = `${parent}/${want}`;
+  if (target === p.folder) { p.price = price; p.title = name; return p.folder; }
+  const files = TREE.filter(n => n.path.startsWith(p.folder + "/"));
+  if (!files.length) throw new Error("this piece's photos were not found on GitHub — reload the studio and try again");
+  const entries = [];
+  for (const f of files){
+    entries.push({path: target + f.path.slice(p.folder.length), mode: f.mode || "100644", type: "blob", sha: f.sha});
+    entries.push({path: f.path, mode: f.mode || "100644", type: "blob", sha: null});
+  }
+  const tree = await gh(`${repoPath()}/git/trees`, {
+    method: "POST", body: JSON.stringify({base_tree: treeSha, tree: entries})
+  });
+  const commit = await gh(`${repoPath()}/git/commits`, {
+    method: "POST", body: JSON.stringify({message: `${p.code}: ₹${price}${name ? " — " + name : ""}`, tree: tree.sha, parents: [headSha]})
+  });
+  await gh(`${repoPath()}/git/refs/heads/${encodeURIComponent(CFG.branch)}`, {
+    method: "PATCH", body: JSON.stringify({sha: commit.sha})
+  });
+  files.forEach(f => { f.path = target + f.path.slice(p.folder.length); });
+  const r = {folder: target, price, title: name};
+  /* The catalogue on GitHub still names the old folder until the Action
+     rebuilds it (a minute or two), so remember the move and apply it to the
+     list meanwhile — otherwise the piece would vanish from the studio. */
+  RENAMED.set(p.folder, r);
+  for (const [k, v] of RENAMED) if (v.folder === p.folder && k !== p.folder) RENAMED.set(k, r);
+  applyRename(p, r);
+  return target;
+}
+const RENAMED = new Map();
+function applyRename(p, r){
+  const old = p.folder;
+  const move = x => typeof x === "string" && x.startsWith(old + "/") ? r.folder + x.slice(old.length) : x;
+  if (Array.isArray(p.images)) p.images = p.images.map(move);
+  p.video = move(p.video); p.videoPoster = move(p.videoPoster);
+  p.folder = r.folder; p.price = r.price; p.title = r.title;
 }
 
 async function commitChanges(message, adds, removes){
@@ -1140,6 +1200,12 @@ async function renderManage(){
      TREE is the repository's actual file list, read fresh a moment ago, so it
      is the honest answer. Anything with no files left is not shown. */
   const all = allProducts();
+  all.forEach(p => {
+    const r = p.folder && RENAMED.get(p.folder);
+    if (!r) return;
+    if (all.some(q => q !== p && q.folder === r.folder)) RENAMED.delete(p.folder);   // already rebuilt
+    else applyRename(p, r);
+  });
   MPRODUCTS = TREE.length
     ? all.filter(p => !p.folder || TREE.some(n => n.path.startsWith(p.folder + "/")))
     : all;
@@ -1333,22 +1399,57 @@ function paintManage(){
         };
       }
 
-      card.querySelector("[data-edit]").onclick = async () => {
-        if (!isLocal()) { alert("Changing a price renames the folder — do that with the studio running on your computer."); return; }
-        const price = prompt(`New price for ${p.code}, in rupees:`, String(p.price));
-        if (price === null) return;
-        const n = parseInt(String(price).replace(/\D/g, ""), 10);
-        if (!Number.isFinite(n) || n < 1) { alert("Give the price as a plain number, e.g. 2300."); return; }
-        const title = prompt("Name (leave empty for none):", p.title || "");
-        if (title === null) return;
-        try {
-          logBox.innerHTML = "";
-          say(`updating ${p.code}…`);
-          await localPost("/api/product/edit", {folder: p.folder, price: n, title});
-          say(`${p.code} is now ₹${n.toLocaleString("en-IN")} — ${bandLabelFor(n)}. Its code did not change.`, "ok");
-          renderManage();
-        } catch (e) { say(e.message, "er"); }
+      /* Price and name are changed right on the card: no pop-up (16 Nov 2026).
+         Tap the price line or "Price / name", type, Save. On the computer the
+         folder is renamed by studio.py; on the website the same rename is one
+         commit that moves the piece's files, so its code (the .id file) and
+         every photograph go with it. */
+      const bandLine = card.querySelector(".band");
+      bandLine.classList.add("tapedit");
+      bandLine.title = "Tap to change the price or name";
+      const openEdit = () => {
+        const open = card.querySelector(".ped");
+        if (open) { open.querySelector("[data-pp]").focus(); return; }
+        const f = el("form", "ped");
+        f.noValidate = true;
+        f.innerHTML = `<label><span>Price ₹</span><input type="number" inputmode="numeric" min="1" step="1" value="${Number(p.price)}" data-pp aria-label="Price in rupees for ${esc(p.code)}"></label>
+          <label><span>Name</span><input type="text" maxlength="70" value="${esc(p.title || "")}" placeholder="optional, e.g. Peshwai Kundan Mangalsutra" data-pt aria-label="Name for ${esc(p.code)}"></label>
+          <div class="pedrow"><button class="btn sm" type="submit" data-psave>Save</button><button class="btn ghost sm" type="button" data-pc>Cancel</button></div>
+          <div class="pedmsg" data-pm role="status" aria-live="polite"></div>`;
+        bandLine.after(f);
+        bandLine.hidden = true;
+        const pp = f.querySelector("[data-pp]"), pt = f.querySelector("[data-pt]"), msg = f.querySelector("[data-pm]");
+        const save = f.querySelector("[data-psave]");
+        const close = () => { f.remove(); bandLine.hidden = false; };
+        f.querySelector("[data-pc]").onclick = close;
+        f.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); close(); } });
+        pp.focus(); pp.select();
+        f.onsubmit = async e => {
+          e.preventDefault();
+          const n = parseInt(String(pp.value).replace(/\D/g, ""), 10);
+          if (!Number.isFinite(n) || n < 1 || n > 9999999) { msg.textContent = "Type the price as a plain number, e.g. 2300."; msg.className = "pedmsg er"; pp.focus(); return; }
+          const title = pt.value.trim();
+          if (n === Number(p.price) && title === (p.title || "")) { close(); return; }
+          save.disabled = true; pp.disabled = pt.disabled = true;
+          msg.textContent = "Saving…"; msg.className = "pedmsg";
+          try {
+            logBox.innerHTML = "";
+            if (isLocal()) {
+              await localPost("/api/product/edit", {folder: p.folder, price: n, title});
+            } else {
+              await renameHosted(p, n, title);
+            }
+            say(`${p.code} is now ₹${n.toLocaleString("en-IN")}${title ? " — " + title : ""}. Its code did not change.${
+              isLocal() ? "" : " The shop shows it in about 2 minutes."}`, "ok");
+            renderManage();
+          } catch (err) {
+            save.disabled = false; pp.disabled = pt.disabled = false;
+            msg.textContent = err.message; msg.className = "pedmsg er";
+          }
+        };
       };
+      card.querySelector("[data-edit]").onclick = openEdit;
+      bandLine.onclick = openEdit;
 
       card.querySelector("[data-offer]").onclick = async () => {
         const had = p.offer && p.offer.pct ? p.offer : null;
