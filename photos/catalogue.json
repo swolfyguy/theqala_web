@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-14T18:08:45Z",
+ "generated": "2026-11-16T08:38:11Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -750,7 +750,7 @@
      "sizes": {
       "min": 24,
       "max": 30,
-      "qty": 0
+      "qty": 2
      },
      "colors": {},
      "offer": null
@@ -1189,30 +1189,6 @@
      "videoPoster": null,
      "sizes": {
       "min": 30,
-      "max": 36,
-      "qty": 2,
-      "cod": true
-     },
-     "colors": {},
-     "offer": null
-    },
-    {
-     "n": 17,
-     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-17",
-     "folder": "photos/double-wati-rajwadi-handmade/1700",
-     "title": "",
-     "price": 1700,
-     "band": {
-      "min": 1000,
-      "max": 2000
-     },
-     "images": [
-      "photos/double-wati-rajwadi-handmade/1700/1.jpg"
-     ],
-     "video": null,
-     "videoPoster": null,
-     "sizes": {
-      "min": 24,
       "max": 36,
       "qty": 2,
       "cod": true
