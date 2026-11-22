@@ -1302,7 +1302,9 @@ function paintManage(){
   shown.forEach(p => { if (!byCat.has(p.cat)) byCat.set(p.cat, []); byCat.get(p.cat).push(p); });
 
   [...byCat.keys()].sort().forEach(cat => {
-    const list = byCat.get(cat).sort((a, b) => a.price - b.price);
+    // newest upload first — the number after the dash grows with every new piece
+    const num = p => Number(String(p.code).split("-").pop()) || 0;
+    const list = byCat.get(cat).sort((a, b) => num(b) - num(a));
     const head = el("div", "groupname");
     head.innerHTML = `<h3>${esc(titleish(cat))}</h3><span>${list.length} product${list.length === 1 ? "" : "s"}</span>`;
     body.appendChild(head);

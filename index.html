@@ -1920,10 +1920,12 @@ async function loadCatalogue(){
 
   BANDS = (CATALOGUE.bands || []).slice().sort((a,b) => a.min - b.min);
 
-  // house order: categories as CAT_NAMES lists them, then cheapest first
+  // house order: categories as CAT_NAMES lists them, then the newest upload
+  // first. The studio hands every new piece the next number in its category,
+  // so the highest number is the most recent photograph (he asked 22 Nov).
   const order = Object.keys(CAT_NAMES);
   const rank = slug => { const i = order.indexOf(slug); return i < 0 ? 99 : i; };
-  ITEMS.sort((a,b) => rank(a.cat) - rank(b.cat) || a.price - b.price || a.n - b.n);
+  ITEMS.sort((a,b) => rank(a.cat) - rank(b.cat) || b.n - a.n);
 }
 
 const byCode = code => ITEMS.find(i => i.code === code);
@@ -2761,7 +2763,7 @@ function shop(params){
           ${cats.map(c => `<a class="chip ${active.includes(c.slug)?"on":""}" href="${toggle(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")}
         </div>
         <select class="sort" id="sortSel" aria-label="Sort">
-          <option value="featured" ${sort==="featured"?"selected":""}>Featured</option>
+          <option value="featured" ${sort==="featured"?"selected":""}>Newest first</option>
           <option value="lowhigh" ${sort==="lowhigh"?"selected":""}>Price: low to high</option>
           <option value="highlow" ${sort==="highlow"?"selected":""}>Price: high to low</option>
         </select>
