@@ -812,8 +812,14 @@ async function whoIsHere(request, env) {
    A name not on this list is refused outright. The endpoint is open to the
    world, so the world may only add to nine counters and may not invent a
    tenth. */
+/* wa_tap / wa_piece / wa_order (24 Nov 2026): she tapped a WhatsApp number
+   anywhere on the shop / on a piece page / the "Order on WhatsApp instead"
+   button on the order page — so a visitor who went off to order in the chat
+   no longer looks like somebody who simply left. Same once-per-browser-per-day
+   rule as everything else here. */
 const TALLIES = ["howto_shown", "howto_open", "howto_half", "howto_finished",
-                  "visit", "order_page", "browsed", "order_left", "shop_open"];
+                  "visit", "order_page", "browsed", "order_left", "shop_open",
+                  "wa_tap", "wa_piece", "wa_order"];
 
 const dayStamp = (d = new Date()) => d.toISOString().slice(0, 10);
 

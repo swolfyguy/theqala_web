@@ -86,6 +86,19 @@ textarea{resize:vertical;min-height:84px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold-2);
   box-shadow:0 0 0 3px var(--wash-gold)}
 .two{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+/* poth helper under the length (24 Nov 2026) — same chart as #/poth on the shop */
+.pothhelp{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 15px;margin-top:-4px}
+.pothhelp .ph-q{font-size:.9rem;color:var(--ink-2);display:block;margin-bottom:8px}
+.pothhelp select{padding:10px 12px}
+.pothhelp .ph-say{margin:10px 0 0;font-size:.92rem;line-height:1.5}
+.pothhelp .ph-say:empty{display:none}
+.pothhelp .ph-say b{color:var(--gold)}
+.pothhelp .ph-say .mr{font-family:"Tiro Devanagari Marathi",serif;color:var(--ink-2);display:block;font-size:.95rem}
+.pothhelp .ph-say ul{margin:6px 0 0;padding-left:18px}
+.pothhelp .ph-say li{margin:3px 0}
+.pothhelp .ph-say button{border:0;background:none;padding:0;color:var(--accent);font:inherit;
+  cursor:pointer;border-bottom:1px solid var(--gold-2)}
+.pothhelp .ph-link{display:inline-block;margin-top:10px;font-size:.88rem;border-bottom:1px solid var(--gold-2);text-decoration:none}
 @media (max-width:520px){ .two{grid-template-columns:1fr} }
 
 button.big{background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);
@@ -166,6 +179,16 @@ footer a{color:var(--ink-2)}
         </select></label>
     </div>
 
+    <div class="pothhelp" id="pothhelp">
+      <span class="ph-q">Not sure which poth length suits you? Pick your height.
+        <span lang="mr" style="font-family:'Tiro Devanagari Marathi',serif">तुमची उंची निवडा.</span></span>
+      <select id="i-height" aria-label="Your height">
+        <option value="">Your height</option>
+      </select>
+      <div class="ph-say" id="ph-say" aria-live="polite"></div>
+      <a class="ph-link" href="/#/poth" target="_blank" rel="noopener">See the full poth guide, with a picture</a>
+    </div>
+
     <label class="f"><span>Which piece <em>if you know, in your own words</em></span>
       <input type="text" name="want" id="i-want" maxlength="120" placeholder=" "></label>
 
@@ -173,8 +196,8 @@ footer a{color:var(--ink-2)}
       <select name="pay" id="i-pay">
         <option value="online" selected>Pay online</option>
         <option value="shop">Collect at the shop</option>
-        <!-- Cash on delivery is paused. Drop the disabled and it is back. -->
-        <option value="cod" disabled>Cash on delivery — not available just now</option>
+        <!-- Cash on delivery on every piece since 24 Nov 2026, ₹200 extra (COD_EXTRA in index.html / _worker.js). -->
+        <option value="cod">Cash on delivery — ₹200 extra, paid at your door</option>
       </select></label>
 
     <div class="f"><span>Pictures of the piece <em>optional — up to 8, a screenshot works</em></span>
@@ -426,6 +449,100 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
 $("#i-poth").insertAdjacentHTML("beforeend",
   POTH.map(p => `<option value="${p}">${p} inches</option>`).join(""));
 
+/* ---------------------------------------------------------------------------
+   Which length suits her (24 Nov 2026). The same chart as the poth guide on
+   the shop (#/poth in index.html: PH_GROUPS, PH_SPOT, PH_CHART, PH_STYLE) —
+   his chart, seven height groups by fourteen lengths. KEEP THE TWO IN STEP.
+   She picks her height; if she has picked a length we say where it sits,
+   otherwise we show three common lengths. Her height also goes into the note
+   and the WhatsApp message, so the shop can check the length with her. */
+const PH_HEIGHTS = Array.from({length: 17}, (_, i) => 56 + i);       // 4′8″ … 6′0″
+const PH_GROUPS  = [[56,57],[58,59],[60,61],[62,64],[65,67],[68,70],[71,72]];
+const PH_SPOT = {
+  ht:["High at the throat — choker feel","गळ्याजवळ उंच — चोकरसारखे"],
+  bt:["Base of the throat / collarbone","गळ्याच्या पायथ्याशी, कॉलरबोनवर"],
+  rc:["Resting on the collarbone","कॉलरबोनवर"],
+  jbc:["Just below the collarbone","कॉलरबोनच्या अगदी खाली"],
+  c1:["1″ below the collarbone","कॉलरबोनच्या 1 इंच खाली"],
+  c15:["1½″ below the collarbone","कॉलरबोनच्या दीड इंच खाली"],
+  c2:["2″ below the collarbone","कॉलरबोनच्या 2 इंच खाली"],
+  c25:["2½″ below the collarbone","कॉलरबोनच्या अडीच इंच खाली"],
+  c3:["3″ below the collarbone","कॉलरबोनच्या 3 इंच खाली"],
+  c35:["3½″ below the collarbone","कॉलरबोनच्या साडेतीन इंच खाली"],
+  c4:["4″ below the collarbone","कॉलरबोनच्या 4 इंच खाली"],
+  uc:["Upper chest","छातीच्या वरच्या भागावर"],
+  ub:["Upper bust","छातीच्या वरच्या भागावर"],
+  jab:["Just above the bust","छातीच्या अगदी वर"],
+  tb:["Top of the bust line","छातीच्या रेषेच्या सुरुवातीला"],
+  umb:["Upper-mid bust","छातीच्या वरच्या-मधल्या भागावर"],
+  cb:["Centre of the bust","छातीच्या मध्यावर"],
+  lb:["Lower bust","छातीच्या खालच्या भागावर"],
+  ubr:["Under the bust / ribcage","छातीच्या खाली, बरगड्यांवर"],
+  um:["Upper midriff","पोटाच्या वरच्या भागावर"],
+  mrc:["Mid-ribcage","बरगड्यांच्या मध्यावर"],
+  an2:["About 2″ above the navel","बेंबीच्या सुमारे 2 इंच वर"],
+  jan:["Just above the navel","बेंबीच्या अगदी वर"],
+  nav:["At the navel","बेंबीवर"],
+  bn1:["1–1½″ below the navel","बेंबीच्या 1–दीड इंच खाली"],
+  bn2:["2–3″ below the navel","बेंबीच्या 2–3 इंच खाली"]
+};
+const PH_CHART = {
+  18:["c2","c15","c1","jbc","rc","bt","ht"],   20:["ub","c3","c25","c2","c1","jbc","rc"],
+  22:["tb","jab","uc","c3","c25","c2","c1"],    24:["umb","tb","jab","uc","c35","c3","c2"],
+  26:["cb","umb","tb","jab","uc","c4","c3"],    28:["lb","cb","umb","tb","jab","uc","c4"],
+  30:["ubr","lb","cb","umb","tb","jab","uc"],   32:["um","ubr","lb","cb","umb","tb","jab"],
+  34:["mrc","um","ubr","lb","cb","umb","tb"],   36:["an2","mrc","um","ubr","lb","cb","umb"],
+  38:["jan","an2","mrc","um","ubr","lb","cb"],  40:["nav","jan","an2","mrc","um","ubr","lb"],
+  42:["bn1","nav","jan","an2","mrc","um","ubr"],44:["bn2","bn1","nav","jan","an2","mrc","um"]
+};
+const PH_STYLE = [[18,22,"Short · daily wear","Kurtis, western tops and office wear"],
+  [24,28,"Medium · everyday ethnic","High-neck blouses, suits and everyday sarees"],
+  [30,36,"Long · traditional","Maharashtrian wati designs, festive and silk sarees"],
+  [38,44,"Extra long · bridal","Weddings — usually layered with a shorter choker"]];
+const ftin = h => `${Math.floor(h / 12)}′${h % 12}″`;
+const phGroup = h => PH_GROUPS.findIndex(([lo, hi]) => h >= lo && h <= hi);
+const phSpot = (L, h) => PH_SPOT[PH_CHART[L][phGroup(h)]];
+const phStyle = L => PH_STYLE.find(x => L >= x[0] && L <= x[1]);
+
+$("#i-height").insertAdjacentHTML("beforeend", PH_HEIGHTS.map(h =>
+  `<option value="${h}">${ftin(h)} (${Math.round(h * 2.54)} cm)</option>`).join(""));
+/* the shop's guide keeps her last choice in localStorage "qala.poth" ({h, L}) */
+try {
+  const kept = JSON.parse(localStorage.getItem("qala.poth") || "null");
+  if (kept && PH_HEIGHTS.includes(+kept.h)) $("#i-height").value = String(kept.h);
+} catch (e) {}
+
+function phSay(){
+  const out = $("#ph-say"), h = +$("#i-height").value, L = +$("#i-poth").value;
+  if (!h) { out.innerHTML = ""; return; }
+  if (L && PH_CHART[L]) {
+    const [en, mr] = phSpot(L, h), st = phStyle(L);
+    out.innerHTML = `At <b>${ftin(h)}</b>, a <b>${L}″</b> poth sits: <b>${esc(en)}</b>`
+      + `<span class="mr" lang="mr">${esc(mr)}</span>`
+      + (st ? `<span style="color:var(--ink-2)">${esc(st[2])} — ${esc(st[3])}.</span>` : "");
+  } else {
+    const pick = [24, 30, 36];
+    out.innerHTML = `At <b>${ftin(h)}</b>, where the usual lengths sit:<ul>`
+      + pick.map(n => { const [en] = phSpot(n, h), st = phStyle(n);
+          return `<li><button type="button" data-len="${n}">${n}″</button> — ${esc(en)}`
+            + ` <span style="color:var(--ink-2)">(${esc(st[2].split(" · ")[1])})</span></li>`; }).join("")
+      + `</ul><span style="color:var(--ink-2);font-size:.86rem">Tap a length to choose it, or pick any length above.</span>`;
+  }
+  try {
+    const prev = JSON.parse(localStorage.getItem("qala.poth") || "null") || {};
+    localStorage.setItem("qala.poth", JSON.stringify({h, L: L ? String(L) : (prev.L || "30")}));
+  } catch (e) {}
+}
+$("#i-height").addEventListener("change", phSay);
+$("#i-poth").addEventListener("change", phSay);
+$("#ph-say").addEventListener("click", e => {
+  const b = e.target.closest("button[data-len]");
+  if (!b) return;
+  $("#i-poth").value = b.dataset.len;
+  phSay();
+});
+phSay();
+
 /* Which chat she came from is carried in the link the shop sent her —
    /order/?from=instagram — and is only ever used to label the order. */
 const FROM = (() => {
@@ -451,7 +568,11 @@ $("#f").addEventListener("submit", async e => {
     poth:  $("#i-poth").value,
     want:  $("#i-want").value,
     pay:   $("#i-pay").value,
-    note:  $("#i-note").value,
+    note:  (() => {   // her height rides along in the note, so the shop can check the length
+      const n = $("#i-note").value.trim(), h = +$("#i-height").value;
+      const tag = h ? `Height: ${ftin(h)}` : "";
+      return tag ? (n ? n.slice(0, 480) + "\n" + tag : tag) : n;
+    })(),
     photos: SHOTS,
     voice: VOICE
   };
@@ -484,7 +605,7 @@ $("#f").addEventListener("submit", async e => {
 
 /* The message she sends us at the end carries everything she typed, so the
    chat has it all even before anyone opens the order book. */
-const PAYWORD = {online: "Pay online", shop: "Collect at the shop", cod: "Cash on delivery"};
+const PAYWORD = {online: "Pay online", shop: "Collect at the shop", cod: "Cash on delivery (₹200 extra)"};
 function orderChat(ref, b){
   const t = v => String(v == null ? "" : v).replace(/\s+/g, " ").trim();
   const lines = [

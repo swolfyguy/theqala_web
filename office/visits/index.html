@@ -123,6 +123,18 @@ td.day{color:var(--ink-2)}
     <div id="funnelList" style="margin-top:14px"></div>
   </div>
 
+  <div class="card" id="waCard" hidden>
+    <h2>Went to WhatsApp instead</h2>
+    <p class="sub">Since 24 Nov 2026. Once per browser per day, like a visit: she
+      tapped a WhatsApp number anywhere on the shop (not on the thank-you page,
+      where the tap is the order itself). "From a piece" means she was looking at
+      a piece when she tapped; "Order on WhatsApp" is the button on the order
+      page for people who would rather order in the chat. These are visitors
+      who may well have ordered — in the chat, not on the website.</p>
+    <div class="howto" id="waTotals"></div>
+    <div id="waList" style="margin-top:14px"></div>
+  </div>
+
   <div class="card" id="howtoCard" hidden>
     <h2>The how-to film</h2>
     <p class="sub">The same kind of count, kept since the film was added — how far
@@ -166,12 +178,16 @@ function paint(rows, orderRows){
 
   const visits = new Map(), browsed = new Map(), shopOpen = new Map(), orderPage = new Map(), orderLeft = new Map();
   const howto = {howto_shown: 0, howto_open: 0, howto_half: 0, howto_finished: 0};
+  const wa = {wa_tap: new Map(), wa_piece: new Map(), wa_order: new Map()};
   for (const r of rows) {
     if (r.what === "visit")      visits.set(r.day, (visits.get(r.day) || 0) + r.n);
     else if (r.what === "browsed")    browsed.set(r.day, (browsed.get(r.day) || 0) + r.n);
     else if (r.what === "shop_open")  shopOpen.set(r.day, (shopOpen.get(r.day) || 0) + r.n);
     else if (r.what === "order_page") orderPage.set(r.day, (orderPage.get(r.day) || 0) + r.n);
     else if (r.what === "order_left") orderLeft.set(r.day, (orderLeft.get(r.day) || 0) + r.n);
+    else if (r.what === "wa_tap" || r.what === "wa_piece" || r.what === "wa_order") {
+      const m = wa[r.what]; m.set(r.day, (m.get(r.day) || 0) + r.n);
+    }
     else if (r.what in howto) howto[r.what] += r.n;
   }
   const placed = byDay(orderRows);
@@ -273,6 +289,24 @@ function paint(rows, orderRows){
           <td class="r">${got}</td><td class="r">${left}</td><td class="r">${missed}</td></tr>`;
       }).join("")}</tbody>
     </table>`;
+  }
+
+  /* WhatsApp taps (24 Nov 2026), day by day, newest first. */
+  const waDays = [...wa.wa_tap.keys()].sort().reverse();
+  if (waDays.length) {
+    $("#waCard").hidden = false;
+    const tot = k => sumSince(wa[k], "0000-00-00");
+    $("#waTotals").innerHTML = `<span><b>${tot("wa_tap")}</b> tapped WhatsApp</span>
+      <span><b>${tot("wa_piece")}</b> from a piece</span>
+      <span><b>${tot("wa_order")}</b> chose Order on WhatsApp</span>
+      <span><b>${sumSince(wa.wa_tap, sinceDay(6))}</b> in the last 7 days</span>`;
+    $("#waList").innerHTML = `<table>
+      <thead><tr><th>Day</th><th class="r">Visits</th><th class="r">Tapped WhatsApp</th>
+        <th class="r">From a piece</th><th class="r">Order on WhatsApp</th></tr></thead>
+      <tbody>${waDays.map(d => `<tr><td class="day">${esc(dayLabel(d))}</td>
+        <td class="r">${visits.get(d) || 0}</td><td class="r">${wa.wa_tap.get(d) || 0}</td>
+        <td class="r">${wa.wa_piece.get(d) || 0}</td><td class="r">${wa.wa_order.get(d) || 0}</td></tr>`).join("")}
+      </tbody></table>`;
   }
 
   const howtoTotal = Object.values(howto).reduce((a, v) => a + v, 0);

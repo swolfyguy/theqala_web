@@ -879,9 +879,9 @@ function renderUpload(){
         <span class="hint">leave blank if you have just the one</span>
       </label>
       <label class="f tick">
-        <input type="checkbox" id="u-cod">
+        <input type="checkbox" id="u-cod" checked>
         <span>Cash on delivery allowed
-          <span class="hint">off unless you tick it \u2014 the courier charges us for carrying cash</span></span>
+          <span class="hint">on by default (₹200 extra to her) \u2014 untick for a piece that should not go COD</span></span>
       </label>
       <label class="f">Name <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-2)">(optional)</span>
         <input id="u-title" placeholder="Kolhapuri Thushi" maxlength="70">
@@ -1144,7 +1144,7 @@ function renderUpload(){
       }
       QUEUE = []; paint();
       $("#u-price").value = ""; $("#u-title").value = ""; $("#u-qty").value = "";
-      $("#u-cod").checked = false;
+      $("#u-cod").checked = true;   // COD on by default since 24 Nov 2026
       $("#u-off").value = ""; $("#u-until").value = ""; offSay();
       $("#u-min").value = ""; $("#u-max").value = "";
       sizeSummary();

@@ -473,6 +473,10 @@ nav.main a:hover,nav.main a.on{color:var(--accent)}
 .btn.ghost:hover{border-color:var(--gold-2);color:var(--accent);background:var(--panel)}
 .btn.wa{background:#128C7E;border-color:#128C7E;color:#fff}
 .btn.wa:hover{background:#0f7a6e}
+.waorder{display:grid;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
+.waorder .or{justify-self:center;margin-top:-26px;padding:0 10px;background:var(--panel,#FFFBF6);color:var(--ink-2);
+  font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}
+.waorder .btn svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
 .btn.wide{width:100%}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
@@ -1494,7 +1498,17 @@ document.addEventListener("click", e => {
   const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
   if (!a) return;
   const h = a.getAttribute("href") || "";
-  if (/^https:\/\/wa\.me\/\d/.test(h)) track("contact", {method: "whatsapp"});
+  if (/^https:\/\/wa\.me\/\d/.test(h)) {
+    track("contact", {method: "whatsapp"});
+    /* The shop's own counter (no cookies needed, see TALLIES in _worker.js):
+       not on the thank-you page, where the tap is the order itself. */
+    const hash = location.hash || "";
+    if (!/^#\/placed/.test(hash)) {
+      seen("wa_tap");
+      if (/^#\/piece\//.test(hash)) seen("wa_piece");
+      if (a.hasAttribute("data-wa-order")) seen("wa_order");
+    }
+  }
   else if (/^tel:/.test(h)) track("contact", {method: "phone"});
   else if (h === ADDRESS.maps || /google\.[a-z.]+\/maps|maps\.app\.goo\.gl|share\.google/.test(h))
     track("find_location", {method: "maps"});
@@ -3072,6 +3086,21 @@ const plainPoth = () => `
         <span class="hint">Only for pieces that need one. We will confirm it in the chat. <a href="#/poth" target="_blank" rel="noopener" style="border-bottom:1px solid var(--gold-2)">Which length suits me?</a></span>
       </div>`;
 
+/* "Order on WhatsApp instead" (24 Nov 2026). For someone who would rather
+   not fill in a form: WhatsApp opens with the pieces, their codes and the
+   price already written, and the shop takes the address in the chat. The
+   tap is counted as wa_order (see the click listener and TALLIES). */
+function waOrderBox(lines, goods){
+  const text = ["Namaskar The Qala \u{1F64F}", "", "I would like to order:"]
+    .concat(lines.map(l => `\u2022 ${titleOf(l.it)} (${l.it.code})${l.qty > 1 ? " \u00d7 " + l.qty : ""} \u2014 ${rupees(l.it.price * l.qty)}`))
+    .concat(["", `Total for the pieces: ${rupees(goods)}`, "Please help me place the order."]).join("\n");
+  return `<div class="waorder">
+        <span class="or">or</span>
+        <a class="btn wa wide" data-wa-order href="${waLink(text)}" target="_blank" rel="noopener">${WA_ICON} Order on WhatsApp instead</a>
+        <p class="hint" style="margin:0;text-align:center">Rather chat? WhatsApp opens with these pieces already written. We take your address there. <span lang="mr" class="mr">व्हॉट्सॲपवर ऑर्डर करा.</span></p>
+      </div>`;
+}
+
 function orderView(params){
   const lines = orderLines(params);
   if (!lines.length) { location.hash = "#/shop"; return ""; }
@@ -3150,6 +3179,7 @@ function orderView(params){
 
       <button class="btn wide" type="submit" style="margin-top:4px">Place the order</button>
       <p class="hint" style="margin:0;text-align:center">Your order is written down with us, and WhatsApp opens with it already filled in. Tap send and it reaches us.</p>
+      ${waOrderBox(lines, total - of.off)}
     </form>
 
     <aside class="summary">
