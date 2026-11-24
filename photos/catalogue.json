@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T14:02:46Z",
+ "generated": "2026-11-24T17:21:12Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -3702,8 +3702,456 @@
   {
    "slug": "rajwadi",
    "cover": null,
-   "next": 136,
+   "next": 152,
    "products": [
+    {
+     "n": 136,
+     "code": "RAJWADI-136",
+     "folder": "photos/rajwadi/3000",
+     "title": "Rajwadi Long Mangalsutra — Ruby & Emerald Paisley",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of paisley-shaped pendants set with ruby-red and emerald-green stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी माणिक-लाल आणि पाचू-हिरव्या खड्यांनी सजवलेली दोन कोयरी आकाराची पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 137,
+     "code": "RAJWADI-137",
+     "folder": "photos/rajwadi/3000 (2)",
+     "title": "Rajwadi Long Mangalsutra — Kundan Square, Ruby Cross",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of square kundan pendants with a ruby-red cross at the centre, finished with gold bead drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी माणिक-लाल फुलीची नक्षी असलेली दोन चौकोनी कुंदन पेंडंट्स, खाली सोनेरी मण्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 138,
+     "code": "RAJWADI-138",
+     "folder": "photos/rajwadi/3000 (3)",
+     "title": "Rajwadi Long Mangalsutra — Pink & Green Round",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of round pendants set with pink and green stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी गुलाबी आणि हिरव्या खड्यांनी सजवलेली दोन गोल पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 139,
+     "code": "RAJWADI-139",
+     "folder": "photos/rajwadi/3000 (4)",
+     "title": "Rajwadi Long Mangalsutra — White Kundan Shield",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of shield-shaped pendants set with white kundan stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी पांढऱ्या कुंदन खड्यांनी सजवलेली दोन ढाल-आकाराची पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 140,
+     "code": "RAJWADI-140",
+     "folder": "photos/rajwadi/3000 (5)",
+     "title": "Rajwadi Long Mangalsutra — Ruby Teardrop",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of teardrop pendants set with ruby-red, green and white stones, finished with pearl drops. Photographed with matching earrings — ask us about them. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी माणिक-लाल, हिरव्या आणि पांढऱ्या खड्यांनी सजवलेली दोन थेंब-आकाराची पेंडंट्स, खाली मोत्यांचे लटकन. फोटोत जुळणारे कानातलेही आहेत — त्याबद्दल आम्हाला विचारा. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 141,
+     "code": "RAJWADI-141",
+     "folder": "photos/rajwadi/3000 (6)",
+     "title": "Rajwadi Long Mangalsutra — Ruby & Green Oval",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of oval pendants set with ruby-red and green stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी माणिक-लाल आणि हिरव्या खड्यांनी सजवलेली दोन अंडाकृती पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 142,
+     "code": "RAJWADI-142",
+     "folder": "photos/rajwadi/3000 (7)",
+     "title": "Rajwadi Long Mangalsutra — Kundan Diamond, Ruby Centre",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of diamond-shaped kundan pendants with a ruby-red centre, finished with gold bead drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी माणिक-लाल खडा असलेली दोन चौफुली (डायमंड) आकाराची कुंदन पेंडंट्स, खाली सोनेरी मण्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 143,
+     "code": "RAJWADI-143",
+     "folder": "photos/rajwadi/3000 (8)",
+     "title": "Rajwadi Long Mangalsutra — Mint & Pink Round",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of round antique-gold pendants set with mint-green and pink stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी पोपटी-हिरव्या आणि गुलाबी खड्यांनी सजवलेली दोन गोल अँटिक सोनेरी पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 144,
+     "code": "RAJWADI-144",
+     "folder": "photos/rajwadi/3000 (9)",
+     "title": "Rajwadi Long Mangalsutra — Kundan Diamond, White",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of diamond-shaped pendants set with white kundan and small ruby stones, finished with gold bead drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी पांढऱ्या कुंदन आणि लहान माणिक खड्यांनी सजवलेली दोन चौफुली आकाराची पेंडंट्स, खाली सोनेरी मण्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 145,
+     "code": "RAJWADI-145",
+     "folder": "photos/rajwadi/3000 (10)",
+     "title": "Rajwadi Long Mangalsutra — Emerald Centre, Ruby Ring",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (10)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of round pendants with a green stone at the centre circled by ruby-red stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी हिरवा खडा आणि भोवती माणिक-लाल खड्यांची माळ असलेली दोन गोल पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 146,
+     "code": "RAJWADI-146",
+     "folder": "photos/rajwadi/3000 (11)",
+     "title": "Rajwadi Long Mangalsutra — Kundan Diamond, Pink",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (11)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of diamond-shaped kundan pendants with a pink centre, finished with gold bead drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी गुलाबी खडा असलेली दोन चौफुली आकाराची कुंदन पेंडंट्स, खाली सोनेरी मण्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 147,
+     "code": "RAJWADI-147",
+     "folder": "photos/rajwadi/3000 (12)",
+     "title": "Rajwadi Long Mangalsutra — Emerald & Ruby Round",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (12)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of large round pendants with a green centre and ruby-red stones, finished with long gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी हिरवा खडा आणि माणिक-लाल खड्यांची दोन मोठी गोल पेंडंट्स, खाली लांब सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 148,
+     "code": "RAJWADI-148",
+     "folder": "photos/rajwadi/3000 (13)",
+     "title": "Rajwadi Long Mangalsutra — Kundan Diamond, Ruby & White",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (13)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of diamond-shaped pendants set with white kundan and ruby-red stones, finished with gold bead drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी पांढऱ्या कुंदन आणि माणिक-लाल खड्यांनी सजवलेली दोन चौफुली आकाराची पेंडंट्स, खाली सोनेरी मण्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 149,
+     "code": "RAJWADI-149",
+     "folder": "photos/rajwadi/3000 (14)",
+     "title": "Rajwadi Long Mangalsutra — Pink Centre Kundan Round",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (14)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of round kundan pendants with a pink centre and mint-green stones, finished with pearl drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी मध्यभागी गुलाबी खडा आणि पोपटी-हिरवे खडे असलेली दोन गोल कुंदन पेंडंट्स, खाली मोत्यांचे लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 150,
+     "code": "RAJWADI-150",
+     "folder": "photos/rajwadi/3000 (15)",
+     "title": "Rajwadi Long Mangalsutra — White Kundan Pentagon",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (15)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of pentagon-shaped pendants set with white kundan and small coloured stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी पांढऱ्या कुंदन आणि लहान रंगीत खड्यांनी सजवलेली दोन पंचकोनी पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
+    {
+     "n": 151,
+     "code": "RAJWADI-151",
+     "folder": "photos/rajwadi/3000 (16)",
+     "title": "Rajwadi Long Mangalsutra — Pink & Green Floral Round",
+     "price": 3000,
+     "band": {
+      "min": 3000,
+      "max": 4000
+     },
+     "images": [
+      "photos/rajwadi/3000 (16)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 36,
+      "max": 40,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {
+      "en": "A long Rajwadi mangalsutra: strands of black beads held together by carved antique-gold panels, ending in a pair of round floral pendants set with pink and green stones, finished with gold drops. Rajwadi is the royal, Peshwa-court look — the mangalsutra for the wedding day, Mangalagaur and big family functions, worn long over a nauvari or a Paithani. Pick your length from 36 to 40 inches when you order.",
+      "mr": "लांब राजवाडी मंगळसूत्र — काळ्या मण्यांच्या सरी, कोरीव अँटिक सोनेरी पट्ट्यांनी जोडलेल्या, आणि शेवटी गुलाबी आणि हिरव्या खड्यांची फुलांची नक्षी असलेली दोन गोल पेंडंट्स, खाली सोनेरी लटकन. राजवाडी म्हणजे पेशवाई, राजेशाही थाट — लग्नाचा दिवस, मंगळागौर आणि मोठ्या कार्यक्रमांसाठीचं मंगळसूत्र, नऊवारी किंवा पैठणीवर लांब घालायचं. ऑर्डर करताना लांबी निवडा — 36 ते 40 इंच."
+     }
+    },
     {
      "n": 31,
      "code": "RAJWADI-31",
