@@ -229,6 +229,21 @@ OFFER_FILE = "offer.json"
 SIZES = [str(n) for n in range(18, 45, 2)]
 
 
+def read_about(folder):
+    """about.json (24 Nov 2026): {"title", "en", "mr"} — a name and a few lines
+    in English and Marathi for this one piece. A name in the folder itself
+    ("2300 Kolhapuri Thushi") wins over the title here."""
+    f = folder / "about.json"
+    if not f.exists():
+        return {}
+    try:
+        d = json.loads(f.read_text(encoding="utf-8-sig"))
+    except Exception as e:
+        warn(f"{rel(f)} could not be read ({e}) — ignored")
+        return {}
+    return {k: str(d[k]).strip() for k in ("title", "en", "mr") if isinstance(d, dict) and str(d.get(k) or "").strip()}
+
+
 def read_stock(folder):
     """Everything stock.json says about a piece: how many, what lengths, and
        whether it may be sent cash on delivery.
@@ -659,6 +674,8 @@ def read_category(catdir, nxt):
             continue
 
         n = product_id(folder, slug, nxt, taken)
+        about = read_about(folder)
+        title = title or about.get("title", "")
         products.append({
             "n": n,
             "code": f"{slug.upper()}-{n:02d}",
@@ -672,6 +689,7 @@ def read_category(catdir, nxt):
             "sizes": read_stock(folder),
             "colors": read_colors(folder, images),
             "offer": read_offer(folder),
+            "about": {k: v for k, v in about.items() if k in ("en", "mr")},
         })
         if len(videos) > 1:
             warn(f"{rel(folder)} has more than one video — only {videos[0].name} is used")

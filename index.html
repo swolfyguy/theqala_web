@@ -473,6 +473,9 @@ nav.main a:hover,nav.main a.on{color:var(--accent)}
 .btn.ghost:hover{border-color:var(--gold-2);color:var(--accent);background:var(--panel)}
 .btn.wa{background:#128C7E;border-color:#128C7E;color:#fff}
 .btn.wa:hover{background:#0f7a6e}
+.about{margin:18px 0 0;max-width:58ch;display:grid;gap:10px}
+.about p{margin:0;line-height:1.6;color:var(--ink)}
+.about p.mr{color:var(--ink-2);font-size:.98rem}
 .waorder{display:grid;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
 .waorder .or{justify-self:center;margin-top:-26px;padding:0 10px;background:var(--panel,#FFFBF6);color:var(--ink-2);
   font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}
@@ -1760,24 +1763,15 @@ const CAT_NAMES = {
   },
   "single-wati-rajwadi": {
     mr: "एकेरी वाटी राजवाडी", en: "Single Wati Rajwadi",
-    /* Thirteen pieces live here and had no name at all until now — the shop
-       showed them as "Single Wati Rajwadi" only because the code makes a name
-       out of the folder. Say here what one wati means and who it suits, and it
-       appears under the heading of that shelf like the others. */
-    blurb: ""
+    blurb: "The mangalsutra with one wati at its heart: two lines of gold beads and black beads and a single kundan or flower pendant. Light enough to wear every day, to the office or to college, and still traditional enough for a haldi-kunku or a puja. Several come with matching earrings."
   },
   "double-wati-rajwadi-handmade": {
     mr: "दुहेरी वाटी राजवाडी", en: "Double Wati Rajwadi",
-    /* The largest shelf in the shop — twenty pieces — and the one most in
-       need of a few lines, because a customer cannot tell from a photograph
-       what the second wati changes. */
-    blurb: ""
+    blurb: "The classic Maharashtrian mangalsutra: black beads at the back, rows of gold beads at the front, and two watis side by side at the centre — traditionally said to stand for the two families a marriage joins. Kundan watis in pink, green and mint, plain gold lotus watis, and longer black-bead versions for a simpler look. Choose your length when you order."
   },
   "rani-haar": {
     mr: "राणी हार", en: "Rani Haar",
-    /* Three pieces. Long necklaces — write what length, and what they are
-       worn with. */
-    blurb: ""
+    blurb: "Long haars of gold beads that fall low on the chest and end in a big round or diamond-shaped pendant, each with matching earrings. Worn over a bridal saree, a Paithani or a lehenga at weddings, receptions and the big festival days."
   },
   "victorian": {
     mr: "व्हिक्टोरियन", en: "Victorian",
@@ -1789,9 +1783,7 @@ const CAT_NAMES = {
   },
   "nath": {
     mr: "नथ", en: "Nath",
-    /* Added 17 Nov 2026 with the first batch of naths. Write a few lines
-       about them here and they appear under the heading of that shelf. */
-    blurb: ""
+    blurb: "The Maharashtrian nath, for weddings, Mangalagaur, Gudi Padwa and Navratri. Peshwai naths ringed with pearls, chandrakor naths shaped like a crescent moon, and stone naths that sparkle with AD stones in ruby, emerald, pink and white. Many designs come in several colours — tell us yours when you order."
   },
   /* ---------------------------------------------------------------------
      Below this line: kinds the shop has written about but has no pieces in
@@ -1958,7 +1950,8 @@ async function loadCatalogue(){
         video: p.video || null,
         videoPoster: p.videoPoster || null,
         sizes: p.sizes || {},         // {"24": 2, "28": 1} — how many were made
-        colors: p.colors || {}        // {"1.jpg": "Pink"} — which photo is which colour
+        colors: p.colors || {},       // {"1.jpg": "Pink"} — which photo is which colour
+        about: p.about || {}          // {en, mr} — this piece's own lines (about.json, 24 Nov 2026)
       });
     });
   });
@@ -2869,6 +2862,10 @@ function piece(code){
       </div>
       ${soldOut(it) ? "" : `<div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>`}
       <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
+      ${it.about && (it.about.en || it.about.mr) ? `<div class="about">
+        ${it.about.en ? `<p>${esc(it.about.en)}</p>` : ""}
+        ${it.about.mr ? `<p class="mr" lang="mr">${esc(it.about.mr)}</p>` : ""}
+      </div>` : ""}
       ${catName(it.cat).blurb ? moreText(catName(it.cat).blurb, "margin:18px 0 0") : ""}
 
       <div class="paybox">

@@ -577,7 +577,8 @@ async function howManyMade(env) {
           prices[p.code] = {base: p.price, offer: p.offer || null};
           /* What a link preview needs — see realPage(). */
           pieces[p.code] = {n: p.n, title: p.title || "", price: p.price, offer: p.offer || null,
-                            image: (p.images || [])[0] || "", cat: c.slug, qty: out[p.code]};
+                            image: (p.images || [])[0] || "", cat: c.slug, qty: out[p.code],
+                            about: (p.about && p.about.en) || ""};
           if (p.sizes && p.sizes.cod === true) cod[p.code] = true;
           /* Which colour names this piece actually offers — one photograph
              can be tagged as a colour, several usually are. A piece with
@@ -3213,6 +3214,12 @@ async function realPage(url, path, env) {
     desc    = `${name} — handmade ${shelf(p.cat).toLowerCase()} at ${inr(price)}`
             + (live ? ` (${p.offer.pct}% off ${inr(p.price)})` : "")
             + `, made in Dighi, Pune and sent insured across India. Order on WhatsApp.`;
+    /* The piece's own lines (about.json) make a better preview and a better
+       Google snippet — first sentence plus the price. */
+    if (p.about) {
+      const first = p.about.split(/(?<=\.)\s/)[0];
+      desc = `${inr(price)} · ${first}`.slice(0, 300);
+    }
     image = p.image ? pathUrl(p.image) : null;
     type  = "product";
     const ld = {
