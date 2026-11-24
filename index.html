@@ -2034,6 +2034,17 @@ const offEnds = it => it && it.off && it.offUntil
   ? new Date(it.offUntil + "T00:00:00").toLocaleDateString("en-IN", {day: "numeric", month: "short"}) : "";
 const titleOf = it => it.title || it.catEn + " " + String(it.n).padStart(2, "0");
 const priceOf = it => rupees(it.price);
+
+/* "Ask on WhatsApp" (24 Nov 2026). The chat opens already saying which piece
+   she means — name, code, price and the piece's own link, which WhatsApp turns
+   into a photo preview. Taps are counted by the click listener (wa_tap, and
+   wa_piece on a piece page) like every other WhatsApp link. */
+const pieceLink = it => `https://theqalashree.com/piece/${encodeURIComponent(String(it.code).toLowerCase())}/`;
+const askPieceText = it => `Namaskar The Qala 🙏\n${soldOut(it) ? "I would like one like this piece:" : "I have a question about this piece:"}\n`
+  + `${titleOf(it)} (${it.code}) — ${priceOf(it)}\n${pieceLink(it)}`;
+const askOrderText = lines => `Namaskar The Qala 🙏\nI have a question before I order:\n`
+  + lines.map(l => `• ${titleOf(l.it)}${l.color ? " — " + l.color : ""} (${l.it.code}) — ${priceOf(l.it)}${l.qty > 1 ? " × " + l.qty : ""}\n  ${pieceLink(l.it)}`).join("\n");
+const ASK_GENERAL = "Namaskar The Qala 🙏 I have a question about a piece.";
 const mediaCount = it => it.images.length + (it.video ? 1 : 0);
 
 /* A <video> with no poster paints black. build_catalogue.py normally cuts a still
@@ -2861,6 +2872,8 @@ function piece(code){
         ${soldOut(it) ? "" : `<a class="btn" id="orderBtn" href="#/order?p=${encodeURIComponent(it.code)}&q=1${it.colors && Object.keys(it.colors).length ? "&c=" + encodeURIComponent((it.colors[it.images[0].split("/").pop()]) || "") : ""}">Order now</a>`}
       </div>
       ${soldOut(it) ? "" : `<div style="margin-top:12px"><button class="btn ghost wide" id="addBtn">Add to bag</button></div>`}
+      <div style="margin-top:12px"><a class="btn wa wide" href="${waLink(askPieceText(it))}" target="_blank" rel="noopener">${WA_ICON_BTN} ${
+        soldOut(it) ? "Ask on WhatsApp for one like this" : "Ask about this piece on WhatsApp"}</a></div>
       <p class="muted" style="margin:14px 0 0;max-width:52ch;font-size:.92rem">Send us this reference and we will confirm the weight, sizing and the dispatch date in the chat — usually within the hour on a working day.</p>
       ${it.about && (it.about.en || it.about.mr) ? `<div class="about">
         ${it.about.en ? `<p>${esc(it.about.en)}</p>` : ""}
@@ -3112,6 +3125,10 @@ function orderView(params){
     <span class="mr" style="font-size:1.3rem;color:var(--accent)">ऑर्डर</span>
     <h1>Place your order</h1>
     <p class="muted">A few details, then we take it forward on WhatsApp.</p>
+    <p class="muted" style="margin-top:8px">Have a question first?
+      <a href="${waLink(askOrderText(lines))}" target="_blank" rel="noopener"
+         style="color:#128C7E;font-weight:600;border-bottom:1px solid currentColor">Ask us on WhatsApp</a>
+      — we reply with photos, videos and sizes.</p>
   </div>
   <div class="wrap orderlayout">
     <form class="orderform" id="orderForm" novalidate>
@@ -4035,6 +4052,19 @@ function render(){
 
   view.innerHTML = html;
   nameThePage(r, parts, params);
+  /* The corner WhatsApp button asks about whatever is on screen. */
+  {
+    const fab = document.getElementById("fab");
+    if (fab) {
+      let say = ASK_GENERAL;
+      try {
+        const it = r === "piece" ? byCode(parts[1]) : null;
+        if (it) say = askPieceText(it);
+        else if (r === "order") { const ls = orderLines(params); if (ls.length) say = askOrderText(ls); }
+      } catch (e) {}
+      fab.href = waLink(say);
+    }
+  }
   wirePin(document.querySelector("#f-pin"), document.querySelector("#f-pinsay"),
           document.querySelector("#f-addr"));
 
@@ -4609,7 +4639,7 @@ $("#topbar").innerHTML = [
   `<span class="tag"><span class="sep">&middot;</span> Handmade in Dighi, Pune</span>`
 ].join("");
 
-const ASK = waLink("Namaskar The Qala 🙏 I have a question about a piece.");
+const ASK = waLink(ASK_GENERAL);
 $("#waFooter").href = ASK;
 $("#fab").href = ASK;
 $("#yr").textContent = new Date().getFullYear();
