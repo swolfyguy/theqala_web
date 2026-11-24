@@ -226,7 +226,7 @@ STOCK_FILE = "stock.json"
 COLORS_FILE = "colors.json"
 OFFER_FILE = "offer.json"
 # The poth lengths the shop makes, in inches. Same list as the order form.
-SIZES = [str(n) for n in range(24, 41, 2)]
+SIZES = [str(n) for n in range(18, 45, 2)]
 
 
 def read_stock(folder):

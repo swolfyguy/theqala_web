@@ -56,7 +56,7 @@ const offerLive = o => !!(o && o.pct > 0 && o.pct <= 90 && (!o.until || o.until 
 const offPrice  = (base, pct) => Math.round(base * (100 - pct) / 1000) * 10;
 
 /* Poth lengths the shop offers, in inches. Same list as the order form. */
-const POTH = ["24", "26", "28", "30", "32", "34", "36", "38", "40"];
+const POTH = ["18", "20", "22", "24", "26", "28", "30", "32", "34", "36", "38", "40", "42", "44"];
 
 /* A piece is held the moment somebody orders it. But an order is only an
    intent — the real conversation happens on WhatsApp afterwards — so a hold on

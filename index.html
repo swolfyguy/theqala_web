@@ -963,6 +963,35 @@ body.on-piece .here{bottom:76px}
 /* ---------- bag ---------- */
 .pagehead{padding:38px 0 8px}
 .pagehead h1{font-size:clamp(1.9rem,3.6vw,2.7rem)}
+/* Poth length guide (#/poth, 24 Nov 2026) */
+.poth{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start;padding:8px 0 80px}
+@media (max-width:780px){.poth{grid-template-columns:1fr}}
+.poth .fig{position:sticky;top:96px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:12px 8px 4px}
+@media (max-width:780px){.poth .fig{position:static;max-width:420px;width:100%;margin:0 auto}}
+.poth .fig svg{width:100%;height:auto;display:block}
+.poth .ctl{display:flex;flex-direction:column;gap:20px;min-width:0}
+.poth .lab{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:700;margin-bottom:9px}
+.poth .lens{display:flex;flex-wrap:wrap;gap:8px}
+.poth .lens .chip{padding:7px 13px;font-variant-numeric:tabular-nums}
+.poth .say{background:var(--wash-gold);border:1px solid var(--line);border-radius:16px;padding:16px 18px;line-height:1.6}
+.poth .say b{color:var(--accent)}
+.poth .say .mr{display:block;font-size:1.08rem;margin-top:6px}
+.poth .say small{display:block;color:var(--ink-2);font-size:.82rem;margin-top:8px}
+.pothtab{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.pothtab table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:540px}
+.pothtab th,.pothtab td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.pothtab tr:last-child td{border-bottom:0}
+.pothtab th{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:700;background:var(--panel-2)}
+.pothtab tr[data-len]{cursor:pointer}
+.pothtab tr[data-len]:hover td{background:var(--wash-rose)}
+.pothtab tr.on td{background:var(--wash-gold)}
+.pothtab td.n{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+.pothtab td a{border-bottom:1px solid var(--gold-2);white-space:nowrap}
+.poth .tip{font-size:.9rem;line-height:1.6}
+.pothtab th.on,.pothtab td.on{background:var(--wash-gold)}
+#phFull table{min-width:860px;font-size:.8rem}
+.phmore summary{cursor:pointer;font-weight:600;color:var(--accent);list-style-position:outside}
+.phmore summary:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px;border-radius:6px}
 .cartlayout{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:40px;align-items:start;padding:20px 0 90px}
 .cartlayout>*{min-width:0}
 .lineitem{display:grid;grid-template-columns:92px 1fr auto;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);align-items:center}
@@ -1124,6 +1153,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          shop can never disagree. See paintNav(). -->
     <nav class="main" id="nav">
       <a href="#/shop">Shop All</a>
+      <a href="#/poth">Poth guide</a>
       <a href="#/story">Our Story</a>
       <a href="#/contact">Contact</a>
       <a href="/my/">Track order</a>
@@ -1162,6 +1192,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <ul>
           <li><a href="/my/">Track my order</a></li>
           <li><a href="#/contact">Contact us</a></li>
+          <li><a href="#/poth">Poth length guide</a></li>
           <li><a href="#/story">Our story</a></li>
           <li><a href="#/care">Care &amp; polish</a></li>
           <li><a href="#/shipping">Shipping &amp; returns</a></li>
@@ -1641,7 +1672,7 @@ const INSTA = [
 const COD_ON = true;
 const COD_EXTRA = 200;
 /* Poth lengths the shop makes, in inches. Even sizes only. */
-const POTH = [24,26,28,30,32,34,36,38,40];
+const POTH = [18,20,22,24,26,28,30,32,34,36,38,40,42,44];
 const PAY = [
   {id:"online", t:"Online",           d:"UPI, bank transfer or a payment link, sent on WhatsApp"},
   {id:"shop",   t:"Cash at the shop", d:"Pay and collect at Dighi \u2014 no shipping to pay"},
@@ -3026,7 +3057,7 @@ function sizeFields(lines){
         </select>
         <span class="hint">${lens.length === 1
           ? `This one is made in ${lens[0]} inches.`
-          : `Made from ${lens[0]} to ${lens[lens.length - 1]} inches.`}</span>
+          : `Made from ${lens[0]} to ${lens[lens.length - 1]} inches.`} <a href="#/poth" target="_blank" rel="noopener" style="border-bottom:1px solid var(--gold-2)">Which length suits me?</a></span>
       </div>`;
   }).join("");
 }
@@ -3038,7 +3069,7 @@ const plainPoth = () => `
           <option value="">Let us decide on WhatsApp</option>
           ${POTH.map(n => `<option value="${n}" ${BUYER.poth == n ? "selected" : ""}>${n} inches</option>`).join("")}
         </select>
-        <span class="hint">Only for pieces that need one. We will confirm it in the chat.</span>
+        <span class="hint">Only for pieces that need one. We will confirm it in the chat. <a href="#/poth" target="_blank" rel="noopener" style="border-bottom:1px solid var(--gold-2)">Which length suits me?</a></span>
       </div>`;
 
 function orderView(params){
@@ -3191,6 +3222,244 @@ const LEGAL_ON = "9 September 2026";
 const H = `<h3 style="font-family:Marcellus,serif;font-weight:400;font-size:1.25rem;margin:28px 0 8px">`;
 const WA_LINE = `<a href="https://wa.me/${WA}" target="_blank" rel="noopener"
   style="border-bottom:1px solid var(--gold-2)">WhatsApp ${PHONES[2].label}</a>`;
+
+/* ---------------------------------------------------------
+   POTH LENGTH GUIDE  (#/poth — asked for on 24 Nov 2026)
+
+   She picks her height (4′8″ to 6′0″) and a length (18″ to 44″, the
+   shop's POTH list) and sees where it sits, from the neck down.
+
+   Where each length sits is HIS chart (pasted 24 Nov 2026), seven height
+   groups by fourteen lengths — PH_CHART below. Change a cell there and the
+   page, the picture and the full table all follow. The picture places each
+   spot at a depth below the base of the neck (PH_SPOT.at, for a 5′4″ body,
+   stretched with height); those depths only draw the picture, the words
+   shown to her are the chart's.
+--------------------------------------------------------- */
+const PH_HEIGHTS = Array.from({length: 17}, (_, i) => 56 + i);       // 4′8″ … 6′0″, in inches
+const PH_GROUPS  = [[56,57],[58,59],[60,61],[62,64],[65,67],[68,70],[71,72]];
+const PH_SPOT = {   // at = inches below the base of the neck on a 5′4″ body (picture only)
+  ht:  {at:-0.8, en:"High at the throat — choker feel",  mr:"गळ्याजवळ उंच — चोकरसारखे"},
+  bt:  {at:-0.3, en:"Base of the throat / collarbone",   mr:"गळ्याच्या पायथ्याशी, कॉलरबोनवर"},
+  rc:  {at: 0,   en:"Resting on the collarbone",         mr:"कॉलरबोनवर"},
+  jbc: {at: 0.5, en:"Just below the collarbone",         mr:"कॉलरबोनच्या अगदी खाली"},
+  c1:  {at: 1,   en:"1″ below the collarbone",           mr:"कॉलरबोनच्या 1 इंच खाली"},
+  c15: {at: 1.5, en:"1½″ below the collarbone",          mr:"कॉलरबोनच्या दीड इंच खाली"},
+  c2:  {at: 2,   en:"2″ below the collarbone",           mr:"कॉलरबोनच्या 2 इंच खाली"},
+  c25: {at: 2.5, en:"2½″ below the collarbone",          mr:"कॉलरबोनच्या अडीच इंच खाली"},
+  c3:  {at: 3,   en:"3″ below the collarbone",           mr:"कॉलरबोनच्या 3 इंच खाली"},
+  c35: {at: 3.5, en:"3½″ below the collarbone",          mr:"कॉलरबोनच्या साडेतीन इंच खाली"},
+  c4:  {at: 4,   en:"4″ below the collarbone",           mr:"कॉलरबोनच्या 4 इंच खाली"},
+  uc:  {at: 4,   en:"Upper chest",                       mr:"छातीच्या वरच्या भागावर"},
+  ub:  {at: 4.5, en:"Upper bust",                        mr:"छातीच्या वरच्या भागावर"},
+  jab: {at: 5.5, en:"Just above the bust",               mr:"छातीच्या अगदी वर"},
+  tb:  {at: 6.5, en:"Top of the bust line",              mr:"छातीच्या रेषेच्या सुरुवातीला"},
+  umb: {at: 7.5, en:"Upper-mid bust",                    mr:"छातीच्या वरच्या-मधल्या भागावर"},
+  cb:  {at: 8.5, en:"Centre of the bust",                mr:"छातीच्या मध्यावर"},
+  lb:  {at: 9.5, en:"Lower bust",                        mr:"छातीच्या खालच्या भागावर"},
+  ubr: {at:10.5, en:"Under the bust / ribcage",          mr:"छातीच्या खाली, बरगड्यांवर"},
+  um:  {at:11.5, en:"Upper midriff",                     mr:"पोटाच्या वरच्या भागावर"},
+  mrc: {at:12.5, en:"Mid-ribcage",                       mr:"बरगड्यांच्या मध्यावर"},
+  an2: {at:14,   en:"About 2″ above the navel",          mr:"बेंबीच्या सुमारे 2 इंच वर"},
+  jan: {at:15.2, en:"Just above the navel",              mr:"बेंबीच्या अगदी वर"},
+  nav: {at:16,   en:"At the navel",                      mr:"बेंबीवर"},
+  bn1: {at:17.2, en:"1–1½″ below the navel",             mr:"बेंबीच्या 1–दीड इंच खाली"},
+  bn2: {at:18.5, en:"2–3″ below the navel",              mr:"बेंबीच्या 2–3 इंच खाली"}
+};
+const PH_CHART = {  // length → spot for each height group, shortest group first
+  18: ["c2","c15","c1","jbc","rc","bt","ht"],
+  20: ["ub","c3","c25","c2","c1","jbc","rc"],
+  22: ["tb","jab","uc","c3","c25","c2","c1"],
+  24: ["umb","tb","jab","uc","c35","c3","c2"],
+  26: ["cb","umb","tb","jab","uc","c4","c3"],
+  28: ["lb","cb","umb","tb","jab","uc","c4"],
+  30: ["ubr","lb","cb","umb","tb","jab","uc"],
+  32: ["um","ubr","lb","cb","umb","tb","jab"],
+  34: ["mrc","um","ubr","lb","cb","umb","tb"],
+  36: ["an2","mrc","um","ubr","lb","cb","umb"],
+  38: ["jan","an2","mrc","um","ubr","lb","cb"],
+  40: ["nav","jan","an2","mrc","um","ubr","lb"],
+  42: ["bn1","nav","jan","an2","mrc","um","ubr"],
+  44: ["bn2","bn1","nav","jan","an2","mrc","um"]
+};
+const PH_STYLE = [  // [from, to, name, what it suits, shelves]
+  [18, 22, "Short · daily wear", "Kurtis, western tops and office wear", ["necklace", "damru-mangalsutra"]],
+  [24, 28, "Medium · everyday ethnic", "High-neck blouses, suits and everyday sarees", ["single-wati-rajwadi", "damru-mangalsutra"]],
+  [30, 36, "Long · traditional", "Maharashtrian wati designs, festive and silk sarees", ["rajwadi", "double-wati-rajwadi-handmade"]],
+  [38, 44, "Extra long · bridal", "Weddings — usually layered with a shorter choker or necklace", ["rani-haar", "double-wati-rajwadi-handmade"]]
+];
+const PH_LAND = [   // the three marks drawn across the picture
+  {at: 0, tag: "Collarbone"}, {at: 8.5, tag: "Bust"}, {at: 16, tag: "Navel"}
+];
+const ftin    = h => `${Math.floor(h / 12)}′${h % 12}″`;
+const phGroup = h => PH_GROUPS.findIndex(([lo, hi]) => h >= lo && h <= hi);
+const phGroupName = g => `${ftin(PH_GROUPS[g][0])}–${ftin(PH_GROUPS[g][1])}`;
+const phSpot  = (L, h) => PH_SPOT[PH_CHART[L][phGroup(h)]];
+const phStyle = L => PH_STYLE.find(s => L >= s[0] && L <= s[1]);
+const phHalf  = n => { const r = Math.round(n * 2) / 2; return (Math.floor(r) || "") + (r % 1 ? "½" : "") || "0"; };
+
+let PH = {h: 62, L: 30};
+try {
+  const kept = JSON.parse(localStorage.getItem("qala.poth") || "null");
+  if (kept && PH_HEIGHTS.includes(kept.h) && POTH.includes(kept.L)) PH = kept;
+} catch (e) {}
+
+/* The picture: a plain figure from the neck down, drawn at the same scale for
+   every height (13 px to the inch), so a taller woman's body is longer. Every
+   length is drawn faintly; the chosen one in gold with its wati. */
+function phFigure(h, L){
+  const p = 13, W = 340, cx = 150, y0 = 70, k = h / 64, wk = Math.sqrt(k);
+  const H = Math.round(y0 + 21.5 * k * p);
+  const P = (x, y) => [+(cx + x * p * wk).toFixed(1), +(y0 + y * p).toFixed(1)];
+  const outline = [[-2.0,-6],[-2.1,-2.4],[-2.3,-0.9],[-3.7,-0.1],[-6.4,0.85*k],[-6.9,2.7*k],[-5.7,5.4*k],
+                   [-6.0,8.4*k],[-5.4,11.5*k],[-4.7,14.6*k],[-5.3,18*k],[-6.0,22.5*k]];
+  const segs = pts => {
+    let d = "";
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i - 1] || pts[i], b = pts[i], c = pts[i + 1], e = pts[i + 2] || c;
+      const c1 = [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6];
+      const c2 = [c[0] - (e[0] - b[0]) / 6, c[1] - (e[1] - b[1]) / 6];
+      d += `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${c[0]},${c[1]}`;
+    }
+    return d;
+  };
+  const Lp = outline.map(([x, y]) => P(x, y));
+  const Rp = outline.map(([x, y]) => P(-x, y)).reverse();
+  const body = `M${Lp[0]}${segs(Lp)}L${Rp[0]}${segs(Rp)}Z`;
+
+  const strand = (n) => {
+    const D = phSpot(n, h).at * k;
+    const A = [cx - 2.35 * p * wk, y0 - 0.55 * p], B = [cx, y0 + Math.max(0.35, D) * p], dd = B[1] - A[1];
+    const C1 = [A[0] - 0.45 * p, A[1] + 0.55 * dd], C2 = [cx - Math.min(2.1 * p, 0.4 * dd), B[1]];
+    const f = v => v.toFixed(1);
+    return {D, B, d: `M${f(A[0])},${f(A[1])}C${f(C1[0])},${f(C1[1])} ${f(C2[0])},${f(C2[1])} ${f(B[0])},${f(B[1])}`
+      + `C${f(2 * cx - C2[0])},${f(C2[1])} ${f(2 * cx - C1[0])},${f(C1[1])} ${f(2 * cx - A[0])},${f(A[1])}`};
+  };
+  const faint = POTH.filter(n => n !== L).map(n =>
+    `<path d="${strand(n).d}" fill="none" style="stroke:var(--line-2)" stroke-width="1" opacity=".75"/>`).join("");
+  const pick = strand(L);
+  const marks = PH_LAND.filter(m => m.tag).map(m => {
+    const y = (y0 + m.at * k * p).toFixed(1);
+    return `<line x1="${cx - 5.6 * p * wk}" x2="${cx + 5.6 * p * wk}" y1="${y}" y2="${y}" style="stroke:var(--ink-2)" stroke-width=".7" stroke-dasharray="3 4" opacity=".55"/>
+      <text x="4" y="${(+y + 3.5).toFixed(1)}" style="fill:var(--ink-2)" font-size="10" font-weight="600">${m.tag}</text>`;
+  }).join("");
+  const rx = 300;
+  let ruler = `<line x1="${rx}" x2="${rx}" y1="${y0}" y2="${y0 + 20 * p}" style="stroke:var(--ink-2)" stroke-width="1"/>`;
+  for (let i = 0; i <= 20; i++) {
+    const y = y0 + i * p;
+    ruler += `<line x1="${rx}" x2="${rx + (i % 2 ? 4 : 8)}" y1="${y}" y2="${y}" style="stroke:var(--ink-2)" stroke-width="1"/>`;
+    if (i % 2 === 0) ruler += `<text x="${rx + 11}" y="${y + 3.5}" style="fill:var(--ink-2)" font-size="9.5" font-variant-numeric="tabular-nums">${i}″</text>`;
+  }
+  const by = pick.B[1];
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="A ${L} inch poth on a ${ftin(h)} woman: ${phSpot(L, h).en}">
+    <defs><linearGradient id="phGold" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" style="stop-color:var(--metal-a)"/><stop offset=".5" style="stop-color:var(--metal-b)"/><stop offset="1" style="stop-color:var(--metal-c)"/></linearGradient></defs>
+    <path d="${body}" style="fill:var(--panel-2);stroke:var(--line-2)" stroke-width="1.2"/>
+    ${marks}${faint}
+    <path d="${pick.d}" fill="none" style="stroke:var(--bead-b)" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="1.5 4"/>
+    <path d="${pick.d}" fill="none" stroke="url(#phGold)" stroke-width="2.4"/>
+    <line x1="${cx}" x2="${cx}" y1="${by}" y2="${by + 5}" style="stroke:var(--metal-c)" stroke-width="1.4"/>
+    <circle cx="${cx}" cy="${by + 12}" r="7.5" fill="url(#phGold)" style="stroke:var(--metal-c)" stroke-width="1"/>
+    <circle cx="${cx}" cy="${by + 12}" r="2.2" style="fill:var(--accent)"/>
+    <text x="${cx + 14}" y="${by + 16}" style="fill:var(--accent)" font-size="13" font-weight="700">${L}″</text>
+    <text x="${rx - 4}" y="${y0 - 10}" text-anchor="middle" style="fill:var(--ink-2)" font-size="8.5" letter-spacing=".08em">FROM NECK</text>
+    ${ruler}
+    <text x="${cx}" y="16" text-anchor="middle" style="fill:var(--ink-2)" font-size="11" font-weight="700" letter-spacing=".1em">HEIGHT ${ftin(h)}</text>
+  </svg>`;
+}
+
+function phSay(h, L){
+  const sp = phSpot(L, h), st = phStyle(L);
+  return `At <b>${ftin(h)}</b>, ${L === 18 ? "an" : "a"} <b>${L}″ poth</b> sits: <b>${sp.en.toLowerCase()}</b>.
+    <span class="mr">${L} इंच पोथ — ${sp.mr}</span>
+    <small>${st[2]} — ${st[3]}. The wati adds 1–2½″ to where it ends. ${L}″ will be picked for you at checkout.</small>`;
+}
+
+function phRows(h, L){
+  const shelves = catsInUse().map(c => c.slug);
+  return POTH.map(n => {
+    const st = phStyle(n);
+    const links = st[4].filter(s => shelves.includes(s))
+      .map(s => `<a href="#/shop?c=${encodeURIComponent(s)}">${esc(catName(s).en)}</a>`).join(" · ");
+    return `<tr data-len="${n}" class="${n === L ? "on" : ""}"><td class="n">${n}″<br><span class="muted" style="font-weight:400">${Math.round(n * 2.54)} cm</span></td>
+      <td>${phSpot(n, h).en}</td><td><b style="font-weight:600">${st[2]}</b><br>${st[3]}${links ? `<br>${links}` : ""}</td></tr>`;
+  }).join("");
+}
+
+/* The whole chart, every height group at once, for anyone who wants to compare. */
+function phFull(h){
+  const g = phGroup(h);
+  return `<table><thead><tr><th>Length</th>${PH_GROUPS.map((_, i) =>
+      `<th${i === g ? ' class="on"' : ""}>${phGroupName(i)}</th>`).join("")}</tr></thead>
+    <tbody>${POTH.map(n => `<tr><td class="n">${n}″</td>${PH_CHART[n].map((k, i) =>
+      `<td${i === g ? ' class="on"' : ""}>${PH_SPOT[k].en}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+
+function pothPage(){
+  return `
+  <div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">पोथ लांबी</span>
+    <h1>Which poth length suits you?</h1>
+    <p class="muted">Pick your height, then a length. The picture and the chart show where it sits, from the neck down.</p></div>
+  <div class="wrap poth">
+    <div class="fig" id="phFig">${phFigure(PH.h, PH.L)}</div>
+    <div class="ctl">
+      <div class="field" style="max-width:300px">
+        <label for="phH">Your height</label>
+        <select id="phH">${PH_HEIGHTS.map(h => `<option value="${h}" ${h === PH.h ? "selected" : ""}>${ftin(h)} · ${Math.round(h * 2.54)} cm</option>`).join("")}</select>
+      </div>
+      <div>
+        <div class="lab" id="phLensLab">Poth length</div>
+        <div class="lens" id="phLens" role="group" aria-labelledby="phLensLab">${POTH.map(n =>
+          `<button type="button" class="chip${n === PH.L ? " on" : ""}" data-len="${n}" aria-pressed="${n === PH.L}">${n}″</button>`).join("")}</div>
+      </div>
+      <div class="say" id="phSay" aria-live="polite">${phSay(PH.h, PH.L)}</div>
+      <div class="lab" id="phGroupLab" style="margin-bottom:-8px">For heights ${phGroupName(phGroup(PH.h))}</div>
+      <div class="pothtab"><table>
+        <thead><tr><th>Length</th><th>Where it sits</th><th>Style · good for</th></tr></thead>
+        <tbody id="phRows">${phRows(PH.h, PH.L)}</tbody>
+      </table></div>
+      <details class="phmore">
+        <summary>See the full chart — all heights</summary>
+        <div class="pothtab" id="phFull" style="margin-top:12px">${phFull(PH.h)}</div>
+      </details>
+      <div class="tip muted">
+        <p style="margin:0 0 8px"><b style="color:var(--ink)">Good to know</b></p>
+        <ul style="margin:0;padding-left:18px;display:grid;gap:6px">
+          <li><b style="color:var(--ink)">Neck size:</b> a wider neck makes it sit a little higher — about ½″ for every inch of neck over 14″.</li>
+          <li><b style="color:var(--ink)">The wati or pendant</b> adds to where it ends: a small pendant about ½″, a wati or tanmaniya 1–1½″, a heavy bridal pendant 2″ or more.</li>
+          <li><b style="color:var(--ink)">With a saree:</b> to frame the blouse neckline, 24–26″ suits 5′0″–5′5″; from 5′6″ up, 26–28″.</li>
+          <li><b style="color:var(--ink)">Measuring at home:</b> put a thread round your neck, let both ends fall to where you want the wati, and pinch them together there. That length of thread is your poth length.</li>
+        </ul>
+      </div>
+      <div><a class="btn ghost" id="phWa" href="#" target="_blank" rel="noopener">${WA_ICON_BTN} Ask us on WhatsApp</a></div>
+    </div>
+  </div>`;
+}
+
+function wirePoth(){
+  if (!$("#phH")) return;          // still the loading skeleton
+  const paint = () => {
+    $("#phFig").innerHTML = phFigure(PH.h, PH.L);
+    $("#phSay").innerHTML = phSay(PH.h, PH.L);
+    $("#phRows").innerHTML = phRows(PH.h, PH.L);
+    $("#phFull").innerHTML = phFull(PH.h);
+    $("#phGroupLab").textContent = `For heights ${phGroupName(phGroup(PH.h))}`;
+    document.querySelectorAll("#phLens [data-len]").forEach(b => {
+      const on = Number(b.dataset.len) === PH.L;
+      b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+    });
+    $("#phWa").href = waLink(`Hi The Qala! My height is ${ftin(PH.h)}. Is a ${PH.L} inch poth right for me?`);
+    try { localStorage.setItem("qala.poth", JSON.stringify(PH)); } catch (e) {}
+  };
+  const pick = n => { PH.L = n; BUYER.poth = String(n); saveBuyer(); paint(); };
+  $("#phH").onchange = e => { PH.h = Number(e.target.value); paint(); };
+  $("#phLens").onclick = e => { const b = e.target.closest("[data-len]"); if (b) pick(Number(b.dataset.len)); };
+  $("#phRows").onclick = e => {
+    if (e.target.closest("a")) return;
+    const r = e.target.closest("tr[data-len]"); if (r) pick(Number(r.dataset.len));
+  };
+  paint();
+}
 
 function page(mr, title, body){
   return `<div class="wrap pagehead"><span class="mr" style="font-size:1.3rem;color:var(--accent)">${mr}</span><h1>${esc(title)}</h1></div>
@@ -3499,6 +3768,7 @@ async function freshenStock(){
 const PAGE_TITLES = {
   contact:  "Contact us",
   story:    "Our story",
+  poth:     "Poth length guide",
   care:     "Care & polish",
   shipping: "Shipping & cash on delivery",
   returns:  "Returns & damage",
@@ -3732,6 +4002,7 @@ function render(){
   else if (r === "placed") html = placedView();
   else if (r === "paid")   html = paidView();
   else if (r === "pune") html = punePage();
+  else if (r === "poth") html = pothPage();
   else if (PAGES[r]) html = PAGES[r]();
   else html = notFound();
 
@@ -4165,6 +4436,8 @@ function wire(route){
     };
   }
 
+  if (route === "poth") wirePoth();
+
   if (route === "shop") {
     document.querySelectorAll("[data-nav]").forEach(el => { el.onchange = () => { location.hash = el.dataset.nav; }; });
     const sel = $("#sortSel");
@@ -4340,7 +4613,7 @@ function paintNav(){
       + `<div class="dropmenu"><a href="#/shop">Shop all</a>`
       + cats.map(c => `<a href="#/shop?c=${encodeURIComponent(c.slug)}">${esc(catName(c.slug).en)}</a>`).join("")
       + `</div></div>`
-      + `<a href="#/story">Our Story</a><a href="#/contact">Contact</a>`
+      + `<a href="#/poth">Poth guide</a><a href="#/story">Our Story</a><a href="#/contact">Contact</a>`
       + `<a href="/my/">Track order</a>`;
     const box = nav.querySelector(".navshop"), btn = nav.querySelector(".navdrop");
     const set = open => { box.classList.toggle("open", open); btn.setAttribute("aria-expanded", open ? "true" : "false"); };
