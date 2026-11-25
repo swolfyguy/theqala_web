@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T17:21:12Z",
+ "generated": "2026-11-25T17:41:10Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -5482,15 +5482,15 @@
     {
      "n": 4,
      "code": "RANI-HAAR-04",
-     "folder": "photos/rani-haar/1200 (4)",
+     "folder": "photos/rani-haar/1400 Rani Haar — Round Pendant",
      "title": "Rani Haar — Round Pendant",
-     "price": 1200,
+     "price": 1400,
      "band": {
       "min": 1000,
       "max": 2000
      },
      "images": [
-      "photos/rani-haar/1200 (4)/1.jpg"
+      "photos/rani-haar/1400 Rani Haar — Round Pendant/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
@@ -5556,7 +5556,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 40
+      "pct": 30
      },
      "about": {
       "en": "A long rani haar of gold-tone beads ending in a big round filigree pendant, with a pair of matching earrings. It sits low on the chest — for weddings, receptions and the big festival days.",
@@ -5584,7 +5584,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 40
+      "pct": 30
      },
      "about": {
       "en": "A long rani haar of gold-tone beads ending in a big diamond-shaped pendant, with a pair of matching earrings. It sits low on the chest — for weddings, receptions and the big festival days.",
@@ -5612,7 +5612,7 @@
      },
      "colors": {},
      "offer": {
-      "pct": 40
+      "pct": 30
      },
      "about": {
       "en": "A long rani haar of gold-tone beads ending in a big diamond-shaped pendant, with a pair of matching earrings. It sits low on the chest — for weddings, receptions and the big festival days.",
