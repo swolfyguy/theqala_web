@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T18:01:09Z",
+ "generated": "2026-11-25T18:05:05Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -475,7 +475,7 @@
   {
    "slug": "double-wati-rajwadi-handmade",
    "cover": null,
-   "next": 78,
+   "next": 82,
    "products": [
     {
      "n": 69,
@@ -1813,6 +1813,106 @@
      },
      "images": [
       "photos/double-wati-rajwadi-handmade/1600 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 78,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-78",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (9)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 79,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-79",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (10)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (10)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 80,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-80",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (11)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (11)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 81,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-81",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (12)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (12)/1.jpg"
      ],
      "video": null,
      "videoPoster": null,
@@ -3740,7 +3840,7 @@
   {
    "slug": "necklace",
    "cover": null,
-   "next": 43,
+   "next": 49,
    "products": [
     {
      "n": 41,
@@ -4121,6 +4221,144 @@
       "en": "A broad antique-gold choker with a kundan at the centre, tied at the back with an adjustable dori so it fits any neck, and a pair of matching jhumkas. For weddings, receptions and festival days. Length: 24 inches.",
       "mr": "अँटिक सोनेरी रुंद चोकर, मध्यभागी कुंदन, मागे बांधायला डोरी — कोणत्याही गळ्याला बसतो — आणि सोबत जुळणारे झुमके. लग्न, रिसेप्शन आणि सणांसाठी. लांबी: 24 इंच."
      }
+    },
+    {
+     "n": 43,
+     "code": "NECKLACE-43",
+     "folder": "photos/necklace/2000",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 44,
+     "code": "NECKLACE-44",
+     "folder": "photos/necklace/2000 (2)",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 45,
+     "code": "NECKLACE-45",
+     "folder": "photos/necklace/2000 (3)",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 46,
+     "code": "NECKLACE-46",
+     "folder": "photos/necklace/2000 (4)",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 47,
+     "code": "NECKLACE-47",
+     "folder": "photos/necklace/2000 (5)",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 48,
+     "code": "NECKLACE-48",
+     "folder": "photos/necklace/2000 (6)",
+     "title": "",
+     "price": 2000,
+     "band": {
+      "min": 2000,
+      "max": 3000
+     },
+     "images": [
+      "photos/necklace/2000 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
     }
    ]
   },
