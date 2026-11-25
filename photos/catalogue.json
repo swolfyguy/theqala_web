@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T17:41:10Z",
+ "generated": "2026-11-25T18:01:09Z",
  "version": 2,
  "hero": {
   "image": "photos/hero.jpg",
@@ -475,8 +475,58 @@
   {
    "slug": "double-wati-rajwadi-handmade",
    "cover": null,
-   "next": 61,
+   "next": 78,
    "products": [
+    {
+     "n": 69,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-69",
+     "folder": "photos/double-wati-rajwadi-handmade/1100",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1100/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 70,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-70",
+     "folder": "photos/double-wati-rajwadi-handmade/1100 (2)",
+     "title": "",
+     "price": 1100,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1100 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
     {
      "n": 25,
      "code": "DOUBLE-WATI-RAJWADI-HANDMADE-25",
@@ -1400,6 +1450,381 @@
       "en": "A two-line mangalsutra: black beads at the back, rows of gold-tone beads at the front, and a pair of round kundan-style watis set with emerald-green and pink stones at the centre. The double wati is the classic Maharashtrian mangalsutra — the two watis are traditionally said to stand for the two families a marriage joins. Light enough for every day, and right for a puja or a wedding too. Pick your length from 30 to 36 inches when you order.",
       "mr": "दोन सरींचं मंगळसूत्र — मागे काळे मणी, पुढे सोनेरी मण्यांच्या सरी आणि मध्यभागी पाचू-हिरव्या आणि गुलाबी खड्यांनी सजवलेल्या दोन गोल कुंदन वाट्या. दुहेरी वाटीचं मंगळसूत्र हे पारंपरिक महाराष्ट्रीयन मंगळसूत्र — दोन वाट्या म्हणजे लग्नाने जोडलेली दोन घरं, असं मानलं जातं. रोज घालायला हलकं, आणि पूजा-लग्नसमारंभालाही शोभून दिसणारं. ऑर्डर करताना लांबी निवडा — 30 ते 36 इंच."
      }
+    },
+    {
+     "n": 71,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-71",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (4)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 72,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-72",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (5)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 73,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-73",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (6)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 74,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-74",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (7)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 75,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-75",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (8)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 76,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-76",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (9)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (9)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 77,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-77",
+     "folder": "photos/double-wati-rajwadi-handmade/1500 (10)",
+     "title": "",
+     "price": 1500,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1500 (10)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 61,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-61",
+     "folder": "photos/double-wati-rajwadi-handmade/1600",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 62,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-62",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (2)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (2)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 63,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-63",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (3)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (3)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 64,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-64",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (4)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (4)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 65,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-65",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (5)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (5)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 66,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-66",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (6)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (6)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 67,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-67",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (7)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (7)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
+    },
+    {
+     "n": 68,
+     "code": "DOUBLE-WATI-RAJWADI-HANDMADE-68",
+     "folder": "photos/double-wati-rajwadi-handmade/1600 (8)",
+     "title": "",
+     "price": 1600,
+     "band": {
+      "min": 1000,
+      "max": 2000
+     },
+     "images": [
+      "photos/double-wati-rajwadi-handmade/1600 (8)/1.jpg"
+     ],
+     "video": null,
+     "videoPoster": null,
+     "sizes": {
+      "min": 24,
+      "max": 36,
+      "qty": 1,
+      "cod": true
+     },
+     "colors": {},
+     "offer": null,
+     "about": {}
     },
     {
      "n": 18,
